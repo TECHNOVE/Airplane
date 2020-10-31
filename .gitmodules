@@ -1,0 +1,3 @@
+[submodule "Tuinity"]
+	path = Tuinity
+	url = git@github.com:Spottedleaf/Tuinity.git
