@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Sun, 1 Nov 2020 16:59:08 -0600
+Subject: [PATCH] Swap priority of checks in chunk ticking
+
+World.V showed up a lot in lag spikes for some reason, although I wonder
+if it's just Spark getting JVM safe points.
+
+diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
+index 027fe45e3cb7a2b26236325c4001fd4ffcfd855f..e3def2e722fb3450ea34b268ae1cddd84fc87330 100644
+--- a/src/main/java/net/minecraft/server/WorldServer.java
++++ b/src/main/java/net/minecraft/server/WorldServer.java
+@@ -1037,7 +1037,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+         gameprofilerfiller.enter("thunder");
+         final BlockPosition.MutableBlockPosition blockposition = this.chunkTickMutablePosition; // Paper - use mutable to reduce allocation rate, final to force compile fail on change
+ 
+-        if (!this.paperConfig.disableThunder && flag && this.V() && this.random.nextInt(100000) == 0) { // Paper - Disable thunder
++        if (!this.paperConfig.disableThunder && flag && this.random.nextInt(100000) == 0 && this.V()) { // Paper - Disable thunder // AirplaneL - check this.V last
+             blockposition.setValues(this.a(this.a(j, 0, k, 15))); // Paper
+             if (this.isRainingAt(blockposition)) {
+                 DifficultyDamageScaler difficultydamagescaler = this.getDamageScaler(blockposition);
