@@ -1,0 +1,137 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Sun, 1 Nov 2020 16:45:21 -0600
+Subject: [PATCH] Concurrent visibleChunks and updatingChunks
+
+This is slightly more complicated than the loadedChunkMap change, it
+works by using one map to represent both maps, then when it needs to
+update the visibleChunks it just sets the visible reference to the value
+of the updated one. This provides no copies, while also allowing
+concurrent access to the map.
+
+An improvement that should be made later is to
+ConcLong2ObjectOpenHashMap's entry set iterator to not make a copy of
+the entire map, because it's used for the visible/updating map values()
+iterator which is used fairly heavily.
+
+diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
+index c72ca2a6ad76f2956350b488b4909495b9d2302e..7084588bc8a7ad79dda23de4ab71703d6dc75f50 100644
+--- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
++++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
+@@ -60,8 +60,11 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+     private static final Logger LOGGER = LogManager.getLogger();
+     public static final int GOLDEN_TICKET = 33 + ChunkStatus.b();
+     // Paper start - faster copying
+-    public final Long2ObjectLinkedOpenHashMap<PlayerChunk> updatingChunks = new com.destroystokyo.paper.util.map.Long2ObjectLinkedOpenHashMapFastCopy<>(); // Paper - faster copying
+-    public final Long2ObjectLinkedOpenHashMap<PlayerChunk> visibleChunks = new ProtectedVisibleChunksMap(); // Paper - faster copying
++    // AirplaneL start - swap for our maps
++    private final gg.airplane.structs.ChunkMapMap internalMap = new gg.airplane.structs.ChunkMapMap();
++    public final Long2ObjectLinkedOpenHashMap<PlayerChunk> updatingChunks = this.internalMap.getUpdatingMap(); // Paper - faster copying
++    public final Long2ObjectLinkedOpenHashMap<PlayerChunk> visibleChunks = this.internalMap.getVisibleMap(); // Paper - faster copying
++    // AirplaneL end
+ 
+     private class ProtectedVisibleChunksMap extends com.destroystokyo.paper.util.map.Long2ObjectLinkedOpenHashMapFastCopy<PlayerChunk> {
+         @Override
+@@ -630,7 +633,10 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+ 
+     @Nullable
+     public PlayerChunk getUpdatingChunk(long i) { // Paper
+-        return (PlayerChunk) this.updatingChunks.get(i);
++        // AirplaneL start
++        gg.airplane.structs.ChunkMapMap.ChunkMapChunk chunk = this.internalMap.get(i);
++        return chunk == null ? null : chunk.updating;
++        // AirplaneL end
+     }
+ 
+     // Paper start - remove cloning of visible chunks unless accessed as a collection async
+@@ -638,6 +644,8 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+     private boolean isIterating = false;
+     private boolean hasPendingVisibleUpdate = false;
+     public void forEachVisibleChunk(java.util.function.Consumer<PlayerChunk> consumer) {
++        // AirplaneL start
++        /*
+         org.spigotmc.AsyncCatcher.catchOp("forEachVisibleChunk");
+         boolean prev = isIterating;
+         isIterating = true;
+@@ -653,8 +661,13 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+                 this.hasPendingVisibleUpdate = false;
+             }
+         }
++         */
++        this.visibleChunks.values().forEach(consumer);
++        // AirplaneL end
+     }
+     public Long2ObjectLinkedOpenHashMap<PlayerChunk> getVisibleChunks() {
++        // AirplaneL start
++        /*
+         if (Thread.currentThread() == this.world.serverThread) {
+             return this.visibleChunks;
+         } else {
+@@ -666,11 +679,16 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+                 return this.visibleChunksClone;
+             }
+         }
++         */
++        return this.visibleChunks;
++        // AirplaneL end
+     }
+     // Paper end
+ 
+     @Nullable
+     public PlayerChunk getVisibleChunk(long i) { // Paper - protected -> public
++        // AirplaneL start
++        /*
+         // Paper start - mt safe get
+         if (Thread.currentThread() != this.world.serverThread) {
+             synchronized (this.visibleChunks) {
+@@ -679,6 +697,10 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+         }
+         return (PlayerChunk) (this.hasPendingVisibleUpdate ? this.pendingVisibleChunks.get(i) : ((ProtectedVisibleChunksMap)this.visibleChunks).safeGet(i));
+         // Paper end
++         */
++        gg.airplane.structs.ChunkMapMap.ChunkMapChunk chunk = this.internalMap.get(i);
++        return chunk == null ? null : chunk.visible;
++        // AirplaneL end
+     }
+ 
+     protected final IntSupplier getPrioritySupplier(long i) { return c(i); } // Paper - OBFHELPER
+@@ -801,7 +823,10 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+                     //this.dataRegionManager.addChunk(playerchunk.location.x, playerchunk.location.z); // Tuinity
+                 }
+ 
+-                this.updatingChunks.put(i, playerchunk);
++                // AirplaneL start
++                this.internalMap.addUpdatingChunk(i, playerchunk);
++                //this.updatingChunks.put(i, playerchunk);
++                // AirplaneL end
+                 this.updatingChunksModified = true;
+             }
+ 
+@@ -954,7 +979,7 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+         while (longiterator.hasNext()) { // Spigot
+             long j = longiterator.nextLong();
+             longiterator.remove(); // Spigot
+-            PlayerChunk playerchunk = (PlayerChunk) this.updatingChunks.remove(j);
++            PlayerChunk playerchunk = (PlayerChunk) this.internalMap.removeUpdatingChunk(j); // AirplaneL
+ 
+             if (playerchunk != null) {
+                 this.pendingUnload.put(j, playerchunk);
+@@ -1096,6 +1121,8 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+         if (!this.updatingChunksModified) {
+             return false;
+         } else {
++            // AirplaneL start
++            /*
+             // Paper start - stop cloning visibleChunks
+             synchronized (this.visibleChunks) {
+                 if (isIterating) {
+@@ -1109,6 +1136,9 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+                 }
+             }
+             // Paper end
++             */
++            this.internalMap.transfer();
++            // AirplaneL end
+ 
+             this.updatingChunksModified = false;
+             return true;
