@@ -1,0 +1,66 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Sat, 31 Oct 2020 19:03:25 -0500
+Subject: [PATCH] Queue lighting update only once
+
+
+diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
+index b74ff6b9f39cb64d2e7bfa052eb04e276f1f35b6..f276bd63056e0c5b1083a3c89cade21b8af74e2b 100644
+--- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
++++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
+@@ -1007,6 +1007,7 @@ public class ChunkProviderServer extends IChunkProvider {
+             // Paper - moved up
+             // Tuinity start - optimise chunk tick iteration
+             com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet.Iterator<Chunk> iterator = this.entityTickingChunks.iterator();
++            boolean updateLighting = false; // AirplaneL
+             try {
+             while (iterator.hasNext()) {
+                 Chunk chunk = iterator.next();
+@@ -1031,7 +1032,7 @@ public class ChunkProviderServer extends IChunkProvider {
+                             }
+ 
+                             this.world.timings.chunkTicks.startTiming(); // Spigot // Paper
+-                            this.world.a(chunk, k);
++                            if (this.world.abool(chunk, k)) updateLighting = true; // AirplaneL
+                             this.world.timings.chunkTicks.stopTiming(); // Spigot // Paper
+                             MinecraftServer.getServer().executeMidTickTasks(); // Tuinity - exec chunk tasks during world tick
+                         }
+@@ -1041,6 +1042,7 @@ public class ChunkProviderServer extends IChunkProvider {
+             } finally {
+                 iterator.finishedIterating();
+             }
++            if (updateLighting) this.getLightEngine().queueUpdate(); // AirplaneL
+             // Tuinity end - optimise chunk tick iteration
+             this.world.getMethodProfiler().enter("customSpawners");
+             if (flag1) {
+diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
+index 215789b7621d9b26c4aed128a13d8864e5502bab..027fe45e3cb7a2b26236325c4001fd4ffcfd855f 100644
+--- a/src/main/java/net/minecraft/server/WorldServer.java
++++ b/src/main/java/net/minecraft/server/WorldServer.java
+@@ -1024,7 +1024,10 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+     private final com.destroystokyo.paper.util.math.ThreadUnsafeRandom randomTickRandom = new com.destroystokyo.paper.util.math.ThreadUnsafeRandom();
+     // Paper end
+ 
+-    public void a(Chunk chunk, int i) { final int randomTickSpeed = i; // Paper
++    // AirplaneL start - create version of chunk tick that returns a bool for updating lighting
++    public void a(Chunk chunk, int i) { this.abool(chunk, i); }
++    public boolean abool(Chunk chunk, int i) { final int randomTickSpeed = i; // Paper
++        // AirplaneL end
+         ChunkCoordIntPair chunkcoordintpair = chunk.getPos();
+         boolean flag = this.isRaining();
+         int j = chunkcoordintpair.d();
+@@ -1127,9 +1130,13 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+             }
+             gameprofilerfiller.exit();
+             timings.chunkTicksBlocks.stopTiming(); // Paper
+-            getChunkProvider().getLightEngine().queueUpdate(); // Paper
++            // AirplaneL start
++            //getChunkProvider().getLightEngine().queueUpdate(); // Paper
++            return true;
++            // AirplaneL end
+             // Paper end
+         }
++        return false; // AirplaneL
+     }
+ 
+     protected BlockPosition a(BlockPosition blockposition) {
