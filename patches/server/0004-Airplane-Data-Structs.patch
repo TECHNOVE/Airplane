@@ -1,0 +1,246 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Sat, 31 Oct 2020 19:32:26 -0500
+Subject: [PATCH] Airplane Data Structs
+
+
+diff --git a/src/main/java/gg/airplane/structs/ConcLong2ObjectOpenHashMap.java b/src/main/java/gg/airplane/structs/ConcLong2ObjectOpenHashMap.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..4ca2f6f46b6502e0aaaaf2206734ccc786467c28
+--- /dev/null
++++ b/src/main/java/gg/airplane/structs/ConcLong2ObjectOpenHashMap.java
+@@ -0,0 +1,234 @@
++package gg.airplane.structs;
++
++import it.unimi.dsi.fastutil.HashCommon;
++import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
++import it.unimi.dsi.fastutil.longs.LongSet;
++import it.unimi.dsi.fastutil.objects.ObjectCollection;
++
++import java.util.Map;
++import java.util.function.BiFunction;
++import java.util.function.LongConsumer;
++import java.util.function.LongFunction;
++
++public class ConcLong2ObjectOpenHashMap<V> extends Long2ObjectOpenHashMap<V> {
++    private static class LongBucket<V> {
++        private final Long2ObjectOpenHashMap<V> internal;
++
++        public LongBucket(int expectedSize, float capacity) {
++            this.internal = new Long2ObjectOpenHashMap<>(expectedSize, capacity);
++        }
++
++        public synchronized final V put(long key, V value) {
++            return this.internal.put(key, value);
++        }
++
++        public synchronized final V putIfAbsent(long key, V value) {
++            return this.internal.putIfAbsent(key, value);
++        }
++
++        public synchronized final V remove(long key) {
++            return this.internal.remove(key);
++        }
++
++        public synchronized final V get(long key) {
++            return this.internal.get(key);
++        }
++
++        public synchronized final boolean containsKey(long key) {
++            return this.internal.containsKey(key);
++        }
++
++        public synchronized final void forEach(ConsumeFunction<V> consumer) {
++            LongSet longs = this.internal.keySet();
++            longs.forEach((LongConsumer) l -> {
++                consumer.consume(l, this.internal.get(l));
++            });
++        }
++
++        public synchronized final V compute(long key, BiFunction<? super Long, ? super V, ? extends V> remappingFunction) {
++            return this.internal.compute(key, remappingFunction);
++        }
++
++        public final int size() {
++            return this.internal.size();
++        }
++
++        public synchronized final void clear() {
++            this.internal.clear();
++        }
++
++        @Override
++        public synchronized int hashCode() {
++            return this.internal.hashCode();
++        }
++    }
++
++    private final int bucketCount = HashCommon.nextPowerOfTwo(Runtime.getRuntime().availableProcessors() * 4); // todo need to redo tests on different processors
++    private final int mask = this.bucketCount - 1;
++    private final LongBucket<V>[] buckets = new LongBucket[this.bucketCount];
++
++    public ConcLong2ObjectOpenHashMap() {
++        this(16, 0.75f);
++    }
++
++    public ConcLong2ObjectOpenHashMap(int expectedSize, float capacity) {
++        for (int i = 0; i < this.bucketCount; i++) {
++            this.buckets[i] = new LongBucket<>(expectedSize, capacity);
++        }
++    }
++
++    @Override
++    public final V put(long key, V value) {
++        return this.buckets[(int) Math.abs(HashCommon.mix(key) & this.mask)].put(key, value);
++    }
++
++    @Override
++    public final V putIfAbsent(long key, V value) {
++        return this.buckets[(int) Math.abs(HashCommon.mix(key) & this.mask)].putIfAbsent(key, value);
++    }
++
++    @Override
++    public final V remove(long key) {
++        return this.buckets[(int) Math.abs(HashCommon.mix(key) & this.mask)].remove(key);
++    }
++
++    @Override
++    public final V get(long key) {
++        return this.buckets[(int) Math.abs(HashCommon.mix(key) & this.mask)].get(key);
++    }
++
++    @Override
++    public final boolean containsKey(long key) {
++        return this.buckets[(int) Math.abs(HashCommon.mix(key) & this.mask)].containsKey(key);
++    }
++
++    public interface ConsumeFunction<V> {
++        void consume(long key, V value);
++    }
++
++    public final void forEach(ConsumeFunction<V> consumer) {
++        for (int i = 0; i < this.bucketCount; i++) {
++            this.buckets[i].forEach(consumer);
++        }
++    }
++
++    @Override
++    public final V compute(long key, BiFunction<? super Long, ? super V, ? extends V> remappingFunction) {
++        return this.buckets[(int) Math.abs(HashCommon.mix(key) & this.mask)].compute(key, remappingFunction);
++    }
++
++    @Override
++    public final int size() {
++        int size = 0;
++        for (int i = 0; i < this.bucketCount; i++) {
++            size += this.buckets[i].size();
++        }
++        return size;
++    }
++
++    @Override
++    public final boolean isEmpty() {
++        return this.size() == 0;
++    }
++
++    @Override
++    public void putAll(Map<? extends Long, ? extends V> m) {
++        for (Map.Entry<? extends Long, ? extends V> entry : m.entrySet()) {
++            this.put(entry.getKey(), entry.getValue());
++        }
++    }
++
++    @Override
++    public boolean containsValue(Object v) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public V getOrDefault(long k, V defaultValue) {
++        if (!this.containsKey(k)) {
++            return defaultValue;
++        }
++        return this.get(k);
++    }
++
++    @Override
++    public boolean remove(long k, Object v) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public boolean replace(long k, V oldValue, V v) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public V replace(long k, V v) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public V computeIfAbsent(long k, LongFunction<? extends V> mappingFunction) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public V computeIfPresent(long k, BiFunction<? super Long, ? super V, ? extends V> remappingFunction) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public V merge(long k, V v, BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public void clear() {
++        for (int i = 0; i < this.bucketCount; i++) {
++            this.buckets[i].clear();
++        }
++    }
++
++    @Override
++    public FastEntrySet<V> long2ObjectEntrySet() {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public LongSet keySet() {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public ObjectCollection<V> values() {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public boolean trim() {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public boolean trim(int n) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    protected void rehash(int newN) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public Long2ObjectOpenHashMap<V> clone() {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public int hashCode() {
++        int code = 0;
++        for (int i = 0; i < this.bucketCount; i++) {
++            code ^= this.buckets[i].hashCode();
++        }
++        return code;
++    }
++}

@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Sat, 31 Oct 2020 19:22:37 -0500
+Subject: [PATCH] Use unmodifiableMap instead of making copy
+
+
+diff --git a/src/main/java/net/minecraft/server/LootTableInfo.java b/src/main/java/net/minecraft/server/LootTableInfo.java
+index 4f4e2b456b4ea54fca612657e476293a096683a9..fa859ec8d9da7899c7896cba7729900ac231d96a 100644
+--- a/src/main/java/net/minecraft/server/LootTableInfo.java
++++ b/src/main/java/net/minecraft/server/LootTableInfo.java
+@@ -34,8 +34,8 @@ public class LootTableInfo {
+         this.world = worldserver;
+         this.d = function;
+         this.f = function1;
+-        this.h = ImmutableMap.copyOf(map);
+-        this.i = ImmutableMap.copyOf(map1);
++        this.h = java.util.Collections.unmodifiableMap(map); // AirplaneL
++        this.i = java.util.Collections.unmodifiableMap(map1); // AirplaneL
+     }
+ 
+     public boolean hasContextParameter(LootContextParameter<?> lootcontextparameter) {

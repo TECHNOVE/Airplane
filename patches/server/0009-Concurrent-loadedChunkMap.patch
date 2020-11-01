@@ -1,0 +1,240 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Sat, 31 Oct 2020 19:41:11 -0500
+Subject: [PATCH] Concurrent loadedChunkMap
+
+This patch allows multithreaded code to take advantage of the
+loadedChunkMap, instead of having to wait on the main thread
+to retrieve the chunk or wait on a lock.
+
+diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
+index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f32b72f7af 100644
+--- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
++++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
+@@ -49,7 +49,7 @@ public class ChunkProviderServer extends IChunkProvider {
+     private SpawnerCreature.d p;
+     // Paper start
+     final com.destroystokyo.paper.util.concurrent.WeakSeqLock loadedChunkMapSeqLock = new com.destroystokyo.paper.util.concurrent.WeakSeqLock();
+-    final Long2ObjectOpenHashMap<Chunk> loadedChunkMap = new Long2ObjectOpenHashMap<>(8192, 0.5f);
++    final Long2ObjectOpenHashMap<Chunk> loadedChunkMap = new gg.airplane.structs.ConcLong2ObjectOpenHashMap<>(8192, 0.5f); // AirplaneL
+ 
+     private final Chunk[] lastLoadedChunks = new Chunk[4 * 4];
+     private final long[] lastLoadedChunkKeys = new long[4 * 4];
+@@ -63,13 +63,15 @@ public class ChunkProviderServer extends IChunkProvider {
+     }
+ 
+     void addLoadedChunk(Chunk chunk) {
+-        this.loadedChunkMapSeqLock.acquireWrite();
++        //this.loadedChunkMapSeqLock.acquireWrite(); // AirplaneL - unneeded
+         try {
+             this.loadedChunkMap.put(chunk.coordinateKey, chunk);
+         } finally {
+-            this.loadedChunkMapSeqLock.releaseWrite();
++            //this.loadedChunkMapSeqLock.releaseWrite(); // AirplaneL
+         }
+ 
++        // AirplaneL start - this isn't very useful
++        /*
+         // rewrite cache if we have to
+         // we do this since we also cache null chunks
+         int cacheKey = getCacheKey(chunk.getPos().x, chunk.getPos().z);
+@@ -78,16 +80,20 @@ public class ChunkProviderServer extends IChunkProvider {
+         if (cachedKey == chunk.coordinateKey) {
+             this.lastLoadedChunks[cacheKey] = chunk;
+         }
++         */
++        // AirplaneL end
+     }
+ 
+     void removeLoadedChunk(Chunk chunk) {
+-        this.loadedChunkMapSeqLock.acquireWrite();
++        //this.loadedChunkMapSeqLock.acquireWrite(); // AirplaneL - unneeded
+         try {
+             this.loadedChunkMap.remove(chunk.coordinateKey);
+         } finally {
+-            this.loadedChunkMapSeqLock.releaseWrite();
++            //this.loadedChunkMapSeqLock.releaseWrite(); // AirplaneL
+         }
+ 
++        // AirplaneL start - this isn't very useful
++        /*
+         // rewrite cache if we have to
+         // we do this since we also cache null chunks
+         int cacheKey = getCacheKey(chunk.getPos().x, chunk.getPos().z);
+@@ -96,9 +102,13 @@ public class ChunkProviderServer extends IChunkProvider {
+         if (cachedKey == chunk.coordinateKey) {
+             this.lastLoadedChunks[cacheKey] = null;
+         }
++         */
++        // AirplaneL end
+     }
+ 
+     public Chunk getChunkAtIfLoadedMainThread(int x, int z) {
++        // AirplaneL start
++        /*
+         int cacheKey = getCacheKey(x, z);
+         long chunkKey = MCUtil.getCoordinateKey(x, z);
+ 
+@@ -113,10 +123,13 @@ public class ChunkProviderServer extends IChunkProvider {
+         this.lastLoadedChunks[cacheKey] = ret;
+ 
+         return ret;
++         */
++        return this.loadedChunkMap.get(((long)z << 32) | (x & 0xFFFFFFFFL));
++        // AirplaneL end
+     }
+ 
+     public Chunk getChunkAtIfLoadedMainThreadNoCache(int x, int z) {
+-        return this.loadedChunkMap.get(MCUtil.getCoordinateKey(x, z));
++        return this.loadedChunkMap.get(((long)z << 32) | (x & 0xFFFFFFFFL)); // AirplaneL - inline MCUtil.getCoordinateKey
+     }
+ 
+     public Chunk getChunkAtMainThread(int x, int z) {
+@@ -418,6 +431,8 @@ public class ChunkProviderServer extends IChunkProvider {
+     }
+ 
+     private void a(long i, IChunkAccess ichunkaccess, ChunkStatus chunkstatus) {
++        // AirplaneL start
++        /*
+         for (int j = 3; j > 0; --j) {
+             this.cachePos[j] = this.cachePos[j - 1];
+             this.cacheStatus[j] = this.cacheStatus[j - 1];
+@@ -427,6 +442,8 @@ public class ChunkProviderServer extends IChunkProvider {
+         this.cachePos[0] = i;
+         this.cacheStatus[0] = chunkstatus;
+         this.cacheChunk[0] = ichunkaccess;
++         */
++        // AirplaneL end
+     }
+ 
+     // Paper start - "real" get chunk if loaded
+@@ -447,6 +464,8 @@ public class ChunkProviderServer extends IChunkProvider {
+ 
+     @Nullable
+     public Chunk getChunkAtIfLoadedImmediately(int x, int z) {
++        // AirplaneL start
++        /*
+         long k = ChunkCoordIntPair.pair(x, z);
+ 
+         if (Thread.currentThread() == this.serverThread) {
+@@ -469,6 +488,9 @@ public class ChunkProviderServer extends IChunkProvider {
+         } while (!this.loadedChunkMapSeqLock.tryReleaseRead(readlock));
+ 
+         return ret;
++         */
++        return this.loadedChunkMap.get(((long)z << 32) | (x & 0xFFFFFFFFL));
++        // AirplaneL end
+     }
+ 
+     @Nullable
+@@ -514,6 +536,8 @@ public class ChunkProviderServer extends IChunkProvider {
+ 
+         IChunkAccess ichunkaccess;
+ 
++        // AirplaneL start
++        /*
+         // try cache
+         for (int l = 0; l < 4; ++l) {
+             if (k == this.cachePos[l] && ChunkStatus.FULL == this.cacheStatus[l]) {
+@@ -536,6 +560,8 @@ public class ChunkProviderServer extends IChunkProvider {
+                 }
+             }
+         }
++         */
++        // AirplaneL end
+ 
+         if (gen) {
+             return this.bringToFullStatusAsync(x, z, chunkPos, isUrgent);
+@@ -637,17 +663,27 @@ public class ChunkProviderServer extends IChunkProvider {
+     @Override
+     public IChunkAccess getChunkAt(int i, int j, ChunkStatus chunkstatus, boolean flag) {
+         final int x = i; final int z = j; // Paper - conflict on variable change
++        // AirplaneL start - this is now concurrent, so give fast returns for other threads if it's loaded
++        Chunk ifLoaded = this.getChunkAtIfLoadedMainThread(i, j);
++        if (ifLoaded != null) {
++            return ifLoaded;
++        }
++        // AirplaneL end
+         if (Thread.currentThread() != this.serverThread) {
+             return (IChunkAccess) CompletableFuture.supplyAsync(() -> {
+                 return this.getChunkAt(i, j, chunkstatus, flag);
+             }, this.serverThreadQueue).join();
+         } else {
++            // AirplaneL start - moved up
++            /*
+             // Paper start - optimise for loaded chunks
+             Chunk ifLoaded = this.getChunkAtIfLoadedMainThread(i, j);
+             if (ifLoaded != null) {
+                 return ifLoaded;
+             }
+             // Paper end
++             */
++            // AirplaneL end
+             GameProfilerFiller gameprofilerfiller = this.world.getMethodProfiler();
+ 
+             gameprofilerfiller.c("getChunk");
+@@ -655,6 +691,8 @@ public class ChunkProviderServer extends IChunkProvider {
+ 
+             IChunkAccess ichunkaccess;
+ 
++            // AirplaneL start
++            /*
+             for (int l = 0; l < 4; ++l) {
+                 if (k == this.cachePos[l] && chunkstatus == this.cacheStatus[l]) {
+                     ichunkaccess = this.cacheChunk[l];
+@@ -663,6 +701,8 @@ public class ChunkProviderServer extends IChunkProvider {
+                     }
+                 }
+             }
++             */
++            // AirplaneL end
+ 
+             gameprofilerfiller.c("getChunkCacheMiss");
+             CompletableFuture<Either<IChunkAccess, PlayerChunk.Failure>> completablefuture = this.getChunkFutureMainThread(i, j, chunkstatus, flag, true); // Paper
+@@ -699,17 +739,23 @@ public class ChunkProviderServer extends IChunkProvider {
+     @Nullable
+     @Override
+     public Chunk a(int i, int j) {
+-        if (Thread.currentThread() != this.serverThread) {
+-            return null;
+-        } else {
++        // AirplaneL start
++//        if (Thread.currentThread() != this.serverThread) {
++//            return null;
++//        } else {
+             return this.getChunkAtIfLoadedMainThread(i, j); // Paper - optimise for loaded chunks
+-        }
++//        }
++        // AirplaneL end
+     }
+ 
+     private void clearCache() {
++        // AirplaneL start
++        /*
+         Arrays.fill(this.cachePos, ChunkCoordIntPair.a);
+         Arrays.fill(this.cacheStatus, (Object) null);
+         Arrays.fill(this.cacheChunk, (Object) null);
++         */
++        // AirplaneL end
+     }
+ 
+     private long syncLoadCounter; // Tuinity - prevent plugin unloads from removing our ticket
+diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
+index 4074e756dcd3988de8086eda57f5876a3c38ac46..7dcf7f978bcaf6e25b912ee110ab251ed5a72f1a 100644
+--- a/src/main/java/net/minecraft/server/World.java
++++ b/src/main/java/net/minecraft/server/World.java
+@@ -368,12 +368,12 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
+     public final Chunk getChunkAt(int i, int j) { // Paper - final to help inline
+         // Tuinity start - make sure loaded chunks get the inlined variant of this function
+         ChunkProviderServer cps = ((WorldServer)this).chunkProvider;
+-        if (cps.serverThread == Thread.currentThread()) {
++        //if (cps.serverThread == Thread.currentThread()) { // AirplaneL
+             Chunk ifLoaded = cps.getChunkAtIfLoadedMainThread(i, j);
+             if (ifLoaded != null) {
+                 return ifLoaded;
+             }
+-        }
++        //} // AirplaneL
+         // Tuinity end - make sure loaded chunks get the inlined variant of this function
+         return (Chunk) this.getChunkAt(i, j, ChunkStatus.FULL, true); // Paper - avoid a method jump
+     }
