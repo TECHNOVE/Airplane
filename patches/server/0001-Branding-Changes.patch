@@ -5,7 +5,7 @@ Subject: [PATCH] Branding Changes
 
 
 diff --git a/pom.xml b/pom.xml
-index 5e25ae55e44e31d232b088b7c3c39df69b0cc875..a9467c9cf66a4b8c5ee7e8e3c4118b8b495e8595 100644
+index 808ed2eefc1fa2f7de59ab13e03c227931a848ee..31fff5af063f0bc56db216703af75e231360a5da 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -1,10 +1,10 @@
@@ -42,7 +42,7 @@ index 5e25ae55e44e31d232b088b7c3c39df69b0cc875..a9467c9cf66a4b8c5ee7e8e3c4118b8b
              <version>${project.version}</version>
              <scope>compile</scope>
          </dependency>
-@@ -165,7 +165,7 @@
+@@ -175,7 +175,7 @@
  
      <!-- This builds a completely 'ready to start' jar with all dependencies inside -->
      <build>
@@ -51,7 +51,7 @@ index 5e25ae55e44e31d232b088b7c3c39df69b0cc875..a9467c9cf66a4b8c5ee7e8e3c4118b8b
          <defaultGoal>install</defaultGoal> <!-- Paper -->
          <plugins>
              <plugin>
-@@ -173,7 +173,7 @@
+@@ -183,7 +183,7 @@
                  <artifactId>gitdescribe-maven-plugin</artifactId>
                  <version>1.3</version>
                  <configuration>
@@ -76,10 +76,10 @@ index 255bbd6e48b95c70fad02ba692c64c7579496827..1f90439dad440f212b78e746e003ac88
  
          return history != null ? history + "\n" + updateMessage : updateMessage;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index c5a8d6d3fb0e25b4a5913894eaa7dd6b4937fd5d..e8b56c5d5a276a1d648a77354562941c46dc2ec6 100644
+index 65fbc3bb8a9a2874f0e4c27d962f70e63fcacbdd..364be85fed5e92c4f901da1dea7cb7857840f2e8 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1510,7 +1510,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+@@ -1512,7 +1512,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
      }
  
      public String getServerModName() {
