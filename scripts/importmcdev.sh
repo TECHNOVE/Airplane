@@ -67,7 +67,7 @@ function importLibrary {
 (
     cd Tuinity/Tuinity-Server/
     lastlog=$(git log -1 --oneline)
-    if [[ "$lastlog" = *"Airplane-Extra mc-dev Imports"* ]]; then
+    if [[ "$lastlog" = *"AirplaneLite-Extra mc-dev Imports"* ]]; then
         git reset --hard HEAD^
     fi
 )
@@ -113,6 +113,6 @@ done
     cd Tuinity/Tuinity-Server/
     rm -rf nms-patches
     git add src -A
-    echo -e "Airplane-Extra mc-dev Imports\n\n$MODLOG" | git commit src -F -
+    echo -e "AirplaneLite-Extra mc-dev Imports\n\n$MODLOG" | git commit src -F -
     exit 0
 )

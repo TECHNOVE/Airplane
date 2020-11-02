@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Paul Sauve <paul@technove.co>
 Date: Sat, 31 Oct 2020 19:21:42 -0500
-Subject: [PATCH] MC Dev Fixes
+Subject: [PATCH] AirplaneLite MC Dev Fixes
 
 
 diff --git a/src/main/java/net/minecraft/server/LootTableInfo.java b/src/main/java/net/minecraft/server/LootTableInfo.java

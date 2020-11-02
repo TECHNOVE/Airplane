@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Paul Sauve <paul@technove.co>
 Date: Sat, 31 Oct 2020 19:32:26 -0500
-Subject: [PATCH] Airplane Data Structs
+Subject: [PATCH] AirplaneLite Data Structs
 
 
 diff --git a/src/main/java/gg/airplane/structs/ChunkMapMap.java b/src/main/java/gg/airplane/structs/ChunkMapMap.java
