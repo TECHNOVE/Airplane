@@ -5,7 +5,7 @@ Subject: [PATCH] Use unmodifiableMap instead of making copy
 
 
 diff --git a/src/main/java/net/minecraft/server/LootTableInfo.java b/src/main/java/net/minecraft/server/LootTableInfo.java
-index 4f4e2b456b4ea54fca612657e476293a096683a9..fa859ec8d9da7899c7896cba7729900ac231d96a 100644
+index 268147484805e9fff298d2f5006f1c594c485342..1a87d73e116d3662bbc709adaf2ef7e4dd12f865 100644
 --- a/src/main/java/net/minecraft/server/LootTableInfo.java
 +++ b/src/main/java/net/minecraft/server/LootTableInfo.java
 @@ -34,8 +34,8 @@ public class LootTableInfo {
