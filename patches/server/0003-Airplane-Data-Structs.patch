@@ -6,10 +6,10 @@ Subject: [PATCH] Airplane Data Structs
 
 diff --git a/src/main/java/gg/airplane/structs/ChunkMapMap.java b/src/main/java/gg/airplane/structs/ChunkMapMap.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..323ce35a783e21cb5ce92bb06d562e895c2cebfe
+index 0000000000000000000000000000000000000000..e3c7df51b2ecbb748f752a1d470c30e7acc23419
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/ChunkMapMap.java
-@@ -0,0 +1,539 @@
+@@ -0,0 +1,541 @@
 +package gg.airplane.structs;
 +
 +import com.destroystokyo.paper.util.map.Long2ObjectLinkedOpenHashMapFastCopy;
@@ -53,10 +53,12 @@ index 0000000000000000000000000000000000000000..323ce35a783e21cb5ce92bb06d562e89
 +    public static class ChunkMapChunk {
 +        public PlayerChunk updating;
 +        public PlayerChunk visible;
++        public final long key;
 +
-+        public ChunkMapChunk(PlayerChunk updating, PlayerChunk visible) {
++        public ChunkMapChunk(PlayerChunk updating, PlayerChunk visible, long key) {
 +            this.updating = updating;
 +            this.visible = visible;
++            this.key = key;
 +        }
 +    }
 +
@@ -520,7 +522,7 @@ index 0000000000000000000000000000000000000000..323ce35a783e21cb5ce92bb06d562e89
 +    private final List<ChunkMapChunk> updating = new ArrayList<>();
 +
 +    public void addUpdatingChunk(long key, PlayerChunk updatingChunk) {
-+        ChunkMapChunk chunkMapChunk = this.computeIfAbsent(key, k -> new ChunkMapChunk(null, null));
++        ChunkMapChunk chunkMapChunk = this.computeIfAbsent(key, k -> new ChunkMapChunk(null, null, key));
 +        chunkMapChunk.updating = updatingChunk;
 +        synchronized (this.updating) {
 +            this.updating.add(chunkMapChunk);
@@ -528,22 +530,22 @@ index 0000000000000000000000000000000000000000..323ce35a783e21cb5ce92bb06d562e89
 +    }
 +
 +    public PlayerChunk removeUpdatingChunk(long key) {
-+        final PlayerChunk[] previous = new PlayerChunk[1];
++        final ChunkMapChunk[] previous = new ChunkMapChunk[1];
 +        this.computeIfPresent(key, (BiFunction<? super Long, ? super ChunkMapChunk, ? extends ChunkMapChunk>) (k, existing) -> {
-+            previous[0] = existing.updating;
-+            existing.updating = null;
-+            if (existing.visible == null) {
-+                return null;
-+            }
-+            return existing;
++            previous[0] = existing;
++            return new ChunkMapChunk(null, existing.visible, key);
 +        });
-+        return previous[0];
++        return previous[0] == null ? null : previous[0].updating;
 +    }
 +
 +    public void transfer() {
 +        synchronized (this.updating) {
 +            for (ChunkMapChunk chunkMapChunk : this.updating) {
-+                chunkMapChunk.visible = chunkMapChunk.updating;
++                if (chunkMapChunk.updating == null) {
++                    this.remove(chunkMapChunk.key);
++                } else {
++                    chunkMapChunk.visible = chunkMapChunk.updating;
++                }
 +            }
 +            this.updating.clear();
 +        }
