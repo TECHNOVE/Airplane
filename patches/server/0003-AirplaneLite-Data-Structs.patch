@@ -6,10 +6,10 @@ Subject: [PATCH] AirplaneLite Data Structs
 
 diff --git a/src/main/java/gg/airplane/structs/ChunkMapMap.java b/src/main/java/gg/airplane/structs/ChunkMapMap.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..e3c7df51b2ecbb748f752a1d470c30e7acc23419
+index 0000000000000000000000000000000000000000..938d7a6ee430d19109d3c8b5cf5f5318d7de4136
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/ChunkMapMap.java
-@@ -0,0 +1,541 @@
+@@ -0,0 +1,545 @@
 +package gg.airplane.structs;
 +
 +import com.destroystokyo.paper.util.map.Long2ObjectLinkedOpenHashMapFastCopy;
@@ -40,10 +40,10 @@ index 0000000000000000000000000000000000000000..e3c7df51b2ecbb748f752a1d470c30e7
 +
 +/**
 + * This class is bad, in fact I'm rather embarrassed to be pushing it.
-+ *
++ * <p>
 + * However it represents well the updating/visible chunk maps for PlayerChunkMap,
 + * while supporting concurrent operations and no copying.
-+ *
++ * <p>
 + * If some dumb plugin needs a method that's unimplemented, I guess it'll need to be
 + * implemented in the future. As well, no internal code appears to take advantage of
 + * the fact that this should be a LinkedMap, so I'm going to ignore that for the sake
@@ -533,7 +533,11 @@ index 0000000000000000000000000000000000000000..e3c7df51b2ecbb748f752a1d470c30e7
 +        final ChunkMapChunk[] previous = new ChunkMapChunk[1];
 +        this.computeIfPresent(key, (BiFunction<? super Long, ? super ChunkMapChunk, ? extends ChunkMapChunk>) (k, existing) -> {
 +            previous[0] = existing;
-+            return new ChunkMapChunk(null, existing.visible, key);
++            ChunkMapChunk newChunk = new ChunkMapChunk(null, existing.visible, key);
++            synchronized (this.updating) {
++                this.updating.add(newChunk);
++            }
++            return newChunk;
 +        });
 +        return previous[0] == null ? null : previous[0].updating;
 +    }
