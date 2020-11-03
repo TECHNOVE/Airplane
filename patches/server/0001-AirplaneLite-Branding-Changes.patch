@@ -5,7 +5,7 @@ Subject: [PATCH] AirplaneLite Branding Changes
 
 
 diff --git a/pom.xml b/pom.xml
-index 808ed2eefc1fa2f7de59ab13e03c227931a848ee..31fff5af063f0bc56db216703af75e231360a5da 100644
+index 78c2a8bbcc0132f891c8aa545529d20aa0d9eb57..9b038dbedb68bc5f0ede05620a653858a3b57739 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -1,10 +1,10 @@
@@ -15,7 +15,7 @@ index 808ed2eefc1fa2f7de59ab13e03c227931a848ee..31fff5af063f0bc56db216703af75e23
 -    <artifactId>tuinity</artifactId>
 +    <artifactId>airplanelite</artifactId>
      <packaging>jar</packaging>
-     <version>1.16.3-R0.1-SNAPSHOT</version>
+     <version>1.16.4-R0.1-SNAPSHOT</version>
 -    <name>Tuinity-Server</name>
 +    <name>AirplaneLite-Server</name>
      <url>https://github.com/Spottedleaf/Tuinity</url>
@@ -76,7 +76,7 @@ index 255bbd6e48b95c70fad02ba692c64c7579496827..1f90439dad440f212b78e746e003ac88
  
          return history != null ? history + "\n" + updateMessage : updateMessage;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 65fbc3bb8a9a2874f0e4c27d962f70e63fcacbdd..364be85fed5e92c4f901da1dea7cb7857840f2e8 100644
+index 9d2364fb03417e576c4d7834f486c4bce8fb06a0..2a0a2cd735dd55a04fb2e6b44a67268d05a58bcb 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1512,7 +1512,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
@@ -89,7 +89,7 @@ index 65fbc3bb8a9a2874f0e4c27d962f70e63fcacbdd..364be85fed5e92c4f901da1dea7cb785
  
      public CrashReport b(CrashReport crashreport) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 786ddcee7edaf32e8e996ab8dcd9cbf11c7f1719..df5ce359d6ff1882f7fcc1f789242b7fdab7e9b2 100644
+index 9bf854b5a231f424796d491262a2ee8b3c18fdb0..163101f45e74876bea852054daa470503efceff9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -232,7 +232,7 @@ import javax.annotation.Nullable; // Paper

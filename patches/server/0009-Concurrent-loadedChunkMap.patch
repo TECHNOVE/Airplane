@@ -8,7 +8,7 @@ loadedChunkMap, instead of having to wait on the main thread
 to retrieve the chunk or wait on a lock.
 
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f32b72f7af 100644
+index e4c2bcc2b14ef3a5fb35fa6131ed2248920fcc17..3497022741d10328971578c904ac9d07c3c204bb 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
 @@ -49,7 +49,7 @@ public class ChunkProviderServer extends IChunkProvider {
@@ -90,7 +90,7 @@ index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f3
      }
  
      public Chunk getChunkAtMainThread(int x, int z) {
-@@ -418,6 +431,8 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -416,6 +429,8 @@ public class ChunkProviderServer extends IChunkProvider {
      }
  
      private void a(long i, IChunkAccess ichunkaccess, ChunkStatus chunkstatus) {
@@ -99,7 +99,7 @@ index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f3
          for (int j = 3; j > 0; --j) {
              this.cachePos[j] = this.cachePos[j - 1];
              this.cacheStatus[j] = this.cacheStatus[j - 1];
-@@ -427,6 +442,8 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -425,6 +440,8 @@ public class ChunkProviderServer extends IChunkProvider {
          this.cachePos[0] = i;
          this.cacheStatus[0] = chunkstatus;
          this.cacheChunk[0] = ichunkaccess;
@@ -108,7 +108,7 @@ index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f3
      }
  
      // Paper start - "real" get chunk if loaded
-@@ -447,6 +464,8 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -445,6 +462,8 @@ public class ChunkProviderServer extends IChunkProvider {
  
      @Nullable
      public Chunk getChunkAtIfLoadedImmediately(int x, int z) {
@@ -117,7 +117,7 @@ index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f3
          long k = ChunkCoordIntPair.pair(x, z);
  
          if (Thread.currentThread() == this.serverThread) {
-@@ -469,6 +488,9 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -467,6 +486,9 @@ public class ChunkProviderServer extends IChunkProvider {
          } while (!this.loadedChunkMapSeqLock.tryReleaseRead(readlock));
  
          return ret;
@@ -127,7 +127,7 @@ index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f3
      }
  
      @Nullable
-@@ -514,6 +536,8 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -512,6 +534,8 @@ public class ChunkProviderServer extends IChunkProvider {
  
          IChunkAccess ichunkaccess;
  
@@ -136,7 +136,7 @@ index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f3
          // try cache
          for (int l = 0; l < 4; ++l) {
              if (k == this.cachePos[l] && ChunkStatus.FULL == this.cacheStatus[l]) {
-@@ -536,6 +560,8 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -534,6 +558,8 @@ public class ChunkProviderServer extends IChunkProvider {
                  }
              }
          }
@@ -145,7 +145,7 @@ index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f3
  
          if (gen) {
              return this.bringToFullStatusAsync(x, z, chunkPos, isUrgent);
-@@ -637,17 +663,27 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -635,17 +661,27 @@ public class ChunkProviderServer extends IChunkProvider {
      @Override
      public IChunkAccess getChunkAt(int i, int j, ChunkStatus chunkstatus, boolean flag) {
          final int x = i; final int z = j; // Paper - conflict on variable change
@@ -173,7 +173,7 @@ index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f3
              GameProfilerFiller gameprofilerfiller = this.world.getMethodProfiler();
  
              gameprofilerfiller.c("getChunk");
-@@ -655,6 +691,8 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -653,6 +689,8 @@ public class ChunkProviderServer extends IChunkProvider {
  
              IChunkAccess ichunkaccess;
  
@@ -182,7 +182,7 @@ index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f3
              for (int l = 0; l < 4; ++l) {
                  if (k == this.cachePos[l] && chunkstatus == this.cacheStatus[l]) {
                      ichunkaccess = this.cacheChunk[l];
-@@ -663,6 +701,8 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -661,6 +699,8 @@ public class ChunkProviderServer extends IChunkProvider {
                      }
                  }
              }
@@ -191,7 +191,7 @@ index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f3
  
              gameprofilerfiller.c("getChunkCacheMiss");
              CompletableFuture<Either<IChunkAccess, PlayerChunk.Failure>> completablefuture = this.getChunkFutureMainThread(i, j, chunkstatus, flag, true); // Paper
-@@ -699,17 +739,23 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -697,17 +737,23 @@ public class ChunkProviderServer extends IChunkProvider {
      @Nullable
      @Override
      public Chunk a(int i, int j) {
@@ -220,7 +220,7 @@ index f276bd63056e0c5b1083a3c89cade21b8af74e2b..79505d88f2fb6729b8ad177a998eb1f3
  
      private long syncLoadCounter; // Tuinity - prevent plugin unloads from removing our ticket
 diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index 183e5aa1d41e1cc76a42dbac8ad6de780c683485..8b8621ba60b5efb561ee4b04472c611b9320caa8 100644
+index 525ff34a973efdb06f80f6aff912120b3f412a12..204edc60893a339c21f059683253cf4d0dbdf9ce 100644
 --- a/src/main/java/net/minecraft/server/World.java
 +++ b/src/main/java/net/minecraft/server/World.java
 @@ -396,12 +396,12 @@ public abstract class World implements GeneratorAccess, AutoCloseable {

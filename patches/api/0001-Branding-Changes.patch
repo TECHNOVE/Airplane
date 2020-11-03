@@ -5,10 +5,10 @@ Subject: [PATCH] Branding Changes
 
 
 diff --git a/pom.xml b/pom.xml
-index 3b5dcb434f3357183859281941139a1c86d9cb1b..1f8cc1bece0a21865a1ec53cada7a45f55cd8668 100644
+index 4516ba097e8afc3e422efc368311fa66e967c05a..3a8bc866c5bd970883aaf98f63f4c12177d7810f 100644
 --- a/pom.xml
 +++ b/pom.xml
-@@ -3,17 +3,17 @@
+@@ -3,18 +3,18 @@
           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
      <modelVersion>4.0.0</modelVersion>
      <parent>
@@ -22,11 +22,13 @@ index 3b5dcb434f3357183859281941139a1c86d9cb1b..1f8cc1bece0a21865a1ec53cada7a45f
  
 -    <artifactId>tuinity-api</artifactId>
 +    <artifactId>airplanelite-api</artifactId>
-     <version>1.16.3-R0.1-SNAPSHOT</version>
+     <version>1.16.4-R0.1-SNAPSHOT</version>
      <packaging>jar</packaging>
  
 -    <name>Tuinity-API</name>
+-    <url>https://github.com/Spottedleaf/Tuinity</url>
 +    <name>AirplaneLite-API</name>
-     <url>https://github.com/Spottedleaf/Tuinity</url>
++    <url>https://github.com/Technove/AirplaneLite</url>
      <description>An enhanced plugin API for Minecraft servers.</description>
  
+     <properties>

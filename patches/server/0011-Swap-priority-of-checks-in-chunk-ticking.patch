@@ -7,15 +7,15 @@ World.V showed up a lot in lag spikes for some reason, although I wonder
 if it's just Spark getting JVM safe points.
 
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 60c2bc32fe56ee83472a5e5a068b2613bf2a2692..08229d55364443d46303f33a1d8deafe3f34c4d0 100644
+index eb8b5be107945dcf4b82cedde549b05e958bf246..2a3dbcd5f27b2fa337a272550f6574cd15398c5d 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
-@@ -1168,7 +1168,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1176,7 +1176,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
          gameprofilerfiller.enter("thunder");
          final BlockPosition.MutableBlockPosition blockposition = this.chunkTickMutablePosition; // Paper - use mutable to reduce allocation rate, final to force compile fail on change
  
--        if (!this.paperConfig.disableThunder && flag && this.V() && this.random.nextInt(100000) == 0) { // Paper - Disable thunder
-+        if (!this.paperConfig.disableThunder && flag && this.random.nextInt(100000) == 0 && this.V()) { // Paper - Disable thunder // AirplaneL - check this.V last
+-        if (!this.paperConfig.disableThunder && flag && this.W() && this.random.nextInt(100000) == 0) { // Paper - Disable thunder
++        if (!this.paperConfig.disableThunder && flag && this.random.nextInt(100000) == 0 && this.W()) { // Paper - Disable thunder // AirplaneL - check this.W last
              blockposition.setValues(this.a(this.a(j, 0, k, 15))); // Paper
              if (this.isRainingAt(blockposition)) {
                  DifficultyDamageScaler difficultydamagescaler = this.getDamageScaler(blockposition);

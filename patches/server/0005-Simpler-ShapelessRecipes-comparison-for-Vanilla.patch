@@ -8,7 +8,7 @@ the vanilla one, however this is far more advanced than what you need
 for all the vanilla recipes.
 
 diff --git a/src/main/java/net/minecraft/server/ShapelessRecipes.java b/src/main/java/net/minecraft/server/ShapelessRecipes.java
-index 213e8cf55c3e1aeefc77729b872763bbff891578..d7402ec89776a7e00ada203cf79e744b50da8fef 100644
+index 61d88dbaa1f5c543be610ce0914b2c89d8ad40ee..e7870de2467ca28070c234a39452778a3ac08862 100644
 --- a/src/main/java/net/minecraft/server/ShapelessRecipes.java
 +++ b/src/main/java/net/minecraft/server/ShapelessRecipes.java
 @@ -17,8 +17,16 @@ public class ShapelessRecipes implements RecipeCrafting {

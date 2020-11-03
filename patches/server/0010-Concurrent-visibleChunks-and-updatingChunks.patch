@@ -15,7 +15,7 @@ the entire map, because it's used for the visible/updating map values()
 iterator which is used fairly heavily.
 
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index 48e37330a427e9d977c3b190a8c52de0c3afc763..d8a70a7cf549953507935eba6a9db1517a107868 100644
+index 2a8455b813853693e20f368d3ece78d9424a413a..1c4287b6f908fac2d4a36a32741d31506c438f58 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
 @@ -60,8 +60,11 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {

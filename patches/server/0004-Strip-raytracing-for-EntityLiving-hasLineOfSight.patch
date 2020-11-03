@@ -11,7 +11,7 @@ As well, since the fluid collision option is set to NONE, the entire
 fluid collision system is completely unneeded, yet used anyways.
 
 diff --git a/src/main/java/net/minecraft/server/EntityLiving.java b/src/main/java/net/minecraft/server/EntityLiving.java
-index 0e000c7186d9f2ed6e0a1061f83d7f2d5695dc37..e6c6f0dc45f6ad55dcdba6196ab1531899a383b5 100644
+index 87cd6fb0c051e66d7c927769c375268c9a663ff8..1f2345d8075d4bb0ce74b160f555e850d897621c 100644
 --- a/src/main/java/net/minecraft/server/EntityLiving.java
 +++ b/src/main/java/net/minecraft/server/EntityLiving.java
 @@ -2975,7 +2975,7 @@ public abstract class EntityLiving extends Entity {
@@ -24,7 +24,7 @@ index 0e000c7186d9f2ed6e0a1061f83d7f2d5695dc37..e6c6f0dc45f6ad55dcdba6196ab15318
  
      @Override
 diff --git a/src/main/java/net/minecraft/server/IBlockAccess.java b/src/main/java/net/minecraft/server/IBlockAccess.java
-index 9e8fdbd14069a3cf41a031aa29ccdd3d645705ff..3132623ff83a4520c85407501aacfca2bb1b6613 100644
+index 5c3eb4fc7e5aec2ad8d0050673fc8f4d2bff6a71..ec5f41abb635fe231ee6fcdbea160804a2ca8975 100644
 --- a/src/main/java/net/minecraft/server/IBlockAccess.java
 +++ b/src/main/java/net/minecraft/server/IBlockAccess.java
 @@ -44,6 +44,16 @@ public interface IBlockAccess {
@@ -45,7 +45,7 @@ index 9e8fdbd14069a3cf41a031aa29ccdd3d645705ff..3132623ff83a4520c85407501aacfca2
      default MovingObjectPositionBlock rayTraceBlock(RayTrace raytrace1, BlockPosition blockposition) {
              // Paper start - Prevent raytrace from loading chunks
 diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index cdadf7717be8c8c9eab4526d726fdb6def8e9ef7..183e5aa1d41e1cc76a42dbac8ad6de780c683485 100644
+index f7103ec2a90a08b8a816f47a02c0f29ac34b2431..525ff34a973efdb06f80f6aff912120b3f412a12 100644
 --- a/src/main/java/net/minecraft/server/World.java
 +++ b/src/main/java/net/minecraft/server/World.java
 @@ -287,6 +287,83 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
