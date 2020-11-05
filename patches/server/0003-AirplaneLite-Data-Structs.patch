@@ -557,15 +557,16 @@ index 0000000000000000000000000000000000000000..938d7a6ee430d19109d3c8b5cf5f5318
 +}
 diff --git a/src/main/java/gg/airplane/structs/ConcLong2ObjectOpenHashMap.java b/src/main/java/gg/airplane/structs/ConcLong2ObjectOpenHashMap.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ab235d714f1102ebbb428c2356a85262e12bb92c
+index 0000000000000000000000000000000000000000..f5ff17041f0a33f79444bfcaa0d6f5a1096f2b2b
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/ConcLong2ObjectOpenHashMap.java
-@@ -0,0 +1,379 @@
+@@ -0,0 +1,408 @@
 +package gg.airplane.structs;
 +
 +import it.unimi.dsi.fastutil.HashCommon;
 +import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 +import it.unimi.dsi.fastutil.longs.LongArrayList;
++import it.unimi.dsi.fastutil.longs.LongIterator;
 +import it.unimi.dsi.fastutil.longs.LongList;
 +import it.unimi.dsi.fastutil.longs.LongSet;
 +import it.unimi.dsi.fastutil.objects.ObjectCollection;
@@ -636,6 +637,20 @@ index 0000000000000000000000000000000000000000..ab235d714f1102ebbb428c2356a85262
 +            return super.computeIfPresent(k, remappingFunction);
 +        }
 +
++        public synchronized boolean removeIf(RemoveIfFunction<V> function) {
++            LongSet longs = this.keySet();
++            LongIterator iterator = longs.iterator();
++            boolean removed = false;
++            while (iterator.hasNext()) {
++                long key = iterator.nextLong();
++                if (function.remove(key, super.get(key))) {
++                    iterator.remove();
++                    removed = true;
++                }
++            }
++            return removed;
++        }
++
 +        @Override
 +        public synchronized final void clear() {
 +            super.clear();
@@ -696,6 +711,20 @@ index 0000000000000000000000000000000000000000..ab235d714f1102ebbb428c2356a85262
 +        for (int i = 0; i < this.bucketCount; i++) {
 +            this.buckets[i].forEach(consumer);
 +        }
++    }
++
++    public interface RemoveIfFunction<V> {
++        boolean remove(long key, V value);
++    }
++
++    public final boolean removeIf(RemoveIfFunction<V> function) {
++        boolean removed = false;
++        for (int i = 0; i < this.bucketCount; i++) {
++            if (this.buckets[i].removeIf(function)) {
++                removed = true;
++            }
++        }
++        return removed;
 +    }
 +
 +    @Override
