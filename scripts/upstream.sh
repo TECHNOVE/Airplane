@@ -13,7 +13,7 @@ git submodule update --init --recursive
 if [[ "$1" == up* ]]; then
     (
         cd "$basedir/Tuinity/"
-        git fetch && git reset --hard origin/dev/some-opts
+        git fetch && git reset --hard origin/master
         ./tuinity upstream
         cd ../
         git add Tuinity
