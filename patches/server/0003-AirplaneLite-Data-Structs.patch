@@ -557,10 +557,10 @@ index 0000000000000000000000000000000000000000..938d7a6ee430d19109d3c8b5cf5f5318
 +}
 diff --git a/src/main/java/gg/airplane/structs/ConcLong2ObjectOpenHashMap.java b/src/main/java/gg/airplane/structs/ConcLong2ObjectOpenHashMap.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..f5ff17041f0a33f79444bfcaa0d6f5a1096f2b2b
+index 0000000000000000000000000000000000000000..380b095f9ef716d599383419df7d9b0365e3bf56
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/ConcLong2ObjectOpenHashMap.java
-@@ -0,0 +1,408 @@
+@@ -0,0 +1,421 @@
 +package gg.airplane.structs;
 +
 +import it.unimi.dsi.fastutil.HashCommon;
@@ -588,6 +588,10 @@ index 0000000000000000000000000000000000000000..f5ff17041f0a33f79444bfcaa0d6f5a1
 +    private static class LongBucket<V> extends Long2ObjectOpenHashMap<V> {
 +        public LongBucket(int expectedSize, float capacity) {
 +            super(expectedSize, capacity);
++        }
++
++        public LongBucket(LongBucket<V> toClone) {
++            super(toClone);
 +        }
 +
 +        @Override
@@ -661,7 +665,10 @@ index 0000000000000000000000000000000000000000..f5ff17041f0a33f79444bfcaa0d6f5a1
 +            return super.hashCode();
 +        }
 +
-+
++        @Override
++        public synchronized LongBucket<V> clone() {
++            return new LongBucket<>(this);
++        }
 +    }
 +
 +    private final int bucketCount = HashCommon.nextPowerOfTwo(Runtime.getRuntime().availableProcessors() * 4); // todo need to redo tests on different processors
@@ -675,6 +682,12 @@ index 0000000000000000000000000000000000000000..f5ff17041f0a33f79444bfcaa0d6f5a1
 +    public ConcLong2ObjectOpenHashMap(int expectedSize, float capacity) {
 +        for (int i = 0; i < this.bucketCount; i++) {
 +            this.buckets[i] = new LongBucket<>(expectedSize, capacity);
++        }
++    }
++
++    public ConcLong2ObjectOpenHashMap(ConcLong2ObjectOpenHashMap<V> toCopy) {
++        for (int i = 0; i < this.bucketCount; i++) {
++            this.buckets[i] = toCopy.buckets[i].clone();
 +        }
 +    }
 +
@@ -956,8 +969,8 @@ index 0000000000000000000000000000000000000000..f5ff17041f0a33f79444bfcaa0d6f5a1
 +    }
 +
 +    @Override
-+    public Long2ObjectOpenHashMap<V> clone() {
-+        throw new UnsupportedOperationException();
++    public ConcLong2ObjectOpenHashMap<V> clone() {
++        return new ConcLong2ObjectOpenHashMap<>(this);
 +    }
 +
 +    @Override
