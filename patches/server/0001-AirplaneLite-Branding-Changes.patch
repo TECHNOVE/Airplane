@@ -76,10 +76,10 @@ index 255bbd6e48b95c70fad02ba692c64c7579496827..1f90439dad440f212b78e746e003ac88
  
          return history != null ? history + "\n" + updateMessage : updateMessage;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 25d42e7d41a95769bf7ecbd0e0c1b8ed716bb563..855c031d784fadc64f7a047a7d8e6f18a65f2dc6 100644
+index fe4a7ed6fc67f41055a5167701b001874b41d0eb..c2b49077e6bef239d5fb262648d7d638c5ea8c76 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1513,7 +1513,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+@@ -1514,7 +1514,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
      }
  
      public String getServerModName() {
