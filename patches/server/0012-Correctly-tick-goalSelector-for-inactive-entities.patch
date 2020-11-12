@@ -8,10 +8,10 @@ ticked if they were inactive. This breaks things like tamed animals
 teleporting back to the player if they're out of range.
 
 diff --git a/src/main/java/net/minecraft/server/EntityInsentient.java b/src/main/java/net/minecraft/server/EntityInsentient.java
-index 23007c9ccb4cfb9b8ba817ab5aaf7afbc3bb4aae..c11266a09e2345466e3e541accecda2a5137e840 100644
+index 23007c9ccb4cfb9b8ba817ab5aaf7afbc3bb4aae..1311dca17742a3bb26609cde827639b094b45ac4 100644
 --- a/src/main/java/net/minecraft/server/EntityInsentient.java
 +++ b/src/main/java/net/minecraft/server/EntityInsentient.java
-@@ -132,10 +132,14 @@ public abstract class EntityInsentient extends EntityLiving {
+@@ -132,7 +132,11 @@ public abstract class EntityInsentient extends EntityLiving {
      @Override
      public void inactiveTick() {
          super.inactiveTick();
@@ -20,10 +20,7 @@ index 23007c9ccb4cfb9b8ba817ab5aaf7afbc3bb4aae..c11266a09e2345466e3e541accecda2a
 +        if (this.goalSelector.inactiveTick()) {
 +            this.goalSelector.doTick();
 +        }
++        // AirplaneL end
          if (this.targetSelector.inactiveTick()) {
              this.targetSelector.doTick();
          }
-+        // AirplaneL end
-     }
-     // Paper end
- 
