@@ -9,6 +9,7 @@ open class ToothpickExtension(objects: ObjectFactory) {
     lateinit var forkName: String
     val forkNameLowercase
         get() = forkName.toLowerCase(Locale.ENGLISH)
+    lateinit var forkUrl: String
     lateinit var forkVersion: String
     lateinit var groupId: String
     lateinit var minecraftVersion: String

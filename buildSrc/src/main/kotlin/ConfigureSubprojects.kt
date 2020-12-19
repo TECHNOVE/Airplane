@@ -33,7 +33,7 @@ internal fun Project.configureSubprojects() {
                     from(components["java"])
                     pom {
                         name.set(project.name)
-                        url.set("https://github.com/pl3xgaming/Purpur")
+                        url.set(toothpick.forkUrl)
                     }
                 }
             }

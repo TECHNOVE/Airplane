@@ -9,6 +9,7 @@ toothpick {
     val versionTag = System.getenv("BUILD_NUMBER")
         ?: "\"${gitCmd("rev-parse", "--short", "HEAD").output}\""
     forkVersion = "git-$forkName-$versionTag"
+    forkUrl = "https://github.com/Technove/Airplane-Lite"
 
     minecraftVersion = "1.16.4"
     nmsPackage = "1_16_R3"
