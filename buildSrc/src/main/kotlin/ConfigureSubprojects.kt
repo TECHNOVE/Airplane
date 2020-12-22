@@ -1,5 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
 import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
 import kotlinx.dom.elements
 import kotlinx.dom.parseXml
@@ -18,6 +19,8 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.getting
+import java.text.SimpleDateFormat
+import java.util.Date
 
 internal fun Project.configureSubprojects() {
     subprojects {
@@ -62,16 +65,16 @@ private fun Project.configureServerProject() {
     val shadowJar by tasks.getting(ShadowJar::class) {
         dependsOn(generatePomFileForMavenJavaPublication)
         transform(Log4j2PluginsCacheFileTransformer::class.java)
+        mergeServiceFiles()
         manifest {
             attributes(
-                "Main-Class" to "org.bukkit.craftbukkit.Main",
-                "Implementation-Title" to "CraftBukkit",
-                "Implementation-Version" to toothpick.forkVersion,
-                "Implementation-Vendor" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-                    .format(java.util.Date()),
-                "Specification-Title" to "Bukkit",
-                "Specification-Version" to "${project.version}",
-                "Specification-Vendor" to "Bukkit Team"
+                    "Main-Class" to "org.bukkit.craftbukkit.Main",
+                    "Implementation-Title" to "CraftBukkit",
+                    "Implementation-Version" to toothpick.forkVersion,
+                    "Implementation-Vendor" to SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Date()),
+                    "Specification-Title" to "Bukkit",
+                    "Specification-Version" to "${project.version}",
+                    "Specification-Vendor" to "Bukkit Team"
             )
         }
         from(project.buildDir.resolve("tmp/pom.xml")) {
@@ -96,17 +99,17 @@ private fun Project.configureServerProject() {
             artifactId == "maven-shade-plugin"
         }.forEach {
             it.search("executions").first()
-                .search("execution").first()
-                .search("configuration").first()
-                .search("relocations").first()
-                .elements("relocation").forEach { relocation ->
-                    val pattern = relocation.search("pattern").first().textContent
-                    val shadedPattern = relocation.search("shadedPattern").first().textContent
-                    if (pattern != "org.bukkit.craftbukkit" && pattern != "net.minecraft.server") { // We handle these ourselves above
-                        logger.debug("Imported relocation to server project shadowJar from ${pomFile.absolutePath}: $pattern to $shadedPattern")
-                        relocate(pattern, shadedPattern)
+                    .search("execution").first()
+                    .search("configuration").first()
+                    .search("relocations").first()
+                    .elements("relocation").forEach { relocation ->
+                        val pattern = relocation.search("pattern").first().textContent
+                        val shadedPattern = relocation.search("shadedPattern").first().textContent
+                        if (pattern != "org.bukkit.craftbukkit" && pattern != "net.minecraft.server") { // We handle these ourselves above
+                            logger.debug("Imported relocation to server project shadowJar from ${pomFile.absolutePath}: $pattern to $shadedPattern")
+                            relocate(pattern, shadedPattern)
+                        }
                     }
-                }
         }
     }
     tasks.getByName("build") {
@@ -119,7 +122,7 @@ private fun Project.configureApiProject() {
     val jar by this.tasks.getting(Jar::class) {
         doFirst {
             buildDir.resolve("tmp/pom.properties")
-                .writeText("version=${project.version}")
+                    .writeText("version=${project.version}")
         }
         from(buildDir.resolve("tmp/pom.properties")) {
             into("META-INF/maven/${project.group}/${project.name}")
