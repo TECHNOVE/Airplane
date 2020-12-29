@@ -3,5 +3,6 @@ AirplaneLite-Server
 
 last-tuinity
 build/
+!gradle/wrapper/gradle-wrapper.jar
 
 launcher-airplanelite.jar
