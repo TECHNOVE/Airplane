@@ -7,6 +7,22 @@ This patch allows multithreaded code to take advantage of the
 loadedChunkMap, instead of having to wait on the main thread
 to retrieve the chunk or wait on a lock.
 
+Airplane Lite
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
 index fc9919dd01cad02486af293f9b0c692046c7eea1..83e3dcbbe36ce1f947f387ec55067e51a1b7384a 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java

@@ -7,6 +7,22 @@ Paper added a fancy sorting comparison due to Bukkit recipes breaking
 the vanilla one, however this is far more advanced than what you need
 for all the vanilla recipes.
 
+Airplane Lite
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 diff --git a/src/main/java/net/minecraft/server/ShapelessRecipes.java b/src/main/java/net/minecraft/server/ShapelessRecipes.java
 index 61d88dbaa1f5c543be610ce0914b2c89d8ad40ee..e7870de2467ca28070c234a39452778a3ac08862 100644
 --- a/src/main/java/net/minecraft/server/ShapelessRecipes.java

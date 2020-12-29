@@ -3,6 +3,21 @@ From: Paul Sauve <paul@technove.co>
 Date: Sun, 13 Dec 2020 17:53:08 -0600
 Subject: [PATCH] Only check for spooky season once an hour
 
+Airplane Lite
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/EntityBat.java b/src/main/java/net/minecraft/server/EntityBat.java
 index 0a59e02d762a096cb3de62e0f8105cc5a5fab8d4..e3768a834d3591ade5685c8ea638b053861ecca6 100644

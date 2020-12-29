@@ -3,6 +3,21 @@ From: Paul Sauve <paul@technove.co>
 Date: Sat, 31 Oct 2020 18:34:38 -0500
 Subject: [PATCH] AirplaneLite Branding Changes
 
+Airplane Lite
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/pom.xml b/pom.xml
 index 78c2a8bbcc0132f891c8aa545529d20aa0d9eb57..9b038dbedb68bc5f0ede05620a653858a3b57739 100644

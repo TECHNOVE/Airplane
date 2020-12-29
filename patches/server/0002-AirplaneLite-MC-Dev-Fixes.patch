@@ -3,6 +3,21 @@ From: Paul Sauve <paul@technove.co>
 Date: Sat, 31 Oct 2020 19:21:42 -0500
 Subject: [PATCH] AirplaneLite MC Dev Fixes
 
+Airplane Lite
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/LootTableInfo.java b/src/main/java/net/minecraft/server/LootTableInfo.java
 index addeb268d4d487e18ddaadebf96f078fd079246f..268147484805e9fff298d2f5006f1c594c485342 100644

@@ -6,6 +6,22 @@ Subject: [PATCH] DataBits slight optimization
 This shows improvements in tests, but in the real world might not be
 that useful. May be thrown away in the future.
 
+Airplane Lite
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 diff --git a/src/main/java/net/minecraft/server/DataBits.java b/src/main/java/net/minecraft/server/DataBits.java
 index 353b61aa57501fa76ce42dff5ba61bdb6a1e302e..a3cb30fec6823387635d95ef421a9fb39fd08320 100644
 --- a/src/main/java/net/minecraft/server/DataBits.java
