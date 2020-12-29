@@ -8,7 +8,7 @@ loadedChunkMap, instead of having to wait on the main thread
 to retrieve the chunk or wait on a lock.
 
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index e4c2bcc2b14ef3a5fb35fa6131ed2248920fcc17..3497022741d10328971578c904ac9d07c3c204bb 100644
+index fc9919dd01cad02486af293f9b0c692046c7eea1..83e3dcbbe36ce1f947f387ec55067e51a1b7384a 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
 @@ -49,7 +49,7 @@ public class ChunkProviderServer extends IChunkProvider {

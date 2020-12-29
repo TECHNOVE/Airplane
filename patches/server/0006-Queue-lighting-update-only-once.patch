@@ -5,7 +5,7 @@ Subject: [PATCH] Queue lighting update only once
 
 
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index 84429f12d0c6e0990b7cbb1b503b7868b3a02b14..e4c2bcc2b14ef3a5fb35fa6131ed2248920fcc17 100644
+index 12d9b73ccc2f4406957932397746cac7902d650e..fc9919dd01cad02486af293f9b0c692046c7eea1 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
 @@ -1005,6 +1005,7 @@ public class ChunkProviderServer extends IChunkProvider {
@@ -34,10 +34,10 @@ index 84429f12d0c6e0990b7cbb1b503b7868b3a02b14..e4c2bcc2b14ef3a5fb35fa6131ed2248
              this.world.getMethodProfiler().enter("customSpawners");
              if (flag1) {
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 800471d450ddcb8d291dc72e93c3d8251cc63248..8fbb9dbf0204dbf8b1c0ce262e4cb36f464199ee 100644
+index 8d8385e3022dd84e2b92daeffa190dbda60c705b..18aec64c92ef1cf24785244fe511d9beb609bf6b 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
-@@ -1031,7 +1031,10 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -971,7 +971,10 @@ public class WorldServer extends World implements GeneratorAccessSeed {
      private final com.destroystokyo.paper.util.math.ThreadUnsafeRandom randomTickRandom = new com.destroystokyo.paper.util.math.ThreadUnsafeRandom();
      // Paper end
  
@@ -49,7 +49,7 @@ index 800471d450ddcb8d291dc72e93c3d8251cc63248..8fbb9dbf0204dbf8b1c0ce262e4cb36f
          ChunkCoordIntPair chunkcoordintpair = chunk.getPos();
          boolean flag = this.isRaining();
          int j = chunkcoordintpair.d();
-@@ -1134,9 +1137,13 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1074,9 +1077,13 @@ public class WorldServer extends World implements GeneratorAccessSeed {
              }
              gameprofilerfiller.exit();
              timings.chunkTicksBlocks.stopTiming(); // Paper
