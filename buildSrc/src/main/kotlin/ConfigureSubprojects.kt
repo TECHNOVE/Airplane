@@ -1,6 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
 import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
 import kotlinx.dom.elements
 import kotlinx.dom.parseXml
@@ -12,13 +11,19 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.publish.maven.tasks.GenerateMavenPom
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.attributes
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.getting
+import org.gradle.kotlin.dsl.withType
+import java.nio.charset.StandardCharsets.UTF_8
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -27,13 +32,18 @@ internal fun Project.configureSubprojects() {
         apply<JavaLibraryPlugin>()
         apply<MavenPublishPlugin>()
 
-        extensions.configure(PublishingExtension::class.java) {
+        tasks.withType<JavaCompile> {
+            options.encoding = UTF_8.name()
+        }
+        tasks.withType<Javadoc> {
+            options.encoding = UTF_8.name()
+        }
+
+        extensions.configure<PublishingExtension> {
             publications {
                 create<MavenPublication>("mavenJava") {
-                    artifactId = if (project.name.endsWith("server")) rootProject.name else project.name
                     groupId = rootProject.group as String
                     version = rootProject.version as String
-                    from(components["java"])
                     pom {
                         name.set(project.name)
                         url.set(toothpick.forkUrl)
@@ -63,6 +73,7 @@ private fun Project.configureServerProject() {
     }
 
     val shadowJar by tasks.getting(ShadowJar::class) {
+        archiveClassifier.set("") // ShadowJar is the main server artifact
         dependsOn(generatePomFileForMavenJavaPublication)
         transform(Log4j2PluginsCacheFileTransformer::class.java)
         mergeServiceFiles()
@@ -112,8 +123,18 @@ private fun Project.configureServerProject() {
                     }
         }
     }
+
     tasks.getByName("build") {
         dependsOn(shadowJar)
+    }
+
+    extensions.configure<PublishingExtension> {
+        publications {
+            getByName<MavenPublication>("mavenJava") {
+                artifactId = rootProject.name
+                artifact(tasks["shadowJar"])
+            }
+        }
     }
 }
 
@@ -129,6 +150,15 @@ private fun Project.configureApiProject() {
         }
         manifest {
             attributes("Automatic-Module-Name" to "org.bukkit")
+        }
+    }
+
+    extensions.configure<PublishingExtension> {
+        publications {
+            getByName<MavenPublication>("mavenJava") {
+                artifactId = project.name
+                from(components["java"])
+            }
         }
     }
 }
