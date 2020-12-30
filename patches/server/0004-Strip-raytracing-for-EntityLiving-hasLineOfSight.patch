@@ -60,10 +60,18 @@ index 5c3eb4fc7e5aec2ad8d0050673fc8f4d2bff6a71..376ff36062d85b8ea8b004d9266ee9ee
      default MovingObjectPositionBlock rayTraceBlock(RayTrace raytrace1, BlockPosition blockposition) {
              // Paper start - Prevent raytrace from loading chunks
 diff --git a/src/main/java/net/minecraft/server/MathHelper.java b/src/main/java/net/minecraft/server/MathHelper.java
-index 2e7721a650c5a351b3584665bd236f92ef577761..9e1fac04703331c4eb17c0f9c64951d094d40acd 100644
+index 2e7721a650c5a351b3584665bd236f92ef577761..8a6b623084fdc5ee2b0718f9e72f7c52a0d58d91 100644
 --- a/src/main/java/net/minecraft/server/MathHelper.java
 +++ b/src/main/java/net/minecraft/server/MathHelper.java
-@@ -416,6 +416,7 @@ public class MathHelper {
+@@ -238,6 +238,7 @@ public class MathHelper {
+         return f - (float) d(f);
+     }
+ 
++    public static double getDecimals(double num) { return h(num); } // AirplaneL
+     public static double h(double d0) {
+         return d0 - (double) d(d0);
+     }
+@@ -416,6 +417,7 @@ public class MathHelper {
          return f1 + f * (f2 - f1);
      }
  
@@ -71,7 +79,7 @@ index 2e7721a650c5a351b3584665bd236f92ef577761..9e1fac04703331c4eb17c0f9c64951d0
      public static double d(double d0, double d1, double d2) {
          return d1 + d0 * (d2 - d1);
      }
-@@ -432,6 +433,7 @@ public class MathHelper {
+@@ -432,6 +434,7 @@ public class MathHelper {
          return d0 * d0 * d0 * (d0 * (d0 * 6.0D - 15.0D) + 10.0D);
      }
  
@@ -80,7 +88,7 @@ index 2e7721a650c5a351b3584665bd236f92ef577761..9e1fac04703331c4eb17c0f9c64951d0
          return d0 == 0.0D ? 0 : (d0 > 0.0D ? 1 : -1);
      }
 diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index 59abca0fd2330e1cdeda603d4146e4bb1afc3090..d83a61e7e3bd96a3f4db207c0f09dc799a922398 100644
+index 59abca0fd2330e1cdeda603d4146e4bb1afc3090..004c50026b9b2033411f1890061e63533341ea2f 100644
 --- a/src/main/java/net/minecraft/server/World.java
 +++ b/src/main/java/net/minecraft/server/World.java
 @@ -287,6 +287,91 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
@@ -131,9 +139,9 @@ index 59abca0fd2330e1cdeda603d4146e4bb1afc3090..d83a61e7e3bd96a3f4db207c0f09dc79
 +        double normalizedY = yDirection == 0 ? Double.MAX_VALUE : (double) yDirection / diffY;
 +        double normalizedZ = zDirection == 0 ? Double.MAX_VALUE : (double) zDirection / diffZ;
 +
-+        double normalizedXDirection = normalizedX * (xDirection > 0 ? 1.0D - MathHelper.sign(startX) : MathHelper.sign(startX));
-+        double normalizedYDirection = normalizedY * (yDirection > 0 ? 1.0D - MathHelper.sign(startY) : MathHelper.sign(startY));
-+        double normalizedZDirection = normalizedZ * (zDirection > 0 ? 1.0D - MathHelper.sign(startZ) : MathHelper.sign(startZ));
++        double normalizedXDirection = normalizedX * (xDirection > 0 ? 1.0D - MathHelper.getDecimals(startX) : MathHelper.getDecimals(startX));
++        double normalizedYDirection = normalizedY * (yDirection > 0 ? 1.0D - MathHelper.getDecimals(startY) : MathHelper.getDecimals(startY));
++        double normalizedZDirection = normalizedZ * (zDirection > 0 ? 1.0D - MathHelper.getDecimals(startZ) : MathHelper.getDecimals(startZ));
 +
 +        MovingObjectPosition.EnumMovingObjectType result;
 +
