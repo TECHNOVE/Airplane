@@ -63,7 +63,7 @@ index 83e3dcbbe36ce1f947f387ec55067e51a1b7384a..843840a2b1e11e622b187853c5f29fc7
              }
              // Paper end - optimize isOutisdeRange
              this.world.getMethodProfiler().enter("pollingChunks");
-+            this.world.resetIceAndSnowTick(); // Airplane - reset ice & snow tick random
++            this.world.resetIceAndSnowTick(); // AirplaneL - reset ice & snow tick random
              int k = this.world.getGameRules().getInt(GameRules.RANDOM_TICK_SPEED);
              boolean flag2 = world.ticksPerAnimalSpawns != 0L && worlddata.getTime() % world.ticksPerAnimalSpawns == 0L; // CraftBukkit
 
@@ -85,7 +85,7 @@ index 460f9a17bf1ced7cd542ab2f226bba1f9d408329..5c8bbd3b1572860c437fdcf544c2a029
          final BlockPosition.MutableBlockPosition blockposition = this.chunkTickMutablePosition; // Paper - use mutable to reduce allocation rate, final to force compile fail on change
 
 -        if (!this.paperConfig.disableThunder && flag && this.random.nextInt(100000) == 0 && this.W()) { // Paper - Disable thunder // AirplaneL - check this.W last
-+        if (!this.paperConfig.disableThunder && flag && chunk.shouldDoLighting() && this.W()) { // Paper - Disable thunder // AirplaneL - check this.W last // Airplane - replace random with shouldDoLighting
++        if (!this.paperConfig.disableThunder && flag && chunk.shouldDoLighting() && this.W()) { // Paper - Disable thunder // AirplaneL - check this.W last // AirplaneL - replace random with shouldDoLighting
              blockposition.setValues(this.a(this.a(j, 0, k, 15))); // Paper
              if (this.isRainingAt(blockposition)) {
                  DifficultyDamageScaler difficultydamagescaler = this.getDamageScaler(blockposition);
