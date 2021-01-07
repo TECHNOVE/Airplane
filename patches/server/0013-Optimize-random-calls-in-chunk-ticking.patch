@@ -18,14 +18,14 @@ Depending on configuration for things that tick in a chunk, this is a
 5-10% improvement.
 
 diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
-index 0a8173a5bcd7212ebeff204fef5efdf1633aac78..d1874cd466ed7da5abfec50e27c13870f55fd075 100644
+index 0a8173a5bcd7212ebeff204fef5efdf1633aac78..f538493b4a59891ec5cf79901526a92520321a67 100644
 --- a/src/main/java/net/minecraft/server/Chunk.java
 +++ b/src/main/java/net/minecraft/server/Chunk.java
 @@ -53,6 +53,17 @@ public class Chunk implements IChunkAccess {
      private final ChunkCoordIntPair loc; public final long coordinateKey; // Paper - cache coordinate key
      private volatile boolean x;
  
-+    // Airplane start - instead of using a random every time the chunk is ticked, define when lightning strikes preemptively
++    // AirplaneL start - instead of using a random every time the chunk is ticked, define when lightning strikes preemptively
 +    private int lightningTick;
 +    public boolean shouldDoLighting() {
 +        if (this.lightningTick-- == 0) {
@@ -34,7 +34,7 @@ index 0a8173a5bcd7212ebeff204fef5efdf1633aac78..d1874cd466ed7da5abfec50e27c13870
 +        }
 +        return false;
 +    }
-+    // Airplane end
++    // AirplaneL end
 +
      public Chunk(World world, ChunkCoordIntPair chunkcoordintpair, BiomeStorage biomestorage) {
          this(world, chunkcoordintpair, biomestorage, ChunkConverter.a, TickListEmpty.b(), TickListEmpty.b(), 0L, (ChunkSection[]) null, (Consumer) null);
@@ -52,14 +52,14 @@ index 83e3dcbbe36ce1f947f387ec55067e51a1b7384a..843840a2b1e11e622b187853c5f29fc7
              boolean flag2 = world.ticksPerAnimalSpawns != 0L && worlddata.getTime() % world.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 460f9a17bf1ced7cd542ab2f226bba1f9d408329..d8bcff4a488a2d4dcd0e11b91dda6dc505771fef 100644
+index 460f9a17bf1ced7cd542ab2f226bba1f9d408329..5c8bbd3b1572860c437fdcf544c2a0295293881c 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
 @@ -978,6 +978,8 @@ public class WorldServer extends World implements GeneratorAccessSeed {
      private final com.destroystokyo.paper.util.math.ThreadUnsafeRandom randomTickRandom = new com.destroystokyo.paper.util.math.ThreadUnsafeRandom();
      // Paper end
  
-+    private int currentIceAndSnowTick = 0; protected void resetIceAndSnowTick() { this.currentIceAndSnowTick = this.randomTickRandom.nextInt(16); } // Airplane
++    private int currentIceAndSnowTick = 0; protected void resetIceAndSnowTick() { this.currentIceAndSnowTick = this.randomTickRandom.nextInt(16); } // AirplaneL
 +
      // AirplaneL start - create version of chunk tick that returns a bool for updating lighting
      public void a(Chunk chunk, int i) { this.abool(chunk, i); }
@@ -78,7 +78,7 @@ index 460f9a17bf1ced7cd542ab2f226bba1f9d408329..d8bcff4a488a2d4dcd0e11b91dda6dc5
  
          gameprofilerfiller.exitEnter("iceandsnow");
 -        if (!this.paperConfig.disableIceAndSnow && this.randomTickRandom.nextInt(16) == 0) { // Paper - Disable ice and snow // Paper - optimise random ticking
-+        if (!this.paperConfig.disableIceAndSnow && (this.currentIceAndSnowTick++ & 15) == 0) { // Paper - Disable ice and snow // Paper - optimise random ticking // Airplane - optimize further random ticking
++        if (!this.paperConfig.disableIceAndSnow && (this.currentIceAndSnowTick++ & 15) == 0) { // Paper - Disable ice and snow // Paper - optimise random ticking // AirplaneL - optimize further random ticking
              // Paper start - optimise chunk ticking
              this.getRandomBlockPosition(j, 0, k, 15, blockposition);
              int normalY = chunk.getHighestBlockY(HeightMap.Type.MOTION_BLOCKING, blockposition.getX() & 15, blockposition.getZ() & 15);
