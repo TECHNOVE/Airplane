@@ -236,7 +236,7 @@ index fc9919dd01cad02486af293f9b0c692046c7eea1..83e3dcbbe36ce1f947f387ec55067e51
  
      private long syncLoadCounter; // Tuinity - prevent plugin unloads from removing our ticket
 diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index 004c50026b9b2033411f1890061e63533341ea2f..5a836ce3a45711c068a880943a7b564029d4da35 100644
+index ff5e209a18eb0db85de675bf5fdf6d6bbcc9e62f..c62082aca620594e94fa498ecc0281fa6e94fe05 100644
 --- a/src/main/java/net/minecraft/server/World.java
 +++ b/src/main/java/net/minecraft/server/World.java
 @@ -404,12 +404,12 @@ public abstract class World implements GeneratorAccess, AutoCloseable {

@@ -31,7 +31,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index d3bf356ea768a32a5684eb851a2a0addcc67727b..0c4dcccfa2bb4b0367505695885441a4b4b6ea48 100644
+index 16779ffa00caf32752170700e1d88092802fa932..13948d6225efc4bbac87788d970d00e6a62586a1 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
 @@ -60,8 +60,11 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {

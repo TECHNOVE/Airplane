@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/pom.xml b/pom.xml
-index 78c2a8bbcc0132f891c8aa545529d20aa0d9eb57..9b038dbedb68bc5f0ede05620a653858a3b57739 100644
+index 174c0b67c1c5b41d80613128ebf2d78ee27f3cee..6712dd5ffc5cdf890eea05c44f42818ea227c8cd 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -1,10 +1,10 @@
@@ -91,10 +91,10 @@ index 255bbd6e48b95c70fad02ba692c64c7579496827..1f90439dad440f212b78e746e003ac88
  
          return history != null ? history + "\n" + updateMessage : updateMessage;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 2bb4710868b4756c3446bb785c7dc1f00c9e4258..83fba32df005129292971b22c149620cb4d36dbd 100644
+index 34fa53eb1370682fff3dc342e33ffe7c48d1689f..4632424391be9a6bbcc43cbd6f78591431d90125 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1512,7 +1512,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+@@ -1507,7 +1507,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
      }
  
      public String getServerModName() {

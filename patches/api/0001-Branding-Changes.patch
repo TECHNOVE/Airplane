@@ -5,7 +5,7 @@ Subject: [PATCH] Branding Changes
 
 
 diff --git a/pom.xml b/pom.xml
-index 4516ba097e8afc3e422efc368311fa66e967c05a..3a8bc866c5bd970883aaf98f63f4c12177d7810f 100644
+index 024be926afb1219c6443c496721f4bd0a4fec222..e63ce0bc36fea4bd5e89215fb2b07bdff566368b 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -3,18 +3,18 @@
