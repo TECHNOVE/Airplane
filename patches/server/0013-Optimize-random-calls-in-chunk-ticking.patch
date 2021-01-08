@@ -34,21 +34,21 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
-index 0a8173a5bcd7212ebeff204fef5efdf1633aac78..f538493b4a59891ec5cf79901526a92520321a67 100644
+index 0a8173a5bcd7212ebeff204fef5efdf1633aac78..c18454a3f8203156316f49b0c1c1216b74aecf03 100644
 --- a/src/main/java/net/minecraft/server/Chunk.java
 +++ b/src/main/java/net/minecraft/server/Chunk.java
 @@ -53,6 +53,17 @@ public class Chunk implements IChunkAccess {
      private final ChunkCoordIntPair loc; public final long coordinateKey; // Paper - cache coordinate key
      private volatile boolean x;
-
+ 
 +    // AirplaneL start - instead of using a random every time the chunk is ticked, define when lightning strikes preemptively
-+    private int lightningTick;
-+    public boolean shouldDoLighting() {
-+        if (this.lightningTick-- == 0) {
++    private int lightningTick = -1;
++    public boolean shouldDoLightning() {
++        boolean doTick = this.lightningTick == 0;
++        if (this.lightningTick-- <= 0) {
 +            this.lightningTick = this.world.random.nextInt(100000) << 1;
-+            return true;
 +        }
-+        return false;
++        return doTick;
 +    }
 +    // AirplaneL end
 +
@@ -56,7 +56,7 @@ index 0a8173a5bcd7212ebeff204fef5efdf1633aac78..f538493b4a59891ec5cf79901526a925
          this(world, chunkcoordintpair, biomestorage, ChunkConverter.a, TickListEmpty.b(), TickListEmpty.b(), 0L, (ChunkSection[]) null, (Consumer) null);
      }
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index 83e3dcbbe36ce1f947f387ec55067e51a1b7384a..843840a2b1e11e622b187853c5f29fc706fa5bd1 100644
+index 83e3dcbbe36ce1f947f387ec55067e51a1b7384a..41d20589cca42b74816a5801463ccec80bad1385 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
 @@ -1020,6 +1020,7 @@ public class ChunkProviderServer extends IChunkProvider {
@@ -66,15 +66,15 @@ index 83e3dcbbe36ce1f947f387ec55067e51a1b7384a..843840a2b1e11e622b187853c5f29fc7
 +            this.world.resetIceAndSnowTick(); // AirplaneL - reset ice & snow tick random
              int k = this.world.getGameRules().getInt(GameRules.RANDOM_TICK_SPEED);
              boolean flag2 = world.ticksPerAnimalSpawns != 0L && worlddata.getTime() % world.ticksPerAnimalSpawns == 0L; // CraftBukkit
-
+ 
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 460f9a17bf1ced7cd542ab2f226bba1f9d408329..5c8bbd3b1572860c437fdcf544c2a0295293881c 100644
+index 460f9a17bf1ced7cd542ab2f226bba1f9d408329..94bee5561e4384ce6a667ac2945f26406220d97a 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
 @@ -978,6 +978,8 @@ public class WorldServer extends World implements GeneratorAccessSeed {
      private final com.destroystokyo.paper.util.math.ThreadUnsafeRandom randomTickRandom = new com.destroystokyo.paper.util.math.ThreadUnsafeRandom();
      // Paper end
-
+ 
 +    private int currentIceAndSnowTick = 0; protected void resetIceAndSnowTick() { this.currentIceAndSnowTick = this.randomTickRandom.nextInt(16); } // AirplaneL
 +
      // AirplaneL start - create version of chunk tick that returns a bool for updating lighting
@@ -83,15 +83,15 @@ index 460f9a17bf1ced7cd542ab2f226bba1f9d408329..5c8bbd3b1572860c437fdcf544c2a029
 @@ -991,7 +993,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
          gameprofilerfiller.enter("thunder");
          final BlockPosition.MutableBlockPosition blockposition = this.chunkTickMutablePosition; // Paper - use mutable to reduce allocation rate, final to force compile fail on change
-
+ 
 -        if (!this.paperConfig.disableThunder && flag && this.random.nextInt(100000) == 0 && this.W()) { // Paper - Disable thunder // AirplaneL - check this.W last
-+        if (!this.paperConfig.disableThunder && flag && chunk.shouldDoLighting() && this.W()) { // Paper - Disable thunder // AirplaneL - check this.W last // AirplaneL - replace random with shouldDoLighting
++        if (!this.paperConfig.disableThunder && flag && chunk.shouldDoLightning() && this.W()) { // Paper - Disable thunder // AirplaneL - check this.W last // AirplaneL - replace random with shouldDoLighting
              blockposition.setValues(this.a(this.a(j, 0, k, 15))); // Paper
              if (this.isRainingAt(blockposition)) {
                  DifficultyDamageScaler difficultydamagescaler = this.getDamageScaler(blockposition);
 @@ -1015,7 +1017,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
          }
-
+ 
          gameprofilerfiller.exitEnter("iceandsnow");
 -        if (!this.paperConfig.disableIceAndSnow && this.randomTickRandom.nextInt(16) == 0) { // Paper - Disable ice and snow // Paper - optimise random ticking
 +        if (!this.paperConfig.disableIceAndSnow && (this.currentIceAndSnowTick++ & 15) == 0) { // Paper - Disable ice and snow // Paper - optimise random ticking // AirplaneL - optimize further random ticking
