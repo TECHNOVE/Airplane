@@ -49,7 +49,7 @@ index 12d9b73ccc2f4406957932397746cac7902d650e..fc9919dd01cad02486af293f9b0c6920
              this.world.getMethodProfiler().enter("customSpawners");
              if (flag1) {
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index ff1d80c7c3271a18fa355430417dd1992b8494a8..4dc1f0dc5b847f541ccd889618fb41fee61cad89 100644
+index 72452abfe1fa8eafac386e0f2e5d87296772675a..bf1502c8e9277b533933b43a453b98c3b09b7849 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
 @@ -978,7 +978,10 @@ public class WorldServer extends World implements GeneratorAccessSeed {
