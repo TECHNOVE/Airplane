@@ -572,7 +572,7 @@ index 0000000000000000000000000000000000000000..938d7a6ee430d19109d3c8b5cf5f5318
 +}
 diff --git a/src/main/java/gg/airplane/structs/ConcLong2ObjectOpenHashMap.java b/src/main/java/gg/airplane/structs/ConcLong2ObjectOpenHashMap.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..380b095f9ef716d599383419df7d9b0365e3bf56
+index 0000000000000000000000000000000000000000..c4cc688932c8624ed474e2099745086297ff33c9
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/ConcLong2ObjectOpenHashMap.java
 @@ -0,0 +1,421 @@
@@ -686,7 +686,7 @@ index 0000000000000000000000000000000000000000..380b095f9ef716d599383419df7d9b03
 +        }
 +    }
 +
-+    private final int bucketCount = HashCommon.nextPowerOfTwo(Runtime.getRuntime().availableProcessors() * 4); // todo need to redo tests on different processors
++    private final int bucketCount = HashCommon.nextPowerOfTwo(Runtime.getRuntime().availableProcessors() * 32); // todo need to redo tests on different processors
 +    private final int mask = this.bucketCount - 1;
 +    private final LongBucket<V>[] buckets = new LongBucket[this.bucketCount];
 +
@@ -696,7 +696,7 @@ index 0000000000000000000000000000000000000000..380b095f9ef716d599383419df7d9b03
 +
 +    public ConcLong2ObjectOpenHashMap(int expectedSize, float capacity) {
 +        for (int i = 0; i < this.bucketCount; i++) {
-+            this.buckets[i] = new LongBucket<>(expectedSize, capacity);
++            this.buckets[i] = new LongBucket<>(Math.max(12, expectedSize / bucketCount), capacity);
 +        }
 +    }
 +
