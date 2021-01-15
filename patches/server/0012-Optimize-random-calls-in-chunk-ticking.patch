@@ -56,10 +56,10 @@ index 0a8173a5bcd7212ebeff204fef5efdf1633aac78..c18454a3f8203156316f49b0c1c1216b
          this(world, chunkcoordintpair, biomestorage, ChunkConverter.a, TickListEmpty.b(), TickListEmpty.b(), 0L, (ChunkSection[]) null, (Consumer) null);
      }
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index 83e3dcbbe36ce1f947f387ec55067e51a1b7384a..41d20589cca42b74816a5801463ccec80bad1385 100644
+index fc9919dd01cad02486af293f9b0c692046c7eea1..7eb7ef891034f3e4ea5110ce9adcea0e7d589646 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-@@ -1020,6 +1020,7 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -974,6 +974,7 @@ public class ChunkProviderServer extends IChunkProvider {
              }
              // Paper end - optimize isOutisdeRange
              this.world.getMethodProfiler().enter("pollingChunks");
