@@ -26,7 +26,7 @@ index d43a843be591da1b34b37dc95d7d82549d9f56f4..e82cab7fd0e0cc255b4ad15e7693fa0f
      public float getBukkitYaw() {
          return this.yaw;
 diff --git a/src/main/java/net/minecraft/server/EntityInsentient.java b/src/main/java/net/minecraft/server/EntityInsentient.java
-index fb1d640d89258477dd1286fff929deecffb69d9e..6a59dac401acd6fde6f39a29b1984dea14c55a50 100644
+index fb1d640d89258477dd1286fff929deecffb69d9e..5a24ac45fba67ff585e3d7ee60a4621e1f370cfc 100644
 --- a/src/main/java/net/minecraft/server/EntityInsentient.java
 +++ b/src/main/java/net/minecraft/server/EntityInsentient.java
 @@ -132,10 +132,10 @@ public abstract class EntityInsentient extends EntityLiving {
@@ -42,23 +42,36 @@ index fb1d640d89258477dd1286fff929deecffb69d9e..6a59dac401acd6fde6f39a29b1984dea
              this.targetSelector.doTick();
          }
      }
+@@ -760,9 +760,11 @@ public abstract class EntityInsentient extends EntityLiving {
+         this.bo.a();
+         this.world.getMethodProfiler().exit();
+         this.world.getMethodProfiler().enter("targetSelector");
++        if (this.targetSelector.inactiveTick(this.activatedPriority)) // AirplaneL - use this to alternate ticking
+         this.targetSelector.doTick();
+         this.world.getMethodProfiler().exit();
+         this.world.getMethodProfiler().enter("goalSelector");
++        if (this.goalSelector.inactiveTick(this.activatedPriority)) // AirplaneL - use this to alternate ticking
+         this.goalSelector.doTick();
+         this.world.getMethodProfiler().exit();
+         this.world.getMethodProfiler().enter("navigation");
 diff --git a/src/main/java/net/minecraft/server/PathfinderGoalSelector.java b/src/main/java/net/minecraft/server/PathfinderGoalSelector.java
-index d3f0327a2a7cdedf3fe8d10df981a9f1cb378d26..91b2efc3563ec98450cb15e32e449d61c2a243df 100644
+index d3f0327a2a7cdedf3fe8d10df981a9f1cb378d26..4c45328bdbe74ab1ccfb12dda85b52e61ddf9303 100644
 --- a/src/main/java/net/minecraft/server/PathfinderGoalSelector.java
 +++ b/src/main/java/net/minecraft/server/PathfinderGoalSelector.java
-@@ -43,8 +43,8 @@ public class PathfinderGoalSelector {
+@@ -43,8 +43,9 @@ public class PathfinderGoalSelector {
      }
  
      // Paper start
 -    public boolean inactiveTick() {
 -        if (getCurRate() % getTickRate() != 0) {
 +    public boolean inactiveTick(int tickRate) { // AirplaneL - take tick rate
++        tickRate = Math.max(tickRate, getTickRate()); // AirplaneL
 +        if (getCurRate() % tickRate != 0) { // AirplaneL - use tick rate
              incRate();
              return false;
          } else {
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..81dcbe700c19ac9af0b411d26377818ad0abdd2a 100644
+index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..588c9e987da483036654257b52ca3dfbc4bf1fe2 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -50,6 +50,9 @@ import net.minecraft.server.EntityInsentient;
@@ -96,7 +109,7 @@ index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..81dcbe700c19ac9af0b411d26377818a
 +                // AirplaneL start
 +                Vec3D entityVec = entity.getPositionVector();
 +                double diffX = playerVec.x - entityVec.x, diffY = playerVec.y - entityVec.y, diffZ = playerVec.z - entityVec.z;
-+                int priority = (int) (diffX * diffX + diffY * diffY + diffZ * diffZ) >> 10;
++                int priority = (int) (diffX * diffX + diffY * diffY + diffZ * diffZ) >> 9;
                  if (MinecraftServer.currentTick > entity.activatedTick) {
                      if (entity.defaultActivationState || entity.activationType.boundingBox.c(entity.getBoundingBox())) { // Paper
                          entity.activatedTick = MinecraftServer.currentTick;
