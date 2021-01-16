@@ -1,0 +1,111 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Fri, 15 Jan 2021 19:05:01 -0600
+Subject: [PATCH] Dynamic activation range
+
+This replaces the current method of ticking an inactive entity's
+pathfinder 1/4 times with a new method that's dynamic based off how far
+away it is from a player. If an entity is within 32 blocks, it gets
+ticked every tick. If it's within 45 blocks, it gets ticked every other
+tick. If it's within 55 blocks, it gets ticked once every three ticks.
+
+todo use with actual entity ticking, not just inactive.
+
+diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
+index d43a843be591da1b34b37dc95d7d82549d9f56f4..e82cab7fd0e0cc255b4ad15e7693fa0f4bffe25f 100644
+--- a/src/main/java/net/minecraft/server/Entity.java
++++ b/src/main/java/net/minecraft/server/Entity.java
+@@ -197,6 +197,9 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+     public void inactiveTick() { }
+     // Spigot end
+     public boolean shouldBeRemoved; // Paper
++    // AirplaneL start
++    public int activatedPriority = 0; // golf score
++    // AirplaneL end
+ 
+     public float getBukkitYaw() {
+         return this.yaw;
+diff --git a/src/main/java/net/minecraft/server/EntityInsentient.java b/src/main/java/net/minecraft/server/EntityInsentient.java
+index fb1d640d89258477dd1286fff929deecffb69d9e..6a59dac401acd6fde6f39a29b1984dea14c55a50 100644
+--- a/src/main/java/net/minecraft/server/EntityInsentient.java
++++ b/src/main/java/net/minecraft/server/EntityInsentient.java
+@@ -132,10 +132,10 @@ public abstract class EntityInsentient extends EntityLiving {
+     @Override
+     public void inactiveTick() {
+         super.inactiveTick();
+-        if (this.goalSelector.inactiveTick()) {
++        if (this.goalSelector.inactiveTick(this.activatedPriority)) { // AirplaneL - pass activated priroity
+             this.goalSelector.doTick();
+         }
+-        if (this.targetSelector.inactiveTick()) {
++        if (this.targetSelector.inactiveTick(this.activatedPriority)) { // AirplaneL - pass activated priority
+             this.targetSelector.doTick();
+         }
+     }
+diff --git a/src/main/java/net/minecraft/server/PathfinderGoalSelector.java b/src/main/java/net/minecraft/server/PathfinderGoalSelector.java
+index d3f0327a2a7cdedf3fe8d10df981a9f1cb378d26..91b2efc3563ec98450cb15e32e449d61c2a243df 100644
+--- a/src/main/java/net/minecraft/server/PathfinderGoalSelector.java
++++ b/src/main/java/net/minecraft/server/PathfinderGoalSelector.java
+@@ -43,8 +43,8 @@ public class PathfinderGoalSelector {
+     }
+ 
+     // Paper start
+-    public boolean inactiveTick() {
+-        if (getCurRate() % getTickRate() != 0) {
++    public boolean inactiveTick(int tickRate) { // AirplaneL - take tick rate
++        if (getCurRate() % tickRate != 0) { // AirplaneL - use tick rate
+             incRate();
+             return false;
+         } else {
+diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
+index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..81dcbe700c19ac9af0b411d26377818ad0abdd2a 100644
+--- a/src/main/java/org/spigotmc/ActivationRange.java
++++ b/src/main/java/org/spigotmc/ActivationRange.java
+@@ -50,6 +50,9 @@ import net.minecraft.server.EntityInsentient;
+ import net.minecraft.server.EntityLlama;
+ import net.minecraft.server.EntityWaterAnimal;
+ // Paper end
++// AirplaneL start
++import net.minecraft.server.Vec3D;
++// AirplaneL end
+ 
+ public class ActivationRange
+ {
+@@ -230,7 +233,7 @@ public class ActivationRange
+                     Chunk chunk = chunkProvider.getChunkAtIfLoadedMainThreadNoCache( i1, j1 ); // Paper
+                     if ( chunk != null )
+                     {
+-                        activateChunkEntities( chunk );
++                        activateChunkEntities( chunk, player.getPositionVector() ); // AirplaneL
+                     }
+                 }
+             }
+@@ -243,7 +246,7 @@ public class ActivationRange
+      *
+      * @param chunk
+      */
+-    private static void activateChunkEntities(Chunk chunk)
++    private static void activateChunkEntities(Chunk chunk, Vec3D playerVec) // AirplaneL - add player location
+     {
+         // Paper start
+         Entity[] rawData = chunk.entities.getRawData();
+@@ -252,11 +255,19 @@ public class ActivationRange
+             //for ( Entity entity : (Collection<Entity>) slice )
+             // Paper end
+             {
++                // AirplaneL start
++                Vec3D entityVec = entity.getPositionVector();
++                double diffX = playerVec.x - entityVec.x, diffY = playerVec.y - entityVec.y, diffZ = playerVec.z - entityVec.z;
++                int priority = (int) (diffX * diffX + diffY * diffY + diffZ * diffZ) >> 10;
+                 if (MinecraftServer.currentTick > entity.activatedTick) {
+                     if (entity.defaultActivationState || entity.activationType.boundingBox.c(entity.getBoundingBox())) { // Paper
+                         entity.activatedTick = MinecraftServer.currentTick;
+                     }
++                    entity.activatedPriority = priority;
++                } else {
++                    entity.activatedPriority = Math.min(priority, entity.activatedPriority);
+                 }
++                // AirplaneL end
+             }
+         }
+     }
