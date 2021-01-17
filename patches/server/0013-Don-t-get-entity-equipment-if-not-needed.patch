@@ -20,12 +20,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/EntityLiving.java b/src/main/java/net/minecraft/server/EntityLiving.java
-index ebc08e0e22b7d6fbdc2b5809d0731619aea703e6..8ba3c993e452405683a2fd74ba45111e97e4d5ec 100644
+index 628a557e05718c51984fa9ba7152f0b8d5da54aa..b119b40819a82d1636573c3c01d2acf9f5fdcd3c 100644
 --- a/src/main/java/net/minecraft/server/EntityLiving.java
 +++ b/src/main/java/net/minecraft/server/EntityLiving.java
 @@ -814,11 +814,13 @@ public abstract class EntityLiving extends Entity {
          }
-
+ 
          if (entity != null) {
 -            ItemStack itemstack = this.getEquipment(EnumItemSlot.HEAD);
 -            Item item = itemstack.getItem();
@@ -33,7 +33,7 @@ index ebc08e0e22b7d6fbdc2b5809d0731619aea703e6..8ba3c993e452405683a2fd74ba45111e
 +            //ItemStack itemstack = this.getEquipment(EnumItemSlot.HEAD);
 +            //Item item = itemstack.getItem();
              EntityTypes<?> entitytypes = entity.getEntityType();
-
+ 
 -            if (entitytypes == EntityTypes.SKELETON && item == Items.SKELETON_SKULL || entitytypes == EntityTypes.ZOMBIE && item == Items.ZOMBIE_HEAD || entitytypes == EntityTypes.CREEPER && item == Items.CREEPER_HEAD) {
 +            if (entitytypes == EntityTypes.SKELETON && this.getEquipment(EnumItemSlot.HEAD).getItem() == Items.SKELETON_SKULL || entitytypes == EntityTypes.ZOMBIE && this.getEquipment(EnumItemSlot.HEAD).getItem() == Items.ZOMBIE_HEAD || entitytypes == EntityTypes.CREEPER && this.getEquipment(EnumItemSlot.HEAD).getItem() == Items.CREEPER_HEAD) {
 +                // AirplaneL end

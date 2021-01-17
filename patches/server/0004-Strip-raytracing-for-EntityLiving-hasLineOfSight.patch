@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/EntityLiving.java b/src/main/java/net/minecraft/server/EntityLiving.java
-index 1c396ec56f35d8764e3bf7b67a7984393eb94b3b..ebc08e0e22b7d6fbdc2b5809d0731619aea703e6 100644
+index 4fe5a8d0201d662c68dd58eeb8cf1d304787edb4..628a557e05718c51984fa9ba7152f0b8d5da54aa 100644
 --- a/src/main/java/net/minecraft/server/EntityLiving.java
 +++ b/src/main/java/net/minecraft/server/EntityLiving.java
 @@ -2986,7 +2986,7 @@ public abstract class EntityLiving extends Entity {
@@ -88,7 +88,7 @@ index 2e7721a650c5a351b3584665bd236f92ef577761..8a6b623084fdc5ee2b0718f9e72f7c52
          return d0 == 0.0D ? 0 : (d0 > 0.0D ? 1 : -1);
      }
 diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index 4a17c1b8092968247ee9fa0ce2b5bd44baf2b18f..ff5e209a18eb0db85de675bf5fdf6d6bbcc9e62f 100644
+index 28ee325fcc8b50397768363403823f2e3391d8c8..d9f0680bb44d8d6ce5e1d8efdc980961ead44017 100644
 --- a/src/main/java/net/minecraft/server/World.java
 +++ b/src/main/java/net/minecraft/server/World.java
 @@ -287,6 +287,91 @@ public abstract class World implements GeneratorAccess, AutoCloseable {

@@ -20,10 +20,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index 12d9b73ccc2f4406957932397746cac7902d650e..fc9919dd01cad02486af293f9b0c692046c7eea1 100644
+index 38ca1c042afd41a1f660f88e398fedde00f34e39..45db17d2f415197849c1fac5adce46d893e2a81d 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-@@ -1005,6 +1005,7 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -996,6 +996,7 @@ public class ChunkProviderServer extends IChunkProvider {
              // Paper - moved up
              // Tuinity start - optimise chunk tick iteration
              com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet.Iterator<Chunk> iterator = this.entityTickingChunks.iterator();
@@ -31,7 +31,7 @@ index 12d9b73ccc2f4406957932397746cac7902d650e..fc9919dd01cad02486af293f9b0c6920
              try {
              while (iterator.hasNext()) {
                  Chunk chunk = iterator.next();
-@@ -1029,7 +1030,7 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -1020,7 +1021,7 @@ public class ChunkProviderServer extends IChunkProvider {
                              }
  
                              this.world.timings.chunkTicks.startTiming(); // Spigot // Paper
@@ -40,7 +40,7 @@ index 12d9b73ccc2f4406957932397746cac7902d650e..fc9919dd01cad02486af293f9b0c6920
                              this.world.timings.chunkTicks.stopTiming(); // Spigot // Paper
                              MinecraftServer.getServer().executeMidTickTasks(); // Tuinity - exec chunk tasks during world tick
                          }
-@@ -1039,6 +1040,7 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -1030,6 +1031,7 @@ public class ChunkProviderServer extends IChunkProvider {
              } finally {
                  iterator.finishedIterating();
              }
@@ -49,7 +49,7 @@ index 12d9b73ccc2f4406957932397746cac7902d650e..fc9919dd01cad02486af293f9b0c6920
              this.world.getMethodProfiler().enter("customSpawners");
              if (flag1) {
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 72452abfe1fa8eafac386e0f2e5d87296772675a..bf1502c8e9277b533933b43a453b98c3b09b7849 100644
+index 6ff5ef6b710652f1c4fe6461ff230ee78988f623..1ff47f49ab0c39b30962fd4ce1331696702bdf5c 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
 @@ -978,7 +978,10 @@ public class WorldServer extends World implements GeneratorAccessSeed {
