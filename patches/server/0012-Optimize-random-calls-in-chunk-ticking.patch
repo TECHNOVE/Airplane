@@ -34,11 +34,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
-index 0a8173a5bcd7212ebeff204fef5efdf1633aac78..c18454a3f8203156316f49b0c1c1216b74aecf03 100644
+index 7842e65115cf6c37322c83ebff954a06408680b5..883f1dc18801e54e67e70c3346f732823877e464 100644
 --- a/src/main/java/net/minecraft/server/Chunk.java
 +++ b/src/main/java/net/minecraft/server/Chunk.java
 @@ -53,6 +53,17 @@ public class Chunk implements IChunkAccess {
-     private final ChunkCoordIntPair loc; public final long coordinateKey; // Paper - cache coordinate key
+     private final ChunkCoordIntPair loc; public final long coordinateKey; public final int locX; public final int locZ; // Paper - cache coordinate key
      private volatile boolean x;
  
 +    // AirplaneL start - instead of using a random every time the chunk is ticked, define when lightning strikes preemptively
@@ -56,10 +56,10 @@ index 0a8173a5bcd7212ebeff204fef5efdf1633aac78..c18454a3f8203156316f49b0c1c1216b
          this(world, chunkcoordintpair, biomestorage, ChunkConverter.a, TickListEmpty.b(), TickListEmpty.b(), 0L, (ChunkSection[]) null, (Consumer) null);
      }
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index fc9919dd01cad02486af293f9b0c692046c7eea1..7eb7ef891034f3e4ea5110ce9adcea0e7d589646 100644
+index 45db17d2f415197849c1fac5adce46d893e2a81d..ce2864f44dcc2003a85f7a211073b2b0bb617cd2 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-@@ -974,6 +974,7 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -965,6 +965,7 @@ public class ChunkProviderServer extends IChunkProvider {
              }
              // Paper end - optimize isOutisdeRange
              this.world.getMethodProfiler().enter("pollingChunks");
@@ -68,7 +68,7 @@ index fc9919dd01cad02486af293f9b0c692046c7eea1..7eb7ef891034f3e4ea5110ce9adcea0e
              boolean flag2 = world.ticksPerAnimalSpawns != 0L && worlddata.getTime() % world.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 487b7ffcc6653be9494a130729fda5f368345bd5..edad2f05b93872473e965f5285f63214f56ced52 100644
+index e8de580da0847b1353c3144996b68637d15a8525..5f435a90ed24d5e6c51406c239f7732cd4d1a95f 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
 @@ -978,6 +978,8 @@ public class WorldServer extends World implements GeneratorAccessSeed {

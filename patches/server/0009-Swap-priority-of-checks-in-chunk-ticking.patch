@@ -23,7 +23,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index bf1502c8e9277b533933b43a453b98c3b09b7849..487b7ffcc6653be9494a130729fda5f368345bd5 100644
+index 1ff47f49ab0c39b30962fd4ce1331696702bdf5c..e8de580da0847b1353c3144996b68637d15a8525 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
 @@ -991,7 +991,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
