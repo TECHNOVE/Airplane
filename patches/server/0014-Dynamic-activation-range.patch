@@ -12,7 +12,7 @@ tick. If it's within 55 blocks, it gets ticked once every three ticks.
 todo use with actual entity ticking, not just inactive.
 
 diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
-index 013c44f80f74376e8bbb37afb5de07aa5d8fb1bc..ae981a1933e99ed952c60768985d1695cd6953f9 100644
+index 013c44f80f74376e8bbb37afb5de07aa5d8fb1bc..b187bdd7a95b7c8329b135b65d85fa7f0d695834 100644
 --- a/src/main/java/net/minecraft/server/Entity.java
 +++ b/src/main/java/net/minecraft/server/Entity.java
 @@ -197,6 +197,9 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
@@ -20,7 +20,7 @@ index 013c44f80f74376e8bbb37afb5de07aa5d8fb1bc..ae981a1933e99ed952c60768985d1695
      // Spigot end
      public boolean shouldBeRemoved; // Paper
 +    // AirplaneL start
-+    public int activatedPriority = 0; // golf score
++    public int activatedPriority = 40; // golf score
 +    // AirplaneL end
  
      public float getBukkitYaw() {
@@ -55,23 +55,25 @@ index 7582a3a0955db2bc79daeced8e9c869f4276815a..986b5725421cca763250b45d92440316
          this.world.getMethodProfiler().exit();
          this.world.getMethodProfiler().enter("navigation");
 diff --git a/src/main/java/net/minecraft/server/PathfinderGoalSelector.java b/src/main/java/net/minecraft/server/PathfinderGoalSelector.java
-index d3f0327a2a7cdedf3fe8d10df981a9f1cb378d26..4c45328bdbe74ab1ccfb12dda85b52e61ddf9303 100644
+index d3f0327a2a7cdedf3fe8d10df981a9f1cb378d26..684e90b8ae0543fbcf4c2536c90a144229f3ee48 100644
 --- a/src/main/java/net/minecraft/server/PathfinderGoalSelector.java
 +++ b/src/main/java/net/minecraft/server/PathfinderGoalSelector.java
-@@ -43,8 +43,9 @@ public class PathfinderGoalSelector {
+@@ -43,9 +43,10 @@ public class PathfinderGoalSelector {
      }
  
      // Paper start
 -    public boolean inactiveTick() {
 -        if (getCurRate() % getTickRate() != 0) {
+-            incRate();
 +    public boolean inactiveTick(int tickRate) { // AirplaneL - take tick rate
 +        tickRate = Math.max(tickRate, getTickRate()); // AirplaneL
-+        if (getCurRate() % tickRate != 0) { // AirplaneL - use tick rate
-             incRate();
++        if (this.curRate++ % tickRate != 0) { // AirplaneL - use tick rate / increment curRate every tick
++            //incRate();
              return false;
          } else {
+             return true;
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..588c9e987da483036654257b52ca3dfbc4bf1fe2 100644
+index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..9986254036d0d3ad66a292f14011755d58d4932d 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -50,6 +50,9 @@ import net.minecraft.server.EntityInsentient;
@@ -114,9 +116,9 @@ index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..588c9e987da483036654257b52ca3dfb
                      if (entity.defaultActivationState || entity.activationType.boundingBox.c(entity.getBoundingBox())) { // Paper
                          entity.activatedTick = MinecraftServer.currentTick;
                      }
-+                    entity.activatedPriority = priority;
++                    entity.activatedPriority = Math.min(40, priority);
 +                } else {
-+                    entity.activatedPriority = Math.min(priority, entity.activatedPriority);
++                    entity.activatedPriority = Math.min(40, Math.min(priority, entity.activatedPriority));
                  }
 +                // AirplaneL end
              }
