@@ -2,7 +2,7 @@
 
 Another performance Tuinity fork.
 
-Find downloads here: https://github.com/Technove/AirplaneLite/actions
+Find downloads here: https://github.com/Technove/AirplaneLite/actions?query=branch%3Amaster
 
 ## License
 
