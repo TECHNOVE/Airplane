@@ -12,7 +12,7 @@ tick. If it's within 55 blocks, it gets ticked once every three ticks.
 todo use with actual entity ticking, not just inactive.
 
 diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
-index d43a843be591da1b34b37dc95d7d82549d9f56f4..e82cab7fd0e0cc255b4ad15e7693fa0f4bffe25f 100644
+index 013c44f80f74376e8bbb37afb5de07aa5d8fb1bc..ae981a1933e99ed952c60768985d1695cd6953f9 100644
 --- a/src/main/java/net/minecraft/server/Entity.java
 +++ b/src/main/java/net/minecraft/server/Entity.java
 @@ -197,6 +197,9 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
@@ -26,7 +26,7 @@ index d43a843be591da1b34b37dc95d7d82549d9f56f4..e82cab7fd0e0cc255b4ad15e7693fa0f
      public float getBukkitYaw() {
          return this.yaw;
 diff --git a/src/main/java/net/minecraft/server/EntityInsentient.java b/src/main/java/net/minecraft/server/EntityInsentient.java
-index fb1d640d89258477dd1286fff929deecffb69d9e..5a24ac45fba67ff585e3d7ee60a4621e1f370cfc 100644
+index 7582a3a0955db2bc79daeced8e9c869f4276815a..986b5725421cca763250b45d92440316b937a639 100644
 --- a/src/main/java/net/minecraft/server/EntityInsentient.java
 +++ b/src/main/java/net/minecraft/server/EntityInsentient.java
 @@ -132,10 +132,10 @@ public abstract class EntityInsentient extends EntityLiving {
