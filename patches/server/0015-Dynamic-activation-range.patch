@@ -12,16 +12,17 @@ tick. If it's within 55 blocks, it gets ticked once every three ticks.
 todo use with actual entity ticking, not just inactive.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..05fdb7a33b6a4971d48bef3782a8329fa3bc5278 100644
+index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..6c0c5ef40ab5b5fdaaf515cfddf1d79cd1b196f9 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -43,4 +43,21 @@ public class AirplaneConfig {
+@@ -43,4 +43,25 @@ public class AirplaneConfig {
          }
      }
  
 +
 +    public static int maximumActivationPrio = 20;
 +    public static int activationDistanceMod = 9;
++    public static boolean dynamicVillagerBehavior = true;
 +
 +    private static void dynamicActivationRange() {
 +        manual.setComment("activation-range", "Optimizes how entities act when", "they're far away from the player");
@@ -34,6 +35,9 @@ index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..05fdb7a33b6a4971d48bef3782a8329f
 +          "tick frequency. freq = (distanceToPlayer^2) / (2^value)",
 +          "If you want further away entities to tick more often, use 8.",
 +          "If you want further away entities to tick less often, try 10.");
++
++        manual.setComment("behavior-activation", "A list of entities to use the dynamic activation range", "to modify how often their behaviors are ticked");
++        dynamicVillagerBehavior = manual.get("behavior-activation.villager", dynamicVillagerBehavior);
 +    }
 +
  }
@@ -80,6 +84,29 @@ index 7582a3a0955db2bc79daeced8e9c869f4276815a..986b5725421cca763250b45d92440316
          this.goalSelector.doTick();
          this.world.getMethodProfiler().exit();
          this.world.getMethodProfiler().enter("navigation");
+diff --git a/src/main/java/net/minecraft/server/EntityVillager.java b/src/main/java/net/minecraft/server/EntityVillager.java
+index de9ea6770b8afc5e1020bef04ac6cca93b6b420c..eb72c6838d8be84f507605f0ec21b8c4511f8055 100644
+--- a/src/main/java/net/minecraft/server/EntityVillager.java
++++ b/src/main/java/net/minecraft/server/EntityVillager.java
+@@ -162,11 +162,17 @@ public class EntityVillager extends EntityVillagerAbstract implements Reputation
+     }
+     // Spigot End
+ 
++    private int behaviorTick = 0;
++
+     @Override
+     protected void mobTick() { mobTick(false); }
+     protected void mobTick(boolean inactive) {
+         this.world.getMethodProfiler().enter("villagerBrain");
+-        if (!inactive) this.getBehaviorController().a((WorldServer) this.world, this); // CraftBukkit - decompile error // Paper
++        if (!inactive) {
++            if (!gg.airplane.AirplaneConfig.dynamicVillagerBehavior || behaviorTick++ % this.activatedPriority == 0) {
++                this.getBehaviorController().a((WorldServer) this.world, this); // CraftBukkit - decompile error // Paper
++            }
++        }
+         this.world.getMethodProfiler().exit();
+         if (this.bF) {
+             this.bF = false;
 diff --git a/src/main/java/net/minecraft/server/PathfinderGoalSelector.java b/src/main/java/net/minecraft/server/PathfinderGoalSelector.java
 index d3f0327a2a7cdedf3fe8d10df981a9f1cb378d26..684e90b8ae0543fbcf4c2536c90a144229f3ee48 100644
 --- a/src/main/java/net/minecraft/server/PathfinderGoalSelector.java
