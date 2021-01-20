@@ -12,7 +12,7 @@ tick. If it's within 55 blocks, it gets ticked once every three ticks.
 todo use with actual entity ticking, not just inactive.
 
 diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
-index 013c44f80f74376e8bbb37afb5de07aa5d8fb1bc..b187bdd7a95b7c8329b135b65d85fa7f0d695834 100644
+index 013c44f80f74376e8bbb37afb5de07aa5d8fb1bc..7b121b0b8a7da5e028ef8748c47b9c8522dde8f9 100644
 --- a/src/main/java/net/minecraft/server/Entity.java
 +++ b/src/main/java/net/minecraft/server/Entity.java
 @@ -197,6 +197,9 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
@@ -20,7 +20,7 @@ index 013c44f80f74376e8bbb37afb5de07aa5d8fb1bc..b187bdd7a95b7c8329b135b65d85fa7f
      // Spigot end
      public boolean shouldBeRemoved; // Paper
 +    // AirplaneL start
-+    public int activatedPriority = 40; // golf score
++    public int activatedPriority = 20; // golf score
 +    // AirplaneL end
  
      public float getBukkitYaw() {
@@ -73,7 +73,7 @@ index d3f0327a2a7cdedf3fe8d10df981a9f1cb378d26..684e90b8ae0543fbcf4c2536c90a1442
          } else {
              return true;
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..9986254036d0d3ad66a292f14011755d58d4932d 100644
+index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..66ba0e146d043b83ed1b84be417369de7364e11f 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -50,6 +50,9 @@ import net.minecraft.server.EntityInsentient;
@@ -116,9 +116,9 @@ index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..9986254036d0d3ad66a292f14011755d
                      if (entity.defaultActivationState || entity.activationType.boundingBox.c(entity.getBoundingBox())) { // Paper
                          entity.activatedTick = MinecraftServer.currentTick;
                      }
-+                    entity.activatedPriority = Math.min(40, priority);
++                    entity.activatedPriority = Math.min(20, priority);
 +                } else {
-+                    entity.activatedPriority = Math.min(40, Math.min(priority, entity.activatedPriority));
++                    entity.activatedPriority = Math.min(20, Math.min(priority, entity.activatedPriority));
                  }
 +                // AirplaneL end
              }
