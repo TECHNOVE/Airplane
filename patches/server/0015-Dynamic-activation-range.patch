@@ -126,7 +126,7 @@ index d3f0327a2a7cdedf3fe8d10df981a9f1cb378d26..684e90b8ae0543fbcf4c2536c90a1442
          } else {
              return true;
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..3dfa5afb2c1be791f3148a9d76a9c10412c70d28 100644
+index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..0a1628d6a61e7ee1a94741a78b9cbe1fe1d92c89 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -50,6 +50,9 @@ import net.minecraft.server.EntityInsentient;
@@ -164,7 +164,7 @@ index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..3dfa5afb2c1be791f3148a9d76a9c104
 +                // AirplaneL start
 +                Vec3D entityVec = entity.getPositionVector();
 +                double diffX = playerVec.x - entityVec.x, diffY = playerVec.y - entityVec.y, diffZ = playerVec.z - entityVec.z;
-+                int priority = (int) (diffX * diffX + diffY * diffY + diffZ * diffZ) >> gg.airplane.AirplaneConfig.activationDistanceMod;
++                int priority = Math.max(1, (int) (diffX * diffX + diffY * diffY + diffZ * diffZ) >> gg.airplane.AirplaneConfig.activationDistanceMod);
                  if (MinecraftServer.currentTick > entity.activatedTick) {
                      if (entity.defaultActivationState || entity.activationType.boundingBox.c(entity.getBoundingBox())) { // Paper
                          entity.activatedTick = MinecraftServer.currentTick;
