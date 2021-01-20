@@ -12,7 +12,7 @@ tick. If it's within 55 blocks, it gets ticked once every three ticks.
 todo use with actual entity ticking, not just inactive.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..1033c71321d6a4938c258caf353c84e8afe58aa8 100644
+index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..05fdb7a33b6a4971d48bef3782a8329fa3bc5278 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -43,4 +43,21 @@ public class AirplaneConfig {
@@ -30,7 +30,7 @@ index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..1033c71321d6a4938c258caf353c84e8
 +          "This value defines how often in ticks, the furthest entity",
 +          "will get their pathfinders and behaviors ticked. 20 = 1s");
 +        activationDistanceMod = manual.get("activation-range.activation-dist-mod", activationDistanceMod,
-+          "This value defines how much distance modifies an entities",
++          "This value defines how much distance modifies an entity's",
 +          "tick frequency. freq = (distanceToPlayer^2) / (2^value)",
 +          "If you want further away entities to tick more often, use 8.",
 +          "If you want further away entities to tick less often, try 10.");
