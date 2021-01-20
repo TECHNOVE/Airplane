@@ -58,10 +58,10 @@ index 0000000000000000000000000000000000000000..4feb9686f45ce4ae9f474447496b8e0f
 +}
 diff --git a/src/main/java/gg/airplane/manual/ManualParser.java b/src/main/java/gg/airplane/manual/ManualParser.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..64ea7d2b86f39d85c2fbf94e426fa4b433e59556
+index 0000000000000000000000000000000000000000..4475d2911d043429125a488af37a7e43394d111b
 --- /dev/null
 +++ b/src/main/java/gg/airplane/manual/ManualParser.java
-@@ -0,0 +1,211 @@
+@@ -0,0 +1,212 @@
 +package gg.airplane.manual;
 +
 +import java.io.BufferedReader;
@@ -72,6 +72,7 @@ index 0000000000000000000000000000000000000000..64ea7d2b86f39d85c2fbf94e426fa4b4
 +import java.io.IOException;
 +import java.util.ArrayList;
 +import java.util.Arrays;
++import java.util.LinkedHashMap;
 +import java.util.List;
 +import java.util.Map;
 +import java.util.TreeMap;
@@ -81,7 +82,7 @@ index 0000000000000000000000000000000000000000..64ea7d2b86f39d85c2fbf94e426fa4b4
 +public class ManualParser {
 +
 +    private final File file;
-+    private final Map<String, Section> sections = new TreeMap<>();
++    private final Map<String, Section> sections = new LinkedHashMap<>();
 +
 +    private static class ManualObject {
 +        public final String key;
@@ -98,7 +99,7 @@ index 0000000000000000000000000000000000000000..64ea7d2b86f39d85c2fbf94e426fa4b4
 +
 +        private Section(String key, List<String> comments) {
 +            super(key, comments);
-+            this.values = new TreeMap<>();
++            this.values = new LinkedHashMap<>();
 +        }
 +
 +        public void add(String key, Value value) {
