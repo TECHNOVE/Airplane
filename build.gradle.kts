@@ -16,7 +16,7 @@ toothpick {
     nmsRevision = "R0.1-SNAPSHOT"
 
     upstream = "Tuinity"
-    upstreamBranch = "origin/dev/lighting"
+    upstreamBranch = "origin/master"
 
     paperclipName = "launcher-airplanelite.jar"
 

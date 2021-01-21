@@ -34,7 +34,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
-index 7842e65115cf6c37322c83ebff954a06408680b5..883f1dc18801e54e67e70c3346f732823877e464 100644
+index ae07ea2a34f5cd82ce2eae523359cb7540065335..8b7fd21e6b366196fbc9cd44a340335c4cf9205f 100644
 --- a/src/main/java/net/minecraft/server/Chunk.java
 +++ b/src/main/java/net/minecraft/server/Chunk.java
 @@ -53,6 +53,17 @@ public class Chunk implements IChunkAccess {
