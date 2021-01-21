@@ -19,6 +19,37 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+diff --git a/src/main/java/net/minecraft/server/EntityPiglin.java b/src/main/java/net/minecraft/server/EntityPiglin.java
+index ca7f9dc54ed2e58f521613b5d8027494bd20edd2..c11fb20b41c7c360044af9302587f03a5f4a9708 100644
+--- a/src/main/java/net/minecraft/server/EntityPiglin.java
++++ b/src/main/java/net/minecraft/server/EntityPiglin.java
+@@ -143,7 +143,7 @@ public class EntityPiglin extends EntityPiglinAbstract implements ICrossbow {
+ 
+     @Override
+     public BehaviorController<EntityPiglin> getBehaviorController() {
+-        return super.getBehaviorController();
++        return (BehaviorController<EntityPiglin>) super.getBehaviorController(); // Airplane - compile error
+     }
+ 
+     @Override
+@@ -202,7 +202,7 @@ public class EntityPiglin extends EntityPiglinAbstract implements ICrossbow {
+     @Override
+     protected void mobTick() {
+         this.world.getMethodProfiler().enter("piglinBrain");
+-        this.getBehaviorController().a((WorldServer) this.world, (EntityLiving) this);
++        this.getBehaviorController().a((WorldServer) this.world, (EntityPiglin) this); // Airplane - compile error
+         this.world.getMethodProfiler().exit();
+         PiglinAI.b(this);
+         super.mobTick();
+@@ -341,7 +341,7 @@ public class EntityPiglin extends EntityPiglinAbstract implements ICrossbow {
+ 
+     @Override
+     protected SoundEffect getSoundAmbient() {
+-        return this.world.isClientSide ? null : (SoundEffect) PiglinAI.d(this).orElse((Object) null);
++        return this.world.isClientSide ? null : (SoundEffect) PiglinAI.d(this).orElse(null); // Airplane - compile error
+     }
+ 
+     @Override
 diff --git a/src/main/java/net/minecraft/server/LootTableInfo.java b/src/main/java/net/minecraft/server/LootTableInfo.java
 index addeb268d4d487e18ddaadebf96f078fd079246f..268147484805e9fff298d2f5006f1c594c485342 100644
 --- a/src/main/java/net/minecraft/server/LootTableInfo.java

@@ -1,4 +1,6 @@
 {
-  "nmsImports": [],
+  "nmsImports": [
+    "EntityPiglin"
+  ],
   "libraryImports": []
 }

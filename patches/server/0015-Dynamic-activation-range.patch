@@ -12,10 +12,10 @@ tick. If it's within 55 blocks, it gets ticked once every three ticks.
 todo use with actual entity ticking, not just inactive.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..6c0c5ef40ab5b5fdaaf515cfddf1d79cd1b196f9 100644
+index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..979eab1305c72da73fd9a1ed74d9dc669ecca5a8 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -43,4 +43,25 @@ public class AirplaneConfig {
+@@ -43,4 +43,27 @@ public class AirplaneConfig {
          }
      }
  
@@ -23,6 +23,7 @@ index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..6c0c5ef40ab5b5fdaaf515cfddf1d79c
 +    public static int maximumActivationPrio = 20;
 +    public static int activationDistanceMod = 9;
 +    public static boolean dynamicVillagerBehavior = true;
++    public static boolean dynamicPiglinBehavior = true;
 +
 +    private static void dynamicActivationRange() {
 +        manual.setComment("activation-range", "Optimizes how entities act when", "they're far away from the player");
@@ -38,6 +39,7 @@ index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..6c0c5ef40ab5b5fdaaf515cfddf1d79c
 +
 +        manual.setComment("behavior-activation", "A list of entities to use the dynamic activation range", "to modify how often their behaviors are ticked");
 +        dynamicVillagerBehavior = manual.get("behavior-activation.villager", dynamicVillagerBehavior);
++        dynamicPiglinBehavior = manual.get("behavior-activation.piglin", dynamicPiglinBehavior);
 +    }
 +
  }
@@ -84,6 +86,29 @@ index 7582a3a0955db2bc79daeced8e9c869f4276815a..986b5725421cca763250b45d92440316
          this.goalSelector.doTick();
          this.world.getMethodProfiler().exit();
          this.world.getMethodProfiler().enter("navigation");
+diff --git a/src/main/java/net/minecraft/server/EntityPiglin.java b/src/main/java/net/minecraft/server/EntityPiglin.java
+index c11fb20b41c7c360044af9302587f03a5f4a9708..55e5c24b945fa6a9a98aea3b6890307fabf96255 100644
+--- a/src/main/java/net/minecraft/server/EntityPiglin.java
++++ b/src/main/java/net/minecraft/server/EntityPiglin.java
+@@ -199,12 +199,18 @@ public class EntityPiglin extends EntityPiglinAbstract implements ICrossbow {
+         return !this.cannotHunt;
+     }
+ 
++    private int behaviorTick;
++
+     @Override
+     protected void mobTick() {
++        // Airplane - dynamic tick
++        if (!gg.airplane.AirplaneConfig.dynamicPiglinBehavior || this.behaviorTick++ % this.activatedPriority == 0) {
+         this.world.getMethodProfiler().enter("piglinBrain");
+         this.getBehaviorController().a((WorldServer) this.world, (EntityPiglin) this); // Airplane - compile error
+         this.world.getMethodProfiler().exit();
+         PiglinAI.b(this);
++        }
++        // Airplane end
+         super.mobTick();
+     }
+ 
 diff --git a/src/main/java/net/minecraft/server/EntityVillager.java b/src/main/java/net/minecraft/server/EntityVillager.java
 index de9ea6770b8afc5e1020bef04ac6cca93b6b420c..eb72c6838d8be84f507605f0ec21b8c4511f8055 100644
 --- a/src/main/java/net/minecraft/server/EntityVillager.java
