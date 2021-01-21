@@ -1,6 +1,9 @@
+import xyz.jpenilla.toothpick.gitCmd
+import xyz.jpenilla.toothpick.toothpick
+
 plugins {
     `java-library`
-    toothpick
+    id("xyz.jpenilla.toothpick") version "1.0.0-SNAPSHOT"
 }
 
 toothpick {
@@ -16,7 +19,7 @@ toothpick {
     nmsRevision = "R0.1-SNAPSHOT"
 
     upstream = "Tuinity"
-    upstreamBranch = "origin/dev/lighting"
+    upstreamBranch = "origin/master"
 
     paperclipName = "launcher-airplanelite.jar"
 
