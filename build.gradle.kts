@@ -21,7 +21,7 @@ toothpick {
     upstream = "Tuinity"
     upstreamBranch = "origin/master"
 
-    paperclipName = "launcher-airplanelite.jar"
+    paperclipName = "launcher-airplanelite"
 
     server {
         project = project(":$forkNameLowercase-server")
