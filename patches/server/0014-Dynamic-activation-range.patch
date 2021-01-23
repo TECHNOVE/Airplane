@@ -12,10 +12,10 @@ tick. If it's within 55 blocks, it gets ticked once every three ticks.
 todo use with actual entity ticking, not just inactive.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..979eab1305c72da73fd9a1ed74d9dc669ecca5a8 100644
+index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..fb36c4fbdda75eee879912bd11522ef6794dc4dd 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -43,4 +43,27 @@ public class AirplaneConfig {
+@@ -43,4 +43,29 @@ public class AirplaneConfig {
          }
      }
  
@@ -24,6 +24,7 @@ index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..979eab1305c72da73fd9a1ed74d9dc66
 +    public static int activationDistanceMod = 9;
 +    public static boolean dynamicVillagerBehavior = true;
 +    public static boolean dynamicPiglinBehavior = true;
++    public static boolean dynamicHoglinBehavior = true;
 +
 +    private static void dynamicActivationRange() {
 +        manual.setComment("activation-range", "Optimizes how entities act when", "they're far away from the player");
@@ -40,6 +41,7 @@ index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..979eab1305c72da73fd9a1ed74d9dc66
 +        manual.setComment("behavior-activation", "A list of entities to use the dynamic activation range", "to modify how often their behaviors are ticked");
 +        dynamicVillagerBehavior = manual.get("behavior-activation.villager", dynamicVillagerBehavior);
 +        dynamicPiglinBehavior = manual.get("behavior-activation.piglin", dynamicPiglinBehavior);
++        dynamicHoglinBehavior = manual.get("behavior-activation.hoglin", dynamicHoglinBehavior);
 +    }
 +
  }
@@ -57,6 +59,28 @@ index 013c44f80f74376e8bbb37afb5de07aa5d8fb1bc..b7f6b737783140eb1009c833432acee8
  
      public float getBukkitYaw() {
          return this.yaw;
+diff --git a/src/main/java/net/minecraft/server/EntityHoglin.java b/src/main/java/net/minecraft/server/EntityHoglin.java
+index 3b78b65d6eeb84292bb69ba834a23a6bd2367301..5e4be9ff4e68d825d333060591084b12a089d655 100644
+--- a/src/main/java/net/minecraft/server/EntityHoglin.java
++++ b/src/main/java/net/minecraft/server/EntityHoglin.java
+@@ -80,12 +80,17 @@ public class EntityHoglin extends EntityAnimal implements IMonster, IOglin {
+         return (BehaviorController<EntityHoglin>) super.getBehaviorController(); // Airplane - decompile error
+     }
+ 
++    private int behaviorTick; // Airplane
+     @Override
+     protected void mobTick() {
++        // Airplane - dynamic tick
++        if (!gg.airplane.AirplaneConfig.dynamicHoglinBehavior || this.behaviorTick++ % this.activatedPriority == 0) {
+         this.world.getMethodProfiler().enter("hoglinBrain");
+         this.getBehaviorController().a((WorldServer) this.world, (EntityHoglin) this); // Airplane - decompile error
+         this.world.getMethodProfiler().exit();
+         HoglinAI.a(this);
++        }
++        // Airplane end
+         if (this.isConverting()) {
+             ++this.conversionTicks;
+             if (this.conversionTicks > 300) {
 diff --git a/src/main/java/net/minecraft/server/EntityInsentient.java b/src/main/java/net/minecraft/server/EntityInsentient.java
 index 7582a3a0955db2bc79daeced8e9c869f4276815a..986b5725421cca763250b45d92440316b937a639 100644
 --- a/src/main/java/net/minecraft/server/EntityInsentient.java
@@ -87,15 +111,14 @@ index 7582a3a0955db2bc79daeced8e9c869f4276815a..986b5725421cca763250b45d92440316
          this.world.getMethodProfiler().exit();
          this.world.getMethodProfiler().enter("navigation");
 diff --git a/src/main/java/net/minecraft/server/EntityPiglin.java b/src/main/java/net/minecraft/server/EntityPiglin.java
-index c11fb20b41c7c360044af9302587f03a5f4a9708..55e5c24b945fa6a9a98aea3b6890307fabf96255 100644
+index c11fb20b41c7c360044af9302587f03a5f4a9708..682b241ae0e2859aa57faea8a4521c1c07192b7d 100644
 --- a/src/main/java/net/minecraft/server/EntityPiglin.java
 +++ b/src/main/java/net/minecraft/server/EntityPiglin.java
-@@ -199,12 +199,18 @@ public class EntityPiglin extends EntityPiglinAbstract implements ICrossbow {
+@@ -199,12 +199,17 @@ public class EntityPiglin extends EntityPiglinAbstract implements ICrossbow {
          return !this.cannotHunt;
      }
  
-+    private int behaviorTick;
-+
++    private int behaviorTick; // Airplane
      @Override
      protected void mobTick() {
 +        // Airplane - dynamic tick
