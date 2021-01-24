@@ -49,5 +49,5 @@ jobs:
       - name: Send webhook
         run: |
           git clone https://github.com/Encode42/discord-workflows-webhook.git webhook
-          bash webhook/send.sh ${{ job.status }} ${{ secrets.WEBHOOK_URL }}
+          bash webhook/send.sh ${{ needs.build.result }} ${{ secrets.WEBHOOK_URL }}
         shell: bash
