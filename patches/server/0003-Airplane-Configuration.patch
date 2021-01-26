@@ -58,10 +58,10 @@ index 0000000000000000000000000000000000000000..4feb9686f45ce4ae9f474447496b8e0f
 +}
 diff --git a/src/main/java/gg/airplane/manual/ManualParser.java b/src/main/java/gg/airplane/manual/ManualParser.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..4475d2911d043429125a488af37a7e43394d111b
+index 0000000000000000000000000000000000000000..ace29adb0f140d99a8d85ac824654beded4bf5b8
 --- /dev/null
 +++ b/src/main/java/gg/airplane/manual/ManualParser.java
-@@ -0,0 +1,212 @@
+@@ -0,0 +1,210 @@
 +package gg.airplane.manual;
 +
 +import java.io.BufferedReader;
@@ -194,9 +194,7 @@ index 0000000000000000000000000000000000000000..4475d2911d043429125a488af37a7e43
 +                    } else {
 +                        throw new IllegalArgumentException("Invalid configuration, unknown type for " + line);
 +                    }
-+                    if (!currentComment.isEmpty()) {
-+                        currentComment = new ArrayList<>();
-+                    }
++                    currentComment = new ArrayList<>();
 +                }
 +            }
 +        }
