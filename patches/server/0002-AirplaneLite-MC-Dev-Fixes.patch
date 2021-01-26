@@ -19,6 +19,75 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+diff --git a/src/main/java/net/minecraft/server/EntityHoglin.java b/src/main/java/net/minecraft/server/EntityHoglin.java
+index f6797925365836b6c2d3d2c48c746a4d58e28bf3..41382fd40869a8f40f3f65f12cb81a86590a9995 100644
+--- a/src/main/java/net/minecraft/server/EntityHoglin.java
++++ b/src/main/java/net/minecraft/server/EntityHoglin.java
+@@ -13,7 +13,7 @@ public class EntityHoglin extends EntityAnimal implements IMonster, IOglin {
+     public int conversionTicks = 0;
+     public boolean cannotBeHunted = false;
+     protected static final ImmutableList<? extends SensorType<? extends Sensor<? super EntityHoglin>>> bo = ImmutableList.of(SensorType.c, SensorType.d, SensorType.n, SensorType.m);
+-    protected static final ImmutableList<? extends MemoryModuleType<?>> bp = ImmutableList.of(MemoryModuleType.BREED_TARGET, MemoryModuleType.MOBS, MemoryModuleType.VISIBLE_MOBS, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN, MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN, new MemoryModuleType[]{MemoryModuleType.AVOID_TARGET, MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLINS, MemoryModuleType.NEAREST_VISIBLE_ADULY, MemoryModuleType.NEAREST_REPELLENT, MemoryModuleType.PACIFIED});
++    protected static final ImmutableList<MemoryModuleType<?>> bp = ImmutableList.of(MemoryModuleType.BREED_TARGET, MemoryModuleType.MOBS, MemoryModuleType.VISIBLE_MOBS, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN, MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN, new MemoryModuleType[]{MemoryModuleType.AVOID_TARGET, MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLINS, MemoryModuleType.NEAREST_VISIBLE_ADULY, MemoryModuleType.NEAREST_REPELLENT, MemoryModuleType.PACIFIED}); // Airplane - decompile error
+ 
+     public EntityHoglin(EntityTypes<? extends EntityHoglin> entitytypes, World world) {
+         super(entitytypes, world);
+@@ -77,13 +77,13 @@ public class EntityHoglin extends EntityAnimal implements IMonster, IOglin {
+ 
+     @Override
+     public BehaviorController<EntityHoglin> getBehaviorController() {
+-        return super.getBehaviorController();
++        return (BehaviorController<EntityHoglin>) super.getBehaviorController(); // Airplane - decompile error
+     }
+ 
+     @Override
+     protected void mobTick() {
+         this.world.getMethodProfiler().enter("hoglinBrain");
+-        this.getBehaviorController().a((WorldServer) this.world, (EntityLiving) this);
++        this.getBehaviorController().a((WorldServer) this.world, (EntityHoglin) this); // Airplane - decompile error
+         this.world.getMethodProfiler().exit();
+         HoglinAI.a(this);
+         if (this.isConverting()) {
+@@ -259,7 +259,7 @@ public class EntityHoglin extends EntityAnimal implements IMonster, IOglin {
+ 
+     @Override
+     protected SoundEffect getSoundAmbient() {
+-        return this.world.isClientSide ? null : (SoundEffect) HoglinAI.b(this).orElse((Object) null);
++        return this.world.isClientSide ? null : (SoundEffect) HoglinAI.b(this).orElse(null); // Airplane - decompile error
+     }
+ 
+     @Override
+diff --git a/src/main/java/net/minecraft/server/EntityPiglin.java b/src/main/java/net/minecraft/server/EntityPiglin.java
+index ca7f9dc54ed2e58f521613b5d8027494bd20edd2..c11fb20b41c7c360044af9302587f03a5f4a9708 100644
+--- a/src/main/java/net/minecraft/server/EntityPiglin.java
++++ b/src/main/java/net/minecraft/server/EntityPiglin.java
+@@ -143,7 +143,7 @@ public class EntityPiglin extends EntityPiglinAbstract implements ICrossbow {
+ 
+     @Override
+     public BehaviorController<EntityPiglin> getBehaviorController() {
+-        return super.getBehaviorController();
++        return (BehaviorController<EntityPiglin>) super.getBehaviorController(); // Airplane - compile error
+     }
+ 
+     @Override
+@@ -202,7 +202,7 @@ public class EntityPiglin extends EntityPiglinAbstract implements ICrossbow {
+     @Override
+     protected void mobTick() {
+         this.world.getMethodProfiler().enter("piglinBrain");
+-        this.getBehaviorController().a((WorldServer) this.world, (EntityLiving) this);
++        this.getBehaviorController().a((WorldServer) this.world, (EntityPiglin) this); // Airplane - compile error
+         this.world.getMethodProfiler().exit();
+         PiglinAI.b(this);
+         super.mobTick();
+@@ -341,7 +341,7 @@ public class EntityPiglin extends EntityPiglinAbstract implements ICrossbow {
+ 
+     @Override
+     protected SoundEffect getSoundAmbient() {
+-        return this.world.isClientSide ? null : (SoundEffect) PiglinAI.d(this).orElse((Object) null);
++        return this.world.isClientSide ? null : (SoundEffect) PiglinAI.d(this).orElse(null); // Airplane - compile error
+     }
+ 
+     @Override
 diff --git a/src/main/java/net/minecraft/server/LootTableInfo.java b/src/main/java/net/minecraft/server/LootTableInfo.java
 index addeb268d4d487e18ddaadebf96f078fd079246f..268147484805e9fff298d2f5006f1c594c485342 100644
 --- a/src/main/java/net/minecraft/server/LootTableInfo.java
