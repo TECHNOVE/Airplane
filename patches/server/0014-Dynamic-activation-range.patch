@@ -12,7 +12,7 @@ tick. If it's within 55 blocks, it gets ticked once every three ticks.
 todo use with actual entity ticking, not just inactive.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..fb36c4fbdda75eee879912bd11522ef6794dc4dd 100644
+index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..c39c9929a251b41ab60e1509b4e6c90d0825dc0c 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -43,4 +43,29 @@ public class AirplaneConfig {
@@ -35,8 +35,8 @@ index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..fb36c4fbdda75eee879912bd11522ef6
 +        activationDistanceMod = manual.get("activation-range.activation-dist-mod", activationDistanceMod,
 +          "This value defines how much distance modifies an entity's",
 +          "tick frequency. freq = (distanceToPlayer^2) / (2^value)",
-+          "If you want further away entities to tick more often, use 8.",
-+          "If you want further away entities to tick less often, try 10.");
++          "If you want further away entities to tick less often, use 8.",
++          "If you want further away entities to tick more often, try 10.");
 +
 +        manual.setComment("behavior-activation", "A list of entities to use the dynamic activation range", "to modify how often their behaviors are ticked");
 +        dynamicVillagerBehavior = manual.get("behavior-activation.villager", dynamicVillagerBehavior);
