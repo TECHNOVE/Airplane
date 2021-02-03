@@ -1,6 +1,6 @@
 # Airplane
 
-Another performance Tuinity fork.
+Performance orientated Bukkit implementation based off Tuinity.
 
 ## What do you do differently?
 Our fork is made of optimizations for large servers. Whether you have a large amounts of players, entities, or chunks, we'll try to get them running smoothly on your server!
@@ -17,8 +17,6 @@ Airplane will work with any plugin that depends solely on either the Bukkit API 
 ## Downloads?:
 Downloads can be found here:
 https://dl.airplane.gg/
-Or you can download straight from GitHub here: 
-https://github.com/Technove/AirplaneLite/actions
 
 ## License
 Patches are licensed under GPL-3.0.
