@@ -7,12 +7,12 @@ plugins {
 }
 
 toothpick {
-    forkName = "AirplaneLite"
+    forkName = "Airplane"
     groupId = "gg.airplane"
     val versionTag = System.getenv("BUILD_NUMBER")
         ?: "\"${gitCmd("rev-parse", "--short", "HEAD").output}\""
     forkVersion = "git-$forkName-$versionTag"
-    forkUrl = "https://github.com/Technove/Airplane-Lite"
+    forkUrl = "https://github.com/Technove/Airplane"
 
     minecraftVersion = "1.16.5"
     nmsPackage = "1_16_R3"
@@ -21,7 +21,7 @@ toothpick {
     upstream = "Tuinity"
     upstreamBranch = "origin/master"
 
-    paperclipName = "launcher-airplanelite"
+    paperclipName = "launcher-airplane"
 
     server {
         project = project(":$forkNameLowercase-server")

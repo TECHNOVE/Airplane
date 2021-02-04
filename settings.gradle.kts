@@ -8,7 +8,7 @@ pluginManagement {
     }
 }
 
-val forkName = "AirplaneLite"
+val forkName = "Airplane"
 val forkNameLowercase = forkName.toLowerCase(Locale.ENGLISH)
 
 rootProject.name = forkNameLowercase

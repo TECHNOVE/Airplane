@@ -3,7 +3,7 @@ From: Paul Sauve <paul@technove.co>
 Date: Sat, 31 Oct 2020 19:03:25 -0500
 Subject: [PATCH] Queue lighting update only once
 
-Airplane Lite
+Airplane
 Copyright (C) 2020 Technove LLC
 
 This program is free software: you can redistribute it and/or modify
@@ -20,14 +20,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index 38ca1c042afd41a1f660f88e398fedde00f34e39..45db17d2f415197849c1fac5adce46d893e2a81d 100644
+index 38ca1c042afd41a1f660f88e398fedde00f34e39..64bb0979cfffea6282af5d5e08de256a62baf834 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
 @@ -996,6 +996,7 @@ public class ChunkProviderServer extends IChunkProvider {
              // Paper - moved up
              // Tuinity start - optimise chunk tick iteration
              com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet.Iterator<Chunk> iterator = this.entityTickingChunks.iterator();
-+            boolean updateLighting = false; // AirplaneL
++            boolean updateLighting = false; // Airplane
              try {
              while (iterator.hasNext()) {
                  Chunk chunk = iterator.next();
@@ -36,7 +36,7 @@ index 38ca1c042afd41a1f660f88e398fedde00f34e39..45db17d2f415197849c1fac5adce46d8
  
                              this.world.timings.chunkTicks.startTiming(); // Spigot // Paper
 -                            this.world.a(chunk, k);
-+                            if (this.world.abool(chunk, k)) updateLighting = true; // AirplaneL
++                            if (this.world.abool(chunk, k)) updateLighting = true; // Airplane
                              this.world.timings.chunkTicks.stopTiming(); // Spigot // Paper
                              MinecraftServer.getServer().executeMidTickTasks(); // Tuinity - exec chunk tasks during world tick
                          }
@@ -44,12 +44,12 @@ index 38ca1c042afd41a1f660f88e398fedde00f34e39..45db17d2f415197849c1fac5adce46d8
              } finally {
                  iterator.finishedIterating();
              }
-+            if (updateLighting) this.getLightEngine().queueUpdate(); // AirplaneL
++            if (updateLighting) this.getLightEngine().queueUpdate(); // Airplane
              // Tuinity end - optimise chunk tick iteration
              this.world.getMethodProfiler().enter("customSpawners");
              if (flag1) {
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 6ff5ef6b710652f1c4fe6461ff230ee78988f623..1ff47f49ab0c39b30962fd4ce1331696702bdf5c 100644
+index 6ff5ef6b710652f1c4fe6461ff230ee78988f623..98be084173f465671005f90ddbffaa27ab75d048 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
 @@ -978,7 +978,10 @@ public class WorldServer extends World implements GeneratorAccessSeed {
@@ -57,10 +57,10 @@ index 6ff5ef6b710652f1c4fe6461ff230ee78988f623..1ff47f49ab0c39b30962fd4ce1331696
      // Paper end
  
 -    public void a(Chunk chunk, int i) { final int randomTickSpeed = i; // Paper
-+    // AirplaneL start - create version of chunk tick that returns a bool for updating lighting
++    // Airplane start - create version of chunk tick that returns a bool for updating lighting
 +    public void a(Chunk chunk, int i) { this.abool(chunk, i); }
 +    public boolean abool(Chunk chunk, int i) { final int randomTickSpeed = i; // Paper
-+        // AirplaneL end
++        // Airplane end
          ChunkCoordIntPair chunkcoordintpair = chunk.getPos();
          boolean flag = this.isRaining();
          int j = chunkcoordintpair.d();
@@ -69,13 +69,13 @@ index 6ff5ef6b710652f1c4fe6461ff230ee78988f623..1ff47f49ab0c39b30962fd4ce1331696
              gameprofilerfiller.exit();
              timings.chunkTicksBlocks.stopTiming(); // Paper
 -            getChunkProvider().getLightEngine().queueUpdate(); // Paper
-+            // AirplaneL start
++            // Airplane start
 +            //getChunkProvider().getLightEngine().queueUpdate(); // Paper
 +            return true;
-+            // AirplaneL end
++            // Airplane end
              // Paper end
          }
-+        return false; // AirplaneL
++        return false; // Airplane
      }
  
      protected BlockPosition a(BlockPosition blockposition) {

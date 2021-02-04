@@ -25,7 +25,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
-      - name: Patch AirplaneLite
+      - name: Patch Airplane
         run: |
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
@@ -36,7 +36,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: Airplane-JDK${{ matrix.java }}
-          path: launcher-airplanelite.jar
+          path: launcher-airplane.jar
 
   notify:
     runs-on: ubuntu-latest

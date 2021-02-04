@@ -1,8 +1,8 @@
-AirplaneLite-API
-AirplaneLite-Server
+Airplane-API
+Airplane-Server
 
 last-tuinity
 build/
 .gradle/
 
-launcher-airplanelite.jar
+launcher-airplane.jar
