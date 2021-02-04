@@ -112,7 +112,7 @@ index bd7bccbea1a0a052ef7bd6ab299ae72336874911..f1cdaaa944faea0db78b6b2039febd2f
  
  public final class CraftServer implements Server {
 -    private final String serverName = "Tuinity"; // Paper // Tuinity
-+    private final String serverName = "AirplaneLite"; // Paper // Tuinity // AirplaneL
++    private final String serverName = "Airplane"; // Paper // Tuinity // AirplaneL
      private final String serverVersion;
      private final String bukkitVersion = Versioning.getBukkitVersion();
      private final Logger logger = Logger.getLogger("Minecraft");
