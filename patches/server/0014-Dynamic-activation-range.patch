@@ -8,8 +8,8 @@ pathfinder 1/4 times with a new method that's dynamic based off how far
 away it is from a player. If an entity is within 32 blocks, it gets
 ticked every tick. If it's within 45 blocks, it gets ticked every other
 tick. If it's within 55 blocks, it gets ticked once every three ticks.
-(numbers have since been changed, but idea is the same.)
 
+todo use with actual entity ticking, not just inactive.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
 index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..c39c9929a251b41ab60e1509b4e6c90d0825dc0c 100644
@@ -18,7 +18,7 @@ index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..c39c9929a251b41ab60e1509b4e6c90d
 @@ -43,4 +43,29 @@ public class AirplaneConfig {
          }
      }
-
+ 
 +
 +    public static int maximumActivationPrio = 20;
 +    public static int activationDistanceMod = 9;
@@ -56,7 +56,7 @@ index 013c44f80f74376e8bbb37afb5de07aa5d8fb1bc..e16ba05cf64b2c8ae3e38e89c9d869ec
 +    // Airplane start
 +    public int activatedPriority = gg.airplane.AirplaneConfig.maximumActivationPrio; // golf score
 +    // Airplane end
-
+ 
      public float getBukkitYaw() {
          return this.yaw;
 diff --git a/src/main/java/net/minecraft/server/EntityHoglin.java b/src/main/java/net/minecraft/server/EntityHoglin.java
@@ -66,7 +66,7 @@ index 41382fd40869a8f40f3f65f12cb81a86590a9995..7bd22c81d75368697113915a97c7fbe5
 @@ -80,12 +80,17 @@ public class EntityHoglin extends EntityAnimal implements IMonster, IOglin {
          return (BehaviorController<EntityHoglin>) super.getBehaviorController(); // Airplane - decompile error
      }
-
+ 
 +    private int behaviorTick; // Airplane
      @Override
      protected void mobTick() {
@@ -117,7 +117,7 @@ index c11fb20b41c7c360044af9302587f03a5f4a9708..682b241ae0e2859aa57faea8a4521c1c
 @@ -199,12 +199,17 @@ public class EntityPiglin extends EntityPiglinAbstract implements ICrossbow {
          return !this.cannotHunt;
      }
-
+ 
 +    private int behaviorTick; // Airplane
      @Override
      protected void mobTick() {
@@ -131,7 +131,7 @@ index c11fb20b41c7c360044af9302587f03a5f4a9708..682b241ae0e2859aa57faea8a4521c1c
 +        // Airplane end
          super.mobTick();
      }
-
+ 
 diff --git a/src/main/java/net/minecraft/server/EntityVillager.java b/src/main/java/net/minecraft/server/EntityVillager.java
 index de9ea6770b8afc5e1020bef04ac6cca93b6b420c..eb72c6838d8be84f507605f0ec21b8c4511f8055 100644
 --- a/src/main/java/net/minecraft/server/EntityVillager.java
@@ -139,7 +139,7 @@ index de9ea6770b8afc5e1020bef04ac6cca93b6b420c..eb72c6838d8be84f507605f0ec21b8c4
 @@ -162,11 +162,17 @@ public class EntityVillager extends EntityVillagerAbstract implements Reputation
      }
      // Spigot End
-
+ 
 +    private int behaviorTick = 0;
 +
      @Override
@@ -161,7 +161,7 @@ index d3f0327a2a7cdedf3fe8d10df981a9f1cb378d26..2ce5e07f4dcd0c76073840c35be66b7c
 +++ b/src/main/java/net/minecraft/server/PathfinderGoalSelector.java
 @@ -43,9 +43,10 @@ public class PathfinderGoalSelector {
      }
-
+ 
      // Paper start
 -    public boolean inactiveTick() {
 -        if (getCurRate() % getTickRate() != 0) {
@@ -184,7 +184,7 @@ index 0b93635ba59df4eb4456a97c5e9b51ab5aeda53f..773a4f99a4ad10c6595d3b5903e56f08
 +// Airplane start
 +import net.minecraft.server.Vec3D;
 +// Airplane end
-
+ 
  public class ActivationRange
  {
 @@ -230,7 +233,7 @@ public class ActivationRange
