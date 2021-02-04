@@ -99,7 +99,7 @@ index 45e310e249a83714d0001d85b2ead8d4f8a2d742..2f169d1a859da203ad8a480ef91d95e4
  
      public String getServerModName() {
 -        return "Tuinity"; // Tuinity //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
-+        return "AirplaneLite"; // AirplaneL // Tuinity //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
++        return "Airplane"; // AirplaneL // Tuinity //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
      }
  
      public CrashReport b(CrashReport crashreport) {
