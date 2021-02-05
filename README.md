@@ -1,22 +1,25 @@
 # Airplane
+Performance orientated Bukkit implementation based on Tuinity.  
+This fork includes optimizations oriented towards large servers. Whether you have large amounts of players, entities, or chunks, we'll try to keep your server running as smoothly as can be!
 
-Performance orientated Bukkit implementation based off Tuinity.
+### Will Airplane work with my plugins?
+Airplane will work with any plugin that works on Tuinity and Paper. If the plugin uses specific server code, we'll try our best to maintain compatibility, though issues may arise.  
+If you find any plugin compatibility issues, feel free to make a support ticket and report the problems!
 
-## What do you do differently?
-Our fork is made of optimizations for large servers. Whether you have a large amounts of players, entities, or chunks, we'll try to get them running smoothly on your server!
+### "Can you include patches from Tuinity/Paper?"
+Airplane is a fork of Tuinity, which itself is a fork of Paper.  
+As such, Airplane contains all performance and gameplay optimizations from said forks.
 
-## How do I get support?
-We currently require Discord for support, you can go to the #support channel and click the reaction on the only message in there. This will open up a new channel for you to talk directly with our support and development team. You can join the Discord by clicking this link: https://discord.gg/63dDSReB7j
+### Downloads
+The latest JAR file can be downloaded from: https://dl.airplane.gg/  
+Alternatively, you can clone this repository and built it yourself.
 
-## What kind of support do you provide?
-We'll provide immediate support for configuring and setting up Airplane, as well as real-time support in diagnosing performance issues. If we need to optimize Airplane for a specific use-case, we can do that as well. If you need optimization of a plugin, our developer team is ready to take on any challenge!
+### Support
+**How do I get support?**  
+We currently require Discord for support. You can go to the `#support` channel and create a private ticket by adding a reaction at any time! This will open a new channel for you to talk with our support and development team directly. You can join the Discord by clicking this link: https://discord.gg/63dDSReB7j
 
-## Will Airplane work with my plugins?
-Airplane will work with any plugin that depends solely on either the Bukkit API or the Paper API. If the plugin uses direct server code, we'll try our best to maintain compatibility, but if we need to improve compatibility with any plugins just open a support ticket!
-
-## Downloads?:
-Downloads can be found here:
-https://dl.airplane.gg/
+**What kind of support do you provide?**  
+We'll provide support for setting up and configuring Airplane, as well as diagnosing performance issues. If we need to optimize Airplane for a specific use-case, we can do that as well. If you need optimizations related to plugins, our development team is ready to take on any challenge!
 
 ## License
 Patches are licensed under GPL-3.0.
