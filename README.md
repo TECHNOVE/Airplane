@@ -1,5 +1,14 @@
+<!-- Varaibles -->
+[downloads]: https://dl.airplane.gg
+[discord]: https://discord.gg/63dDSReB7j
+
 # Airplane
-Performance orientated Bukkit implementation based on Tuinity.  
+Performance orientated Bukkit implementation based on Tuinity.
+
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Technove/Airplane/Build%20main?style=flat-square)]([downloads])
+[![Support Discord](https://img.shields.io/discord/748023548467216394?color=7289DA&label=Support%20Discord&style=flat-square)]([discord])
+
+### What is this?
 This fork includes optimizations oriented towards large servers. Whether you have large amounts of players, entities, or chunks, we'll try to keep your server running as smoothly as can be!
 
 ### Will Airplane work with my plugins?
@@ -11,16 +20,16 @@ Airplane is a fork of Tuinity, which itself is a fork of Paper.
 As such, Airplane contains all performance and gameplay optimizations from said forks.
 
 ### Downloads
-The latest JAR file can be downloaded from: https://dl.airplane.gg/  
+The latest JAR file can be downloaded from [the downloads page][downloads] 
 Alternatively, you can clone this repository and built it yourself.
 
 ### Support
 **How do I get support?**  
-We currently require Discord for support. You can go to the `#support` channel and create a private ticket by adding a reaction at any time! This will open a new channel for you to talk with our support and development team directly. You can join the Discord by clicking this link: https://discord.gg/63dDSReB7j
+We currently require Discord for support. You can go to the `#support` channel and create a private ticket by adding a reaction at any time! This will open a new channel for you to talk with our support and development team directly. You can join the Discord by [clicking this link][discord]!
 
 **What kind of support do you provide?**  
 We'll provide support for setting up and configuring Airplane, as well as diagnosing performance issues. If we need to optimize Airplane for a specific use-case, we can do that as well. If you need optimizations related to plugins, our development team is ready to take on any challenge!
 
-## License
+### License
 Patches are licensed under GPL-3.0.
 All other files are licensed under MIT.
