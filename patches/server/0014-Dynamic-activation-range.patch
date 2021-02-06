@@ -8,8 +8,23 @@ pathfinder 1/4 times with a new method that's dynamic based off how far
 away it is from a player. If an entity is within 32 blocks, it gets
 ticked every tick. If it's within 45 blocks, it gets ticked every other
 tick. If it's within 55 blocks, it gets ticked once every three ticks.
+(these numbers have since been changed, but the idea is the same.)
 
-todo use with actual entity ticking, not just inactive.
+Airplane
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
 index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..c39c9929a251b41ab60e1509b4e6c90d0825dc0c 100644
