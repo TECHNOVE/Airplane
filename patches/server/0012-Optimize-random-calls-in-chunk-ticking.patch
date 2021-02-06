@@ -56,7 +56,7 @@ index ae07ea2a34f5cd82ce2eae523359cb7540065335..7b8036840dcca16904b3063c209d5ff1
          this(world, chunkcoordintpair, biomestorage, ChunkConverter.a, TickListEmpty.b(), TickListEmpty.b(), 0L, (ChunkSection[]) null, (Consumer) null);
      }
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index 64bb0979cfffea6282af5d5e08de256a62baf834..350af67921bf6599ac05ea11fd505eb4518765b0 100644
+index 1da5c7def8b476cf638548b05d3e2015bc372f51..03bcd704e3c08f5b54b124df1583e3ccdb4cb485 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
 @@ -965,6 +965,7 @@ public class ChunkProviderServer extends IChunkProvider {
@@ -68,10 +68,10 @@ index 64bb0979cfffea6282af5d5e08de256a62baf834..350af67921bf6599ac05ea11fd505eb4
              boolean flag2 = world.ticksPerAnimalSpawns != 0L && worlddata.getTime() % world.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 25aac42c0d869f372c8035275d611290fb4a0c4d..e000723146d662f29dc279a168615ed9385d09ec 100644
+index 0755af23dfd58ff06aa0236ca1c4c853a37e718d..c43df937a985626f0d9cc5a89e9c22646b33ade0 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
-@@ -978,6 +978,8 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -979,6 +979,8 @@ public class WorldServer extends World implements GeneratorAccessSeed {
      private final com.destroystokyo.paper.util.math.ThreadUnsafeRandom randomTickRandom = new com.destroystokyo.paper.util.math.ThreadUnsafeRandom();
      // Paper end
  
@@ -80,7 +80,7 @@ index 25aac42c0d869f372c8035275d611290fb4a0c4d..e000723146d662f29dc279a168615ed9
      // Airplane start - create version of chunk tick that returns a bool for updating lighting
      public void a(Chunk chunk, int i) { this.abool(chunk, i); }
      public boolean abool(Chunk chunk, int i) { final int randomTickSpeed = i; // Paper
-@@ -991,7 +993,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -992,7 +994,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
          gameprofilerfiller.enter("thunder");
          final BlockPosition.MutableBlockPosition blockposition = this.chunkTickMutablePosition; // Paper - use mutable to reduce allocation rate, final to force compile fail on change
  
@@ -89,7 +89,7 @@ index 25aac42c0d869f372c8035275d611290fb4a0c4d..e000723146d662f29dc279a168615ed9
              blockposition.setValues(this.a(this.a(j, 0, k, 15))); // Paper
              if (this.isRainingAt(blockposition)) {
                  DifficultyDamageScaler difficultydamagescaler = this.getDamageScaler(blockposition);
-@@ -1015,7 +1017,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1016,7 +1018,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
          }
  
          gameprofilerfiller.exitEnter("iceandsnow");

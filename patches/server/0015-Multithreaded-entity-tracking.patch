@@ -70,10 +70,10 @@ index 7b8036840dcca16904b3063c209d5ff10ab8a6af..bc4fe8ee251b02548d713ab88e329a26
          this(world, chunkcoordintpair, biomestorage, ChunkConverter.a, TickListEmpty.b(), TickListEmpty.b(), 0L, (ChunkSection[]) null, (Consumer) null);
      }
 diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
-index 9f5b7243ccbe0729a061345c25033d9145b91b3f..8cd68444a7657d0bb6b2e1c9429c2e8bb6dfd010 100644
+index 173a210392d71cdfc551f095dc0d9c9040d22d3f..d87f80fe7c7086d07057c11227807c883a0f6821 100644
 --- a/src/main/java/net/minecraft/server/EntityPlayer.java
 +++ b/src/main/java/net/minecraft/server/EntityPlayer.java
-@@ -50,7 +50,7 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+@@ -51,7 +51,7 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
      public NetworkManager networkManager; // Paper
      public final MinecraftServer server;
      public final PlayerInteractManager playerInteractManager;
@@ -83,7 +83,7 @@ index 9f5b7243ccbe0729a061345c25033d9145b91b3f..8cd68444a7657d0bb6b2e1c9429c2e8b
      private final ServerStatisticManager serverStatisticManager;
      private float lastHealthScored = Float.MIN_VALUE;
 diff --git a/src/main/java/net/minecraft/server/EntityTrackerEntry.java b/src/main/java/net/minecraft/server/EntityTrackerEntry.java
-index f322dccd834ff56b99f8796309709b5b6ac01456..4c845a8d57d9a602e41b2808e867adec14f8ae4c 100644
+index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..2dad0892cc72585f4f0545fea0e7f641c9e36ba1 100644
 --- a/src/main/java/net/minecraft/server/EntityTrackerEntry.java
 +++ b/src/main/java/net/minecraft/server/EntityTrackerEntry.java
 @@ -74,7 +74,7 @@ public class EntityTrackerEntry {

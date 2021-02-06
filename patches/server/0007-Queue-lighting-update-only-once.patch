@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index 38ca1c042afd41a1f660f88e398fedde00f34e39..64bb0979cfffea6282af5d5e08de256a62baf834 100644
+index 9e6381a60b804a957eda5b72582d5545faebcb3e..1da5c7def8b476cf638548b05d3e2015bc372f51 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
 @@ -996,6 +996,7 @@ public class ChunkProviderServer extends IChunkProvider {
@@ -49,10 +49,10 @@ index 38ca1c042afd41a1f660f88e398fedde00f34e39..64bb0979cfffea6282af5d5e08de256a
              this.world.getMethodProfiler().enter("customSpawners");
              if (flag1) {
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 6ff5ef6b710652f1c4fe6461ff230ee78988f623..98be084173f465671005f90ddbffaa27ab75d048 100644
+index 9c11a6ba0384baafaec1403a6a7c3f894d5cd7b3..072de1999af8593a9982638197b53c4303d7180a 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
-@@ -978,7 +978,10 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -979,7 +979,10 @@ public class WorldServer extends World implements GeneratorAccessSeed {
      private final com.destroystokyo.paper.util.math.ThreadUnsafeRandom randomTickRandom = new com.destroystokyo.paper.util.math.ThreadUnsafeRandom();
      // Paper end
  
@@ -64,7 +64,7 @@ index 6ff5ef6b710652f1c4fe6461ff230ee78988f623..98be084173f465671005f90ddbffaa27
          ChunkCoordIntPair chunkcoordintpair = chunk.getPos();
          boolean flag = this.isRaining();
          int j = chunkcoordintpair.d();
-@@ -1081,9 +1084,13 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1082,9 +1085,13 @@ public class WorldServer extends World implements GeneratorAccessSeed {
              }
              gameprofilerfiller.exit();
              timings.chunkTicksBlocks.stopTiming(); // Paper

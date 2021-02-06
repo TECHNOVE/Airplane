@@ -50,10 +50,10 @@ index 255bbd6e48b95c70fad02ba692c64c7579496827..bf0072b394fd71e02d3cc4a93fa3ca95
  
          return history != null ? history + "\n" + updateMessage : updateMessage;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 45e310e249a83714d0001d85b2ead8d4f8a2d742..ba51a55d4b0f3a99342b45f032a5a0c760367054 100644
+index 1768554b00ea0b7a57ebbed1f0bc5d8fd6f02f76..47fd400da3f938ead3a281fe1e4d24a1a3809776 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1511,7 +1511,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+@@ -1513,7 +1513,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
      }
  
      public String getServerModName() {
@@ -63,10 +63,10 @@ index 45e310e249a83714d0001d85b2ead8d4f8a2d742..ba51a55d4b0f3a99342b45f032a5a0c7
  
      public CrashReport b(CrashReport crashreport) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index bd7bccbea1a0a052ef7bd6ab299ae72336874911..a0c16f9597ff6fcb2b56656305bfeded959383bf 100644
+index 44524e08bed8897e43e408b6f179bf798fed9b62..2c4052419682b0301b987a68cd72d2719dc89e7c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -232,7 +232,7 @@ import javax.annotation.Nullable; // Paper
+@@ -231,7 +231,7 @@ import javax.annotation.Nullable; // Paper
  import javax.annotation.Nonnull; // Paper
  
  public final class CraftServer implements Server {
