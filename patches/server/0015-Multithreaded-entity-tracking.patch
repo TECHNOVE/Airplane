@@ -144,7 +144,7 @@ index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..2dad0892cc72585f4f0545fea0e7f641
  
              if (!cancelled) {
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index a42571cfd2c9c80df27e59db832cb64c2a64e141..b24b4cd581267e511631611e5db46ac0e1d334ed 100644
+index a42571cfd2c9c80df27e59db832cb64c2a64e141..000e4bb5e44791a338b0d4e9e07075b9d65a679b 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
 @@ -10,6 +10,7 @@ import com.google.common.collect.Queues;
@@ -155,7 +155,7 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..b24b4cd581267e511631611e5db46ac0
  import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
  import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
  import it.unimi.dsi.fastutil.longs.Long2ByteMap;
-@@ -2119,11 +2120,38 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -2119,11 +2120,34 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
          entity.tracker = null; // Paper - We're no longer tracked
      }
  
@@ -180,11 +180,7 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..b24b4cd581267e511631611e5db46ac0
 +                }
 +                trackQueue.parallelStream().forEach(Runnable::run);
 +                if (++this.trackQueueUses > 20 * 15) { // every 15s
-+                    if (trackQueue.getRawDataArray().length > this.world.getChunkProvider().entityTickingChunks.size() << 2) { // reset array if chunk count dramatically different
-+                        trackQueue.clear();
-+                    } else {
-+                        trackQueue.completeReset(); // completely wipe, allows chunks at tail end of unsafelist to GC
-+                    }
++                    trackQueue.completeReset(); // completely wipe, allows chunks at tail end of unsafelist to GC
 +                    this.trackQueueUses = 0;
 +                } else {
 +                    trackQueue.setSize(0); // partially wipe, can contain references to chunks even after it's done
@@ -194,7 +190,7 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..b24b4cd581267e511631611e5db46ac0
              try {
              while (iterator.hasNext()) {
                  Chunk chunk = iterator.next();
-@@ -2140,6 +2168,7 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -2140,6 +2164,7 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
              } finally {
                  iterator.finishedIterating();
              }
@@ -202,7 +198,7 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..b24b4cd581267e511631611e5db46ac0
          } finally {
              this.world.timings.tracker1.stopTiming();
          }
-@@ -2384,7 +2413,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2384,7 +2409,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
      public class EntityTracker {
  
          final EntityTrackerEntry trackerEntry; // Paper - private -> package private
@@ -211,7 +207,7 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..b24b4cd581267e511631611e5db46ac0
          private final int trackingDistance;
          private SectionPosition e;
          // Paper start
-@@ -2483,7 +2512,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2483,7 +2508,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          }
  
          public void updatePlayer(EntityPlayer entityplayer) {
