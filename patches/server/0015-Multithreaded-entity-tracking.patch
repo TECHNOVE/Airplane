@@ -83,7 +83,7 @@ index 173a210392d71cdfc551f095dc0d9c9040d22d3f..d87f80fe7c7086d07057c11227807c88
      private final ServerStatisticManager serverStatisticManager;
      private float lastHealthScored = Float.MIN_VALUE;
 diff --git a/src/main/java/net/minecraft/server/EntityTrackerEntry.java b/src/main/java/net/minecraft/server/EntityTrackerEntry.java
-index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..2dad0892cc72585f4f0545fea0e7f641c9e36ba1 100644
+index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..a2abfda5936a39ddcf834109618cd0df4dab12a0 100644
 --- a/src/main/java/net/minecraft/server/EntityTrackerEntry.java
 +++ b/src/main/java/net/minecraft/server/EntityTrackerEntry.java
 @@ -74,7 +74,7 @@ public class EntityTrackerEntry {
@@ -143,6 +143,16 @@ index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..2dad0892cc72585f4f0545fea0e7f641
              }
  
              if (!cancelled) {
+@@ -330,7 +341,9 @@ public class EntityTrackerEntry {
+             if (!list.isEmpty()) {
+                 consumer.accept(new PacketPlayOutEntityEquipment(this.tracker.getId(), list));
+             }
++            MCUtil.ensureMain(() -> { // Airplane
+             ((EntityLiving) this.tracker).updateEquipment(); // CraftBukkit - SPIGOT-3789: sync again immediately after sending
++            }); // Airplane
+         }
+ 
+         // CraftBukkit start - Fix for nonsensical head yaw
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
 index a42571cfd2c9c80df27e59db832cb64c2a64e141..000e4bb5e44791a338b0d4e9e07075b9d65a679b 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
