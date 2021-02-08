@@ -43,6 +43,110 @@ index c39c9929a251b41ab60e1509b4e6c90d0825dc0c..0495cd90cde288c31bdbb00b1bb64683
 +    }
 +
  }
+diff --git a/src/main/java/gg/airplane/structs/TrackQueue.java b/src/main/java/gg/airplane/structs/TrackQueue.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..fc0b9adef073daeddff5c1ada12023f6aa00a412
+--- /dev/null
++++ b/src/main/java/gg/airplane/structs/TrackQueue.java
+@@ -0,0 +1,98 @@
++package gg.airplane.structs;
++
++import com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet;
++import net.minecraft.server.Chunk;
++import net.minecraft.server.MinecraftServer;
++import org.apache.logging.log4j.Level;
++import org.bukkit.craftbukkit.util.UnsafeList;
++
++import java.util.concurrent.ConcurrentLinkedQueue;
++import java.util.concurrent.ForkJoinPool;
++import java.util.concurrent.atomic.AtomicInteger;
++import java.util.concurrent.locks.LockSupport;
++
++/**
++ * Helper class to handle processing a track queue.
++ */
++public class TrackQueue {
++
++    private final ForkJoinPool pool = ForkJoinPool.commonPool();
++    private final UnsafeList<Runnable> list = new UnsafeList<>();
++    private final AtomicInteger taskCounter = new AtomicInteger();
++    private final AtomicInteger tasksLeft = new AtomicInteger();
++    private int taskCount = 0;
++
++    private final ConcurrentLinkedQueue<Runnable> mainThreadTasks;
++
++    public TrackQueue(ConcurrentLinkedQueue<Runnable> mainThreadTasks) {
++        this.mainThreadTasks = mainThreadTasks;
++    }
++
++    public void update(IteratorSafeOrderedReferenceSet.Iterator<Chunk> iterator) {
++        this.taskCount = 0;
++
++        while (iterator.hasNext()) {
++            Runnable entityTracker = iterator.next().entityTracker;
++            this.list.add(entityTracker);
++            this.taskCount++;
++        }
++
++        this.tasksLeft.set(this.taskCount);
++    }
++
++    public void start() {
++        if (this.taskCount < 1000) {
++            for (int i = 0; i < this.taskCount; i++) {
++                this.list.get(i).run();
++            }
++        } else {
++            this.startThreaded();
++        }
++    }
++
++    private void startThreaded() {
++        this.taskCounter.set(0);
++
++        for (int i = 0; i < Math.min(this.taskCount, this.pool.getParallelism()); i++) {
++            this.pool.execute(this::run);
++        }
++
++        while (this.tasksLeft.get() > 0) {
++            Runnable task;
++            while ((task = this.mainThreadTasks.poll()) != null) {
++                try {
++                    task.run();
++                } catch (Throwable t) {
++                    MinecraftServer.LOGGER.log(Level.WARN, "Tasks failed while ticking track queue", t);
++                }
++            }
++
++            Thread.yield();
++            LockSupport.parkNanos("waiting for tasks", 100000L);
++        }
++
++        this.taskCount = 0;
++
++        if (MinecraftServer.currentTick % (20 * 15) == 0) { // reset every 15s
++            this.list.completeReset();
++        } else {
++            this.list.setSize(0);
++        }
++    }
++
++    private void run() {
++        while (true) {
++            int currentTaskIndex = this.taskCounter.getAndIncrement();
++            if (currentTaskIndex >= this.taskCount) {
++                return;
++            }
++            try {
++                this.list.get(currentTaskIndex).run();
++            } catch (Throwable t) {
++                MinecraftServer.LOGGER.log(Level.WARN, "Ticking tracker failed", t);
++            }
++            this.tasksLeft.decrementAndGet();
++        }
++    }
++
++}
 diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
 index 7b8036840dcca16904b3063c209d5ff10ab8a6af..bc4fe8ee251b02548d713ab88e329a266cd7e626 100644
 --- a/src/main/java/net/minecraft/server/Chunk.java
@@ -83,7 +187,7 @@ index 173a210392d71cdfc551f095dc0d9c9040d22d3f..d87f80fe7c7086d07057c11227807c88
      private final ServerStatisticManager serverStatisticManager;
      private float lastHealthScored = Float.MIN_VALUE;
 diff --git a/src/main/java/net/minecraft/server/EntityTrackerEntry.java b/src/main/java/net/minecraft/server/EntityTrackerEntry.java
-index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..a2abfda5936a39ddcf834109618cd0df4dab12a0 100644
+index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..864d5a0bd55fd763e51759bc5a5ce951d403504b 100644
 --- a/src/main/java/net/minecraft/server/EntityTrackerEntry.java
 +++ b/src/main/java/net/minecraft/server/EntityTrackerEntry.java
 @@ -74,7 +74,7 @@ public class EntityTrackerEntry {
@@ -100,7 +204,7 @@ index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..a2abfda5936a39ddcf834109618cd0df
  
              if (this.tickCounter % 10 == 0 && itemstack.getItem() instanceof ItemWorldMap) { // CraftBukkit - Moved this.tickCounter % 10 logic here so item frames do not enter the other blocks
 +                // Airplane start - process maps on main
-+                MCUtil.ensureMain(() -> {
++                this.b.chunkProvider.playerChunkMap.trackerEnsureMain(() -> {
                  WorldMap worldmap = ItemWorldMap.getSavedMap(itemstack, this.b);
                  Iterator iterator = this.trackedPlayers.iterator(); // CraftBukkit
  
@@ -120,7 +224,7 @@ index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..a2abfda5936a39ddcf834109618cd0df
 -            if (this.tracker instanceof EntityPlayer) {
 +            if (this.tracker instanceof EntityPlayer && PlayerVelocityEvent.getHandlerList().getRegisteredListeners().length > 0) { // Airplane - ensure there's listeners
 +                // Airplane start - run on main thread
-+                MCUtil.ensureMain(() -> {
++                this.b.chunkProvider.playerChunkMap.trackerEnsureMain(() -> {
                  Player player = (Player) this.tracker.getBukkitEntity();
                  org.bukkit.util.Vector velocity = player.getVelocity();
  
@@ -147,14 +251,14 @@ index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..a2abfda5936a39ddcf834109618cd0df
              if (!list.isEmpty()) {
                  consumer.accept(new PacketPlayOutEntityEquipment(this.tracker.getId(), list));
              }
-+            MCUtil.ensureMain(() -> { // Airplane
++            this.b.chunkProvider.playerChunkMap.trackerEnsureMain(() -> { // Airplane
              ((EntityLiving) this.tracker).updateEquipment(); // CraftBukkit - SPIGOT-3789: sync again immediately after sending
 +            }); // Airplane
          }
  
          // CraftBukkit start - Fix for nonsensical head yaw
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index a42571cfd2c9c80df27e59db832cb64c2a64e141..000e4bb5e44791a338b0d4e9e07075b9d65a679b 100644
+index a42571cfd2c9c80df27e59db832cb64c2a64e141..386da7d3752f9ce52a46b8c9d225072d67699c3e 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
 @@ -10,6 +10,7 @@ import com.google.common.collect.Queues;
@@ -169,8 +273,18 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..000e4bb5e44791a338b0d4e9e07075b9
          entity.tracker = null; // Paper - We're no longer tracked
      }
  
-+    private static final org.bukkit.craftbukkit.util.UnsafeList<Runnable> trackQueue = new org.bukkit.craftbukkit.util.UnsafeList<>();
-+    private int trackQueueUses = 0;
++    // Airplane start - tools to ensure main thread
++    private final java.util.concurrent.ConcurrentLinkedQueue<Runnable> trackerMainQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
++    private final gg.airplane.structs.TrackQueue trackQueue = new gg.airplane.structs.TrackQueue(trackerMainQueue);
++
++    void trackerEnsureMain(Runnable runnable) {
++        if (this.world.serverThread == Thread.currentThread()) {
++            runnable.run();
++        } else {
++            this.trackerMainQueue.add(runnable);
++        }
++    }
++    // Airplane end
 +
      // Paper start - optimised tracker
      private final void processTrackQueue() {
@@ -180,21 +294,11 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..000e4bb5e44791a338b0d4e9e07075b9
 +            // Airplane start - multithreaded tracker
 +            if (AirplaneConfig.multithreadedEntityTracker) {
 +                try {
-+                    while (iterator.hasNext()) {
-+                        Chunk chunk = iterator.next();
-+                        // todo implement plain forkjoinpool or something
-+                        trackQueue.add(chunk.entityTracker); // move into chunk.entityTracker
-+                    }
++                    this.trackQueue.update(iterator);
 +                } finally {
 +                    iterator.finishedIterating();
 +                }
-+                trackQueue.parallelStream().forEach(Runnable::run);
-+                if (++this.trackQueueUses > 20 * 15) { // every 15s
-+                    trackQueue.completeReset(); // completely wipe, allows chunks at tail end of unsafelist to GC
-+                    this.trackQueueUses = 0;
-+                } else {
-+                    trackQueue.setSize(0); // partially wipe, can contain references to chunks even after it's done
-+                }
++                this.trackQueue.start();
 +                return;
 +            }
              try {
