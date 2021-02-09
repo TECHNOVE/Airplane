@@ -58,10 +58,10 @@ index c39c9929a251b41ab60e1509b4e6c90d0825dc0c..0495cd90cde288c31bdbb00b1bb64683
  }
 diff --git a/src/main/java/gg/airplane/structs/TrackQueue.java b/src/main/java/gg/airplane/structs/TrackQueue.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..fb4f68c2ba380dc34780047b33eb00932ce7b725
+index 0000000000000000000000000000000000000000..6a500570adb526c9aa183c52fe2b06bddbfc4fe7
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/TrackQueue.java
-@@ -0,0 +1,92 @@
+@@ -0,0 +1,76 @@
 +package gg.airplane.structs;
 +
 +import com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet;
@@ -90,22 +90,6 @@ index 0000000000000000000000000000000000000000..fb4f68c2ba380dc34780047b33eb0093
 +    }
 +
 +    public void start() {
-+        if (this.chunks.size() < 1000) {
-+            int iterator = this.chunks.createRawIterator();
-+            try {
-+                while (iterator != -1) {
-+                    this.chunks.rawGet(iterator).entityTracker.run();
-+                    iterator = this.chunks.advanceRawIterator(iterator);
-+                }
-+            } finally {
-+                this.chunks.finishRawIterator();
-+            }
-+        } else {
-+            this.startThreaded();
-+        }
-+    }
-+
-+    private void startThreaded() {
 +        int iterator = this.chunks.createRawIterator();
 +        if (iterator == -1) {
 +            return;
@@ -155,7 +139,7 @@ index 0000000000000000000000000000000000000000..fb4f68c2ba380dc34780047b33eb0093
 +
 +}
 diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
-index 7b8036840dcca16904b3063c209d5ff10ab8a6af..ae51feeeef7410b7ce54d2fdafc1485f95ba8ebf 100644
+index 7b8036840dcca16904b3063c209d5ff10ab8a6af..30042a21fa38e5188e9072fff3cd8ba75b3583ca 100644
 --- a/src/main/java/net/minecraft/server/Chunk.java
 +++ b/src/main/java/net/minecraft/server/Chunk.java
 @@ -64,6 +64,26 @@ public class Chunk implements IChunkAccess {
@@ -167,7 +151,7 @@ index 7b8036840dcca16904b3063c209d5ff10ab8a6af..ae51feeeef7410b7ce54d2fdafc1485f
 +    public final Runnable entityTracker = new Runnable() {
 +        @Override
 +        public void run() {
-+            Entity[] entities = Chunk.this.entities.getRawData().clone();
++            Entity[] entities = Chunk.this.entities.getRawData();
 +            for (int i = 0, len = Chunk.this.entities.size(); i < len; ++i) {
 +                Entity entity = entities[i];
 +                if (entity != null) {
@@ -270,18 +254,10 @@ index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..864d5a0bd55fd763e51759bc5a5ce951
  
          // CraftBukkit start - Fix for nonsensical head yaw
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index a42571cfd2c9c80df27e59db832cb64c2a64e141..37862ad7efe042075454778c35b2cee0afb921f3 100644
+index a42571cfd2c9c80df27e59db832cb64c2a64e141..e265a10781286a94d81086731ec0d3330dc3977f 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-@@ -10,6 +10,7 @@ import com.google.common.collect.Queues;
- import com.google.common.collect.Sets;
- import com.mojang.datafixers.DataFixer;
- import com.mojang.datafixers.util.Either;
-+import gg.airplane.AirplaneConfig;
- import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
- import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
- import it.unimi.dsi.fastutil.longs.Long2ByteMap;
-@@ -2119,10 +2120,30 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -2119,10 +2119,30 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
          entity.tracker = null; // Paper - We're no longer tracked
      }
  
@@ -304,7 +280,7 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..37862ad7efe042075454778c35b2cee0
          try {
 +            // Airplane start - multithreaded tracker
 +            if (this.trackQueue == null) this.trackQueue = new gg.airplane.structs.TrackQueue(this.world.getChunkProvider().entityTickingChunks, trackerMainQueue);
-+            if (AirplaneConfig.multithreadedEntityTracker) {
++            if (gg.airplane.AirplaneConfig.multithreadedEntityTracker && this.world.getChunkProvider().entityTickingChunks.size() < 1000) {
 +                this.trackQueue.start();
 +                return;
 +            }
@@ -312,7 +288,7 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..37862ad7efe042075454778c35b2cee0
              com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet.Iterator<Chunk> iterator = this.world.getChunkProvider().entityTickingChunks.iterator();
              try {
              while (iterator.hasNext()) {
-@@ -2384,7 +2405,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2384,7 +2404,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
      public class EntityTracker {
  
          final EntityTrackerEntry trackerEntry; // Paper - private -> package private
@@ -321,7 +297,7 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..37862ad7efe042075454778c35b2cee0
          private final int trackingDistance;
          private SectionPosition e;
          // Paper start
-@@ -2483,7 +2504,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2483,7 +2503,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          }
  
          public void updatePlayer(EntityPlayer entityplayer) {
