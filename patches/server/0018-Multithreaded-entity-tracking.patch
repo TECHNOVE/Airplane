@@ -58,10 +58,10 @@ index c39c9929a251b41ab60e1509b4e6c90d0825dc0c..0495cd90cde288c31bdbb00b1bb64683
  }
 diff --git a/src/main/java/gg/airplane/structs/TrackQueue.java b/src/main/java/gg/airplane/structs/TrackQueue.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..68b5c351a8196ac51840a1e2e392250891615156
+index 0000000000000000000000000000000000000000..fb4f68c2ba380dc34780047b33eb00932ce7b725
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/TrackQueue.java
-@@ -0,0 +1,94 @@
+@@ -0,0 +1,92 @@
 +package gg.airplane.structs;
 +
 +import com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet;
@@ -75,8 +75,6 @@ index 0000000000000000000000000000000000000000..68b5c351a8196ac51840a1e2e3922508
 +
 +/**
 + * Helper class to handle processing a track queue.
-+ * <p>
-+ * todo find way to not have to copy the chunks -> new list
 + */
 +public class TrackQueue {
 +
@@ -157,10 +155,10 @@ index 0000000000000000000000000000000000000000..68b5c351a8196ac51840a1e2e3922508
 +
 +}
 diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
-index 7b8036840dcca16904b3063c209d5ff10ab8a6af..3860fe915ae49574ca5410aae65198ed7c1f4870 100644
+index 7b8036840dcca16904b3063c209d5ff10ab8a6af..ae51feeeef7410b7ce54d2fdafc1485f95ba8ebf 100644
 --- a/src/main/java/net/minecraft/server/Chunk.java
 +++ b/src/main/java/net/minecraft/server/Chunk.java
-@@ -64,6 +64,24 @@ public class Chunk implements IChunkAccess {
+@@ -64,6 +64,26 @@ public class Chunk implements IChunkAccess {
      }
      // Airplane end
  
@@ -169,13 +167,15 @@ index 7b8036840dcca16904b3063c209d5ff10ab8a6af..3860fe915ae49574ca5410aae65198ed
 +    public final Runnable entityTracker = new Runnable() {
 +        @Override
 +        public void run() {
-+            Entity[] entities = Chunk.this.entities.getRawData();
++            Entity[] entities = Chunk.this.entities.getRawData().clone();
 +            for (int i = 0, len = Chunk.this.entities.size(); i < len; ++i) {
 +                Entity entity = entities[i];
-+                PlayerChunkMap.EntityTracker tracker = ((WorldServer) Chunk.this.getWorld()).getChunkProvider().playerChunkMap.trackedEntities.get(entity.getId());
-+                if (tracker != null) {
-+                    tracker.updatePlayers(tracker.tracker.getPlayersInTrackRange());
-+                    tracker.trackerEntry.tick();
++                if (entity != null) {
++                    PlayerChunkMap.EntityTracker tracker = ((WorldServer) Chunk.this.getWorld()).getChunkProvider().playerChunkMap.trackedEntities.get(entity.getId());
++                    if (tracker != null) {
++                        tracker.updatePlayers(tracker.tracker.getPlayersInTrackRange());
++                        tracker.trackerEntry.tick();
++                    }
 +                }
 +            }
 +        }
