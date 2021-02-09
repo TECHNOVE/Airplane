@@ -45,10 +45,10 @@ index c39c9929a251b41ab60e1509b4e6c90d0825dc0c..0495cd90cde288c31bdbb00b1bb64683
  }
 diff --git a/src/main/java/gg/airplane/structs/TrackQueue.java b/src/main/java/gg/airplane/structs/TrackQueue.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..3ffc40b7a1736d237bef8710ff4ff139370dc4c2
+index 0000000000000000000000000000000000000000..3ba3f3653ab0e43af829559980a3f1d00bf82b30
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/TrackQueue.java
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,98 @@
 +package gg.airplane.structs;
 +
 +import com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet;
@@ -63,12 +63,12 @@ index 0000000000000000000000000000000000000000..3ffc40b7a1736d237bef8710ff4ff139
 +
 +/**
 + * Helper class to handle processing a track queue.
-+ *
++ * <p>
 + * todo find way to not have to copy the chunks -> new list
 + */
 +public class TrackQueue {
 +
-+    private ForkJoinPool pool = new ForkJoinPool();
++    private final ForkJoinPool pool = ForkJoinPool.commonPool();
 +    private final UnsafeList<Runnable> list = new UnsafeList<>();
 +    private final AtomicInteger taskCounter = new AtomicInteger();
 +    private final AtomicInteger tasksLeft = new AtomicInteger();
@@ -109,22 +109,18 @@ index 0000000000000000000000000000000000000000..3ffc40b7a1736d237bef8710ff4ff139
 +            this.pool.execute(this::run);
 +        }
 +
-+        long start = System.currentTimeMillis();
-+        while (this.tasksLeft.get() > 0) {
-+            if (System.currentTimeMillis() - start > 1000) {
-+                // kill
-+                this.pool.shutdownNow();
-+                this.pool = new ForkJoinPool();
-+                MinecraftServer.LOGGER.log(Level.WARN, "[Airplane] Killed tracker due to running over 1s limit.");
-+                break;
++        while (this.tasksLeft.get() > 0 || !this.mainThreadTasks.isEmpty()) {
++            Runnable task;
++            while ((task = this.mainThreadTasks.poll()) != null) {
++                try {
++                    task.run();
++                } catch (Throwable t) {
++                    MinecraftServer.LOGGER.log(Level.WARN, "Tasks failed while ticking track queue", t);
++                }
 +            }
-+
-+            flushMainThreadTasks();
 +
 +            this.run(); // assist
 +        }
-+
-+        flushMainThreadTasks(); // flush sync tasks before continuing
 +
 +        this.taskCount = 0;
 +
@@ -132,17 +128,6 @@ index 0000000000000000000000000000000000000000..3ffc40b7a1736d237bef8710ff4ff139
 +            this.list.completeReset();
 +        } else {
 +            this.list.setSize(0);
-+        }
-+    }
-+
-+    private void flushMainThreadTasks() {
-+        Runnable task;
-+        while ((task = this.mainThreadTasks.poll()) != null) {
-+            try {
-+                task.run();
-+            } catch (Throwable t) {
-+                MinecraftServer.LOGGER.log(Level.WARN, "Tasks failed while ticking track queue", t);
-+            }
 +        }
 +    }
 +
