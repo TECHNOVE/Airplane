@@ -45,10 +45,10 @@ index c39c9929a251b41ab60e1509b4e6c90d0825dc0c..0495cd90cde288c31bdbb00b1bb64683
  }
 diff --git a/src/main/java/gg/airplane/structs/TrackQueue.java b/src/main/java/gg/airplane/structs/TrackQueue.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..807d6413379a2075465d897843ce776e6eb0b3ea
+index 0000000000000000000000000000000000000000..3ffc40b7a1736d237bef8710ff4ff139370dc4c2
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/TrackQueue.java
-@@ -0,0 +1,108 @@
+@@ -0,0 +1,113 @@
 +package gg.airplane.structs;
 +
 +import com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet;
@@ -60,7 +60,6 @@ index 0000000000000000000000000000000000000000..807d6413379a2075465d897843ce776e
 +import java.util.concurrent.ConcurrentLinkedQueue;
 +import java.util.concurrent.ForkJoinPool;
 +import java.util.concurrent.atomic.AtomicInteger;
-+import java.util.concurrent.locks.LockSupport;
 +
 +/**
 + * Helper class to handle processing a track queue.
@@ -120,17 +119,12 @@ index 0000000000000000000000000000000000000000..807d6413379a2075465d897843ce776e
 +                break;
 +            }
 +
-+            Runnable task;
-+            while ((task = this.mainThreadTasks.poll()) != null) {
-+                try {
-+                    task.run();
-+                } catch (Throwable t) {
-+                    MinecraftServer.LOGGER.log(Level.WARN, "Tasks failed while ticking track queue", t);
-+                }
-+            }
++            flushMainThreadTasks();
 +
 +            this.run(); // assist
 +        }
++
++        flushMainThreadTasks(); // flush sync tasks before continuing
 +
 +        this.taskCount = 0;
 +
@@ -138,6 +132,17 @@ index 0000000000000000000000000000000000000000..807d6413379a2075465d897843ce776e
 +            this.list.completeReset();
 +        } else {
 +            this.list.setSize(0);
++        }
++    }
++
++    private void flushMainThreadTasks() {
++        Runnable task;
++        while ((task = this.mainThreadTasks.poll()) != null) {
++            try {
++                task.run();
++            } catch (Throwable t) {
++                MinecraftServer.LOGGER.log(Level.WARN, "Tasks failed while ticking track queue", t);
++            }
 +        }
 +    }
 +
