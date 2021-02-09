@@ -23,6 +23,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+diff --git a/src/main/java/com/tuinity/tuinity/util/maplist/IteratorSafeOrderedReferenceSet.java b/src/main/java/com/tuinity/tuinity/util/maplist/IteratorSafeOrderedReferenceSet.java
+index be408aebbccbda46e8aa82ef337574137cfa0096..b9bdce7c7ca8b7b107b0dca165d722321c16229d 100644
+--- a/src/main/java/com/tuinity/tuinity/util/maplist/IteratorSafeOrderedReferenceSet.java
++++ b/src/main/java/com/tuinity/tuinity/util/maplist/IteratorSafeOrderedReferenceSet.java
+@@ -16,7 +16,7 @@ public final class IteratorSafeOrderedReferenceSet<E> {
+ 
+     /* list impl */
+     protected E[] listElements;
+-    protected int listSize;
++    protected int listSize; public int getListSize() { return this.listSize; } // Airplane - getter
+ 
+     protected final double maxFragFactor;
+ 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
 index c39c9929a251b41ab60e1509b4e6c90d0825dc0c..0495cd90cde288c31bdbb00b1bb64683950c131f 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
@@ -45,17 +58,16 @@ index c39c9929a251b41ab60e1509b4e6c90d0825dc0c..0495cd90cde288c31bdbb00b1bb64683
  }
 diff --git a/src/main/java/gg/airplane/structs/TrackQueue.java b/src/main/java/gg/airplane/structs/TrackQueue.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..1eb58cef13126a3a21a2c44ec3da8e56cd7918a6
+index 0000000000000000000000000000000000000000..68b5c351a8196ac51840a1e2e392250891615156
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/TrackQueue.java
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,94 @@
 +package gg.airplane.structs;
 +
 +import com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet;
 +import net.minecraft.server.Chunk;
 +import net.minecraft.server.MinecraftServer;
 +import org.apache.logging.log4j.Level;
-+import org.bukkit.craftbukkit.util.UnsafeList;
 +
 +import java.util.concurrent.ConcurrentLinkedQueue;
 +import java.util.concurrent.ForkJoinPool;
@@ -68,35 +80,27 @@ index 0000000000000000000000000000000000000000..1eb58cef13126a3a21a2c44ec3da8e56
 + */
 +public class TrackQueue {
 +
++    private final IteratorSafeOrderedReferenceSet<Chunk> chunks;
 +    private final ForkJoinPool pool = ForkJoinPool.commonPool();
-+    private final UnsafeList<Runnable> list = new UnsafeList<>();
-+    private final AtomicInteger taskCounter = new AtomicInteger();
-+    private final AtomicInteger tasksLeft = new AtomicInteger();
-+    private int taskCount = 0;
++    private final AtomicInteger taskIndex = new AtomicInteger();
 +
 +    private final ConcurrentLinkedQueue<Runnable> mainThreadTasks;
 +
-+    public TrackQueue(ConcurrentLinkedQueue<Runnable> mainThreadTasks) {
++    public TrackQueue(IteratorSafeOrderedReferenceSet<Chunk> chunks, ConcurrentLinkedQueue<Runnable> mainThreadTasks) {
++        this.chunks = chunks;
 +        this.mainThreadTasks = mainThreadTasks;
 +    }
 +
-+    public void update(IteratorSafeOrderedReferenceSet.Iterator<Chunk> iterator) {
-+        this.taskCount = 0;
-+        this.list.setSize(0);
-+
-+        while (iterator.hasNext()) {
-+            Runnable entityTracker = iterator.next().entityTracker;
-+            this.list.add(entityTracker);
-+            this.taskCount++;
-+        }
-+
-+        this.tasksLeft.set(this.taskCount);
-+    }
-+
 +    public void start() {
-+        if (this.taskCount < 1000) {
-+            for (int i = 0; i < this.taskCount; i++) {
-+                this.list.get(i).run();
++        if (this.chunks.size() < 1000) {
++            int iterator = this.chunks.createRawIterator();
++            try {
++                while (iterator != -1) {
++                    this.chunks.rawGet(iterator).entityTracker.run();
++                    iterator = this.chunks.advanceRawIterator(iterator);
++                }
++            } finally {
++                this.chunks.finishRawIterator();
 +            }
 +        } else {
 +            this.startThreaded();
@@ -104,13 +108,17 @@ index 0000000000000000000000000000000000000000..1eb58cef13126a3a21a2c44ec3da8e56
 +    }
 +
 +    private void startThreaded() {
-+        this.taskCounter.set(0);
++        int iterator = this.chunks.createRawIterator();
++        if (iterator == -1) {
++            return;
++        }
++        this.taskIndex.set(iterator);
 +
-+        for (int i = 0; i < Math.min(this.taskCount, this.pool.getParallelism()); i++) {
++        for (int i = 0; i < this.pool.getParallelism(); i++) {
 +            this.pool.execute(this::run);
 +        }
 +
-+        while (this.tasksLeft.get() > 0 || !this.mainThreadTasks.isEmpty()) {
++        while (this.taskIndex.get() < this.chunks.getListSize() || !this.mainThreadTasks.isEmpty()) {
 +            Runnable task;
 +            while ((task = this.mainThreadTasks.poll()) != null) {
 +                try {
@@ -122,12 +130,6 @@ index 0000000000000000000000000000000000000000..1eb58cef13126a3a21a2c44ec3da8e56
 +
 +            this.handleTask(); // assist
 +        }
-+
-+        this.taskCount = 0;
-+
-+        if (MinecraftServer.currentTick % (20 * 15) == 0) { // reset every 15s
-+            this.list.completeReset();
-+        }
 +    }
 +
 +    private void run() {
@@ -136,38 +138,45 @@ index 0000000000000000000000000000000000000000..1eb58cef13126a3a21a2c44ec3da8e56
 +    }
 +
 +    private boolean handleTask() {
-+        int currentTaskIndex = this.taskCounter.getAndIncrement();
-+        if (currentTaskIndex >= this.taskCount) {
-+            return false;
++        int index;
++        while ((index = this.taskIndex.getAndIncrement()) < this.chunks.getListSize()) {
++            Chunk chunk = this.chunks.rawGet(index);
++            if (chunk != null) {
++                try {
++                    chunk.entityTracker.run();
++                } catch (Throwable t) {
++                    MinecraftServer.LOGGER.log(Level.WARN, "Ticking tracker failed", t);
++                }
++
++                return true;
++            }
 +        }
-+        try {
-+            this.list.get(currentTaskIndex).run();
-+        } catch (Throwable t) {
-+            MinecraftServer.LOGGER.log(Level.WARN, "Ticking tracker failed", t);
-+        }
-+        this.tasksLeft.decrementAndGet();
-+        return true;
++
++        return false;
 +    }
 +
 +}
 diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
-index 7b8036840dcca16904b3063c209d5ff10ab8a6af..bc4fe8ee251b02548d713ab88e329a266cd7e626 100644
+index 7b8036840dcca16904b3063c209d5ff10ab8a6af..3860fe915ae49574ca5410aae65198ed7c1f4870 100644
 --- a/src/main/java/net/minecraft/server/Chunk.java
 +++ b/src/main/java/net/minecraft/server/Chunk.java
-@@ -64,6 +64,21 @@ public class Chunk implements IChunkAccess {
+@@ -64,6 +64,24 @@ public class Chunk implements IChunkAccess {
      }
      // Airplane end
  
 +    // Airplane start - entity tracker runnable
 +    // prevents needing to allocate new lambda in processTrackQueue
-+    public final Runnable entityTracker = () -> {
-+        Entity[] entities = this.entities.getRawData();
-+        for (int i = 0, len = this.entities.size(); i < len; ++i) {
-+            Entity entity = entities[i];
-+            PlayerChunkMap.EntityTracker tracker = ((WorldServer) this.getWorld()).getChunkProvider().playerChunkMap.trackedEntities.get(entity.getId());
-+            if (tracker != null) {
-+                tracker.updatePlayers(tracker.tracker.getPlayersInTrackRange());
-+                tracker.trackerEntry.tick();
++    public final Runnable entityTracker = new Runnable() {
++        @Override
++        public void run() {
++            Entity[] entities = Chunk.this.entities.getRawData();
++            for (int i = 0, len = Chunk.this.entities.size(); i < len; ++i) {
++                Entity entity = entities[i];
++                PlayerChunkMap.EntityTracker tracker = ((WorldServer) Chunk.this.getWorld()).getChunkProvider().playerChunkMap.trackedEntities.get(entity.getId());
++                if (tracker != null) {
++                    tracker.updatePlayers(tracker.tracker.getPlayersInTrackRange());
++                    tracker.trackerEntry.tick();
++                }
 +            }
 +        }
 +    };
@@ -261,7 +270,7 @@ index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..864d5a0bd55fd763e51759bc5a5ce951
  
          // CraftBukkit start - Fix for nonsensical head yaw
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index a42571cfd2c9c80df27e59db832cb64c2a64e141..386da7d3752f9ce52a46b8c9d225072d67699c3e 100644
+index a42571cfd2c9c80df27e59db832cb64c2a64e141..37862ad7efe042075454778c35b2cee0afb921f3 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
 @@ -10,6 +10,7 @@ import com.google.common.collect.Queues;
@@ -272,13 +281,13 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..386da7d3752f9ce52a46b8c9d225072d
  import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
  import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
  import it.unimi.dsi.fastutil.longs.Long2ByteMap;
-@@ -2119,11 +2120,34 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -2119,10 +2120,30 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
          entity.tracker = null; // Paper - We're no longer tracked
      }
  
 +    // Airplane start - tools to ensure main thread
 +    private final java.util.concurrent.ConcurrentLinkedQueue<Runnable> trackerMainQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
-+    private final gg.airplane.structs.TrackQueue trackQueue = new gg.airplane.structs.TrackQueue(trackerMainQueue);
++    private gg.airplane.structs.TrackQueue trackQueue;
 +
 +    void trackerEnsureMain(Runnable runnable) {
 +        if (this.world.serverThread == Thread.currentThread()) {
@@ -293,29 +302,17 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..386da7d3752f9ce52a46b8c9d225072d
      private final void processTrackQueue() {
          this.world.timings.tracker1.startTiming();
          try {
-             com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet.Iterator<Chunk> iterator = this.world.getChunkProvider().entityTickingChunks.iterator();
 +            // Airplane start - multithreaded tracker
++            if (this.trackQueue == null) this.trackQueue = new gg.airplane.structs.TrackQueue(this.world.getChunkProvider().entityTickingChunks, trackerMainQueue);
 +            if (AirplaneConfig.multithreadedEntityTracker) {
-+                try {
-+                    this.trackQueue.update(iterator);
-+                } finally {
-+                    iterator.finishedIterating();
-+                }
 +                this.trackQueue.start();
 +                return;
 +            }
++            // Airplane end
+             com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet.Iterator<Chunk> iterator = this.world.getChunkProvider().entityTickingChunks.iterator();
              try {
              while (iterator.hasNext()) {
-                 Chunk chunk = iterator.next();
-@@ -2140,6 +2164,7 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
-             } finally {
-                 iterator.finishedIterating();
-             }
-+            // Airplane end
-         } finally {
-             this.world.timings.tracker1.stopTiming();
-         }
-@@ -2384,7 +2409,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2384,7 +2405,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
      public class EntityTracker {
  
          final EntityTrackerEntry trackerEntry; // Paper - private -> package private
@@ -324,7 +321,7 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..386da7d3752f9ce52a46b8c9d225072d
          private final int trackingDistance;
          private SectionPosition e;
          // Paper start
-@@ -2483,7 +2508,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2483,7 +2504,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          }
  
          public void updatePlayer(EntityPlayer entityplayer) {
