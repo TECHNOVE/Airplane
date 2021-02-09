@@ -84,7 +84,7 @@ index 3ba3f3653ab0e43af829559980a3f1d00bf82b30..0bd86bd367de3c0c2d7f62b787913c04
 +
  }
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index 386da7d3752f9ce52a46b8c9d225072d67699c3e..423997793ab46d874b520a236e44eaca102d74f0 100644
+index 386da7d3752f9ce52a46b8c9d225072d67699c3e..7d13941ee755572898a818d65673929305deb9e1 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
 @@ -2123,6 +2123,20 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
@@ -116,7 +116,21 @@ index 386da7d3752f9ce52a46b8c9d225072d67699c3e..423997793ab46d874b520a236e44eaca
                  return;
              }
              try {
-@@ -2524,7 +2539,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2470,11 +2485,9 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+         }
+ 
+         public void broadcast(Packet<?> packet) {
+-            Iterator iterator = this.trackedPlayers.iterator();
+-
+-            while (iterator.hasNext()) {
+-                EntityPlayer entityplayer = (EntityPlayer) iterator.next();
++            final EntityPlayer[] trackedPlayers = this.trackedPlayers.toArray(new EntityPlayer[0]); // Airplane - avoid CME
+ 
++            for (EntityPlayer entityplayer : trackedPlayers) { // Airplane - avoid CME
+                 entityplayer.playerConnection.sendPacket(packet);
+             }
+ 
+@@ -2524,7 +2537,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
  
                      if (!flag1) {
                          ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(this.tracker.chunkX, this.tracker.chunkZ);
