@@ -45,10 +45,10 @@ index c39c9929a251b41ab60e1509b4e6c90d0825dc0c..0495cd90cde288c31bdbb00b1bb64683
  }
 diff --git a/src/main/java/gg/airplane/structs/TrackQueue.java b/src/main/java/gg/airplane/structs/TrackQueue.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..3ba3f3653ab0e43af829559980a3f1d00bf82b30
+index 0000000000000000000000000000000000000000..1eb58cef13126a3a21a2c44ec3da8e56cd7918a6
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/TrackQueue.java
-@@ -0,0 +1,98 @@
+@@ -0,0 +1,101 @@
 +package gg.airplane.structs;
 +
 +import com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet;
@@ -82,6 +82,7 @@ index 0000000000000000000000000000000000000000..3ba3f3653ab0e43af829559980a3f1d0
 +
 +    public void update(IteratorSafeOrderedReferenceSet.Iterator<Chunk> iterator) {
 +        this.taskCount = 0;
++        this.list.setSize(0);
 +
 +        while (iterator.hasNext()) {
 +            Runnable entityTracker = iterator.next().entityTracker;
@@ -119,31 +120,33 @@ index 0000000000000000000000000000000000000000..3ba3f3653ab0e43af829559980a3f1d0
 +                }
 +            }
 +
-+            this.run(); // assist
++            this.handleTask(); // assist
 +        }
 +
 +        this.taskCount = 0;
 +
 +        if (MinecraftServer.currentTick % (20 * 15) == 0) { // reset every 15s
 +            this.list.completeReset();
-+        } else {
-+            this.list.setSize(0);
 +        }
 +    }
 +
 +    private void run() {
-+        while (true) {
-+            int currentTaskIndex = this.taskCounter.getAndIncrement();
-+            if (currentTaskIndex >= this.taskCount) {
-+                return;
-+            }
-+            try {
-+                this.list.get(currentTaskIndex).run();
-+            } catch (Throwable t) {
-+                MinecraftServer.LOGGER.log(Level.WARN, "Ticking tracker failed", t);
-+            }
-+            this.tasksLeft.decrementAndGet();
++        while (handleTask()) {
 +        }
++    }
++
++    private boolean handleTask() {
++        int currentTaskIndex = this.taskCounter.getAndIncrement();
++        if (currentTaskIndex >= this.taskCount) {
++            return false;
++        }
++        try {
++            this.list.get(currentTaskIndex).run();
++        } catch (Throwable t) {
++            MinecraftServer.LOGGER.log(Level.WARN, "Ticking tracker failed", t);
++        }
++        this.tasksLeft.decrementAndGet();
++        return true;
 +    }
 +
 +}
