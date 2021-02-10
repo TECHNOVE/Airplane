@@ -58,10 +58,10 @@ index c39c9929a251b41ab60e1509b4e6c90d0825dc0c..0495cd90cde288c31bdbb00b1bb64683
  }
 diff --git a/src/main/java/gg/airplane/structs/TrackQueue.java b/src/main/java/gg/airplane/structs/TrackQueue.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..6a500570adb526c9aa183c52fe2b06bddbfc4fe7
+index 0000000000000000000000000000000000000000..01a6f0d0207a40648e27603e80f4dcd1e9efeaec
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/TrackQueue.java
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,75 @@
 +package gg.airplane.structs;
 +
 +import com.tuinity.tuinity.util.maplist.IteratorSafeOrderedReferenceSet;
@@ -115,8 +115,7 @@ index 0000000000000000000000000000000000000000..6a500570adb526c9aa183c52fe2b06bd
 +    }
 +
 +    private void run() {
-+        while (handleTask()) {
-+        }
++        while (handleTask());
 +    }
 +
 +    private boolean handleTask() {
@@ -139,7 +138,7 @@ index 0000000000000000000000000000000000000000..6a500570adb526c9aa183c52fe2b06bd
 +
 +}
 diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
-index 7b8036840dcca16904b3063c209d5ff10ab8a6af..30042a21fa38e5188e9072fff3cd8ba75b3583ca 100644
+index 7b8036840dcca16904b3063c209d5ff10ab8a6af..3b27ebb0c9fa9d2b6e18d60288f679c5be2f2144 100644
 --- a/src/main/java/net/minecraft/server/Chunk.java
 +++ b/src/main/java/net/minecraft/server/Chunk.java
 @@ -64,6 +64,26 @@ public class Chunk implements IChunkAccess {
@@ -158,7 +157,7 @@ index 7b8036840dcca16904b3063c209d5ff10ab8a6af..30042a21fa38e5188e9072fff3cd8ba7
 +                    PlayerChunkMap.EntityTracker tracker = ((WorldServer) Chunk.this.getWorld()).getChunkProvider().playerChunkMap.trackedEntities.get(entity.getId());
 +                    if (tracker != null) {
 +                        tracker.updatePlayers(tracker.tracker.getPlayersInTrackRange());
-+                        tracker.trackerEntry.tick();
++                        tracker.tickEntry();
 +                    }
 +                }
 +            }
@@ -254,7 +253,7 @@ index 526c1419af7bd0b6098a8f9a0a24a64ba61c6ebc..864d5a0bd55fd763e51759bc5a5ce951
  
          // CraftBukkit start - Fix for nonsensical head yaw
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index a42571cfd2c9c80df27e59db832cb64c2a64e141..e265a10781286a94d81086731ec0d3330dc3977f 100644
+index a42571cfd2c9c80df27e59db832cb64c2a64e141..3d2c2cfd60ead1a5412daa8ca5956828b4361e1c 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
 @@ -2119,10 +2119,30 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
@@ -280,7 +279,7 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..e265a10781286a94d81086731ec0d333
          try {
 +            // Airplane start - multithreaded tracker
 +            if (this.trackQueue == null) this.trackQueue = new gg.airplane.structs.TrackQueue(this.world.getChunkProvider().entityTickingChunks, trackerMainQueue);
-+            if (gg.airplane.AirplaneConfig.multithreadedEntityTracker && this.world.getChunkProvider().entityTickingChunks.size() < 1000) {
++            if (gg.airplane.AirplaneConfig.multithreadedEntityTracker && this.world.getChunkProvider().entityTickingChunks.size() > 1000) {
 +                this.trackQueue.start();
 +                return;
 +            }
@@ -297,11 +296,33 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..e265a10781286a94d81086731ec0d333
          private final int trackingDistance;
          private SectionPosition e;
          // Paper start
-@@ -2483,7 +2503,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2403,7 +2423,9 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+         // Paper start - use distance map to optimise tracker
+         com.destroystokyo.paper.util.misc.PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<EntityPlayer> lastTrackerCandidates;
+ 
+-        final void updatePlayers(com.destroystokyo.paper.util.misc.PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<EntityPlayer> newTrackerCandidates) {
++        synchronized final void tickEntry() { this.trackerEntry.tick(); } // Airplane - move entry tick into sync block
++
++        synchronized final void updatePlayers(com.destroystokyo.paper.util.misc.PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<EntityPlayer> newTrackerCandidates) { // Airplane
+             com.destroystokyo.paper.util.misc.PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<EntityPlayer> oldTrackerCandidates = this.lastTrackerCandidates;
+             this.lastTrackerCandidates = newTrackerCandidates;
+ 
+@@ -2444,7 +2466,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+             return this.tracker.getId();
          }
  
-         public void updatePlayer(EntityPlayer entityplayer) {
+-        public void broadcast(Packet<?> packet) {
++        public synchronized void broadcast(Packet<?> packet) { // Airplane - syncronized for tracked player
+             Iterator iterator = this.trackedPlayers.iterator();
+ 
+             while (iterator.hasNext()) {
+@@ -2482,8 +2504,8 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+ 
+         }
+ 
+-        public void updatePlayer(EntityPlayer entityplayer) {
 -            org.spigotmc.AsyncCatcher.catchOp("player tracker update"); // Spigot
++        public synchronized void updatePlayer(EntityPlayer entityplayer) { // Airplane - sync for access to map
 +            //org.spigotmc.AsyncCatcher.catchOp("player tracker update"); // Spigot // Airplane - allow sync for tracker
              if (entityplayer != this.tracker) {
                  // Paper start - remove allocation of Vec3D here
