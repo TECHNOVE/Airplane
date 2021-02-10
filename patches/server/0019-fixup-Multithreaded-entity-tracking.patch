@@ -5,39 +5,30 @@ Subject: [PATCH] fixup! Multithreaded entity tracking
 
 
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index e265a10781286a94d81086731ec0d3330dc3977f..7bd33090605e55a92cadccac5aeb0b511767b9e5 100644
+index e265a10781286a94d81086731ec0d3330dc3977f..359fccf1a41d6e2ab4576113e796b8baa22a4f8c 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-@@ -2122,6 +2122,20 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
-     // Airplane start - tools to ensure main thread
+@@ -2123,6 +2123,10 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
      private final java.util.concurrent.ConcurrentLinkedQueue<Runnable> trackerMainQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
      private gg.airplane.structs.TrackQueue trackQueue;
-+    private final com.google.common.cache.LoadingCache<Long, PlayerChunk> trackerVisibleChunkCache = com.google.common.cache.CacheBuilder.newBuilder().build(
-+            new com.google.common.cache.CacheLoader<Long, PlayerChunk>() {
-+                @Override
-+                public PlayerChunk load(@javax.annotation.Nonnull Long key) {
-+                    return getVisibleChunk(key);
-+                }
-+            });
-+
-+    PlayerChunk trackerGetVisibleChunk(long key) {
-+        if (this.world.serverThread == Thread.currentThread())
-+            return getVisibleChunk(key);
-+        else
-+            return trackerVisibleChunkCache.getUnchecked(key);
-+    }
  
++    PlayerChunk trackerGetVisibleChunk(long key) {
++        return ((ProtectedVisibleChunksMap)this.visibleChunks).safeGet(key);
++    }
++
      void trackerEnsureMain(Runnable runnable) {
          if (this.world.serverThread == Thread.currentThread()) {
-@@ -2140,6 +2154,7 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+             runnable.run();
+@@ -2138,7 +2142,7 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+         try {
+             // Airplane start - multithreaded tracker
              if (this.trackQueue == null) this.trackQueue = new gg.airplane.structs.TrackQueue(this.world.getChunkProvider().entityTickingChunks, trackerMainQueue);
-             if (gg.airplane.AirplaneConfig.multithreadedEntityTracker && this.world.getChunkProvider().entityTickingChunks.size() < 1000) {
+-            if (gg.airplane.AirplaneConfig.multithreadedEntityTracker && this.world.getChunkProvider().entityTickingChunks.size() < 1000) {
++            if (gg.airplane.AirplaneConfig.multithreadedEntityTracker && (this.world.getChunkProvider().entityTickingChunks.size() * (this.world.getMinecraftServer().getPlayerCount() * 2 + 1)) > 1000) {
                  this.trackQueue.start();
-+                this.trackerVisibleChunkCache.invalidateAll();
                  return;
              }
-             // Airplane end
-@@ -2465,11 +2480,9 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2465,11 +2469,9 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          }
  
          public void broadcast(Packet<?> packet) {
@@ -51,7 +42,7 @@ index e265a10781286a94d81086731ec0d3330dc3977f..7bd33090605e55a92cadccac5aeb0b51
                  entityplayer.playerConnection.sendPacket(packet);
              }
  
-@@ -2519,7 +2532,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2519,7 +2521,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
  
                      if (!flag1) {
                          ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(this.tracker.chunkX, this.tracker.chunkZ);
