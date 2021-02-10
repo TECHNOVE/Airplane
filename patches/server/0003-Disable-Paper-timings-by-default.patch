@@ -15,9 +15,9 @@ index 673c40d952bae6ae9e92aac9742e58ffb6a8b1bb..0efd8dc3175598f896a11094ca1f1c90
 +        // Airplane start
 +        boolean reallyEnableTimings = getBoolean("timings.really-enabled", false);
 +        if (timings && !reallyEnableTimings) {
-+            Bukkit.getLogger().log(Level.WARNING, "[Airplane] To improve performance, timings have been disabled by default");
-+            Bukkit.getLogger().log(Level.WARNING, "[Airplane] You can still use timings by using /timings on, but they will not start on server startup unless you set timings.really-enabled to true in paper.yml");
-+            Bukkit.getLogger().log(Level.WARNING, "[Airplane] If you would like to disable this message, either set timings.really-enabled to true or timings.enabled to false.");
++            Bukkit.getServer().getLogger().warning(ChatColor.AQUA + "[Airplane]: To improve performance, timings have been disabled by default");
++            Bukkit.getServer().getLogger().warning(ChatColor.AQUA + "[Airplane]: You can still use timings by using /timings on, but they will not start on server startup unless you set timings.really-enabled to true in paper.yml");
++            Bukkit.getServer().getLogger().warning(ChatColor.AQUA + "[Airplane] If you would like to disable this message, either set timings.really-enabled to true or timings.enabled to false.");
 +        }
 +        timings = reallyEnableTimings;
 +        // Airplane end
