@@ -4,93 +4,14 @@ Date: Tue, 9 Feb 2021 16:55:59 +0800
 Subject: [PATCH] fixup! Multithreaded entity tracking
 
 
-diff --git a/src/main/java/gg/airplane/structs/TrackQueue.java b/src/main/java/gg/airplane/structs/TrackQueue.java
-index 3ba3f3653ab0e43af829559980a3f1d00bf82b30..0bd86bd367de3c0c2d7f62b787913c045eb90eb1 100644
---- a/src/main/java/gg/airplane/structs/TrackQueue.java
-+++ b/src/main/java/gg/airplane/structs/TrackQueue.java
-@@ -42,7 +42,7 @@ public class TrackQueue {
-     }
- 
-     public void start() {
--        if (this.taskCount < 1000) {
-+        if ((this.taskCount * (MinecraftServer.getServer().getPlayerCount() * 2 + 1)) < 1000) {
-             for (int i = 0; i < this.taskCount; i++) {
-                 this.list.get(i).run();
-             }
-@@ -59,18 +59,12 @@ public class TrackQueue {
-         }
- 
-         while (this.tasksLeft.get() > 0 || !this.mainThreadTasks.isEmpty()) {
--            Runnable task;
--            while ((task = this.mainThreadTasks.poll()) != null) {
--                try {
--                    task.run();
--                } catch (Throwable t) {
--                    MinecraftServer.LOGGER.log(Level.WARN, "Tasks failed while ticking track queue", t);
--                }
--            }
--
--            this.run(); // assist
-+            flushMainThreadTasks();
-+            this.executeNext(); // assist
-         }
- 
-+        flushMainThreadTasks(); // ensure every sync tasks are executed
-+
-         this.taskCount = 0;
- 
-         if (MinecraftServer.currentTick % (20 * 15) == 0) { // reset every 15s
-@@ -80,19 +74,33 @@ public class TrackQueue {
-         }
-     }
- 
--    private void run() {
--        while (true) {
--            int currentTaskIndex = this.taskCounter.getAndIncrement();
--            if (currentTaskIndex >= this.taskCount) {
--                return;
--            }
-+    private void flushMainThreadTasks() {
-+        Runnable task;
-+        while ((task = this.mainThreadTasks.poll()) != null) {
-             try {
--                this.list.get(currentTaskIndex).run();
-+                task.run();
-             } catch (Throwable t) {
--                MinecraftServer.LOGGER.log(Level.WARN, "Ticking tracker failed", t);
-+                MinecraftServer.LOGGER.log(Level.WARN, "Tasks failed while ticking track queue", t);
-             }
--            this.tasksLeft.decrementAndGet();
-         }
-     }
- 
-+    private void run() {
-+        while (executeNext());
-+    }
-+
-+    private boolean executeNext() {
-+        int currentTaskIndex = this.taskCounter.getAndIncrement();
-+        if (currentTaskIndex >= this.taskCount) {
-+            return false;
-+        }
-+        try {
-+            this.list.get(currentTaskIndex).run();
-+        } catch (Throwable t) {
-+            MinecraftServer.LOGGER.log(Level.WARN, "Ticking tracker failed", t);
-+        }
-+        this.tasksLeft.decrementAndGet();
-+        return true;
-+    }
-+
- }
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index 386da7d3752f9ce52a46b8c9d225072d67699c3e..7d13941ee755572898a818d65673929305deb9e1 100644
+index e265a10781286a94d81086731ec0d3330dc3977f..7bd33090605e55a92cadccac5aeb0b511767b9e5 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-@@ -2123,6 +2123,20 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -2122,6 +2122,20 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
      // Airplane start - tools to ensure main thread
      private final java.util.concurrent.ConcurrentLinkedQueue<Runnable> trackerMainQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
-     private final gg.airplane.structs.TrackQueue trackQueue = new gg.airplane.structs.TrackQueue(trackerMainQueue);
+     private gg.airplane.structs.TrackQueue trackQueue;
 +    private final com.google.common.cache.LoadingCache<Long, PlayerChunk> trackerVisibleChunkCache = com.google.common.cache.CacheBuilder.newBuilder().build(
 +            new com.google.common.cache.CacheLoader<Long, PlayerChunk>() {
 +                @Override
@@ -108,15 +29,15 @@ index 386da7d3752f9ce52a46b8c9d225072d67699c3e..7d13941ee755572898a818d656739293
  
      void trackerEnsureMain(Runnable runnable) {
          if (this.world.serverThread == Thread.currentThread()) {
-@@ -2146,6 +2160,7 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
-                     iterator.finishedIterating();
-                 }
+@@ -2140,6 +2154,7 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+             if (this.trackQueue == null) this.trackQueue = new gg.airplane.structs.TrackQueue(this.world.getChunkProvider().entityTickingChunks, trackerMainQueue);
+             if (gg.airplane.AirplaneConfig.multithreadedEntityTracker && this.world.getChunkProvider().entityTickingChunks.size() < 1000) {
                  this.trackQueue.start();
 +                this.trackerVisibleChunkCache.invalidateAll();
                  return;
              }
-             try {
-@@ -2470,11 +2485,9 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+             // Airplane end
+@@ -2465,11 +2480,9 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          }
  
          public void broadcast(Packet<?> packet) {
@@ -130,7 +51,7 @@ index 386da7d3752f9ce52a46b8c9d225072d67699c3e..7d13941ee755572898a818d656739293
                  entityplayer.playerConnection.sendPacket(packet);
              }
  
-@@ -2524,7 +2537,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2519,7 +2532,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
  
                      if (!flag1) {
                          ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(this.tracker.chunkX, this.tracker.chunkZ);
