@@ -31,7 +31,7 @@ index 864d5a0bd55fd763e51759bc5a5ce951d403504b..9c48ca1e35f396be757e748c5aacecb0
          List<Entity> list = this.tracker.getPassengers();
  
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index 3d2c2cfd60ead1a5412daa8ca5956828b4361e1c..5681fbe58783ebd85515f2fe0a23891659bd8de6 100644
+index 3d2c2cfd60ead1a5412daa8ca5956828b4361e1c..311531fdbe352294788e213e6b4fa96345ec80ee 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
 @@ -20,6 +20,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap.Entry;
@@ -42,7 +42,22 @@ index 3d2c2cfd60ead1a5412daa8ca5956828b4361e1c..5681fbe58783ebd85515f2fe0a238916
  import it.unimi.dsi.fastutil.objects.ObjectBidirectionalIterator;
  import it.unimi.dsi.fastutil.objects.ObjectIterator;
  import java.io.File;
-@@ -2123,6 +2124,10 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -64,6 +65,14 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+     public final Long2ObjectLinkedOpenHashMap<PlayerChunk> visibleChunks = new ProtectedVisibleChunksMap(); // Paper - faster copying
+ 
+     private class ProtectedVisibleChunksMap extends com.destroystokyo.paper.util.map.Long2ObjectLinkedOpenHashMapFastCopy<PlayerChunk> {
++        // Airplane start - readonly protection
++        private volatile boolean readOnly = false;
++        @Override
++        public void copyFrom(com.destroystokyo.paper.util.map.Long2ObjectLinkedOpenHashMapFastCopy<PlayerChunk> map) {
++            if (readOnly) throw new IllegalStateException("Readonly mode");
++            super.copyFrom(map);
++        }
++        // Airplane end
+         @Override
+         public PlayerChunk put(long k, PlayerChunk playerChunk) {
+             throw new UnsupportedOperationException("Updating visible Chunks");
+@@ -2123,6 +2132,10 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
      private final java.util.concurrent.ConcurrentLinkedQueue<Runnable> trackerMainQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
      private gg.airplane.structs.TrackQueue trackQueue;
  
@@ -53,7 +68,11 @@ index 3d2c2cfd60ead1a5412daa8ca5956828b4361e1c..5681fbe58783ebd85515f2fe0a238916
      void trackerEnsureMain(Runnable runnable) {
          if (this.world.serverThread == Thread.currentThread()) {
              runnable.run();
-@@ -2138,7 +2143,7 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -2135,10 +2148,11 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+     // Paper start - optimised tracker
+     private final void processTrackQueue() {
+         this.world.timings.tracker1.startTiming();
++        ((ProtectedVisibleChunksMap) this.visibleChunks).readOnly = true; // Airplane - readonly protection
          try {
              // Airplane start - multithreaded tracker
              if (this.trackQueue == null) this.trackQueue = new gg.airplane.structs.TrackQueue(this.world.getChunkProvider().entityTickingChunks, trackerMainQueue);
@@ -62,7 +81,15 @@ index 3d2c2cfd60ead1a5412daa8ca5956828b4361e1c..5681fbe58783ebd85515f2fe0a238916
                  this.trackQueue.start();
                  return;
              }
-@@ -2410,8 +2415,9 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2162,6 +2176,7 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+             }
+         } finally {
+             this.world.timings.tracker1.stopTiming();
++            ((ProtectedVisibleChunksMap) this.visibleChunks).readOnly = false; // Airplane - readonly protection
+         }
+     }
+     // Paper end - optimised tracker
+@@ -2410,8 +2425,9 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          // Paper start
          // Replace trackedPlayers Set with a Map. The value is true until the player receives
          // their first update (which is forced to have absolute coordinates), false afterward.
@@ -73,7 +100,7 @@ index 3d2c2cfd60ead1a5412daa8ca5956828b4361e1c..5681fbe58783ebd85515f2fe0a238916
  
          public EntityTracker(Entity entity, int i, int j, boolean flag) {
              this.trackerEntry = new EntityTrackerEntry(PlayerChunkMap.this.world, entity, j, flag, this::broadcast, trackedPlayerMap); // CraftBukkit // Paper
-@@ -2423,9 +2429,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2423,9 +2439,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          // Paper start - use distance map to optimise tracker
          com.destroystokyo.paper.util.misc.PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<EntityPlayer> lastTrackerCandidates;
  
@@ -84,7 +111,7 @@ index 3d2c2cfd60ead1a5412daa8ca5956828b4361e1c..5681fbe58783ebd85515f2fe0a238916
              com.destroystokyo.paper.util.misc.PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<EntityPlayer> oldTrackerCandidates = this.lastTrackerCandidates;
              this.lastTrackerCandidates = newTrackerCandidates;
  
-@@ -2450,7 +2454,16 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2450,7 +2464,16 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
              // stuff could have been removed, so we need to check the trackedPlayers set
              // for players that were removed
  
@@ -102,7 +129,7 @@ index 3d2c2cfd60ead1a5412daa8ca5956828b4361e1c..5681fbe58783ebd85515f2fe0a238916
                  if (newTrackerCandidates == null || !newTrackerCandidates.contains(player)) {
                      this.updatePlayer(player);
                  }
-@@ -2466,12 +2479,18 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2466,12 +2489,18 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
              return this.tracker.getId();
          }
  
@@ -126,7 +153,7 @@ index 3d2c2cfd60ead1a5412daa8ca5956828b4361e1c..5681fbe58783ebd85515f2fe0a238916
                  entityplayer.playerConnection.sendPacket(packet);
              }
  
-@@ -2486,11 +2505,17 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2486,11 +2515,17 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          }
  
          public void a() {
@@ -148,7 +175,7 @@ index 3d2c2cfd60ead1a5412daa8ca5956828b4361e1c..5681fbe58783ebd85515f2fe0a238916
                  this.trackerEntry.a(entityplayer);
              }
  
-@@ -2498,7 +2523,16 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2498,7 +2533,16 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
  
          public void clear(EntityPlayer entityplayer) {
              org.spigotmc.AsyncCatcher.catchOp("player tracker clear"); // Spigot
@@ -166,7 +193,7 @@ index 3d2c2cfd60ead1a5412daa8ca5956828b4361e1c..5681fbe58783ebd85515f2fe0a238916
                  this.trackerEntry.a(entityplayer);
              }
  
-@@ -2521,7 +2555,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2521,7 +2565,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
  
                      if (!flag1) {
                          ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(this.tracker.chunkX, this.tracker.chunkZ);
@@ -175,7 +202,7 @@ index 3d2c2cfd60ead1a5412daa8ca5956828b4361e1c..5681fbe58783ebd85515f2fe0a238916
  
                          if (playerchunk != null && playerchunk.getSendingChunk() != null) { // Paper - no-tick view distance
                              flag1 = PlayerChunkMap.b(chunkcoordintpair, entityplayer, false) <= PlayerChunkMap.this.viewDistance;
-@@ -2542,8 +2576,19 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2542,8 +2586,19 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
                      if (flag1 && this.trackedPlayerMap.putIfAbsent(entityplayer, true) == null) { // Paper
                          this.trackerEntry.b(entityplayer);
                      }
