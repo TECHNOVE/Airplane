@@ -37,7 +37,7 @@ index bf914dc5ee7f2d4a324b6711ea273f5581ec84ad..1d23d6ede74bfa142e75ffcd84d75cde
          return (EntityTypes) IRegistry.a((IRegistry) IRegistry.ENTITY_TYPE, s, (Object) entitytypes_builder.a(s));
      }
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index a42571cfd2c9c80df27e59db832cb64c2a64e141..9e5a9df2a8ef560377f9283e666a0cfb814a7ce8 100644
+index a42571cfd2c9c80df27e59db832cb64c2a64e141..c5546838187e3dc0d752e69c1eafa0dbc3804b0c 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
 @@ -638,7 +638,9 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
@@ -109,7 +109,7 @@ index a42571cfd2c9c80df27e59db832cb64c2a64e141..9e5a9df2a8ef560377f9283e666a0cfb
                  }
              }
 +            }
-+            // Airplaen end
++            // Airplane end
  
              return this.a(i);
          }
@@ -141,7 +141,7 @@ index 9dc574326e22669cb69f856a64bfc12cc95ef511..248e3d922dca081da53695013f0fa88e
      // Paper start - Prevent armor stands from doing entity lookups
      @Override
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index c43df937a985626f0d9cc5a89e9c22646b33ade0..2b637cdbb2f18983476ef0159a661b638bb712f4 100644
+index 509e60279be76374e2f32faecb881b05f3f23b43..a6c7ed128479bbbd8aed35b3f730d13dd24dbc34 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
 @@ -887,7 +887,28 @@ public class WorldServer extends World implements GeneratorAccessSeed {
