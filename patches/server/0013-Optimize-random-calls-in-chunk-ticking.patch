@@ -77,10 +77,10 @@ index 1da5c7def8b476cf638548b05d3e2015bc372f51..03bcd704e3c08f5b54b124df1583e3cc
              boolean flag2 = world.ticksPerAnimalSpawns != 0L && worlddata.getTime() % world.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 0755af23dfd58ff06aa0236ca1c4c853a37e718d..509e60279be76374e2f32faecb881b05f3f23b43 100644
+index f05fc62a70a44b8f92b8be3c9fa2419972a68728..245bc7b88d7ebb988ba1dc72bc414169ad8558ae 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
-@@ -979,6 +979,8 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -987,6 +987,8 @@ public class WorldServer extends World implements GeneratorAccessSeed {
      private final com.destroystokyo.paper.util.math.ThreadUnsafeRandom randomTickRandom = new com.destroystokyo.paper.util.math.ThreadUnsafeRandom();
      // Paper end
  
@@ -89,7 +89,7 @@ index 0755af23dfd58ff06aa0236ca1c4c853a37e718d..509e60279be76374e2f32faecb881b05
      // Airplane start - create version of chunk tick that returns a bool for updating lighting
      public void a(Chunk chunk, int i) { this.abool(chunk, i); }
      public boolean abool(Chunk chunk, int i) { final int randomTickSpeed = i; // Paper
-@@ -992,7 +994,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1000,7 +1002,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
          gameprofilerfiller.enter("thunder");
          final BlockPosition.MutableBlockPosition blockposition = this.chunkTickMutablePosition; // Paper - use mutable to reduce allocation rate, final to force compile fail on change
  
@@ -98,7 +98,7 @@ index 0755af23dfd58ff06aa0236ca1c4c853a37e718d..509e60279be76374e2f32faecb881b05
              blockposition.setValues(this.a(this.a(j, 0, k, 15))); // Paper
              if (this.isRainingAt(blockposition)) {
                  DifficultyDamageScaler difficultydamagescaler = this.getDamageScaler(blockposition);
-@@ -1016,7 +1018,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1024,7 +1026,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
          }
  
          gameprofilerfiller.exitEnter("iceandsnow");

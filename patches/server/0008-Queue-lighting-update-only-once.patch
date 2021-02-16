@@ -49,10 +49,10 @@ index 9e6381a60b804a957eda5b72582d5545faebcb3e..1da5c7def8b476cf638548b05d3e2015
              this.world.getMethodProfiler().enter("customSpawners");
              if (flag1) {
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 9c11a6ba0384baafaec1403a6a7c3f894d5cd7b3..072de1999af8593a9982638197b53c4303d7180a 100644
+index 9a8a1e05a60bca77adc904017ae70ef5f629df0b..1f759ff26b2820e0c9a93ee71bfe46bf8f23f671 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
-@@ -979,7 +979,10 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -987,7 +987,10 @@ public class WorldServer extends World implements GeneratorAccessSeed {
      private final com.destroystokyo.paper.util.math.ThreadUnsafeRandom randomTickRandom = new com.destroystokyo.paper.util.math.ThreadUnsafeRandom();
      // Paper end
  
@@ -64,7 +64,7 @@ index 9c11a6ba0384baafaec1403a6a7c3f894d5cd7b3..072de1999af8593a9982638197b53c43
          ChunkCoordIntPair chunkcoordintpair = chunk.getPos();
          boolean flag = this.isRaining();
          int j = chunkcoordintpair.d();
-@@ -1082,9 +1085,13 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1090,9 +1093,13 @@ public class WorldServer extends World implements GeneratorAccessSeed {
              }
              gameprofilerfiller.exit();
              timings.chunkTicksBlocks.stopTiming(); // Paper
