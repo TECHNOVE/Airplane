@@ -97,7 +97,7 @@ index 41382fd40869a8f40f3f65f12cb81a86590a9995..7bd22c81d75368697113915a97c7fbe5
              ++this.conversionTicks;
              if (this.conversionTicks > 300) {
 diff --git a/src/main/java/net/minecraft/server/EntityInsentient.java b/src/main/java/net/minecraft/server/EntityInsentient.java
-index 8a5e2806e68e5f4431fd9563fae780861e87632f..6cace7b4b27585a83e1474b664c7ed282ee0697d 100644
+index a47217c020d2c2a3caddafa0549dc827373798dd..81a91d63dd26a940c381b5a4f18eb60d42bbd61e 100644
 --- a/src/main/java/net/minecraft/server/EntityInsentient.java
 +++ b/src/main/java/net/minecraft/server/EntityInsentient.java
 @@ -133,10 +133,10 @@ public abstract class EntityInsentient extends EntityLiving {

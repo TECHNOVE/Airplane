@@ -56,10 +56,10 @@ index bf914dc5ee7f2d4a324b6711ea273f5581ec84ad..1d23d6ede74bfa142e75ffcd84d75cde
          return (EntityTypes) IRegistry.a((IRegistry) IRegistry.ENTITY_TYPE, s, (Object) entitytypes_builder.a(s));
      }
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index 2c2becef8b56d7e5e998976222df85d2c8516c43..cde7d0e641b2e1e8e6a4ce9510a996343d62a88d 100644
+index 61570ab947b5a153a4c2bcb5a09344f060e6052d..121deda90227cb0416d6642607b24093df2baa80 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-@@ -638,7 +638,9 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -641,7 +641,9 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
          return d2 * d2 + d3 * d3;
      }
  
@@ -70,7 +70,7 @@ index 2c2becef8b56d7e5e998976222df85d2c8516c43..cde7d0e641b2e1e8e6a4ce9510a99634
          int i;
          int j;
  
-@@ -652,12 +654,16 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -655,12 +657,16 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
              j = MathHelper.floor(entityplayer.locZ() / 16.0D);
          }
  
@@ -91,7 +91,7 @@ index 2c2becef8b56d7e5e998976222df85d2c8516c43..cde7d0e641b2e1e8e6a4ce9510a99634
  
          return Math.max(Math.abs(k), Math.abs(l));
      }
-@@ -2496,11 +2502,17 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2499,11 +2505,17 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
                      boolean flag1 = this.tracker.attachedToPlayer;
  
                      if (!flag1) {
@@ -111,7 +111,7 @@ index 2c2becef8b56d7e5e998976222df85d2c8516c43..cde7d0e641b2e1e8e6a4ce9510a99634
                          }
                      }
  
-@@ -2530,8 +2542,10 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2533,8 +2545,10 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          }
  
          private int b() {
@@ -123,7 +123,7 @@ index 2c2becef8b56d7e5e998976222df85d2c8516c43..cde7d0e641b2e1e8e6a4ce9510a99634
              Iterator iterator = collection.iterator();
  
              while (iterator.hasNext()) {
-@@ -2543,6 +2557,8 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2546,6 +2560,8 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
                      i = j;
                  }
              }
@@ -133,10 +133,10 @@ index 2c2becef8b56d7e5e998976222df85d2c8516c43..cde7d0e641b2e1e8e6a4ce9510a99634
              return this.a(i);
          }
 diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index 9dc574326e22669cb69f856a64bfc12cc95ef511..248e3d922dca081da53695013f0fa88e09a5f8a3 100644
+index 50cb45883a2e815bdbf5c1522a8ddbcb124561b3..3c968c6133c42c3690fe554d5993d237de82c162 100644
 --- a/src/main/java/net/minecraft/server/World.java
 +++ b/src/main/java/net/minecraft/server/World.java
-@@ -1010,19 +1010,19 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
+@@ -1041,19 +1041,19 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
  
      public void a(Consumer<Entity> consumer, Entity entity) {
          try {
@@ -160,10 +160,10 @@ index 9dc574326e22669cb69f856a64bfc12cc95ef511..248e3d922dca081da53695013f0fa88e
      // Paper start - Prevent armor stands from doing entity lookups
      @Override
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 245bc7b88d7ebb988ba1dc72bc414169ad8558ae..3956476df48a4dddfb1f4adf06b9a81b356b5563 100644
+index 7e488a5330a29287fe5eb0e030289bb4a77bff8b..3ce169ed4fcb6393afbafb36299ce158c245103f 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
-@@ -895,7 +895,28 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -992,7 +992,28 @@ public class WorldServer extends World implements GeneratorAccessSeed {
  
                  gameprofilerfiller.enter("tick");
                  if (!entity.dead && !(entity instanceof EntityComplexPart)) {
@@ -192,7 +192,7 @@ index 245bc7b88d7ebb988ba1dc72bc414169ad8558ae..3956476df48a4dddfb1f4adf06b9a81b
                  }
  
                  gameprofilerfiller.exit();
-@@ -1240,9 +1261,14 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1330,9 +1351,14 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                  ++entity.ticksLived;
                  GameProfilerFiller gameprofilerfiller = this.getMethodProfiler();
  
