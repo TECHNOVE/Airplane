@@ -88,10 +88,10 @@ index 2e7721a650c5a351b3584665bd236f92ef577761..b3c2b461b2a654a9e37a57f2f62b3ba8
          return d0 == 0.0D ? 0 : (d0 > 0.0D ? 1 : -1);
      }
 diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index 93c0c3376c3cb2fe416c8ae3e740ffda5f985b78..9dc574326e22669cb69f856a64bfc12cc95ef511 100644
+index 970c1be5477a01ab9c6d79e84c519e22775564ff..50cb45883a2e815bdbf5c1522a8ddbcb124561b3 100644
 --- a/src/main/java/net/minecraft/server/World.java
 +++ b/src/main/java/net/minecraft/server/World.java
-@@ -287,6 +287,91 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
+@@ -318,6 +318,91 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
          return null;
      }
  
