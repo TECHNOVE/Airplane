@@ -1,6 +1,7 @@
 <!-- Variables -->
 [downloads]: https://dl.airplane.gg
 [discord]: https://discord.gg/63dDSReB7j
+[purity]: https://www.purityvanilla.com
 
 # Airplane
 Performance orientated Bukkit implementation based on Tuinity.
@@ -14,6 +15,14 @@ This fork includes optimizations oriented towards large servers. Whether you hav
 ## Downloads
 The latest JAR file can be downloaded from [the downloads page][downloads].  
 Alternatively, you can clone this repository and build it yourself.
+
+## Patreon
+
+Interested in sponsoring Airplane's development? We now have a Patreon: https://www.patreon.com/airplane
+
+Thanks to all our Patrons! Check out our Private Quarters Patrons:
+
+[![Purity Vanilla](https://i.imgur.com/SC88aEg.png)][purity]
 
 ## "Will Airplane work with my plugins?"
 Airplane will work with any plugin that works on Tuinity and Paper. If the plugin uses specific server code, we'll try our best to maintain compatibility, though issues may arise. If you find any plugin compatibility issues, feel free to make a support ticket and report the problems!
