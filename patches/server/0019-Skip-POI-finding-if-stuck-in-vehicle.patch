@@ -3,6 +3,21 @@ From: Paul Sauve <paul@technove.co>
 Date: Thu, 18 Feb 2021 13:13:27 -0600
 Subject: [PATCH] Skip POI finding if stuck in vehicle
 
+Airplane
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/BehaviorFindPosition.java b/src/main/java/net/minecraft/server/BehaviorFindPosition.java
 index 8d445e9c0875db6cf45e4d8bcfce7cd3d5094d94..bc13f865689058a3c94ee41b8efb4dce5874004b 100644
@@ -10,7 +25,7 @@ index 8d445e9c0875db6cf45e4d8bcfce7cd3d5094d94..bc13f865689058a3c94ee41b8efb4dce
 +++ b/src/main/java/net/minecraft/server/BehaviorFindPosition.java
 @@ -45,6 +45,12 @@ public class BehaviorFindPosition extends Behavior<EntityCreature> {
      }
- 
+
      protected boolean a(WorldServer worldserver, EntityCreature entitycreature) {
 +        // Airplane start - don't calculate POI if they're trapped in a vehicle
 +        Entity vehicle = entitycreature.getVehicle();

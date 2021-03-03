@@ -3,6 +3,21 @@ From: Paul Sauve <paul@technove.co>
 Date: Thu, 4 Feb 2021 23:33:52 -0600
 Subject: [PATCH] Reduce chunk loading & lookups
 
+Airplane
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/EntityEnderman.java b/src/main/java/net/minecraft/server/EntityEnderman.java
 index f53525eb32a6096ae24fd23756b2169d5d39e9d4..a192400f0ea4517c56c473d39e4bd04396b4eb72 100644
@@ -11,7 +26,7 @@ index f53525eb32a6096ae24fd23756b2169d5d39e9d4..a192400f0ea4517c56c473d39e4bd043
 @@ -260,11 +260,18 @@ public class EntityEnderman extends EntityMonster implements IEntityAngerable {
      private boolean p(double d0, double d1, double d2) {
          BlockPosition.MutableBlockPosition blockposition_mutableblockposition = new BlockPosition.MutableBlockPosition(d0, d1, d2);
- 
+
 -        while (blockposition_mutableblockposition.getY() > 0 && !this.world.getType(blockposition_mutableblockposition).getMaterial().isSolid()) {
 +        // Airplane start - single chunk lookup
 +        Chunk chunk = this.world.getChunkIfLoaded(blockposition_mutableblockposition);
@@ -22,20 +37,20 @@ index f53525eb32a6096ae24fd23756b2169d5d39e9d4..a192400f0ea4517c56c473d39e4bd043
 +        while (blockposition_mutableblockposition.getY() > 0 && !chunk.getType(blockposition_mutableblockposition).getMaterial().isSolid()) { // use chunk lookup
              blockposition_mutableblockposition.c(EnumDirection.DOWN);
          }
- 
+
 -        IBlockData iblockdata = this.world.getType(blockposition_mutableblockposition);
 +        IBlockData iblockdata = chunk.getType(blockposition_mutableblockposition); // use chunk lookup
 +        // Airplane end
          boolean flag = iblockdata.getMaterial().isSolid();
          boolean flag1 = iblockdata.getFluid().a((Tag) TagsFluid.WATER);
- 
+
 diff --git a/src/main/java/net/minecraft/server/SpawnerCreature.java b/src/main/java/net/minecraft/server/SpawnerCreature.java
 index a77b1d61b9dcb0a2a27d7e50357eaf44c99a661e..3406ffde3c56d9c35ec18a76af8fb258d4131417 100644
 --- a/src/main/java/net/minecraft/server/SpawnerCreature.java
 +++ b/src/main/java/net/minecraft/server/SpawnerCreature.java
 @@ -372,7 +372,10 @@ public final class SpawnerCreature {
      }
- 
+
      private static List<BiomeSettingsMobs.c> a(WorldServer worldserver, StructureManager structuremanager, ChunkGenerator chunkgenerator, EnumCreatureType enumcreaturetype, BlockPosition blockposition, @Nullable BiomeBase biomebase) {
 -        return enumcreaturetype == EnumCreatureType.MONSTER && worldserver.getType(blockposition.down()).getBlock() == Blocks.NETHER_BRICKS && structuremanager.a(blockposition, false, StructureGenerator.FORTRESS).e() ? StructureGenerator.FORTRESS.c() : chunkgenerator.getMobsFor(biomebase != null ? biomebase : worldserver.getBiome(blockposition), structuremanager, enumcreaturetype, blockposition);
 +        // Airplane start - single chunk lookup
@@ -43,5 +58,5 @@ index a77b1d61b9dcb0a2a27d7e50357eaf44c99a661e..3406ffde3c56d9c35ec18a76af8fb258
 +        return enumcreaturetype == EnumCreatureType.MONSTER && (chunk = worldserver.getChunkIfLoaded(blockposition)) != null && chunk.getType(blockposition.down()).getBlock() == Blocks.NETHER_BRICKS && structuremanager.a(blockposition, false, StructureGenerator.FORTRESS).e() ? StructureGenerator.FORTRESS.c() : chunkgenerator.getMobsFor(biomebase != null ? biomebase : worldserver.getBiome(blockposition), structuremanager, enumcreaturetype, blockposition);
 +        // Airplane end
      }
- 
+
      private static BlockPosition getRandomPosition(World world, Chunk chunk) {
