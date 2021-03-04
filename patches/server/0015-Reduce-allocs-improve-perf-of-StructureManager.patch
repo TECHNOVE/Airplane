@@ -31,14 +31,14 @@ index 2598ae3710d46c2cfd2be5d6be2a56e59ceef6ea..fd1f1e2d7e4be227697f534bdc6d9c52
 @@ -5,6 +5,11 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList; // Paper
  import java.util.stream.Stream;
  import javax.annotation.Nullable;
-
+ 
 +// Airplane start
 +import it.unimi.dsi.fastutil.longs.LongIterator;
 +import it.unimi.dsi.fastutil.longs.LongSet;
 +// Airplane end
 +
  public class StructureManager {
-
+ 
      private final GeneratorAccess a; public GeneratorAccess getLevel() { return a; } // Paper - OBFHELPER
 @@ -41,13 +46,15 @@ public class StructureManager {
      public java.util.List<StructureStart<?>> getFeatureStarts(SectionPosition sectionPosition, StructureGenerator<?> structureGenerator, IWorldReader world) {

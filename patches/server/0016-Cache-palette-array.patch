@@ -36,9 +36,9 @@ index 076d6c1e1cc049dd312ecb30518e7b25fc2d7371..68538ae94806d5980cd531e61fa52a01
          // Paper end
          // Tuinity start - rewrite light impl
 @@ -454,6 +455,7 @@ public class ChunkRegionLoader {
-
+ 
          NBTTagCompound nbttagcompound2;
-
+ 
 +        int[] aint = paletteArray.get(); // Airplane - use cached
          for (int i = -1; i < 17; ++i) { // Paper - conflict on loop parameter change
              int finalI = i; // CraftBukkit - decompile errors
@@ -50,7 +50,7 @@ index 076d6c1e1cc049dd312ecb30518e7b25fc2d7371..68538ae94806d5980cd531e61fa52a01
 -                    chunksection.getBlocks().a(nbttagcompound2, "Palette", "BlockStates");
 +                    chunksection.getBlocks().a(nbttagcompound2, "Palette", "BlockStates", aint); // Airplane
                  }
-
+ 
                  if (nibblearray != null && !nibblearray.c()) {
 diff --git a/src/main/java/net/minecraft/server/DataPaletteBlock.java b/src/main/java/net/minecraft/server/DataPaletteBlock.java
 index 73163b417af7e522a4509bf9c1ab56d6499be622..2855a2757c35afc5751a7ca6f3a12cc27c24bf96 100644
@@ -59,7 +59,7 @@ index 73163b417af7e522a4509bf9c1ab56d6499be622..2855a2757c35afc5751a7ca6f3a12cc2
 @@ -226,12 +226,16 @@ public class DataPaletteBlock<T> implements DataPaletteExpandable<T> {
          this.b();
      }
-
+ 
 +    // Airplane start - add parameter for reusing aint
      public synchronized void a(NBTTagCompound nbttagcompound, String s, String s1) { // Paper - synchronize
 +        a(nbttagcompound, s, s1, new int[4096]);
@@ -71,6 +71,6 @@ index 73163b417af7e522a4509bf9c1ab56d6499be622..2855a2757c35afc5751a7ca6f3a12cc2
          int i = datapalettehash.a(this.g);
 -        int[] aint = new int[4096];
 +        //int[] aint = new int[4096]; // Airplane - use parameter
-
+ 
          for (int j = 0; j < 4096; ++j) {
              T t1 = this.a(j);
