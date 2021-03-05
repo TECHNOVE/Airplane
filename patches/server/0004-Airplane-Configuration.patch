@@ -3,6 +3,8 @@ From: Paul Sauve <paul@technove.co>
 Date: Wed, 20 Jan 2021 13:08:53 -0600
 Subject: [PATCH] Airplane Configuration
 
+Co-developed-by: Ben Kerllenevich <me@notom3ga.me>
+
 Airplane
 Copyright (C) 2020 Technove LLC
 
@@ -21,14 +23,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/gg/airplane/AirplaneCommand.java b/src/main/java/gg/airplane/AirplaneCommand.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..e85c3b19d2afc9d305c4868e2a344940c1902805
+index 0000000000000000000000000000000000000000..5f51109778bcde5ff38931b844c70801e2b4c112
 --- /dev/null
 +++ b/src/main/java/gg/airplane/AirplaneCommand.java
-@@ -0,0 +1,65 @@
+@@ -0,0 +1,60 @@
 +package gg.airplane;
 +
 +import net.md_5.bungee.api.ChatColor;
 +import net.minecraft.server.MinecraftServer;
++import org.bukkit.Bukkit;
 +import org.bukkit.Location;
 +import org.bukkit.command.Command;
 +import org.bukkit.command.CommandSender;
@@ -55,8 +58,8 @@ index 0000000000000000000000000000000000000000..e85c3b19d2afc9d305c4868e2a344940
 +    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
 +        if (args.length == 1) {
 +            return Stream.of("reload", "version")
-+                    .filter(arg -> arg.startsWith(args[0].toLowerCase()))
-+                    .collect(Collectors.toList());
++              .filter(arg -> arg.startsWith(args[0].toLowerCase()))
++              .collect(Collectors.toList());
 +        }
 +        return Collections.emptyList();
 +    }
@@ -64,27 +67,21 @@ index 0000000000000000000000000000000000000000..e85c3b19d2afc9d305c4868e2a344940
 +    @Override
 +    public boolean execute(CommandSender sender, String commandLabel, String[] args) {
 +        if (!testPermission(sender)) return true;
-+        String prefix = ChatColor.of("#6a7eda") + "" + ChatColor.BOLD + "Airplane ✈ ";
++        String prefix = ChatColor.of("#6a7eda") + "" + ChatColor.BOLD + "Airplane ✈ " + ChatColor.of("#e8ebf9");
 +
 +        if (args.length != 1) {
-+            sender.sendMessage(prefix + ChatColor.RED + "Usage: " + usageMessage);
-+            return false;
++            sender.sendMessage(prefix + "Usage: " + usageMessage);
++            args = new String[]{"version"};
 +        }
 +
 +        if (args[0].equalsIgnoreCase("reload")) {
-+            Command.broadcastCommandMessage(sender, prefix + ChatColor.RED + "Please not that this command is not supported and may cause issues.");
-+            Command.broadcastCommandMessage(sender, prefix + ChatColor.RED + "If you encounter any issues please use the /stop command to restart your server.");
-+
 +            MinecraftServer console = MinecraftServer.getServer();
 +            AirplaneConfig.load();
 +            console.server.reloadCount++;
 +
-+            Command.broadcastCommandMessage(sender, prefix + ChatColor.GREEN + "Airplane config reload complete.");
++            Command.broadcastCommandMessage(sender, prefix + "Airplane configuration has been reloaded.");
 +        } else if (args[0].equalsIgnoreCase("version")) {
-+            Command verCmd = org.bukkit.Bukkit.getServer().getCommandMap().getCommand("version");
-+            if (verCmd != null) {
-+                return verCmd.execute(sender, commandLabel, new String[0]);
-+            }
++            Command.broadcastCommandMessage(sender, prefix + "This server is running " + Bukkit.getName() + " version " + Bukkit.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ")");
 +        }
 +
 +        return true;
