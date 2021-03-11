@@ -20,10 +20,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/EntityBat.java b/src/main/java/net/minecraft/server/EntityBat.java
-index 0a59e02d762a096cb3de62e0f8105cc5a5fab8d4..66aa5009550bcb215536a1ca98334771db193fcb 100644
+index 451ffcfd1fc9fa3091dc2bd697e5d829dcf6443f..f06ffdca027e5477332c6bc0c381264b47633f78 100644
 --- a/src/main/java/net/minecraft/server/EntityBat.java
 +++ b/src/main/java/net/minecraft/server/EntityBat.java
-@@ -221,13 +221,22 @@ public class EntityBat extends EntityAmbient {
+@@ -222,13 +222,22 @@ public class EntityBat extends EntityAmbient {
          }
      }
  

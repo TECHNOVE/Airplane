@@ -58,7 +58,7 @@ index 2291135eaef64c403183724cb6e413cd7e472672..72ee5fe0ca25844cbcd8f1bbbbd6a7f8
          @Override
          public BlockPosition shift(EnumDirection enumdirection, int i) {
 diff --git a/src/main/java/net/minecraft/server/EntityTypes.java b/src/main/java/net/minecraft/server/EntityTypes.java
-index bf914dc5ee7f2d4a324b6711ea273f5581ec84ad..1d23d6ede74bfa142e75ffcd84d75cde47270510 100644
+index 93b5a6471cde31739d2bd5f2a9fc0e0d974d0eb0..4410939423a75357cc2d16bc4a3b96a504942320 100644
 --- a/src/main/java/net/minecraft/server/EntityTypes.java
 +++ b/src/main/java/net/minecraft/server/EntityTypes.java
 @@ -139,6 +139,8 @@ public class EntityTypes<T extends Entity> {
@@ -71,10 +71,10 @@ index bf914dc5ee7f2d4a324b6711ea273f5581ec84ad..1d23d6ede74bfa142e75ffcd84d75cde
          return (EntityTypes) IRegistry.a((IRegistry) IRegistry.ENTITY_TYPE, s, (Object) entitytypes_builder.a(s));
      }
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index b529001bb96903454860f9f1b6e85e30d1e0eb4f..d769415eb6be9e534011aeb41ad6122fed980592 100644
+index 285e976d4a655fb61e70883ae89f974812be7152..2dc38ac18edc761406c63467c3b61d786bb0beb8 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-@@ -641,7 +641,9 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -642,7 +642,9 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
          return d2 * d2 + d3 * d3;
      }
  
@@ -85,7 +85,7 @@ index b529001bb96903454860f9f1b6e85e30d1e0eb4f..d769415eb6be9e534011aeb41ad6122f
          int i;
          int j;
  
-@@ -655,12 +657,16 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -656,12 +658,16 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
              j = MathHelper.floor(entityplayer.locZ() / 16.0D);
          }
  
@@ -106,7 +106,7 @@ index b529001bb96903454860f9f1b6e85e30d1e0eb4f..d769415eb6be9e534011aeb41ad6122f
  
          return Math.max(Math.abs(k), Math.abs(l));
      }
-@@ -2499,11 +2505,17 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2503,11 +2509,17 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
                      boolean flag1 = this.tracker.attachedToPlayer;
  
                      if (!flag1) {
@@ -126,7 +126,7 @@ index b529001bb96903454860f9f1b6e85e30d1e0eb4f..d769415eb6be9e534011aeb41ad6122f
                          }
                      }
  
-@@ -2533,8 +2545,10 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2537,8 +2549,10 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          }
  
          private int b() {
@@ -138,7 +138,7 @@ index b529001bb96903454860f9f1b6e85e30d1e0eb4f..d769415eb6be9e534011aeb41ad6122f
              Iterator iterator = collection.iterator();
  
              while (iterator.hasNext()) {
-@@ -2546,6 +2560,8 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2550,6 +2564,8 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
                      i = j;
                  }
              }
@@ -175,7 +175,7 @@ index 50cb45883a2e815bdbf5c1522a8ddbcb124561b3..3c968c6133c42c3690fe554d5993d237
      // Paper start - Prevent armor stands from doing entity lookups
      @Override
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index c0b6bd8f01214346c17d819d5d870689900d7719..bccc599d2ba76d2b92e57a8d29e661dc974439a5 100644
+index 5143f70b317569c371f4d86d84ea2c282533d672..0dc8399d419067403e786b604ca52d0752533419 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
 @@ -992,7 +992,28 @@ public class WorldServer extends World implements GeneratorAccessSeed {

@@ -57,25 +57,25 @@ index 52c0ab1ce46e1f3233ef746d9bc699356fa9fae4..b480bd3044370b8eb733166f0c4b7373
                  metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
                      Map<String, Map<String, Integer>> map = new HashMap<>();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index 255bbd6e48b95c70fad02ba692c64c7579496827..bf0072b394fd71e02d3cc4a93fa3ca95ae4307c6 100644
+index 7063f1da3654b382e26b0093ad5d0ff04a2b38c2..b9c5479e5561f8fe68ea8f94fbf4e64de8a53bf9 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-@@ -24,8 +24,8 @@ public class PaperVersionFetcher implements VersionFetcher {
+@@ -28,8 +28,8 @@ public class PaperVersionFetcher implements VersionFetcher {
      @Nonnull
      @Override
-     public String getVersionMessage(@Nonnull String serverVersion) {
+     public Component getVersionMessage(@Nonnull String serverVersion) {
 -        String[] parts = serverVersion.substring("git-Tuinity-".length()).split("[-\\s]"); // Tuinity
--        String updateMessage = getUpdateStatusMessage("Spottedleaf/Tuinity", GITHUB_BRANCH_NAME, parts[0]); // Tuinity
-+        String[] parts = serverVersion.substring("git-Airplane-".length()).split("[-\\s]"); // Airplane // Tuinity
-+        String updateMessage = getUpdateStatusMessage("TECHNOVE/Airplane", GITHUB_BRANCH_NAME, parts[0]); // Airplane // Tuinity
-         String history = getHistory();
+-        final Component updateMessage = getUpdateStatusMessage("Spottedleaf/Tuinity", GITHUB_BRANCH_NAME, parts[0]); // Tuinity
++        String[] parts = serverVersion.substring("git-Airplane-".length()).split("[-\\s]"); // Tuinity
++        final Component updateMessage = getUpdateStatusMessage("TECHNOVE/Airplane", GITHUB_BRANCH_NAME, parts[0]); // Tuinity
+         final Component history = getHistory();
  
-         return history != null ? history + "\n" + updateMessage : updateMessage;
+         return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 1768554b00ea0b7a57ebbed1f0bc5d8fd6f02f76..47fd400da3f938ead3a281fe1e4d24a1a3809776 100644
+index 7ac34a8959a797bf2af96f3f402fa65cffe3d666..965f186f4efd808cc92b4570e7426ffb25650e29 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1513,7 +1513,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+@@ -1520,7 +1520,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
      }
  
      public String getServerModName() {
@@ -85,10 +85,10 @@ index 1768554b00ea0b7a57ebbed1f0bc5d8fd6f02f76..47fd400da3f938ead3a281fe1e4d24a1
  
      public CrashReport b(CrashReport crashreport) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 44524e08bed8897e43e408b6f179bf798fed9b62..2c4052419682b0301b987a68cd72d2719dc89e7c 100644
+index f994e99ebc8fe22e6f6b45f6379ec410a598789f..ec8ad7a51f62c699588b5804331a5d33ab1fa5a7 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -231,7 +231,7 @@ import javax.annotation.Nullable; // Paper
+@@ -232,7 +232,7 @@ import javax.annotation.Nullable; // Paper
  import javax.annotation.Nonnull; // Paper
  
  public final class CraftServer implements Server {

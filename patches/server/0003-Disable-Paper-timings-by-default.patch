@@ -5,7 +5,7 @@ Subject: [PATCH] Disable Paper timings by default
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-index 673c40d952bae6ae9e92aac9742e58ffb6a8b1bb..0efd8dc3175598f896a11094ca1f1c90f78a4279 100644
+index c56e7fb18f9a56c8025eb70a524f028b5942da37..f39452535b2807a226ada095f5c21b19ea238e5c 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
 @@ -202,6 +202,15 @@ public class PaperConfig {

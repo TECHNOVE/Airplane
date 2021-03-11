@@ -61,7 +61,7 @@ index 4feb9686f45ce4ae9f474447496b8e0f6fcb7e31..c39c9929a251b41ab60e1509b4e6c90d
 +
  }
 diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
-index 6d809048026b073524cc8a6cc7bcc945ca1bb104..b8de8ca89bc3ee9e9b1566cae5dd9b0dc04599bb 100644
+index 2ec48858be8eb2c522c9685b43bd36b3b581cf8b..1d718095cf29ee70dd031b0c374e772774b8e11b 100644
 --- a/src/main/java/net/minecraft/server/Entity.java
 +++ b/src/main/java/net/minecraft/server/Entity.java
 @@ -197,6 +197,9 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
@@ -148,10 +148,10 @@ index c11fb20b41c7c360044af9302587f03a5f4a9708..682b241ae0e2859aa57faea8a4521c1c
      }
  
 diff --git a/src/main/java/net/minecraft/server/EntityVillager.java b/src/main/java/net/minecraft/server/EntityVillager.java
-index de9ea6770b8afc5e1020bef04ac6cca93b6b420c..eb72c6838d8be84f507605f0ec21b8c4511f8055 100644
+index bf9732058c7e55e8f1ed38b3b5e8831e6b21706c..98b26a2f537594facb4ef32f9e3b6a81e41d6545 100644
 --- a/src/main/java/net/minecraft/server/EntityVillager.java
 +++ b/src/main/java/net/minecraft/server/EntityVillager.java
-@@ -162,11 +162,17 @@ public class EntityVillager extends EntityVillagerAbstract implements Reputation
+@@ -160,11 +160,17 @@ public class EntityVillager extends EntityVillagerAbstract implements Reputation
      }
      // Spigot End
  
@@ -193,10 +193,10 @@ index 9cad895c7d008487ce885cbcc2c3966645df4c19..2ce5e07f4dcd0c76073840c35be66b7c
      public boolean hasTasks() {
          for (PathfinderGoalWrapped task : getTasks()) {
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 6ade13fd88c381280f619daaa8d6b241c67dd9d9..e4c02ea6bd4ba99fd435f6335a98de6b218e044d 100644
+index 18295dceeacefd2586f3e3fe8bd58790740ba14d..b72f55c4b34ec7a91cdfdfa1c7efe4225bb2d791 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
-@@ -48,6 +48,9 @@ import net.minecraft.server.EntityInsentient;
+@@ -49,6 +49,9 @@ import net.minecraft.server.EntityInsentient;
  import net.minecraft.server.EntityLlama;
  import net.minecraft.server.EntityWaterAnimal;
  // Paper end
@@ -206,7 +206,7 @@ index 6ade13fd88c381280f619daaa8d6b241c67dd9d9..e4c02ea6bd4ba99fd435f6335a98de6b
  
  public class ActivationRange
  {
-@@ -228,7 +231,7 @@ public class ActivationRange
+@@ -229,7 +232,7 @@ public class ActivationRange
                      Chunk chunk = chunkProvider.getChunkAtIfLoadedMainThreadNoCache( i1, j1 ); // Paper
                      if ( chunk != null )
                      {
@@ -215,7 +215,7 @@ index 6ade13fd88c381280f619daaa8d6b241c67dd9d9..e4c02ea6bd4ba99fd435f6335a98de6b
                      }
                  }
              }
-@@ -241,7 +244,7 @@ public class ActivationRange
+@@ -242,7 +245,7 @@ public class ActivationRange
       *
       * @param chunk
       */
@@ -224,7 +224,7 @@ index 6ade13fd88c381280f619daaa8d6b241c67dd9d9..e4c02ea6bd4ba99fd435f6335a98de6b
      {
          // Paper start
          Entity[] rawData = chunk.entities.getRawData();
-@@ -250,11 +253,19 @@ public class ActivationRange
+@@ -251,11 +254,19 @@ public class ActivationRange
              //for ( Entity entity : (Collection<Entity>) slice )
              // Paper end
              {

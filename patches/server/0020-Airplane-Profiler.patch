@@ -588,10 +588,10 @@ index 0000000000000000000000000000000000000000..86d6650d174a7794a7ebe793cad033b4
 +
 +}
 diff --git a/src/main/java/net/minecraft/server/DedicatedServer.java b/src/main/java/net/minecraft/server/DedicatedServer.java
-index 729fafc66878c133efe4560482a595e115c185a8..ab1acb26c07abcd48747af9af49bb0483624e73f 100644
+index 665d2d03676fde8d7e7d09fef3fd9cc13110d98d..2ee781604868a508d81585a68da811ea366a21b2 100644
 --- a/src/main/java/net/minecraft/server/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/DedicatedServer.java
-@@ -172,6 +172,7 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
+@@ -178,6 +178,7 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
          com.tuinity.tuinity.config.TuinityConfig.init((java.io.File) options.valueOf("tuinity-settings")); // Tuinity - Server Config
          gg.airplane.AirplaneConfig.load(); // Airplane - config
          gg.airplane.commands.AirplaneCommands.init(); // Airplane - command

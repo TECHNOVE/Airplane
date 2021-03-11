@@ -368,10 +368,10 @@ index 0000000000000000000000000000000000000000..ace29adb0f140d99a8d85ac824654bed
 +
 +}
 diff --git a/src/main/java/net/minecraft/server/DedicatedServer.java b/src/main/java/net/minecraft/server/DedicatedServer.java
-index ecff0657e5666ddc2e6a5c3111bfb2b8dd2b78d3..729fafc66878c133efe4560482a595e115c185a8 100644
+index 2644b190813cc934914aeab78fbd6515d1a37c4a..665d2d03676fde8d7e7d09fef3fd9cc13110d98d 100644
 --- a/src/main/java/net/minecraft/server/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/DedicatedServer.java
-@@ -170,6 +170,8 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
+@@ -176,6 +176,8 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
          com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // load version history now
          // Paper end
          com.tuinity.tuinity.config.TuinityConfig.init((java.io.File) options.valueOf("tuinity-settings")); // Tuinity - Server Config
