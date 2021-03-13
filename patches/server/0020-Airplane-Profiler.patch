@@ -205,10 +205,10 @@ index 0000000000000000000000000000000000000000..f4976428bc721319d2926e97cbe0f64c
 +}
 diff --git a/src/main/java/gg/airplane/flare/FlareCommand.java b/src/main/java/gg/airplane/flare/FlareCommand.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..81f5267d287138f6b47aa0a1f1d59d2d91a7e34a
+index 0000000000000000000000000000000000000000..e3ef62ae97b8b92459e1c405525790ba2172df01
 --- /dev/null
 +++ b/src/main/java/gg/airplane/flare/FlareCommand.java
-@@ -0,0 +1,158 @@
+@@ -0,0 +1,159 @@
 +package gg.airplane.flare;
 +
 +import com.google.common.collect.ImmutableList;
@@ -233,6 +233,7 @@ index 0000000000000000000000000000000000000000..81f5267d287138f6b47aa0a1f1d59d2d
 +
 +public class FlareCommand extends Command {
 +
++    private static final String BASE_URL = "https://blog.airplane.gg/flare-tutorial/#setting-the-access-token";
 +    private static final ChatColor HEX = ChatColor.of("#6a7eda");
 +    private static final BaseComponent[] PREFIX = new ComponentBuilder("Flare ✈ ")
 +      .color(HEX)
@@ -258,10 +259,10 @@ index 0000000000000000000000000000000000000000..81f5267d287138f6b47aa0a1f1d59d2d
 +    public boolean execute(CommandSender sender, String commandLabel, String[] args) {
 +        if (!testPermission(sender)) return true;
 +        if (AirplaneConfig.accessToken.length() == 0) {
-+            BaseComponent clickable = new TextComponent("https://blog.airplane.gg/flare");
++            BaseComponent clickable = new TextComponent(BASE_URL);
 +            clickable.setUnderlined(true);
 +            clickable.setColor(HEX);
-+            clickable.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://blog.airplane.gg/flare"));
++            clickable.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, BASE_URL));
 +
 +            sender.sendMessage(create(new ComponentBuilder("Flare currently requires an access token to use. To learn more, visit ")
 +              .color(HEX)
