@@ -2,6 +2,7 @@
 [downloads]: https://dl.airplane.gg
 [discord]: https://discord.gg/63dDSReB7j
 [purity]: https://www.purityvanilla.com
+[patreon]: https://www.patreon.com/airplane
 
 # Airplane
 Performance orientated Bukkit implementation based on Tuinity.
@@ -32,7 +33,7 @@ Airplane is a fork of Tuinity, which itself is a fork of Paper. As such, Airplan
 
 ## Support
 **How do I get support?**  
-We currently require Discord for support. You can go to the `#support` channel and create a private ticket by adding a reaction at any time! This will open a new channel for you to talk with our support and development team directly. You can join the Discord by [clicking this link][discord]!
+We currently require Discord for support. You can go to the `#help` channel to get support from the community. If you're a [patron][patreon], or you boost our Discord server, you can access premium support by reacting to the message in the `#support` channel. You can join the Discord by [clicking this link][discord]!
 
 **What kind of support do you provide?**  
 We'll provide support for setting up and configuring Airplane, as well as diagnosing performance issues. If we need to optimize Airplane for a specific use-case, we can do that as well. If you need optimizations related to plugins, our development team is ready to take on any challenge!
