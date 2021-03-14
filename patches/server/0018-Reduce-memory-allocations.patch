@@ -71,10 +71,10 @@ index 93b5a6471cde31739d2bd5f2a9fc0e0d974d0eb0..4410939423a75357cc2d16bc4a3b96a5
          return (EntityTypes) IRegistry.a((IRegistry) IRegistry.ENTITY_TYPE, s, (Object) entitytypes_builder.a(s));
      }
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index 285e976d4a655fb61e70883ae89f974812be7152..2dc38ac18edc761406c63467c3b61d786bb0beb8 100644
+index 3e0bf6df7c4608a5b19024612db52558fd722f4b..84b21d70dbfdc42f0c763ebeaa77558f2302a639 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-@@ -642,7 +642,9 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -651,7 +651,9 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
          return d2 * d2 + d3 * d3;
      }
  
@@ -85,7 +85,7 @@ index 285e976d4a655fb61e70883ae89f974812be7152..2dc38ac18edc761406c63467c3b61d78
          int i;
          int j;
  
-@@ -656,12 +658,16 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -665,12 +667,16 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
              j = MathHelper.floor(entityplayer.locZ() / 16.0D);
          }
  
@@ -106,7 +106,7 @@ index 285e976d4a655fb61e70883ae89f974812be7152..2dc38ac18edc761406c63467c3b61d78
  
          return Math.max(Math.abs(k), Math.abs(l));
      }
-@@ -2503,11 +2509,17 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2517,11 +2523,16 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
                      boolean flag1 = this.tracker.attachedToPlayer;
  
                      if (!flag1) {
@@ -119,14 +119,14 @@ index 285e976d4a655fb61e70883ae89f974812be7152..2dc38ac18edc761406c63467c3b61d78
 +                        long chunkcoordintpair = ChunkCoordIntPair.pair(x, z);
 +                        PlayerChunk playerchunk = PlayerChunkMap.this.getVisibleChunk(chunkcoordintpair);
  
-                         if (playerchunk != null && playerchunk.getSendingChunk() != null) { // Paper - no-tick view distance
+                         if (playerchunk != null && playerchunk.getSendingChunk() != null && PlayerChunkMap.this.playerChunkManager.isChunkSent(entityplayer, MathHelper.floor(this.tracker.locX()) >> 4, MathHelper.floor(this.tracker.locZ()) >> 4)) { // Paper - no-tick view distance // Tuinity - don't broadcast in chunks the player hasn't received
 -                            flag1 = PlayerChunkMap.b(chunkcoordintpair, entityplayer, false) <= PlayerChunkMap.this.viewDistance;
 +                            flag1 = PlayerChunkMap.someDistanceCalculation(x, z, entityplayer, false) <= PlayerChunkMap.this.viewDistance;
 +                            // Airplane end
                          }
                      }
  
-@@ -2537,8 +2549,10 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2551,8 +2562,10 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          }
  
          private int b() {
@@ -138,7 +138,7 @@ index 285e976d4a655fb61e70883ae89f974812be7152..2dc38ac18edc761406c63467c3b61d78
              Iterator iterator = collection.iterator();
  
              while (iterator.hasNext()) {
-@@ -2550,6 +2564,8 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2564,6 +2577,8 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
                      i = j;
                  }
              }
@@ -148,7 +148,7 @@ index 285e976d4a655fb61e70883ae89f974812be7152..2dc38ac18edc761406c63467c3b61d78
              return this.a(i);
          }
 diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index 50cb45883a2e815bdbf5c1522a8ddbcb124561b3..3c968c6133c42c3690fe554d5993d237de82c162 100644
+index fbe9a9d9721daf78e77736080f0c319c80bd950f..30ff822fb0d1a973feb8fa0a34d024608cbabbcf 100644
 --- a/src/main/java/net/minecraft/server/World.java
 +++ b/src/main/java/net/minecraft/server/World.java
 @@ -1041,19 +1041,19 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
@@ -175,7 +175,7 @@ index 50cb45883a2e815bdbf5c1522a8ddbcb124561b3..3c968c6133c42c3690fe554d5993d237
      // Paper start - Prevent armor stands from doing entity lookups
      @Override
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 5143f70b317569c371f4d86d84ea2c282533d672..0dc8399d419067403e786b604ca52d0752533419 100644
+index eca550800e9b0a09421ad29cb6a8b16f61806703..55c1aa26cbdee13ace1109215a1df087bf3503e9 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
 @@ -992,7 +992,28 @@ public class WorldServer extends World implements GeneratorAccessSeed {
@@ -207,7 +207,7 @@ index 5143f70b317569c371f4d86d84ea2c282533d672..0dc8399d419067403e786b604ca52d07
                  }
  
                  gameprofilerfiller.exit();
-@@ -1330,9 +1351,14 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1337,9 +1358,14 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                  ++entity.ticksLived;
                  GameProfilerFiller gameprofilerfiller = this.getMethodProfiler();
  

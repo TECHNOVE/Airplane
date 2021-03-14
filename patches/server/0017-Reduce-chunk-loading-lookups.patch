@@ -45,10 +45,10 @@ index f53525eb32a6096ae24fd23756b2169d5d39e9d4..a192400f0ea4517c56c473d39e4bd043
          boolean flag1 = iblockdata.getFluid().a((Tag) TagsFluid.WATER);
  
 diff --git a/src/main/java/net/minecraft/server/SpawnerCreature.java b/src/main/java/net/minecraft/server/SpawnerCreature.java
-index a77b1d61b9dcb0a2a27d7e50357eaf44c99a661e..3406ffde3c56d9c35ec18a76af8fb258d4131417 100644
+index 53fd0549c965b2252ad80648d61ff1f7cd2b837a..c7573e1271288bd2b9dfe9801ea8f8804089f6ce 100644
 --- a/src/main/java/net/minecraft/server/SpawnerCreature.java
 +++ b/src/main/java/net/minecraft/server/SpawnerCreature.java
-@@ -372,7 +372,10 @@ public final class SpawnerCreature {
+@@ -381,7 +381,10 @@ public final class SpawnerCreature {
      }
  
      private static List<BiomeSettingsMobs.c> a(WorldServer worldserver, StructureManager structuremanager, ChunkGenerator chunkgenerator, EnumCreatureType enumcreaturetype, BlockPosition blockposition, @Nullable BiomeBase biomebase) {

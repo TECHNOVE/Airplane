@@ -5,7 +5,7 @@ Subject: [PATCH] Reduce entity chunk ticking checks from 3 to 1
 
 
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 0dc8399d419067403e786b604ca52d0752533419..53967a046a3f3736191e215a21f7d21e29d07ba8 100644
+index 55c1aa26cbdee13ace1109215a1df087bf3503e9..f4eb878f9a66fd3404ddde5a14924bb419a351db 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
 @@ -968,11 +968,12 @@ public class WorldServer extends World implements GeneratorAccessSeed {
@@ -40,7 +40,7 @@ index 0dc8399d419067403e786b604ca52d0752533419..53967a046a3f3736191e215a21f7d21e
                          this.updateNavigatorsInRegion(entity);
                      }
                  } else {
-@@ -1319,13 +1320,15 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1324,7 +1325,9 @@ public class WorldServer extends World implements GeneratorAccessSeed {
      }
      // Tuinity end - log detailed entity tick information
  
@@ -51,7 +51,9 @@ index 0dc8399d419067403e786b604ca52d0752533419..53967a046a3f3736191e215a21f7d21e
          // Tuinity start - log detailed entity tick information
          com.tuinity.tuinity.util.TickThread.ensureTickThread("Cannot tick an entity off-main");
          try {
-             currentlyTickingEntities.push(entity);
+@@ -1332,7 +1335,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+                 currentlyTickingEntity.lazySet(entity);
+             }
              // Tuinity end - log detailed entity tick information
 -        if (!(entity instanceof EntityHuman) && !this.getChunkProvider().a(entity)) {
 +        if (!(entity instanceof EntityHuman) && !entityTickingChunk) { // Airplane - reuse

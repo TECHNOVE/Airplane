@@ -5,7 +5,7 @@ Subject: [PATCH] Skip copying unloading tile entities
 
 
 diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index 3c968c6133c42c3690fe554d5993d237de82c162..f32c9eeabe421db8fe22d3836718e46415f00d19 100644
+index 30ff822fb0d1a973feb8fa0a34d024608cbabbcf..996fa5b4652f847f4e64d4cd191fe5a597471afe 100644
 --- a/src/main/java/net/minecraft/server/World.java
 +++ b/src/main/java/net/minecraft/server/World.java
 @@ -44,7 +44,7 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
