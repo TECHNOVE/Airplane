@@ -72,10 +72,10 @@ index 7063f1da3654b382e26b0093ad5d0ff04a2b38c2..b9c5479e5561f8fe68ea8f94fbf4e64d
  
          return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 7ac34a8959a797bf2af96f3f402fa65cffe3d666..965f186f4efd808cc92b4570e7426ffb25650e29 100644
+index afc22e545df03a38c801362d308d135df90361e2..ec6ef20e93af2298bdb3953b15e1ec24e8c72261 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1520,7 +1520,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+@@ -1524,7 +1524,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
      }
  
      public String getServerModName() {
