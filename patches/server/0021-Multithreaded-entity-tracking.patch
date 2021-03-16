@@ -37,15 +37,15 @@ index be408aebbccbda46e8aa82ef337574137cfa0096..b9bdce7c7ca8b7b107b0dca165d72232
      protected final double maxFragFactor;
  
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 4f87df936d0092cbf8cb2a6db9b57f235c287beb..424325ada75b788ce390378d8df0116e5c50cf3d 100644
+index 39ef53c9dd49d5951103777002f866a64a252bfd..3886c731a69540f638d57a411285da289d3b704b 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -90,4 +90,18 @@ public class AirplaneConfig {
+@@ -91,4 +91,18 @@ public class AirplaneConfig {
          }
      }
  
 +
-+    public static boolean multithreadedEntityTracker = true;
++    public static boolean multithreadedEntityTracker = false;
 +    public static boolean entityTrackerAsyncPackets = false;
 +
 +    private static void entityTracker() {
