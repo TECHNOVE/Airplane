@@ -77,7 +77,7 @@ index b55f7dece329dbb3ff27d57a39c32c69e5baea74..5897d462d350dfbd1464feb92ecf7772
              boolean flag2 = world.ticksPerAnimalSpawns != 0L && worlddata.getTime() % world.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 784c800eda8d7a37b900a74dff169d60990c418f..eca550800e9b0a09421ad29cb6a8b16f61806703 100644
+index fc07e4ccaeb73b7c78e39d9717c910a5b1241a01..6df696e3af532fe070ac3d8c5c2e31005e8f8423 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
 @@ -1087,6 +1087,8 @@ public class WorldServer extends World implements GeneratorAccessSeed {
