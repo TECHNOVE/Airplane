@@ -205,10 +205,10 @@ index 0000000000000000000000000000000000000000..f4976428bc721319d2926e97cbe0f64c
 +}
 diff --git a/src/main/java/gg/airplane/flare/FlareCommand.java b/src/main/java/gg/airplane/flare/FlareCommand.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..19375e5efd62c72aeb2190d6b1dbc6c5cad3acf7
+index 0000000000000000000000000000000000000000..ddc90f1589e683f452c5a74d9d2408803edea029
 --- /dev/null
 +++ b/src/main/java/gg/airplane/flare/FlareCommand.java
-@@ -0,0 +1,150 @@
+@@ -0,0 +1,149 @@
 +package gg.airplane.flare;
 +
 +import com.google.common.collect.ImmutableList;
@@ -250,7 +250,6 @@ index 0000000000000000000000000000000000000000..19375e5efd62c72aeb2190d6b1dbc6c5
 +
 +    @Override
 +    public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-+        System.out.println("uhh");
 +        if (!testPermission(sender)) return true;
 +        if (AirplaneConfig.accessToken.length() == 0) {
 +            Component clickable = Component.text(BASE_URL, HEX, TextDecoration.UNDERLINED).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, BASE_URL));
