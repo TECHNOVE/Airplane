@@ -8,7 +8,7 @@
 [fork]: https://github.com/TECHNOVE/MyAirplaneFork
 
 # Airplane
-TECHNOVÉ indroduces a performance orientated Bukkit implementation based on Tuinity!
+TECHNOVÉ introduces a performance orientated Bukkit implementation based on Tuinity!
 
 [![Support Discord](https://img.shields.io/discord/748023548467216394?color=7289DA&label=Support%20Discord&style=flat-square)][discord]
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Technove/Airplane/Build%20main?style=flat-square)][downloads]
