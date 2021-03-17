@@ -287,7 +287,7 @@ index 2402c18e6a18221a43bea9fc68278da9d19eede4..4b7e83e4f64a8bc4bf5b4ca569c32efe
          if (this.tracker instanceof EntityPlayer) {
              ((EntityPlayer) this.tracker).playerConnection.sendPacket(packet);
 diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index 3811ed82ef08f54af2f822a8b86a3838931dfab4..e5e8d066661a0dee1c07ba0c855204cb81459da5 100644
+index 9a18d83e2750fa04330a709b61163e250846da89..05250a66202cf7f6c8b7dba5e70682ed4d354156 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
 @@ -737,6 +737,11 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
