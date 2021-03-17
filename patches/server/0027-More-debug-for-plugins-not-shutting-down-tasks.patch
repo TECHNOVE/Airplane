@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Wed, 17 Mar 2021 13:00:57 -0500
+Subject: [PATCH] More debug for plugins not shutting down tasks
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index ec8ad7a51f62c699588b5804331a5d33ab1fa5a7..ea91e1a9b99a42c462befa8245dea029ea536e01 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -978,6 +978,11 @@ public final class CraftServer implements Server {
+                 plugin.getDescription().getName(),
+                 "This plugin is not properly shutting down its async tasks when it is being shut down. This task may throw errors during the final shutdown logs and might not complete before process dies."
+             ));
++            getLogger().log(Level.SEVERE, String.format("%s Stacktrace", worker.getThread().getName()));
++            StackTraceElement[] stackTrace = worker.getThread().getStackTrace();
++            for (StackTraceElement element : stackTrace) {
++                getLogger().log(Level.SEVERE, "  " + element.toString());
++            }
+         }
+     }
+     // Paper end
