@@ -19,30 +19,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-diff --git a/src/main/java/net/minecraft/server/BlockDirtSnowSpreadable.java b/src/main/java/net/minecraft/server/BlockDirtSnowSpreadable.java
-index 7b29d47dfdef7611db58068af285f76d92a9f12a..6c5d96853d47850b81ce85e56a516c554819ef25 100644
---- a/src/main/java/net/minecraft/server/BlockDirtSnowSpreadable.java
-+++ b/src/main/java/net/minecraft/server/BlockDirtSnowSpreadable.java
-@@ -43,8 +43,14 @@ public abstract class BlockDirtSnowSpreadable extends BlockDirtSnow {
-             if (worldserver.getLightLevel(blockposition.up()) >= 9) {
-                 IBlockData iblockdata1 = this.getBlockData();
- 
-+                // Airplane start - use mutable position
-+                BlockPosition.MutableBlockPosition blockposition1 = new BlockPosition.MutableBlockPosition();
-                 for (int i = 0; i < 4; ++i) {
-+                    blockposition1.setValues(blockposition).addValues(random.nextInt(3) - 1, random.nextInt(5) - 3, random.nextInt(3) - 1);
-+                    /*
-                     BlockPosition blockposition1 = blockposition.b(random.nextInt(3) - 1, random.nextInt(5) - 3, random.nextInt(3) - 1);
-+                     */
-+                    // Airplane end
- 
-                     if (worldserver.getType(blockposition1).a(Blocks.DIRT) && c(iblockdata1, (IWorldReader) worldserver, blockposition1)) {
-                         org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockSpreadEvent(worldserver, blockposition, blockposition1, (IBlockData) iblockdata1.set(BlockDirtSnowSpreadable.a, worldserver.getType(blockposition1.up()).a(Blocks.SNOW))); // CraftBukkit
-diff --git a/src/main/java/net/minecraft/server/BlockPosition.java b/src/main/java/net/minecraft/server/BlockPosition.java
-index 2291135eaef64c403183724cb6e413cd7e472672..72ee5fe0ca25844cbcd8f1bbbbd6a7f8ced24bc4 100644
---- a/src/main/java/net/minecraft/server/BlockPosition.java
-+++ b/src/main/java/net/minecraft/server/BlockPosition.java
-@@ -432,6 +432,14 @@ public class BlockPosition extends BaseBlockPosition {
+diff --git a/src/main/java/net/minecraft/core/BlockPosition.java b/src/main/java/net/minecraft/core/BlockPosition.java
+index 8edc279e7a3fdfb7e10718f1deee34b7e3fb2f28..73ec17dea5d5668e49c9a6ad679bd3a362960c72 100644
+--- a/src/main/java/net/minecraft/core/BlockPosition.java
++++ b/src/main/java/net/minecraft/core/BlockPosition.java
+@@ -438,6 +438,14 @@ public class BlockPosition extends BaseBlockPosition {
          public BlockPosition b(int i, int j, int k) {
              return super.b(i, j, k).immutableCopy();
          }
@@ -57,24 +38,11 @@ index 2291135eaef64c403183724cb6e413cd7e472672..72ee5fe0ca25844cbcd8f1bbbbd6a7f8
  
          @Override
          public BlockPosition shift(EnumDirection enumdirection, int i) {
-diff --git a/src/main/java/net/minecraft/server/EntityTypes.java b/src/main/java/net/minecraft/server/EntityTypes.java
-index 93b5a6471cde31739d2bd5f2a9fc0e0d974d0eb0..4410939423a75357cc2d16bc4a3b96a504942320 100644
---- a/src/main/java/net/minecraft/server/EntityTypes.java
-+++ b/src/main/java/net/minecraft/server/EntityTypes.java
-@@ -139,6 +139,8 @@ public class EntityTypes<T extends Entity> {
-     private MinecraftKey bq;
-     private final EntitySize br;
- 
-+    public java.util.function.Supplier<String> getEntityName = () -> IRegistry.ENTITY_TYPE.getKey(this).toString(); // Airplane - create lambda ones
-+
-     private static <T extends Entity> EntityTypes<T> a(String s, EntityTypes.Builder entitytypes_builder) { // CraftBukkit - decompile error
-         return (EntityTypes) IRegistry.a((IRegistry) IRegistry.ENTITY_TYPE, s, (Object) entitytypes_builder.a(s));
-     }
-diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-index 945d16f57317406bff3cbe20756677eccfba1525..9a18d83e2750fa04330a709b61163e250846da89 100644
---- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
-+++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
-@@ -651,7 +651,9 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+diff --git a/src/main/java/net/minecraft/server/level/PlayerChunkMap.java b/src/main/java/net/minecraft/server/level/PlayerChunkMap.java
+index d7eede51f1c4ebbe8e00b16efd6331c87db53bb4..bc18b9c3aac4c5feeb1603554e0ac009af9b457e 100644
+--- a/src/main/java/net/minecraft/server/level/PlayerChunkMap.java
++++ b/src/main/java/net/minecraft/server/level/PlayerChunkMap.java
+@@ -705,7 +705,9 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
          return d2 * d2 + d3 * d3;
      }
  
@@ -85,7 +53,7 @@ index 945d16f57317406bff3cbe20756677eccfba1525..9a18d83e2750fa04330a709b61163e25
          int i;
          int j;
  
-@@ -665,12 +667,16 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -719,12 +721,16 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
              j = MathHelper.floor(entityplayer.locZ() / 16.0D);
          }
  
@@ -106,7 +74,7 @@ index 945d16f57317406bff3cbe20756677eccfba1525..9a18d83e2750fa04330a709b61163e25
  
          return Math.max(Math.abs(k), Math.abs(l));
      }
-@@ -2517,11 +2523,17 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2571,11 +2577,17 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
                      boolean flag1 = this.tracker.attachedToPlayer;
  
                      if (!flag1) {
@@ -126,7 +94,7 @@ index 945d16f57317406bff3cbe20756677eccfba1525..9a18d83e2750fa04330a709b61163e25
                          }
                      }
  
-@@ -2551,8 +2563,10 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2605,8 +2617,10 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          }
  
          private int b() {
@@ -138,7 +106,7 @@ index 945d16f57317406bff3cbe20756677eccfba1525..9a18d83e2750fa04330a709b61163e25
              Iterator iterator = collection.iterator();
  
              while (iterator.hasNext()) {
-@@ -2564,6 +2578,8 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2618,6 +2632,8 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
                      i = j;
                  }
              }
@@ -147,38 +115,11 @@ index 945d16f57317406bff3cbe20756677eccfba1525..9a18d83e2750fa04330a709b61163e25
  
              return this.a(i);
          }
-diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index fbe9a9d9721daf78e77736080f0c319c80bd950f..30ff822fb0d1a973feb8fa0a34d024608cbabbcf 100644
---- a/src/main/java/net/minecraft/server/World.java
-+++ b/src/main/java/net/minecraft/server/World.java
-@@ -1041,19 +1041,19 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
- 
-     public void a(Consumer<Entity> consumer, Entity entity) {
-         try {
--            consumer.accept(entity);
-+            consumer.accept(entity); // Airplane - error on change
-         } catch (Throwable throwable) {
-             if (throwable instanceof ThreadDeath) throw throwable; // Paper
-             // Paper start - Prevent tile entity and entity crashes
-             String msg = "Entity threw exception at " + entity.world.getWorld().getName() + ":" + entity.locX() + "," + entity.locY() + "," + entity.locZ();
-             System.err.println(msg);
-             throwable.printStackTrace();
--            getServer().getPluginManager().callEvent(new ServerExceptionEvent(new ServerInternalException(msg, throwable)));
-+            getServer().getPluginManager().callEvent(new ServerExceptionEvent(new ServerInternalException(msg, throwable))); // Airplane - error on change
-             entity.dead = true;
-             return;
-             // Paper end
-         }
--        MinecraftServer.getServer().executeMidTickTasks(); // Tuinity - execute chunk tasks mid tick
-+        MinecraftServer.getServer().executeMidTickTasks(); // Tuinity - execute chunk tasks mid tick // Airplane - error on change
-     }
-     // Paper start - Prevent armor stands from doing entity lookups
-     @Override
-diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index 6df696e3af532fe070ac3d8c5c2e31005e8f8423..dc66f012a981e78e91e92f84e45a0385cb49e3d7 100644
---- a/src/main/java/net/minecraft/server/WorldServer.java
-+++ b/src/main/java/net/minecraft/server/WorldServer.java
-@@ -992,7 +992,28 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+diff --git a/src/main/java/net/minecraft/server/level/WorldServer.java b/src/main/java/net/minecraft/server/level/WorldServer.java
+index b33f37309d4dd22c033ad84effa4ff9d6e20a790..6d3bef91b13701834d3cd87e44500f79c33d9bcb 100644
+--- a/src/main/java/net/minecraft/server/level/WorldServer.java
++++ b/src/main/java/net/minecraft/server/level/WorldServer.java
+@@ -1105,7 +1105,28 @@ public class WorldServer extends World implements GeneratorAccessSeed {
  
                  gameprofilerfiller.enter("tick");
                  if (!entity.dead && !(entity instanceof EntityComplexPart)) {
@@ -207,7 +148,7 @@ index 6df696e3af532fe070ac3d8c5c2e31005e8f8423..dc66f012a981e78e91e92f84e45a0385
                  }
  
                  gameprofilerfiller.exit();
-@@ -1337,9 +1358,14 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1450,9 +1471,14 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                  ++entity.ticksLived;
                  GameProfilerFiller gameprofilerfiller = this.getMethodProfiler();
  
@@ -222,3 +163,62 @@ index 6df696e3af532fe070ac3d8c5c2e31005e8f8423..dc66f012a981e78e91e92f84e45a0385
                  gameprofilerfiller.c("tickNonPassenger");
                  if (isActive) { // Paper - EAR 2
                      TimingHistory.activatedEntityTicks++; // Paper
+diff --git a/src/main/java/net/minecraft/world/entity/EntityTypes.java b/src/main/java/net/minecraft/world/entity/EntityTypes.java
+index f2cf33d42839710a3bbdf0c8ea0be28af6fcb19d..983a35589c4328238be97166f66f0c6aaa146df9 100644
+--- a/src/main/java/net/minecraft/world/entity/EntityTypes.java
++++ b/src/main/java/net/minecraft/world/entity/EntityTypes.java
+@@ -270,6 +270,8 @@ public class EntityTypes<T extends Entity> {
+     private MinecraftKey bq;
+     private final EntitySize br;
+ 
++    public java.util.function.Supplier<String> getEntityName = () -> IRegistry.ENTITY_TYPE.getKey(this).toString(); // Airplane - create lambda ones
++
+     private static <T extends Entity> EntityTypes<T> a(String s, EntityTypes.Builder entitytypes_builder) { // CraftBukkit - decompile error
+         return (EntityTypes) IRegistry.a((IRegistry) IRegistry.ENTITY_TYPE, s, (Object) entitytypes_builder.a(s));
+     }
+diff --git a/src/main/java/net/minecraft/world/level/World.java b/src/main/java/net/minecraft/world/level/World.java
+index bbc842a173b12a96b1b63af347d2196ac1cb5f73..0ad326341bd187257376f643f1fad7fc3a72c417 100644
+--- a/src/main/java/net/minecraft/world/level/World.java
++++ b/src/main/java/net/minecraft/world/level/World.java
+@@ -1103,19 +1103,19 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
+ 
+     public void a(Consumer<Entity> consumer, Entity entity) {
+         try {
+-            consumer.accept(entity);
++            consumer.accept(entity); // Airplane - error on change
+         } catch (Throwable throwable) {
+             if (throwable instanceof ThreadDeath) throw throwable; // Paper
+             // Paper start - Prevent tile entity and entity crashes
+             String msg = "Entity threw exception at " + entity.world.getWorld().getName() + ":" + entity.locX() + "," + entity.locY() + "," + entity.locZ();
+             System.err.println(msg);
+             throwable.printStackTrace();
+-            getServer().getPluginManager().callEvent(new ServerExceptionEvent(new ServerInternalException(msg, throwable)));
++            getServer().getPluginManager().callEvent(new ServerExceptionEvent(new ServerInternalException(msg, throwable))); // Airplane - error on change
+             entity.dead = true;
+             return;
+             // Paper end
+         }
+-        MinecraftServer.getServer().executeMidTickTasks(); // Tuinity - execute chunk tasks mid tick
++        MinecraftServer.getServer().executeMidTickTasks(); // Tuinity - execute chunk tasks mid tick // Airplane - error on change
+     }
+     // Paper start - Prevent armor stands from doing entity lookups
+     @Override
+diff --git a/src/main/java/net/minecraft/world/level/block/BlockDirtSnowSpreadable.java b/src/main/java/net/minecraft/world/level/block/BlockDirtSnowSpreadable.java
+index 712596420af83e6e1b9d147ae2fd8d8a1f36e1b9..9c29fa3efac7e16df81b8a44934e3286bb37f1f6 100644
+--- a/src/main/java/net/minecraft/world/level/block/BlockDirtSnowSpreadable.java
++++ b/src/main/java/net/minecraft/world/level/block/BlockDirtSnowSpreadable.java
+@@ -54,8 +54,14 @@ public abstract class BlockDirtSnowSpreadable extends BlockDirtSnow {
+             if (worldserver.getLightLevel(blockposition.up()) >= 9) {
+                 IBlockData iblockdata1 = this.getBlockData();
+ 
++                // Airplane start - use mutable position
++                BlockPosition.MutableBlockPosition blockposition1 = new BlockPosition.MutableBlockPosition();
+                 for (int i = 0; i < 4; ++i) {
++                    blockposition1.setValues(blockposition).addValues(random.nextInt(3) - 1, random.nextInt(5) - 3, random.nextInt(3) - 1);
++                    /*
+                     BlockPosition blockposition1 = blockposition.b(random.nextInt(3) - 1, random.nextInt(5) - 3, random.nextInt(3) - 1);
++                     */
++                    // Airplane end
+ 
+                     if (worldserver.getType(blockposition1).a(Blocks.DIRT) && c(iblockdata1, (IWorldReader) worldserver, blockposition1)) {
+                         org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockSpreadEvent(worldserver, blockposition, blockposition1, (IBlockData) iblockdata1.set(BlockDirtSnowSpreadable.a, worldserver.getType(blockposition1.up()).a(Blocks.SNOW))); // CraftBukkit

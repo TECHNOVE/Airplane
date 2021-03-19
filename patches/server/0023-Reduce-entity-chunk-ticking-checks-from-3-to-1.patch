@@ -4,11 +4,11 @@ Date: Sat, 13 Mar 2021 10:40:22 -0600
 Subject: [PATCH] Reduce entity chunk ticking checks from 3 to 1
 
 
-diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index dc66f012a981e78e91e92f84e45a0385cb49e3d7..a2b8aa9ebef69535a8560e4eef42471e58e84e7f 100644
---- a/src/main/java/net/minecraft/server/WorldServer.java
-+++ b/src/main/java/net/minecraft/server/WorldServer.java
-@@ -968,11 +968,12 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+diff --git a/src/main/java/net/minecraft/server/level/WorldServer.java b/src/main/java/net/minecraft/server/level/WorldServer.java
+index 6d3bef91b13701834d3cd87e44500f79c33d9bcb..9d97e2ea5c207c42f1cc9aa14bc87dc8e0a1bb1e 100644
+--- a/src/main/java/net/minecraft/server/level/WorldServer.java
++++ b/src/main/java/net/minecraft/server/level/WorldServer.java
+@@ -1081,11 +1081,12 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                  // CraftBukkit end */
  
                  gameprofilerfiller.enter("checkDespawn");
@@ -22,7 +22,7 @@ index dc66f012a981e78e91e92f84e45a0385cb49e3d7..a2b8aa9ebef69535a8560e4eef42471e
                              this.updateNavigatorsInRegion(entity);
                          }
                      } else {
-@@ -998,7 +999,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1111,7 +1112,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                       */
                      boolean doMidTick = false; // usually there's a returns in the catch, so treat it like that
                      try {
@@ -31,7 +31,7 @@ index dc66f012a981e78e91e92f84e45a0385cb49e3d7..a2b8aa9ebef69535a8560e4eef42471e
                          doMidTick = true;
                      } catch (Throwable throwable) {
                          if (throwable instanceof ThreadDeath) throw throwable; // Paper
-@@ -1023,7 +1024,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1136,7 +1137,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                      this.entitiesById.remove(entity.getId()); // Tuinity
                      this.unregisterEntity(entity);
                  } else if (entity.inChunk && entity.valid) { // Tuinity start - optimise notify()
@@ -40,7 +40,7 @@ index dc66f012a981e78e91e92f84e45a0385cb49e3d7..a2b8aa9ebef69535a8560e4eef42471e
                          this.updateNavigatorsInRegion(entity);
                      }
                  } else {
-@@ -1324,7 +1325,9 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1437,7 +1438,9 @@ public class WorldServer extends World implements GeneratorAccessSeed {
      }
      // Tuinity end - log detailed entity tick information
  
@@ -51,7 +51,7 @@ index dc66f012a981e78e91e92f84e45a0385cb49e3d7..a2b8aa9ebef69535a8560e4eef42471e
          // Tuinity start - log detailed entity tick information
          com.tuinity.tuinity.util.TickThread.ensureTickThread("Cannot tick an entity off-main");
          try {
-@@ -1332,7 +1335,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1445,7 +1448,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                  currentlyTickingEntity.lazySet(entity);
              }
              // Tuinity end - log detailed entity tick information

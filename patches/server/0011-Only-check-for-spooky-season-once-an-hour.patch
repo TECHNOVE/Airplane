@@ -19,11 +19,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-diff --git a/src/main/java/net/minecraft/server/EntityBat.java b/src/main/java/net/minecraft/server/EntityBat.java
-index 451ffcfd1fc9fa3091dc2bd697e5d829dcf6443f..f06ffdca027e5477332c6bc0c381264b47633f78 100644
---- a/src/main/java/net/minecraft/server/EntityBat.java
-+++ b/src/main/java/net/minecraft/server/EntityBat.java
-@@ -222,13 +222,22 @@ public class EntityBat extends EntityAmbient {
+diff --git a/src/main/java/net/minecraft/world/entity/ambient/EntityBat.java b/src/main/java/net/minecraft/world/entity/ambient/EntityBat.java
+index 61ebb278cf4ef57ae7a86c6c6ef1fa14559f21e2..341b95f73a839a548b202e7bf97fd18760c71fd8 100644
+--- a/src/main/java/net/minecraft/world/entity/ambient/EntityBat.java
++++ b/src/main/java/net/minecraft/world/entity/ambient/EntityBat.java
+@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.network.syncher.DataWatcher;
+ import net.minecraft.network.syncher.DataWatcherObject;
+ import net.minecraft.network.syncher.DataWatcherRegistry;
++import net.minecraft.server.MinecraftServer;
+ import net.minecraft.sounds.SoundEffect;
+ import net.minecraft.sounds.SoundEffects;
+ import net.minecraft.util.MathHelper;
+@@ -247,13 +248,22 @@ public class EntityBat extends EntityAmbient {
          }
      }
  

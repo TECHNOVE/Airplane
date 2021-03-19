@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/pom.xml b/pom.xml
-index e83e4241a56fe131a75fe21cc1518992c089da2c..63734956a85935b5c1d105a4e4031925120c08b2 100644
+index dad9981b1cd1ca8b27a45972188fd2b92f5146e7..a3a3b17f3b30b55bb50905353e77723091bb5c1f 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -27,8 +27,8 @@
@@ -72,10 +72,10 @@ index 7063f1da3654b382e26b0093ad5d0ff04a2b38c2..b9c5479e5561f8fe68ea8f94fbf4e64d
  
          return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index afc22e545df03a38c801362d308d135df90361e2..ec6ef20e93af2298bdb3953b15e1ec24e8c72261 100644
+index e757cb5c2d50cb3a4dbe50d4726db09ab845fcbb..7cbbc1b1161f26f22a7f7832395af0d4a781cb1a 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1524,7 +1524,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+@@ -1636,7 +1636,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
      }
  
      public String getServerModName() {
@@ -85,7 +85,7 @@ index afc22e545df03a38c801362d308d135df90361e2..ec6ef20e93af2298bdb3953b15e1ec24
  
      public CrashReport b(CrashReport crashreport) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index f994e99ebc8fe22e6f6b45f6379ec410a598789f..ec8ad7a51f62c699588b5804331a5d33ab1fa5a7 100644
+index fd3333fef4112e6469ccd316ba2c82926c04e5db..b5ffc5f5cf04892d30092625533643c99047c16b 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -232,7 +232,7 @@ import javax.annotation.Nullable; // Paper
