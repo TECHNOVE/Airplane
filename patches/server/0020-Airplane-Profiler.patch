@@ -20,10 +20,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/pom.xml b/pom.xml
-index 63734956a85935b5c1d105a4e4031925120c08b2..fa4ff553ae58285201d773a538eeda2b40c89c4a 100644
+index a3a3b17f3b30b55bb50905353e77723091bb5c1f..fc2c3714b6c772d67e258be269aa92dda80cdb12 100644
 --- a/pom.xml
 +++ b/pom.xml
-@@ -159,6 +159,13 @@
+@@ -159,8 +159,23 @@
              <version>1.1.0-SNAPSHOT</version>
              <scope>compile</scope>
          </dependency>
@@ -36,19 +36,17 @@ index 63734956a85935b5c1d105a4e4031925120c08b2..fa4ff553ae58285201d773a538eeda2b
 +        </dependency>
      </dependencies>
  
-     <repositories>
-@@ -172,6 +179,11 @@
-             <id>spigotmc-public</id>
-             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
-         </repository>
++    <repositories>
 +        <!-- Airplane - Flare -->
 +        <repository>
 +            <id>jitpack.io</id>
 +            <url>https://jitpack.io</url>
 +        </repository>
-     </repositories>
- 
-     <pluginRepositories>
++    </repositories>
++
+     <!-- This builds a completely 'ready to start' jar with all dependencies inside -->
+     <build>
+         <finalName>tuinity-${minecraft.version}</finalName>
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
 index e0bed57aa5547a214ad779dbd0f648f3663147f9..39ef53c9dd49d5951103777002f866a64a252bfd 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java

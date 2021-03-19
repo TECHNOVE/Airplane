@@ -19,11 +19,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-diff --git a/src/main/java/net/minecraft/server/EntityEnderman.java b/src/main/java/net/minecraft/server/EntityEnderman.java
-index f53525eb32a6096ae24fd23756b2169d5d39e9d4..a192400f0ea4517c56c473d39e4bd04396b4eb72 100644
---- a/src/main/java/net/minecraft/server/EntityEnderman.java
-+++ b/src/main/java/net/minecraft/server/EntityEnderman.java
-@@ -260,11 +260,18 @@ public class EntityEnderman extends EntityMonster implements IEntityAngerable {
+diff --git a/src/main/java/net/minecraft/world/entity/monster/EntityEnderman.java b/src/main/java/net/minecraft/world/entity/monster/EntityEnderman.java
+index e993b1849beb60515c51ee4f37617faab63ca223..4d7b5d47ab6bd3b1408811c3b9c157b1eb5c30ae 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/EntityEnderman.java
++++ b/src/main/java/net/minecraft/world/entity/monster/EntityEnderman.java
+@@ -57,6 +57,7 @@ import net.minecraft.world.level.World;
+ import net.minecraft.world.level.block.Block;
+ import net.minecraft.world.level.block.Blocks;
+ import net.minecraft.world.level.block.state.IBlockData;
++import net.minecraft.world.level.chunk.Chunk;
+ import net.minecraft.world.level.pathfinder.PathType;
+ import net.minecraft.world.phys.AxisAlignedBB;
+ import net.minecraft.world.phys.MovingObjectPositionBlock;
+@@ -314,11 +315,18 @@ public class EntityEnderman extends EntityMonster implements IEntityAngerable {
      private boolean p(double d0, double d1, double d2) {
          BlockPosition.MutableBlockPosition blockposition_mutableblockposition = new BlockPosition.MutableBlockPosition(d0, d1, d2);
  
@@ -44,11 +52,11 @@ index f53525eb32a6096ae24fd23756b2169d5d39e9d4..a192400f0ea4517c56c473d39e4bd043
          boolean flag = iblockdata.getMaterial().isSolid();
          boolean flag1 = iblockdata.getFluid().a((Tag) TagsFluid.WATER);
  
-diff --git a/src/main/java/net/minecraft/server/SpawnerCreature.java b/src/main/java/net/minecraft/server/SpawnerCreature.java
-index 53fd0549c965b2252ad80648d61ff1f7cd2b837a..c7573e1271288bd2b9dfe9801ea8f8804089f6ce 100644
---- a/src/main/java/net/minecraft/server/SpawnerCreature.java
-+++ b/src/main/java/net/minecraft/server/SpawnerCreature.java
-@@ -381,7 +381,10 @@ public final class SpawnerCreature {
+diff --git a/src/main/java/net/minecraft/world/level/SpawnerCreature.java b/src/main/java/net/minecraft/world/level/SpawnerCreature.java
+index d497006f05f79015cd791849888832bb53f4a414..d98526785ff2fa3b72e8ffffcb89a57a2203a5c8 100644
+--- a/src/main/java/net/minecraft/world/level/SpawnerCreature.java
++++ b/src/main/java/net/minecraft/world/level/SpawnerCreature.java
+@@ -415,7 +415,10 @@ public final class SpawnerCreature {
      }
  
      private static List<BiomeSettingsMobs.c> a(WorldServer worldserver, StructureManager structuremanager, ChunkGenerator chunkgenerator, EnumCreatureType enumcreaturetype, BlockPosition blockposition, @Nullable BiomeBase biomebase) {

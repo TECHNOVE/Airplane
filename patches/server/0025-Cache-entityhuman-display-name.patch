@@ -4,11 +4,11 @@ Date: Sat, 13 Mar 2021 14:02:04 -0600
 Subject: [PATCH] Cache entityhuman display name
 
 
-diff --git a/src/main/java/net/minecraft/server/EntityHuman.java b/src/main/java/net/minecraft/server/EntityHuman.java
-index f034977f4666385d6e7c7288e453d058c270be01..48a820e34d45623432a3dc3b01d0bba8824c6414 100644
---- a/src/main/java/net/minecraft/server/EntityHuman.java
-+++ b/src/main/java/net/minecraft/server/EntityHuman.java
-@@ -65,7 +65,8 @@ public abstract class EntityHuman extends EntityLiving {
+diff --git a/src/main/java/net/minecraft/world/entity/player/EntityHuman.java b/src/main/java/net/minecraft/world/entity/player/EntityHuman.java
+index 44038dd278b988508047023107683e5370af54ad..ad85dda5c50b797904824a08513fbcec042128ea 100644
+--- a/src/main/java/net/minecraft/world/entity/player/EntityHuman.java
++++ b/src/main/java/net/minecraft/world/entity/player/EntityHuman.java
+@@ -162,7 +162,8 @@ public abstract class EntityHuman extends EntityLiving {
      protected int bG;
      protected final float bH = 0.02F;
      private int g;
@@ -18,7 +18,7 @@ index f034977f4666385d6e7c7288e453d058c270be01..48a820e34d45623432a3dc3b01d0bba8
      private ItemStack bL;
      private final ItemCooldown bM;
      @Nullable
-@@ -1731,7 +1732,12 @@ public abstract class EntityHuman extends EntityLiving {
+@@ -1828,7 +1829,12 @@ public abstract class EntityHuman extends EntityLiving {
  
      @Override
      public IChatBaseComponent getDisplayName() {
