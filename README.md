@@ -46,3 +46,4 @@ We'll provide support for setting up and configuring Airplane, as well as diagno
 ## License
 Patches are licensed under GPL-3.0.  
 All other files are licensed under MIT.
+
