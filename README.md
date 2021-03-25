@@ -1,4 +1,4 @@
-<!-- Variables -->
+<!-- Variables  -->
 [downloads]: https://dl.airplane.gg
 [discord]: https://discord.gg/63dDSReB7j
 [purity]: https://www.purityvanilla.com
