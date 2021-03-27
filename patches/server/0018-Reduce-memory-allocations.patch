@@ -164,7 +164,7 @@ index b33f37309d4dd22c033ad84effa4ff9d6e20a790..6d3bef91b13701834d3cd87e44500f79
                  if (isActive) { // Paper - EAR 2
                      TimingHistory.activatedEntityTicks++; // Paper
 diff --git a/src/main/java/net/minecraft/world/entity/EntityTypes.java b/src/main/java/net/minecraft/world/entity/EntityTypes.java
-index f2cf33d42839710a3bbdf0c8ea0be28af6fcb19d..983a35589c4328238be97166f66f0c6aaa146df9 100644
+index 80c229c1852199fda85c03453d64cae33e413e89..7f70dda656ff9d802200f18139d2695e58c551c7 100644
 --- a/src/main/java/net/minecraft/world/entity/EntityTypes.java
 +++ b/src/main/java/net/minecraft/world/entity/EntityTypes.java
 @@ -270,6 +270,8 @@ public class EntityTypes<T extends Entity> {
@@ -177,7 +177,7 @@ index f2cf33d42839710a3bbdf0c8ea0be28af6fcb19d..983a35589c4328238be97166f66f0c6a
          return (EntityTypes) IRegistry.a((IRegistry) IRegistry.ENTITY_TYPE, s, (Object) entitytypes_builder.a(s));
      }
 diff --git a/src/main/java/net/minecraft/world/level/World.java b/src/main/java/net/minecraft/world/level/World.java
-index bbc842a173b12a96b1b63af347d2196ac1cb5f73..0ad326341bd187257376f643f1fad7fc3a72c417 100644
+index 9860bef7d4372071228532d28e6d21e675dff25c..eaff8035b363eebd16dc4e885c93a4036a10510e 100644
 --- a/src/main/java/net/minecraft/world/level/World.java
 +++ b/src/main/java/net/minecraft/world/level/World.java
 @@ -1103,19 +1103,19 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
