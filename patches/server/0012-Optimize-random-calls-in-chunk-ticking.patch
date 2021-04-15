@@ -34,7 +34,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/level/ChunkProviderServer.java b/src/main/java/net/minecraft/server/level/ChunkProviderServer.java
-index cb83f1152c52a99d25e4e80cc8bf18c6793e8b50..87c87b9767003652814c3726eece64470dbb69a8 100644
+index fe040615ff03478a20cdf8376f89a6b7d100ba61..207a9c3928aad7c6e89a120b54d87e003ebd232c 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkProviderServer.java
 @@ -1000,6 +1000,7 @@ public class ChunkProviderServer extends IChunkProvider {
@@ -46,10 +46,10 @@ index cb83f1152c52a99d25e4e80cc8bf18c6793e8b50..87c87b9767003652814c3726eece6447
              boolean flag2 = world.ticksPerAnimalSpawns != 0L && worlddata.getTime() % world.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
 diff --git a/src/main/java/net/minecraft/server/level/WorldServer.java b/src/main/java/net/minecraft/server/level/WorldServer.java
-index 1fca85ba8d63fcf0a8252c655b1a99e00110933c..1a99272aa1642d3f587b312ab879b2ea69a1b96b 100644
+index c2711c2d5405a5ddcf99ce7a4fbc997b403bd2f2..78443d5bf8f1f297cf68a88d8caf8e8abc9cdba7 100644
 --- a/src/main/java/net/minecraft/server/level/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/level/WorldServer.java
-@@ -1200,6 +1200,8 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1202,6 +1202,8 @@ public class WorldServer extends World implements GeneratorAccessSeed {
      private final BiomeBase[] biomeBaseCache = new BiomeBase[1];
      // Tuinity end - optimise chunk ice snow ticking
  
@@ -58,7 +58,7 @@ index 1fca85ba8d63fcf0a8252c655b1a99e00110933c..1a99272aa1642d3f587b312ab879b2ea
      public void a(Chunk chunk, int i) { final int randomTickSpeed = i; // Paper
          ChunkCoordIntPair chunkcoordintpair = chunk.getPos();
          boolean flag = this.isRaining();
-@@ -1210,7 +1212,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1212,7 +1214,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
          gameprofilerfiller.enter("thunder");
          final BlockPosition.MutableBlockPosition blockposition = this.chunkTickMutablePosition; // Paper - use mutable to reduce allocation rate, final to force compile fail on change
  
@@ -67,7 +67,7 @@ index 1fca85ba8d63fcf0a8252c655b1a99e00110933c..1a99272aa1642d3f587b312ab879b2ea
              blockposition.setValues(this.a(this.a(j, 0, k, 15))); // Paper
              if (this.isRainingAt(blockposition)) {
                  DifficultyDamageScaler difficultydamagescaler = this.getDamageScaler(blockposition);
-@@ -1234,7 +1236,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1236,7 +1238,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
          }
  
          gameprofilerfiller.exitEnter("iceandsnow");
@@ -77,7 +77,7 @@ index 1fca85ba8d63fcf0a8252c655b1a99e00110933c..1a99272aa1642d3f587b312ab879b2ea
              // Tuinity start - optimise chunk ice snow ticking
              BiomeBase[] biomeCache = this.biomeBaseCache;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/Chunk.java b/src/main/java/net/minecraft/world/level/chunk/Chunk.java
-index ffef28f9fa82a6961ef6db5f6732cfee4352ee01..c987dff9660469bf5144ef07e0d13fbfea31e7dd 100644
+index df35ae12ecbe88ab396bed9850ef80433ff42fd4..7474c070598bc093e06f02f19d49f3a6fa6b3d4e 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/Chunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/Chunk.java
 @@ -99,6 +99,18 @@ public class Chunk implements IChunkAccess {

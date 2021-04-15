@@ -116,10 +116,10 @@ index d7eede51f1c4ebbe8e00b16efd6331c87db53bb4..bc18b9c3aac4c5feeb1603554e0ac009
              return this.a(i);
          }
 diff --git a/src/main/java/net/minecraft/server/level/WorldServer.java b/src/main/java/net/minecraft/server/level/WorldServer.java
-index 1a99272aa1642d3f587b312ab879b2ea69a1b96b..08934d06bfb7a3d1a3de402029c2ae841d6c063a 100644
+index 78443d5bf8f1f297cf68a88d8caf8e8abc9cdba7..49c8fc7f33edc7e6c5eb76544141d12153b52312 100644
 --- a/src/main/java/net/minecraft/server/level/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/level/WorldServer.java
-@@ -1105,7 +1105,28 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1107,7 +1107,28 @@ public class WorldServer extends World implements GeneratorAccessSeed {
  
                  gameprofilerfiller.enter("tick");
                  if (!entity.dead && !(entity instanceof EntityComplexPart)) {
@@ -148,7 +148,7 @@ index 1a99272aa1642d3f587b312ab879b2ea69a1b96b..08934d06bfb7a3d1a3de402029c2ae84
                  }
  
                  gameprofilerfiller.exit();
-@@ -1450,9 +1471,14 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1451,9 +1472,14 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                  ++entity.ticksLived;
                  GameProfilerFiller gameprofilerfiller = this.getMethodProfiler();
  
@@ -177,7 +177,7 @@ index 80c229c1852199fda85c03453d64cae33e413e89..7f70dda656ff9d802200f18139d2695e
          return (EntityTypes) IRegistry.a((IRegistry) IRegistry.ENTITY_TYPE, s, (Object) entitytypes_builder.a(s));
      }
 diff --git a/src/main/java/net/minecraft/world/level/World.java b/src/main/java/net/minecraft/world/level/World.java
-index 9860bef7d4372071228532d28e6d21e675dff25c..eaff8035b363eebd16dc4e885c93a4036a10510e 100644
+index 3e08e56f67516333e7d880fdc595447a3ae4dc83..827a0d436be843033e7bf1880e833a1e282c123c 100644
 --- a/src/main/java/net/minecraft/world/level/World.java
 +++ b/src/main/java/net/minecraft/world/level/World.java
 @@ -1103,19 +1103,19 @@ public abstract class World implements GeneratorAccess, AutoCloseable {

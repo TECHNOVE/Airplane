@@ -5,10 +5,10 @@ Subject: [PATCH] Reduce entity chunk ticking checks from 3 to 1
 
 
 diff --git a/src/main/java/net/minecraft/server/level/WorldServer.java b/src/main/java/net/minecraft/server/level/WorldServer.java
-index 08934d06bfb7a3d1a3de402029c2ae841d6c063a..3b47b0077873470c6cfb72f96de4d36ad4d8a8ad 100644
+index 49c8fc7f33edc7e6c5eb76544141d12153b52312..d13c6f4c368ca6fe3326b66d4c3ef94cf166e7e3 100644
 --- a/src/main/java/net/minecraft/server/level/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/level/WorldServer.java
-@@ -1081,11 +1081,12 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1083,11 +1083,12 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                  // CraftBukkit end */
  
                  gameprofilerfiller.enter("checkDespawn");
@@ -22,7 +22,7 @@ index 08934d06bfb7a3d1a3de402029c2ae841d6c063a..3b47b0077873470c6cfb72f96de4d36a
                              this.updateNavigatorsInRegion(entity);
                          }
                      } else {
-@@ -1111,7 +1112,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1113,7 +1114,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                       */
                      boolean doMidTick = false; // usually there's a returns in the catch, so treat it like that
                      try {
@@ -31,7 +31,7 @@ index 08934d06bfb7a3d1a3de402029c2ae841d6c063a..3b47b0077873470c6cfb72f96de4d36a
                          doMidTick = true;
                      } catch (Throwable throwable) {
                          if (throwable instanceof ThreadDeath) throw throwable; // Paper
-@@ -1136,7 +1137,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1138,7 +1139,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                      this.entitiesById.remove(entity.getId()); // Tuinity
                      this.unregisterEntity(entity);
                  } else if (entity.inChunk && entity.valid) { // Tuinity start - optimise notify()
@@ -40,7 +40,7 @@ index 08934d06bfb7a3d1a3de402029c2ae841d6c063a..3b47b0077873470c6cfb72f96de4d36a
                          this.updateNavigatorsInRegion(entity);
                      }
                  } else {
-@@ -1437,7 +1438,9 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1438,7 +1439,9 @@ public class WorldServer extends World implements GeneratorAccessSeed {
      }
      // Tuinity end - log detailed entity tick information
  
@@ -51,7 +51,7 @@ index 08934d06bfb7a3d1a3de402029c2ae841d6c063a..3b47b0077873470c6cfb72f96de4d36a
          // Tuinity start - log detailed entity tick information
          com.tuinity.tuinity.util.TickThread.ensureTickThread("Cannot tick an entity off-main");
          try {
-@@ -1445,7 +1448,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1446,7 +1449,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                  currentlyTickingEntity.lazySet(entity);
              }
              // Tuinity end - log detailed entity tick information
