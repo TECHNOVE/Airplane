@@ -38,24 +38,24 @@ index a148af69be216d2869538d402d9a0d12c81b5df6..c917f825378dd16a329105b4e7fcc888
  
      <!-- This builds a completely 'ready to start' jar with all dependencies inside -->
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 946e476e1ca8c3ced119c64a05643c8c64760724..a77e628518920e84b03a8a00e1308a9a53a00896 100644
+index 0e452ea9c5d098326d22a20aa67e423f85843db7..7ec84ef1d1cbb1fabf4c590a2f2c1da3cc181010 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -73,4 +73,27 @@ public class AirplaneConfig {
-         dynamicHoglinBehavior = config.getBoolean("behavior-activation.hoglin", dynamicHoglinBehavior);
+@@ -79,4 +79,27 @@ public class AirplaneConfig {
+         dynamicHoglinBehavior = config.getBoolean("behavior-activation.hoglin", true);
      }
  
 +
-+    public static String profileWebUrl = "https://flare.airplane.gg";
++    public static String profileWebUrl;
 +
 +    private static void profilerOptions() {
 +        config.setComment("flare", "Configures Flare, the built-in profiler");
 +
-+        profileWebUrl = config.getString("flare.url", profileWebUrl, "Sets the server to use for profiles.");
++        profileWebUrl = config.getString("flare.url", "https://flare.airplane.gg", "Sets the server to use for profiles.");
 +    }
 +
 +
-+    public static String accessToken = "";
++    public static String accessToken;
 +
 +    private static void airplaneWebServices() {
 +        config.setComment("web-services", "Options for connecting to Airplane's online utilities");
