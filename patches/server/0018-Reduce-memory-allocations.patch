@@ -39,7 +39,7 @@ index 8edc279e7a3fdfb7e10718f1deee34b7e3fb2f28..73ec17dea5d5668e49c9a6ad679bd3a3
          @Override
          public BlockPosition shift(EnumDirection enumdirection, int i) {
 diff --git a/src/main/java/net/minecraft/server/level/PlayerChunkMap.java b/src/main/java/net/minecraft/server/level/PlayerChunkMap.java
-index d7eede51f1c4ebbe8e00b16efd6331c87db53bb4..bc18b9c3aac4c5feeb1603554e0ac009af9b457e 100644
+index b28995ecfd7f45e6b6197be96c418aa0d05d3383..914c7a1b18151f29183cfe9474313ce18e7c4ae2 100644
 --- a/src/main/java/net/minecraft/server/level/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/PlayerChunkMap.java
 @@ -705,7 +705,9 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
@@ -74,7 +74,7 @@ index d7eede51f1c4ebbe8e00b16efd6331c87db53bb4..bc18b9c3aac4c5feeb1603554e0ac009
  
          return Math.max(Math.abs(k), Math.abs(l));
      }
-@@ -2571,11 +2577,17 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2541,11 +2547,17 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
                      boolean flag1 = this.tracker.attachedToPlayer;
  
                      if (!flag1) {
@@ -94,7 +94,7 @@ index d7eede51f1c4ebbe8e00b16efd6331c87db53bb4..bc18b9c3aac4c5feeb1603554e0ac009
                          }
                      }
  
-@@ -2605,8 +2617,10 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2575,8 +2587,10 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          }
  
          private int b() {
@@ -106,7 +106,7 @@ index d7eede51f1c4ebbe8e00b16efd6331c87db53bb4..bc18b9c3aac4c5feeb1603554e0ac009
              Iterator iterator = collection.iterator();
  
              while (iterator.hasNext()) {
-@@ -2618,6 +2632,8 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2588,6 +2602,8 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
                      i = j;
                  }
              }
@@ -116,7 +116,7 @@ index d7eede51f1c4ebbe8e00b16efd6331c87db53bb4..bc18b9c3aac4c5feeb1603554e0ac009
              return this.a(i);
          }
 diff --git a/src/main/java/net/minecraft/server/level/WorldServer.java b/src/main/java/net/minecraft/server/level/WorldServer.java
-index 78443d5bf8f1f297cf68a88d8caf8e8abc9cdba7..49c8fc7f33edc7e6c5eb76544141d12153b52312 100644
+index ab1cf52d7faa93feba9dd2efd9479b2d72771778..ac65773acacd81bdd5875e0a1ad0f5e96ee45b44 100644
 --- a/src/main/java/net/minecraft/server/level/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/level/WorldServer.java
 @@ -1107,7 +1107,28 @@ public class WorldServer extends World implements GeneratorAccessSeed {
