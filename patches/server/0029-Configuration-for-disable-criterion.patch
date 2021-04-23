@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Fri, 23 Apr 2021 17:55:48 -0500
+Subject: [PATCH] Configuration for disable criterion
+
+
+diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
+index 7ec84ef1d1cbb1fabf4c590a2f2c1da3cc181010..9032c798967df3f94952a68dbeb2a1ee543677cc 100644
+--- a/src/main/java/gg/airplane/AirplaneConfig.java
++++ b/src/main/java/gg/airplane/AirplaneConfig.java
+@@ -102,4 +102,12 @@ public class AirplaneConfig {
+     }
+ 
+ 
++    public static boolean disableBlockEnterCriterion;
++
++    private static void playerSettings() {
++        config.setComment("player", "Optimization & configuration for player related settings");
++
++        disableBlockEnterCriterion = config.getBoolean("player.disable-block-enter-criterion", true);
++    }
++
+ }
+diff --git a/src/main/java/net/minecraft/server/level/EntityPlayer.java b/src/main/java/net/minecraft/server/level/EntityPlayer.java
+index 62b95dcba8606330fbb3239e74c5eaf8baa3c51d..7daf2fdca5789de02c8d25e3c3620ac2a2bb43a3 100644
+--- a/src/main/java/net/minecraft/server/level/EntityPlayer.java
++++ b/src/main/java/net/minecraft/server/level/EntityPlayer.java
+@@ -567,6 +567,7 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+ 
+     @Override
+     protected void a(IBlockData iblockdata) {
++        if (!gg.airplane.AirplaneConfig.disableBlockEnterCriterion) // Airplane
+         CriterionTriggers.d.a(this, iblockdata);
+     }
+ 

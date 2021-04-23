@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Fri, 23 Apr 2021 15:00:30 -0500
+Subject: [PATCH] Optimize redundant calls
+
+Just pushing this because I want numbers on it, according to both CPU
+tracking and async sampling this is something that causes a discernable
+(1.5%) impact on performance.
+
+diff --git a/src/main/java/net/minecraft/server/level/ChunkMapDistance.java b/src/main/java/net/minecraft/server/level/ChunkMapDistance.java
+index b713ff9cae31e075c9df39de52ce4515cb1e8622..ece95c04c698604b874c8e0d85b02dd6c50d6840 100644
+--- a/src/main/java/net/minecraft/server/level/ChunkMapDistance.java
++++ b/src/main/java/net/minecraft/server/level/ChunkMapDistance.java
+@@ -215,7 +215,7 @@ public abstract class ChunkMapDistance {
+     public boolean a(PlayerChunkMap playerchunkmap) {
+         com.tuinity.tuinity.util.TickThread.softEnsureTickThread("Cannot tick ChunkMapDistance off of the main-thread");// Tuinity
+         //this.f.a(); // Paper - no longer used
+-        AsyncCatcher.catchOp("DistanceManagerTick"); // Paper
++        //AsyncCatcher.catchOp("DistanceManagerTick"); // Paper // Airplane - leave up to softEnsures
+         //this.g.a(); // Tuinity - no longer used
+         boolean flag = this.ticketLevelPropagator.propagateUpdates(); // Tuinity - replace ticket level propagator
+ 
