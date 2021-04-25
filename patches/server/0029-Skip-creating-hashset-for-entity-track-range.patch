@@ -5,10 +5,10 @@ Subject: [PATCH] Skip creating hashset for entity track range
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index c6b4af810fe3bda7797ab94316b2357178c9cd49..b19b7970eaf614e09cd58c9dfc555bb204c53904 100644
+index 52f177a8e4ccf3aa27725f2821af99262e3b6f05..5ac2811c88370a55f055c791baa3804fc9a107a8 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -319,10 +319,39 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
+@@ -321,10 +321,39 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
          this.isLegacyTrackingEntity = isLegacyTrackingEntity;
      }
  
@@ -48,7 +48,7 @@ index c6b4af810fe3bda7797ab94316b2357178c9cd49..b19b7970eaf614e09cd58c9dfc555bb2
          int range = chunkMap.getEntityTrackerRange(type.ordinal());
  
          for (Entity passenger : passengers) {
-@@ -333,6 +362,8 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
+@@ -335,6 +364,8 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
                  range = passengerRange;
              }
          }
