@@ -54,24 +54,14 @@ index 86f156587a0939b28c5cf6f64907255c1c4f8b35..516b77edab4d737fa947e051c463bbd6
              // Tuinity start - entity ticking chunk set
              Chunk chunkIfCached = this.getFullChunkIfCached();
 diff --git a/src/main/java/net/minecraft/server/level/WorldServer.java b/src/main/java/net/minecraft/server/level/WorldServer.java
-index ac65773acacd81bdd5875e0a1ad0f5e96ee45b44..95a3481f9750df58d5881536b21b56fd827b3e9c 100644
+index ac65773acacd81bdd5875e0a1ad0f5e96ee45b44..3efb096f4d4ead97de39f8e2df93f197f0d84d1a 100644
 --- a/src/main/java/net/minecraft/server/level/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/level/WorldServer.java
-@@ -1083,11 +1083,22 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1083,11 +1083,12 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                  // CraftBukkit end */
  
                  gameprofilerfiller.enter("checkDespawn");
-+                // Airplane start
-+                boolean entityTickingChunk = false;
-+                if (!entity.dead) {
-+                    long key = MCUtil.getCoordinateKey(entity);
-+                    if (entity.lastEntityTickingChunkKey != key) {
-+                        entity.lastEntityTickingChunkKey = key;
-+                        entity.inEntityTickingChunk = this.getChunkProvider().isInEntityTickingChunk(entity);
-+                    }
-+                    entityTickingChunk = entity.inEntityTickingChunk;
-+                }
-+                // Airplane end
++                boolean entityTickingChunk = false; if (!entity.dead) entityTickingChunk = entity.inEntityTickingChunk; // Airplane
                  if (!entity.dead) {
                      entity.checkDespawn();
                      // Tuinity start - optimise notify()
@@ -81,7 +71,7 @@ index ac65773acacd81bdd5875e0a1ad0f5e96ee45b44..95a3481f9750df58d5881536b21b56fd
                              this.updateNavigatorsInRegion(entity);
                          }
                      } else {
-@@ -1113,7 +1124,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1113,7 +1114,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                       */
                      boolean doMidTick = false; // usually there's a returns in the catch, so treat it like that
                      try {
@@ -90,7 +80,7 @@ index ac65773acacd81bdd5875e0a1ad0f5e96ee45b44..95a3481f9750df58d5881536b21b56fd
                          doMidTick = true;
                      } catch (Throwable throwable) {
                          if (throwable instanceof ThreadDeath) throw throwable; // Paper
-@@ -1138,7 +1149,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1138,7 +1139,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                      this.entitiesById.remove(entity.getId()); // Tuinity
                      this.unregisterEntity(entity);
                  } else if (entity.inChunk && entity.valid) { // Tuinity start - optimise notify()
@@ -99,7 +89,7 @@ index ac65773acacd81bdd5875e0a1ad0f5e96ee45b44..95a3481f9750df58d5881536b21b56fd
                          this.updateNavigatorsInRegion(entity);
                      }
                  } else {
-@@ -1438,7 +1449,9 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1438,7 +1439,9 @@ public class WorldServer extends World implements GeneratorAccessSeed {
      }
      // Tuinity end - log detailed entity tick information
  
@@ -110,7 +100,7 @@ index ac65773acacd81bdd5875e0a1ad0f5e96ee45b44..95a3481f9750df58d5881536b21b56fd
          // Tuinity start - log detailed entity tick information
          com.tuinity.tuinity.util.TickThread.ensureTickThread("Cannot tick an entity off-main");
          try {
-@@ -1446,7 +1459,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1446,7 +1449,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
                  currentlyTickingEntity.lazySet(entity);
              }
              // Tuinity end - log detailed entity tick information
