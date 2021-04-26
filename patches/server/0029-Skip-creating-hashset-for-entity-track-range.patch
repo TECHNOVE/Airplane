@@ -5,7 +5,7 @@ Subject: [PATCH] Skip creating hashset for entity track range
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 52f177a8e4ccf3aa27725f2821af99262e3b6f05..5ac2811c88370a55f055c791baa3804fc9a107a8 100644
+index 52f177a8e4ccf3aa27725f2821af99262e3b6f05..7422169fb77ea6f782726e516c58a333f60d9f00 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -321,10 +321,39 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
@@ -48,12 +48,15 @@ index 52f177a8e4ccf3aa27725f2821af99262e3b6f05..5ac2811c88370a55f055c791baa3804f
          int range = chunkMap.getEntityTrackerRange(type.ordinal());
  
          for (Entity passenger : passengers) {
-@@ -335,6 +364,8 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
+@@ -335,8 +364,10 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
                  range = passengerRange;
              }
          }
 +         */
 +        // Airplane end
  
-         return chunkMap.playerEntityTrackerTrackMaps[type.ordinal()].getObjectsInRange(MCUtil.getCoordinateKey(this));
+-        return chunkMap.playerEntityTrackerTrackMaps[type.ordinal()].getObjectsInRange(MCUtil.getCoordinateKey(this));
++        return chunkMap.playerEntityTrackerTrackMaps[type.ordinal()].getObjectsInRange(MCUtil.getCoordinateKey(this.chunkX, this.chunkZ)); // Airplane - don't convert doubles to ints here
      }
+     // Paper end - optimise entity tracking
+ 
