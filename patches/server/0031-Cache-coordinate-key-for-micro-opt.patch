@@ -5,7 +5,7 @@ Subject: [PATCH] Cache coordinate key for micro opt
 
 
 diff --git a/src/main/java/net/minecraft/server/level/PlayerChunk.java b/src/main/java/net/minecraft/server/level/PlayerChunk.java
-index 516b77edab4d737fa947e051c463bbd65d0e9e49..528e8e35886043c2c0e3c35cb9fd3e549cc75d6b 100644
+index 86f156587a0939b28c5cf6f64907255c1c4f8b35..06157bb07cce3ba24087ceaca7138b5609b37b5b 100644
 --- a/src/main/java/net/minecraft/server/level/PlayerChunk.java
 +++ b/src/main/java/net/minecraft/server/level/PlayerChunk.java
 @@ -58,6 +58,7 @@ public class PlayerChunk {
