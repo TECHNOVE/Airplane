@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Sat, 8 May 2021 23:07:51 -0500
+Subject: [PATCH] Fix JB annotations for gradle (credit jpenilla)
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/event/server/AsyncTabCompleteEvent.java b/src/main/java/com/destroystokyo/paper/event/server/AsyncTabCompleteEvent.java
+index 31c90ab0710020a2ff104b5cb8af604f3d682f31..4cd97cb102e1ec53b3fe1a451b65b4b640fde099 100644
+--- a/src/main/java/com/destroystokyo/paper/event/server/AsyncTabCompleteEvent.java
++++ b/src/main/java/com/destroystokyo/paper/event/server/AsyncTabCompleteEvent.java
+@@ -136,7 +136,7 @@ public class AsyncTabCompleteEvent extends Event implements Cancellable {
+      *
+      * @return a list of offered completions
+      */
+-    public @NotNull List<@NotNull Completion> completions() {
++    public @NotNull List<Completion> completions() {
+         return this.completions;
+     }
+ 
+@@ -150,7 +150,7 @@ public class AsyncTabCompleteEvent extends Event implements Cancellable {
+      *
+      * @param newCompletions the new completions
+      */
+-    public void completions(final @NotNull List<@NotNull Completion> newCompletions) {
++    public void completions(final @NotNull List<Completion> newCompletions) {
+         Validate.notNull(newCompletions, "new completions");
+         this.completions.clear();
+         this.completions.addAll(newCompletions);
