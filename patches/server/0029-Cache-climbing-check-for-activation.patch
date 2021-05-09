@@ -5,7 +5,7 @@ Subject: [PATCH] Cache climbing check for activation
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/EntityLiving.java b/src/main/java/net/minecraft/world/entity/EntityLiving.java
-index 5c983a441cd2a06eae6e79bc07ba5440d294574b..12bfc5395cf5847767fbd9dfa857bf50cca57767 100644
+index 74f80b6af18c0b91d9613384ca6bafd9c89f23a4..003e1f6dc8efbabcb2e0f7a6b379196f02203903 100644
 --- a/src/main/java/net/minecraft/world/entity/EntityLiving.java
 +++ b/src/main/java/net/minecraft/world/entity/EntityLiving.java
 @@ -1745,6 +1745,19 @@ public abstract class EntityLiving extends Entity {

@@ -8,7 +8,7 @@ tracking and async sampling this is something that causes a discernable
 (1.5%) impact on performance.
 
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMapDistance.java b/src/main/java/net/minecraft/server/level/ChunkMapDistance.java
-index b713ff9cae31e075c9df39de52ce4515cb1e8622..ece95c04c698604b874c8e0d85b02dd6c50d6840 100644
+index 58e14c174cdf76cdea861fd3d4d1195fa27f888a..fedd0482bd4ff8cc5857a71f509700df4490b8fb 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMapDistance.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMapDistance.java
 @@ -215,7 +215,7 @@ public abstract class ChunkMapDistance {
