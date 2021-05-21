@@ -150,7 +150,7 @@ index 0000000000000000000000000000000000000000..aa8467b9dda1f7707e41f50ac7b3e9d7
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/world/level/block/Block.java b/src/main/java/net/minecraft/world/level/block/Block.java
-index 596b4597313b87296d39027b13555b5ad1cba9e6..f8a982add50862f1bc977f3039e7e9aeed9138ae 100644
+index 7279893d599351785652279c8827fe0efbd72f12..96d7990c66bd569b1b5ee287c0238c7dbb4c503e 100644
 --- a/src/main/java/net/minecraft/world/level/block/Block.java
 +++ b/src/main/java/net/minecraft/world/level/block/Block.java
 @@ -392,6 +392,7 @@ public class Block extends BlockBase implements IMaterial {
