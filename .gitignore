@@ -6,3 +6,4 @@ build/
 .gradle/
 
 launcher-airplane.jar
+mcdevimports.conf
