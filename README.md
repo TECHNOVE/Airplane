@@ -10,7 +10,7 @@
 [wiki]: https://github.com/TECHNOVE/Airplane/wiki
 
 # Airplane
-A stable, optimized, well supported Paper fork.
+A stable, optimized, well supported 1.16.5 Paper fork.
 
 [![Support Discord](https://img.shields.io/discord/748023548467216394?color=7289DA&label=Support%20Discord&style=flat-square)][discord]
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Technove/Airplane/Build%20main?style=flat-square)][downloads]
