@@ -76,7 +76,7 @@ index 96cc46a26eef701b0579f3407e67af9176e1743b..5c7ce20609a1c18687696581a76f21a1
  
      @Override
 diff --git a/src/main/java/net/minecraft/world/level/IBlockAccess.java b/src/main/java/net/minecraft/world/level/IBlockAccess.java
-index e612e1d30f76e217b1aa23488ab025adce048f57..c9198d242b9053fad6fa5b53c1894679002d50a7 100644
+index e612e1d30f76e217b1aa23488ab025adce048f57..6109d59c02d0c7877e213213c6aec6f8513ccc47 100644
 --- a/src/main/java/net/minecraft/world/level/IBlockAccess.java
 +++ b/src/main/java/net/minecraft/world/level/IBlockAccess.java
 @@ -14,9 +14,11 @@ import net.minecraft.world.level.block.state.IBlockData;
@@ -91,12 +91,13 @@ index e612e1d30f76e217b1aa23488ab025adce048f57..c9198d242b9053fad6fa5b53c1894679
  
  public interface IBlockAccess {
  
-@@ -56,6 +58,15 @@ public interface IBlockAccess {
+@@ -56,6 +58,16 @@ public interface IBlockAccess {
          return BlockPosition.a(axisalignedbb).map(this::getType);
      }
  
 +    // Airplane start - broken down variant of below rayTraceBlock, used by World#rayTraceDirect
 +    default MovingObjectPosition.EnumMovingObjectType rayTraceBlockDirect(Vec3D vec3d, Vec3D vec3d1, BlockPosition blockposition, IBlockData iblockdata, VoxelShapeCollision voxelshapecoll) {
++        if (iblockdata.isAir()) return null; // Tuinity - optimise air cases
 +        VoxelShape voxelshape = RayTrace.BlockCollisionOption.COLLIDER.get(iblockdata, this, blockposition, voxelshapecoll);
 +        MovingObjectPositionBlock movingobjectpositionblock = this.rayTrace(vec3d, vec3d1, blockposition, voxelshape, iblockdata);
 +
