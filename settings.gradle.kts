@@ -1,29 +1,21 @@
+import xyz.jpenilla.toothpick.setupToothpickProject
 import java.util.Locale
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
-        jcenter()
         maven("https://repo.jpenilla.xyz/snapshots")
     }
 }
 
+plugins {
+    id("xyz.jpenilla.toothpick.settings") version "1.1.0-SNAPSHOT"
+}
+
 val forkName = "Airplane"
-val forkNameLowercase = forkName.toLowerCase(Locale.ENGLISH)
+rootProject.name = forkName.toLowerCase(Locale.ROOT)
+setupToothpickProject(rootProject, forkName)
 
-rootProject.name = forkNameLowercase
-
-setupSubproject("$forkNameLowercase-api") {
-    projectDir = File("$forkName-API")
-    buildFileName = "../subprojects/api.gradle.kts"
-}
-setupSubproject("$forkNameLowercase-server") {
-    projectDir = File("$forkName-Server")
-    buildFileName = "../subprojects/server.gradle.kts"
-}
-
-inline fun setupSubproject(name: String, block: ProjectDescriptor.() -> Unit) {
-    include(name)
-    project(":$name").apply(block)
-}

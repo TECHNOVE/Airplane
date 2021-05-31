@@ -1,16 +1,13 @@
-import xyz.jpenilla.toothpick.gitCmd
-import xyz.jpenilla.toothpick.toothpick
-
 plugins {
     `java-library`
-    id("xyz.jpenilla.toothpick") version "1.0.0-SNAPSHOT"
+    id("xyz.jpenilla.toothpick")
 }
 
 toothpick {
     forkName = "Airplane"
     groupId = "gg.airplane"
     val versionTag = System.getenv("BUILD_NUMBER")
-        ?: "\"${gitCmd("rev-parse", "--short", "HEAD").output}\""
+        ?: "\"${commitHash() ?: error("Could not obtain git hash")}\""
     forkVersion = "git-$forkName-$versionTag"
     forkUrl = "https://github.com/Technove/Airplane"
 
@@ -24,12 +21,12 @@ toothpick {
     paperclipName = "launcher-airplane"
 
     server {
-        project = project(":$forkNameLowercase-server")
-        patchesDir = rootProject.projectDir.resolve("patches/server")
+        project = projects.airplaneServer.dependencyProject
+        patchesDir = file("patches/server")
     }
     api {
-        project = project(":$forkNameLowercase-api")
-        patchesDir = rootProject.projectDir.resolve("patches/api")
+        project = projects.airplaneApi.dependencyProject
+        patchesDir = file("patches/api")
     }
 }
 
@@ -44,8 +41,8 @@ subprojects {
     }
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.toVersion(8)
+        targetCompatibility = JavaVersion.toVersion(8)
         withSourcesJar()
     }
 }
