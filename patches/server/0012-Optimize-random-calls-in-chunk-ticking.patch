@@ -7,7 +7,7 @@ Especially at over 30,000 chunks these random calls are fairly heavy. We
 use a different method here for checking lightning, and for checking
 ice.
 
-Lighting: Each chunk now keeps an int of how many ticks until the
+Lightning: Each chunk now keeps an int of how many ticks until the
 lightning should strike. This int is a random number from 0 to 100000 * 2,
 the multiplication is required to keep the probability the same.
 
