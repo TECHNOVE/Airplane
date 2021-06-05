@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/pom.xml b/pom.xml
-index 65c8a649cb0e4d2d8d1b1c21ec30405f60539b9f..efa2ea6b8422f900643eb2f0f65cf067c034cea3 100644
+index fa1ce7bb121855970b2f5e0e6497890789a5f179..1bc9eff64f6b0e68828a77551911422f2539f2eb 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -200,6 +200,13 @@
@@ -36,7 +36,7 @@ index 65c8a649cb0e4d2d8d1b1c21ec30405f60539b9f..efa2ea6b8422f900643eb2f0f65cf067
 +        </dependency>
      </dependencies>
  
-     <!-- This builds a completely 'ready to start' jar with all dependencies inside -->
+     <repositories>
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
 index 0e452ea9c5d098326d22a20aa67e423f85843db7..7ec84ef1d1cbb1fabf4c590a2f2c1da3cc181010 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java

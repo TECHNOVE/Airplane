@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/world/entity/ambient/EntityBat.java b/src/main/java/net/minecraft/world/entity/ambient/EntityBat.java
-index 61ebb278cf4ef57ae7a86c6c6ef1fa14559f21e2..341b95f73a839a548b202e7bf97fd18760c71fd8 100644
+index 5c9e4724d46b6864cdb85f7d3c8fb0fe37032444..bd02320d450a7fd7254f01b1c44ef421c1810ea7 100644
 --- a/src/main/java/net/minecraft/world/entity/ambient/EntityBat.java
 +++ b/src/main/java/net/minecraft/world/entity/ambient/EntityBat.java
 @@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
@@ -31,7 +31,7 @@ index 61ebb278cf4ef57ae7a86c6c6ef1fa14559f21e2..341b95f73a839a548b202e7bf97fd187
  import net.minecraft.sounds.SoundEffect;
  import net.minecraft.sounds.SoundEffects;
  import net.minecraft.util.MathHelper;
-@@ -247,13 +248,22 @@ public class EntityBat extends EntityAmbient {
+@@ -306,13 +307,22 @@ public class EntityBat extends EntityAmbient {
          }
      }
  

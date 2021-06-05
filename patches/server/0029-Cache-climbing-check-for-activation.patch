@@ -5,10 +5,10 @@ Subject: [PATCH] Cache climbing check for activation
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/EntityLiving.java b/src/main/java/net/minecraft/world/entity/EntityLiving.java
-index c6d551ad958711dec777902f02c9f5dadac26ff8..a49dbcffecc971f797651984cb72c455d40f9331 100644
+index 700f7729dd9bbff24b6e1f3a44355673c4531f53..2a1bb8a326312a32511c94e02bcaa476e80ba237 100644
 --- a/src/main/java/net/minecraft/world/entity/EntityLiving.java
 +++ b/src/main/java/net/minecraft/world/entity/EntityLiving.java
-@@ -1745,6 +1745,19 @@ public abstract class EntityLiving extends Entity {
+@@ -1790,6 +1790,19 @@ public abstract class EntityLiving extends Entity {
          }
      }
  
@@ -29,10 +29,10 @@ index c6d551ad958711dec777902f02c9f5dadac26ff8..a49dbcffecc971f797651984cb72c455
          return this.world.getType(this.getChunkCoordinates());
      }
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 8b36ca5062f8e0e8bd58aa506e91704a747de81b..94910bf0c53c79588c55b89e4a023273d6c859ef 100644
+index d04a21b93374c287b271deb6618b984abc8831bb..2d06392c8d33dd200e101079c2dbf5c488ade982 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
-@@ -309,7 +309,7 @@ public class ActivationRange
+@@ -311,7 +311,7 @@ public class ActivationRange
          if ( entity instanceof EntityLiving )
          {
              EntityLiving living = (EntityLiving) entity;

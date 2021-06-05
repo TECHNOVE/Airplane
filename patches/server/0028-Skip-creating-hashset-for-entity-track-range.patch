@@ -5,7 +5,7 @@ Subject: [PATCH] Skip creating hashset for entity track range
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 21f8e6b6dd123675d59cca20935d7048f6c98b23..1ea76604a375b60aa2b93af6c562151030907b1c 100644
+index 033372536f4dc2efd56dc563e3b62d18fee3a20a..19cc9312f378b346b563a2c5898656339d5f0f35 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -319,10 +319,39 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne

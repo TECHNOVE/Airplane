@@ -15,10 +15,10 @@ toothpick {
     nmsPackage = "1_16_R3"
     nmsRevision = "R0.1-SNAPSHOT"
 
-    upstream = "Tuinity"
-    upstreamBranch = "origin/master"
+    upstream = "Purpur"
+    upstreamBranch = "origin/ver/1.16.5"
 
-    paperclipName = "launcher-airplane"
+    paperclipName = "launcher-airplanepurpur"
 
     server {
         project = projects.airplaneServer.dependencyProject

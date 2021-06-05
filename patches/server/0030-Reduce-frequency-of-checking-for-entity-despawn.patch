@@ -26,10 +26,10 @@ index 7ec84ef1d1cbb1fabf4c590a2f2c1da3cc181010..c9e00334655ccd273ba108a541ed1cb0
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/EntityInsentient.java b/src/main/java/net/minecraft/world/entity/EntityInsentient.java
-index 7582b91a24253473b2770d4e1bf053446238643c..892bfadbb1e7d09996df61aaee2cab74187f73d0 100644
+index e22e61704106732186242456f88dc285c9260ef8..25294a68771cd4c9b1617fa2b743521ccb99b36d 100644
 --- a/src/main/java/net/minecraft/world/entity/EntityInsentient.java
 +++ b/src/main/java/net/minecraft/world/entity/EntityInsentient.java
-@@ -774,8 +774,15 @@ public abstract class EntityInsentient extends EntityLiving {
+@@ -809,8 +809,15 @@ public abstract class EntityInsentient extends EntityLiving {
          return false;
      }
  

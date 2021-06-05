@@ -5,7 +5,7 @@ Subject: [PATCH] Use raw iterator where possible
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ChunkProviderServer.java b/src/main/java/net/minecraft/server/level/ChunkProviderServer.java
-index 207a9c3928aad7c6e89a120b54d87e003ebd232c..06864951af539e22f6e459c0f0c097b7c2fb929b 100644
+index 1d9de8bd58fad2889a3a3447c04e1305ad9ed153..a344cb4acedc54fdc8e5766a1b0694e0dfa0c16c 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkProviderServer.java
 @@ -1033,10 +1033,12 @@ public class ChunkProviderServer extends IChunkProvider {
