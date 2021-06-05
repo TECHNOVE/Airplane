@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        java: [11, 8]
+        java: [11]
 
     steps:
       - uses: actions/checkout@v2
@@ -36,7 +36,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: Airplane-JDK${{ matrix.java }}
-          path: launcher-airplane.jar
+          path: launcher-airplanepurpur.jar
 
   notify:
     runs-on: ubuntu-latest
