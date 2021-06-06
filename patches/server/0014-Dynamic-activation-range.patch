@@ -69,7 +69,7 @@ index ab019b577002677a4ce788106f8e5a1d7757a2ae..5077e70e4f408814b1072ceb45c52a32
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index c3d4eda866016c4ac08d4c5d771e39dcac5a3a60..21f8e6b6dd123675d59cca20935d7048f6c98b23 100644
+index dc562eecac56c6e71c7ad0293507879ca6b04586..e921602fd4f7a86b38c4d09d9cedf5074f1a8508 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -289,6 +289,9 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
@@ -179,7 +179,7 @@ index 9a7bebd77302dbfd07ac802acbe2b9cb80eec26f..99cdcc9a9a7e6227a165c4ef779f8e76
      }
  
 diff --git a/src/main/java/net/minecraft/world/entity/npc/EntityVillager.java b/src/main/java/net/minecraft/world/entity/npc/EntityVillager.java
-index 9278b8546a57f21051a65d59c2c01d39afaa68cc..61eaa3e8f961a30e2dc9ae8701ba3b875176e7e0 100644
+index 85374ac8f5460790de03b47d7c3ce19ed5596afe..ccb568a5e8501ac5e8901ef3a270cc87471d9ea1 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/EntityVillager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/EntityVillager.java
 @@ -231,11 +231,17 @@ public class EntityVillager extends EntityVillagerAbstract implements Reputation
