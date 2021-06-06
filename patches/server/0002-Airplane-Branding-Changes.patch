@@ -76,7 +76,7 @@ index d50b61876f15d95b836b3dd81d9c3492c91a8448..5460f57f0473868b3fb09c526a1767f7
  
          return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index ee75fe091f7fd28426b9af329358ea0deb24d589..c69680aba5cfcc4737823864af4de65bb2e7ba83 100644
+index ee75fe091f7fd28426b9af329358ea0deb24d589..de79315d4c4c8caaafffd18a9dc59ee790e92e45 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1665,7 +1665,8 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
@@ -85,7 +85,7 @@ index ee75fe091f7fd28426b9af329358ea0deb24d589..c69680aba5cfcc4737823864af4de65b
      public String getServerModName() {
 -        return net.pl3x.purpur.PurpurConfig.serverModName; // Purpur // Tuinity // Paper // Spigot // CraftBukkit
 +        String purpurName = net.pl3x.purpur.PurpurConfig.serverModName;
-+        return purpurName.equals("Purpur") ? "AirplanePurpur" : purpurName; // Airplane // Purpur // Tuinity // Paper // Spigot // CraftBukkit
++        return purpurName.equals("Purpur") ? "Airplane-Purpur" : purpurName; // Airplane // Tuinity //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
      }
  
      public CrashReport b(CrashReport crashreport) {

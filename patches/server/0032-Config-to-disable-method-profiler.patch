@@ -5,10 +5,10 @@ Subject: [PATCH] Config to disable method profiler
 
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index c9e00334655ccd273ba108a541ed1cb0633f69b7..65adf3ceda012c8cfdea675c40e2bb27d34ebac7 100644
+index a673eaad4cd80287e8a357f8c45b2add156ff0b9..6fc23a85ddd66a69b83684cdb602b6a312e9d72b 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -111,4 +111,13 @@ public class AirplaneConfig {
+@@ -112,4 +112,13 @@ public class AirplaneConfig {
      }
  
  
@@ -23,7 +23,7 @@ index c9e00334655ccd273ba108a541ed1cb0633f69b7..65adf3ceda012c8cfdea675c40e2bb27
 +
  }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index c69680aba5cfcc4737823864af4de65bb2e7ba83..e4c1e35d8832857d0f070b18b3a29bf10788fd22 100644
+index de79315d4c4c8caaafffd18a9dc59ee790e92e45..e7b57b9b58e9b9b63a03d41b8b5570573fab001e 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -2216,7 +2216,11 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas

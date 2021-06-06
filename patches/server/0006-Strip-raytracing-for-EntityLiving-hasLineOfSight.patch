@@ -55,7 +55,7 @@ index cc566784c7dd21cc2c44e0f351347f657e57ddcf..e9e7fcf2b63febe2a7d055826fabb86b
          return d0 == 0.0D ? 0 : (d0 > 0.0D ? 1 : -1);
      }
 diff --git a/src/main/java/net/minecraft/world/entity/EntityLiving.java b/src/main/java/net/minecraft/world/entity/EntityLiving.java
-index 158388410ea14b2df95635914844952bd52b8f87..f9a587d1d6ead130fce88b113f4a13d6e27533b9 100644
+index 158388410ea14b2df95635914844952bd52b8f87..84e1ef0716559f7de4ea580269fa7ca17894cf10 100644
 --- a/src/main/java/net/minecraft/world/entity/EntityLiving.java
 +++ b/src/main/java/net/minecraft/world/entity/EntityLiving.java
 @@ -112,6 +112,7 @@ import net.minecraft.world.phys.AxisAlignedBB;
@@ -66,13 +66,15 @@ index 158388410ea14b2df95635914844952bd52b8f87..f9a587d1d6ead130fce88b113f4a13d6
  import net.minecraft.world.scores.ScoreboardTeam;
  import org.apache.logging.log4j.Logger;
  
-@@ -3225,7 +3226,8 @@ public abstract class EntityLiving extends Entity {
+@@ -3225,7 +3226,10 @@ public abstract class EntityLiving extends Entity {
          Vec3D vec3d1 = new Vec3D(entity.locX(), entity.getHeadY(), entity.locZ());
  
          // Paper - diff on change - used in CraftLivingEntity#hasLineOfSight(Location) and CraftWorld#lineOfSightExists
 -        return this.world.rayTrace(new RayTrace(vec3d, vec3d1, RayTrace.BlockCollisionOption.COLLIDER, RayTrace.FluidCollisionOption.NONE, this)).getType() == MovingObjectPosition.EnumMovingObjectType.MISS;
++        // Airplane start - use direct method
 +        //return this.world.rayTrace(new RayTrace(vec3d, vec3d1, RayTrace.BlockCollisionOption.COLLIDER, RayTrace.FluidCollisionOption.NONE, this)).getType() == MovingObjectPosition.EnumMovingObjectType.MISS;
-+        return this.world.rayTraceDirect(vec3d, vec3d1, VoxelShapeCollision.a(this)) == MovingObjectPosition.EnumMovingObjectType.MISS; // Airplane - use direct method
++        return this.world.rayTraceDirect(vec3d, vec3d1, VoxelShapeCollision.a(this)) == MovingObjectPosition.EnumMovingObjectType.MISS;
++        // Airplane end
      }
  
      @Override
