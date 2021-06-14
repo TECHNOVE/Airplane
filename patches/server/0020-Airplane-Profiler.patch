@@ -501,10 +501,10 @@ index 0000000000000000000000000000000000000000..27ac32779e700494aeca8b425edb2871
 +}
 diff --git a/src/main/java/gg/airplane/flare/ProfilingManager.java b/src/main/java/gg/airplane/flare/ProfilingManager.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..86d6650d174a7794a7ebe793cad033b42215c321
+index 0000000000000000000000000000000000000000..68a9b09d6251accb31e5a44ed3132098b1960638
 --- /dev/null
 +++ b/src/main/java/gg/airplane/flare/ProfilingManager.java
-@@ -0,0 +1,65 @@
+@@ -0,0 +1,66 @@
 +package gg.airplane.flare;
 +
 +import gg.airplane.AirplaneConfig;
@@ -542,7 +542,7 @@ index 0000000000000000000000000000000000000000..86d6650d174a7794a7ebe793cad033b4
 +        if (Bukkit.isPrimaryThread()) {
 +            throw new UserReportableException("Profiles should be started off-thread");
 +        }
-+        currentController = new ProfileController(type, Math.max(interval, 1)); // don't allow lower than 20ms: https://bugzilla.redhat.com/show_bug.cgi?id=645528
++        currentController = new ProfileController(type == null ? ProfileType.WALL : type, Math.max(interval, 1)); // don't allow lower than 20ms: https://bugzilla.redhat.com/show_bug.cgi?id=645528
 +        currentTask = Bukkit.getScheduler().runTaskLater(new MinecraftInternalPlugin(), ProfilingManager::stop, 20 * 60 * 15);
 +        AirplaneLogger.LOGGER.log(Level.INFO, "Flare has been started: " + getProfilingUrl().orElse("An error occurred retrieving the Flare URL."));
 +        return true;
@@ -565,6 +565,7 @@ index 0000000000000000000000000000000000000000..86d6650d174a7794a7ebe793cad033b4
 +        } catch (Throwable t) {
 +            AirplaneLogger.LOGGER.log(Level.WARNING, "Error occurred stopping Flare", t);
 +        }
++
 +        currentTask = null;
 +        return true;
 +    }
