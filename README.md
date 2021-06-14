@@ -20,6 +20,7 @@ A stable, optimized, well supported 1.16.5 Paper fork.
 - **Improved entity performance** from a reduction in ticking entity behavior based on how far away they are from the player.
 - **Reduced GC times & frequency** from removing useless allocations, which also improves CPU performance.
 - **Fast raytracing** which improves performance of any entity which utilizes line of sight, mainly Villagers.
+- **Built-in profiler** which has 0 performance hit and easy to read metrics for both server owners and developers.
 - Faster crafting, reduction in uselessly loaded chunks, faster entity ticking, faster block ticking, faster bat spawning, and more!
 - Plugin compatibility with Paper & Tuinity plugins.
 - [Read more about our features.][about]
