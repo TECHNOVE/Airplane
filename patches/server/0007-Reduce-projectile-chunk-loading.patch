@@ -1,0 +1,63 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Sun, 13 Dec 2020 17:52:35 -0600
+Subject: [PATCH] Reduce projectile chunk loading
+
+Airplane
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+diff --git a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
+index 69f439851fe1ff07d827eaed274940a5783d5f6c..3edd5ff6d854dd4fde0f509d91a9e020589edcda 100644
+--- a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
++++ b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
+@@ -42,6 +42,37 @@ public abstract class Projectile extends Entity {
+         super(type, world);
+     }
+ 
++    // Airplane start
++    private static int loadedThisTick = 0;
++    private static int loadedTick;
++
++    private int buffered = 0;
++    @Override
++    public void setPos(double x, double y, double z) {
++        int currentTick = net.minecraft.server.MinecraftServer.currentTick;
++        if (loadedTick != currentTick) {
++            loadedTick = currentTick;
++            loadedThisTick = 0;
++        }
++        int previousX = Mth.floor(this.getX()) >> 4, previousZ = Mth.floor(this.getX()) >> 4;
++        int newX = Mth.floor(z) >> 4, newZ = Mth.floor(z) >> 4;
++        if (previousX != newX || previousZ != newZ) {
++            boolean isLoaded = this.level.getChunkIfLoaded(newX, newZ) != null;
++            if (!isLoaded) {
++                if (loadedThisTick > 10) { // Airplane 10 = max chunks to load from projectiles in a tick todo config
++                    if (++buffered > 20) { // Airplane 20 = max chunks  a single projectile loads overall todo config
++                        this.discard();
++                    }
++                    return;
++                }
++                loadedThisTick++;
++            }
++            buffered = 0;
++        }
++        super.setPos(x, y, z);
++    }
++    // Airplane start
++
+     public void setOwner(@Nullable Entity entity) {
+         if (entity != null) {
+             this.ownerUUID = entity.getUUID();

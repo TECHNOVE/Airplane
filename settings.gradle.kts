@@ -1,21 +1,11 @@
-import xyz.jpenilla.toothpick.setupToothpickProject
-import java.util.Locale
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
 pluginManagement {
     repositories {
+        mavenLocal()
         gradlePluginPortal()
-        mavenCentral()
-        maven("https://repo.jpenilla.xyz/snapshots")
+        maven("https://papermc.io/repo/repository/maven-public/")
     }
 }
 
-plugins {
-    id("xyz.jpenilla.toothpick.settings") version "1.1.0-SNAPSHOT"
-}
+rootProject.name = "Airplane"
 
-val forkName = "Airplane"
-rootProject.name = forkName.toLowerCase(Locale.ROOT)
-setupToothpickProject(rootProject, forkName)
-
+include("Airplane-API", "Airplane-Server")

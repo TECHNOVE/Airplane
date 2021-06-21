@@ -1,0 +1,77 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Thu, 4 Feb 2021 23:28:46 -0600
+Subject: [PATCH] Cache palette array
+
+The reasoning for reusing it in ChunkRegionLoader is because ThreadLocal
+lookups are fairly expensive, and if we put it in DataPaletteBlock the
+ThreadLocal lookup would happen 18 times.
+
+Airplane
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+diff --git a/src/main/java/net/minecraft/world/level/chunk/PalettedContainer.java b/src/main/java/net/minecraft/world/level/chunk/PalettedContainer.java
+index 40471fffffb2767029f8b3ba7c63db60389a4797..71fff3b15c38a87ee6d2b2227324ff8dcf6adba8 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/PalettedContainer.java
++++ b/src/main/java/net/minecraft/world/level/chunk/PalettedContainer.java
+@@ -261,13 +261,17 @@ public class PalettedContainer<T> implements PaletteResize<T> {
+ 
+     }
+ 
++    // Airplane start - allow reusing int array
+     public synchronized void write(CompoundTag nbt, String paletteKey, String dataKey) { // Paper - synchronize
++        this.write(nbt, paletteKey, dataKey, new int[4096]);
++    }
++    public synchronized void write(CompoundTag nbt, String paletteKey, String dataKey, int[] is) { // Paper - synchronize // Airplane end
+         try {
+             this.acquire();
+             HashMapPalette<T> hashMapPalette = new HashMapPalette<>(this.registry, this.bits, this.dummyPaletteResize, this.reader, this.writer);
+             T object = this.defaultValue;
+             int i = hashMapPalette.idFor(this.defaultValue);
+-            int[] is = new int[4096];
++            //int[] is = new int[4096]; // Airplane
+ 
+             for(int j = 0; j < 4096; ++j) {
+                 T object2 = this.get(j);
+diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
+index 7fe7d98dfdf63c52ffccf4400077d9a9099555b8..b3f01ff402f3e65592a48af786973cb3647bec88 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
++++ b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
+@@ -485,6 +485,7 @@ public class ChunkSerializer {
+         return new AsyncSaveData(blockLight, skyLight, blockTickListSerialized, fluidTickListSerialized, blockEntitiesSerialized, world.getGameTime());
+     }
+ 
++    private static final ThreadLocal<int[]> paletteArray = ThreadLocal.withInitial(() -> new int[4096]); // Airplane
+     public static CompoundTag write(ServerLevel world, ChunkAccess chunk) {
+         return saveChunk(world, chunk, null);
+     }
+@@ -518,6 +519,7 @@ public class ChunkSerializer {
+         ThreadedLevelLightEngine lightenginethreaded = world.getChunkSource().getLightEngine();
+         boolean flag = chunk.isLightCorrect();
+ 
++        int[] is = paletteArray.get(); // Airplane - use cached
+         for (int i = lightenginethreaded.getMinLightSection(); i < lightenginethreaded.getMaxLightSection(); ++i) {
+             int finalI = i; // CraftBukkit - decompile errors
+             LevelChunkSection chunksection = (LevelChunkSection) Arrays.stream(achunksection).filter((chunksection1) -> {
+@@ -532,7 +534,7 @@ public class ChunkSerializer {
+ 
+                 nbttagcompound2.putByte("Y", (byte) (i & 255));
+                 if (chunksection != LevelChunk.EMPTY_SECTION) {
+-                    chunksection.getStates().write(nbttagcompound2, "Palette", "BlockStates");
++                    chunksection.getStates().write(nbttagcompound2, "Palette", "BlockStates", is); // Airplane - reuse array
+                 }
+ 
+                 // Tuinity start - replace light engine

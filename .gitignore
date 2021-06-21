@@ -4,6 +4,6 @@ Airplane-Server
 last-tuinity
 build/
 .gradle/
+run/
 
 launcher-airplane.jar
-mcdevimports.conf

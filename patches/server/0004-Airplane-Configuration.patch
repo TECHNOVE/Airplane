@@ -21,24 +21,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-diff --git a/pom.xml b/pom.xml
-index 6dc6469928051a2a38e8eba43aa237b0f21a502f..65c8a649cb0e4d2d8d1b1c21ec30405f60539b9f 100644
---- a/pom.xml
-+++ b/pom.xml
-@@ -193,6 +193,13 @@
-             <version>1.1.0-SNAPSHOT</version>
-             <scope>compile</scope>
-         </dependency>
-+        <!-- Airplane Config -->
-+        <dependency>
-+            <groupId>com.github.technove</groupId>
-+            <artifactId>AIR</artifactId>
-+            <version>fe3dbb4420</version>
-+            <scope>compile</scope>
-+        </dependency>
-     </dependencies>
+diff --git a/build.gradle.kts b/build.gradle.kts
+index ca3d32105883ed6f8d04940843a59321f70d08bb..fff3de537db208667b3fe907cf4dbeaf89385eb5 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -52,6 +52,8 @@ dependencies {
  
-     <!-- This builds a completely 'ready to start' jar with all dependencies inside -->
+     implementation("com.github.oshi:oshi-core:5.7.5") // Paper - fix startup delay and warning
+ 
++    implementation("com.github.technove:AIR:fe3dbb4420") // Airplane - config
++
+     testImplementation("io.github.classgraph:classgraph:4.8.47") // Paper - mob goal test
+     testImplementation("junit:junit:4.13.1")
+     testImplementation("org.hamcrest:hamcrest-library:1.3")
 diff --git a/src/main/java/gg/airplane/AirplaneCommand.java b/src/main/java/gg/airplane/AirplaneCommand.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..89c89e633f14b5820147e734b1b7ad8cadfdce80
@@ -183,15 +178,15 @@ index 0000000000000000000000000000000000000000..807cf274619b8f7be839e249cb62b981
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 3713a110a64fa686e785b9789c33dd09cacc2f48..0d27af452fc6a72646a4a168fc827fed5072fab9 100644
+index 8202e161149132530597a8222bf035f53814ffcf..1ba335f85e918f22a8e594b5a59406655069e50f 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -216,6 +216,8 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
+@@ -222,6 +222,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
          io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
          // Paper end
          com.tuinity.tuinity.config.TuinityConfig.init((java.io.File) options.valueOf("tuinity-settings")); // Tuinity - Server Config
 +        gg.airplane.AirplaneConfig.load(); // Airplane - config
 +        gg.airplane.commands.AirplaneCommands.init(); // Airplane - command
  
-         this.setPVP(dedicatedserverproperties.pvp);
-         this.setAllowFlight(dedicatedserverproperties.allowFlight);
+         this.setPvpAllowed(dedicatedserverproperties.pvp);
+         this.setFlightAllowed(dedicatedserverproperties.allowFlight);

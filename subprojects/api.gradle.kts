@@ -1,5 +1,0 @@
-repositories {
-}
-
-dependencies {
-}
