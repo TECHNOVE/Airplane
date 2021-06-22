@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Tue, 22 Jun 2021 15:08:21 -0500
+Subject: [PATCH] Remove streams and iterators from range check
+
+
+diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
+index 1430411a6f7ef3730d87c022774d7d623f2f415f..83f0e51554c122dab125f19356712498ea7a790c 100644
+--- a/src/main/java/net/minecraft/server/level/ChunkMap.java
++++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
+@@ -2363,8 +2363,28 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+             return ChunkMap.this.level.getServer().getScaledTrackingDistance(initialDistance);
+         }
+ 
++        private static int getHighestRange(Entity parent, int highest) {
++            List<Entity> passengers = parent.getPassengers();
++
++            for (int i = 0, size = passengers.size(); i < size; i++) {
++                Entity entity = passengers.get(i);
++                int range = entity.getType().clientTrackingRange() * 16;
++                range = org.spigotmc.TrackingRange.getEntityTrackingRange(entity, range); // Paper
++
++                if (range > highest) { // Paper - we need the lowest range thanks to the fact that our tracker doesn't account for passenger logic // Tuinity - not anymore!
++                    highest = range;
++                }
++
++                highest = getHighestRange(entity, highest);
++            }
++
++            return highest;
++        }
++
+         private int getEffectiveRange() {
+             int i = this.range;
++            // Airplane start - remove iterators and streams
++            /*
+             Iterator iterator = this.entity.getIndirectPassengers().iterator();
+ 
+             while (iterator.hasNext()) {
+@@ -2376,6 +2396,9 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+                     i = j;
+                 }
+             }
++             */
++            i = getHighestRange(this.entity, i);
++            // Airplane end
+ 
+             return this.scaledRange(i);
+         }

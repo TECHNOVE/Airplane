@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Tue, 22 Jun 2021 15:04:37 -0500
+Subject: [PATCH] Use thread unsafe random for mob spawning
+
+
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index eda0cbf0f1a419f3f655af80438e2e89eac60d3e..c388be088409a32bdaa37680c1fb2b911e91feae 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -893,7 +893,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+     }
+     // Paper start - optimise random block ticking
+     private final BlockPos.MutableBlockPos chunkTickMutablePosition = new BlockPos.MutableBlockPos();
+-    private final com.tuinity.tuinity.util.math.ThreadUnsafeRandom randomTickRandom = new com.tuinity.tuinity.util.math.ThreadUnsafeRandom();
++    private final com.tuinity.tuinity.util.math.ThreadUnsafeRandom randomTickRandom = new com.tuinity.tuinity.util.math.ThreadUnsafeRandom(); public java.util.Random getThreadUnsafeRandom() { return this.randomTickRandom; } // Airplane - getter
+     // Paper end
+ 
+     private int currentIceAndSnowTick = 0; protected void resetIceAndSnowTick() { this.currentIceAndSnowTick = this.randomTickRandom.nextInt(16); } // Airplane
+diff --git a/src/main/java/net/minecraft/world/level/NaturalSpawner.java b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
+index b2329de658df71ce03a6fe0c41c02997afdf868f..d6350952e45b90aff81f303849251fd82136cca6 100644
+--- a/src/main/java/net/minecraft/world/level/NaturalSpawner.java
++++ b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
+@@ -407,12 +407,12 @@ public final class NaturalSpawner {
+         return spawnGroup == MobCategory.MONSTER && world.getBlockState(pos.below()).is(Blocks.NETHER_BRICKS) && structureAccessor.getStructureAt(pos, false, StructureFeature.NETHER_BRIDGE).isValid() ? StructureFeature.NETHER_BRIDGE.getSpecialEnemies() : chunkGenerator.getMobsAt(biome != null ? biome : world.getBiome(pos), structureAccessor, spawnGroup, pos);
+     }
+ 
+-    private static BlockPos getRandomPosWithin(Level world, LevelChunk chunk) {
++    private static BlockPos getRandomPosWithin(ServerLevel world, LevelChunk chunk) { // Airplane - accept serverlevel
+         ChunkPos chunkcoordintpair = chunk.getPos();
+-        int i = chunkcoordintpair.getMinBlockX() + world.random.nextInt(16);
+-        int j = chunkcoordintpair.getMinBlockZ() + world.random.nextInt(16);
++        int i = chunkcoordintpair.getMinBlockX() + world.getThreadUnsafeRandom().nextInt(16); // Airplane - use thread unsafe random
++        int j = chunkcoordintpair.getMinBlockZ() + world.getThreadUnsafeRandom().nextInt(16); // Airplane
+         int k = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, i, j) + 1;
+-        int l = Mth.randomBetweenInclusive(world.random, world.getMinBuildHeight(), k);
++        int l = Mth.randomBetweenInclusive(world.getThreadUnsafeRandom(), world.getMinBuildHeight(), k); // Airplane
+ 
+         return new BlockPos(i, l, j);
+     }
