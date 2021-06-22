@@ -178,11 +178,11 @@ index 0000000000000000000000000000000000000000..807cf274619b8f7be839e249cb62b981
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 8202e161149132530597a8222bf035f53814ffcf..1ba335f85e918f22a8e594b5a59406655069e50f 100644
+index 9bb0ff063da162f2b5c91d367d9555c1cf1a3ab1..b737d50547c1b0e396facc6c2aa38201e208ed84 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -222,6 +222,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
-         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
+@@ -223,6 +223,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         io.papermc.paper.util.StacktraceDeobfuscator.INSTANCE.getClass(); // load mappings for stacktrace deobf
          // Paper end
          com.tuinity.tuinity.config.TuinityConfig.init((java.io.File) options.valueOf("tuinity-settings")); // Tuinity - Server Config
 +        gg.airplane.AirplaneConfig.load(); // Airplane - config

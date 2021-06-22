@@ -5,7 +5,7 @@ Subject: [PATCH] Cache world height in the chunk, as it's final
 
 
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index 3f05b88dc5cbe570f30d4f0162d03a35e769e8ec..37bd566053446fafadcfdee21ccf1fd019440842 100644
+index d93a364546613211d3b3a29ca22cc8d4b681520e..cfa5b93620a2eeca417b0a83054194e9b5e23610 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 @@ -184,11 +184,13 @@ public class LevelChunk implements ChunkAccess {
@@ -22,7 +22,7 @@ index 3f05b88dc5cbe570f30d4f0162d03a35e769e8ec..37bd566053446fafadcfdee21ccf1fd0
          // Tuinity start
          this.blockNibbles = StarLightEngine.getFilledEmptyLight(world);
          this.skyNibbles = StarLightEngine.getFilledEmptyLight(world);
-@@ -1301,13 +1303,17 @@ public class LevelChunk implements ChunkAccess {
+@@ -1303,13 +1305,17 @@ public class LevelChunk implements ChunkAccess {
      }
  
      @Override
