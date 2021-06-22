@@ -20,10 +20,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 494c7e86f217f74e57a29a9628f9cf4b81927453..ca3d32105883ed6f8d04940843a59321f70d08bb 100644
+index 91aaf3184c9d4441b0bed2bb72fe960dde2b2a40..1c5dac565ac5e26302a0bf0e23e1db24509a7268 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -18,7 +18,7 @@ repositories {
+@@ -30,7 +30,7 @@ repositories {
  }
  
  dependencies {
@@ -32,7 +32,7 @@ index 494c7e86f217f74e57a29a9628f9cf4b81927453..ca3d32105883ed6f8d04940843a59321
      implementation("com.destroystokyo.paper:paper-mojangapi:1.16.5-R0.1-SNAPSHOT") // Tuinity
      // Paper start
      implementation("org.jline:jline-terminal-jansi:3.12.1")
-@@ -66,7 +66,7 @@ tasks.jar {
+@@ -80,7 +80,7 @@ tasks.jar {
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
              "Implementation-Title" to "CraftBukkit",
@@ -92,7 +92,7 @@ index 5ae6a94542c1b6a5130567ab817360d8b2c2f33e..156c9975f6dcbbf4e069111ebec530d4
  
      public SystemReport fillSystemReport(SystemReport systemreport) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 0ab56f20699c6bd1c842fcb24f1496cfee3fc556..c7e039745b8429ce047812363a8fc70070b32010 100644
+index b653deffe99a240029965de2b11942de69ade85b..043828b7a6e8500926f8c2ce45d01ea4a9bb0e4c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -230,7 +230,7 @@ import javax.annotation.Nullable; // Paper
