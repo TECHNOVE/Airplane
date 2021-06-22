@@ -349,10 +349,10 @@ index 0000000000000000000000000000000000000000..ddc90f1589e683f452c5a74d9d240880
 +}
 diff --git a/src/main/java/gg/airplane/flare/FlareSetup.java b/src/main/java/gg/airplane/flare/FlareSetup.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..27ac32779e700494aeca8b425edb2871d3ec29cc
+index 0000000000000000000000000000000000000000..ff5498a443c99f3c5969b2a4282339521f66d067
 --- /dev/null
 +++ b/src/main/java/gg/airplane/flare/FlareSetup.java
-@@ -0,0 +1,146 @@
+@@ -0,0 +1,150 @@
 +package gg.airplane.flare;
 +
 +import com.google.common.cache.Cache;
@@ -392,7 +392,10 @@ index 0000000000000000000000000000000000000000..27ac32779e700494aeca8b425edb2871
 +                        return null;
 +                    }
 +
-+                    String className = name.substring(0, name.lastIndexOf("."));
++                    String className = name;
++                    if (className.contains("$")) {
++                        className = className.substring(0, className.indexOf("$"));
++                    }
 +                    String existing = pluginNameCache.getIfPresent(name);
 +                    if (existing != null) {
 +                        return existing.isEmpty() ? null : existing;
@@ -414,6 +417,7 @@ index 0000000000000000000000000000000000000000..27ac32779e700494aeca8b425edb2871
 +                    }
 +
 +                    pluginNameCache.put(name, newValue);
++                    return newValue.isEmpty() ? null : newValue;
 +                }
 +                return null;
 +            }
