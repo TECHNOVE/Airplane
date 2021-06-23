@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/pom.xml b/pom.xml
-index 65c8a649cb0e4d2d8d1b1c21ec30405f60539b9f..1b53251ca9615da99fa515453241901607f47ffc 100644
+index 65c8a649cb0e4d2d8d1b1c21ec30405f60539b9f..9b14a752ea1db9ad1b47aaea67fb62df8383f4c9 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -200,6 +200,13 @@
@@ -31,7 +31,7 @@ index 65c8a649cb0e4d2d8d1b1c21ec30405f60539b9f..1b53251ca9615da99fa5154532419016
 +        <dependency>
 +            <groupId>com.github.technove</groupId>
 +            <artifactId>Flare</artifactId>
-+            <version>local-SNAPSHOT</version>
++            <version>v3-SNAPSHOT</version>
 +            <scope>compile</scope>
 +        </dependency>
      </dependencies>
