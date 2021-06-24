@@ -24,10 +24,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/world/level/chunk/PalettedContainer.java b/src/main/java/net/minecraft/world/level/chunk/PalettedContainer.java
-index 40471fffffb2767029f8b3ba7c63db60389a4797..71fff3b15c38a87ee6d2b2227324ff8dcf6adba8 100644
+index ebeb3e3b0619b034a9681da999e9ac33cc241718..5b5ada474cff54b424946fc628d30f25a6774684 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/PalettedContainer.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/PalettedContainer.java
-@@ -261,13 +261,17 @@ public class PalettedContainer<T> implements PaletteResize<T> {
+@@ -263,13 +263,17 @@ public class PalettedContainer<T> implements PaletteResize<T> {
  
      }
  
@@ -47,7 +47,7 @@ index 40471fffffb2767029f8b3ba7c63db60389a4797..71fff3b15c38a87ee6d2b2227324ff8d
              for(int j = 0; j < 4096; ++j) {
                  T object2 = this.get(j);
 diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
-index 7fe7d98dfdf63c52ffccf4400077d9a9099555b8..b3f01ff402f3e65592a48af786973cb3647bec88 100644
+index 917fa5a3106259c01d6a01acf770890dbdf50f1a..b9d5785a5feccd905828e7f82264c3cb48c3c773 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 @@ -485,6 +485,7 @@ public class ChunkSerializer {
