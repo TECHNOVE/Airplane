@@ -44,12 +44,12 @@ subprojects {
 paperweight {
     serverProject.set(project(":Airplane-Server"))
 
-    useStandardUpstream("tuinity") {
-        url.set(github("Tuinity", "Tuinity"))
-        ref.set(providers.gradleProperty("tuinityRef"))
+    useStandardUpstream("purpur") {
+        url.set(github("PaulBGD", "Purpur"))
+        ref.set(providers.gradleProperty("purpurRef"))
 
         withStandardPatcher {
-            baseName("Tuinity")
+            baseName("Purpur")
 
             apiOutputDir.set(layout.projectDirectory.dir("Airplane-API"))
             serverOutputDir.set(layout.projectDirectory.dir("Airplane-Server"))

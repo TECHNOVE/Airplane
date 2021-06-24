@@ -20,12 +20,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
-index 69f439851fe1ff07d827eaed274940a5783d5f6c..3edd5ff6d854dd4fde0f509d91a9e020589edcda 100644
+index 24a95bbee394dae1a3eac937990cae10a287a40b..7b10264aa1141691eaa7d7af2b093c020b6a3fa4 100644
 --- a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
 +++ b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
-@@ -42,6 +42,37 @@ public abstract class Projectile extends Entity {
-         super(type, world);
-     }
+@@ -56,6 +56,37 @@ public abstract class Projectile extends Entity {
+     protected abstract int getPurpurDespawnRate();
+     // Purpur end
  
 +    // Airplane start
 +    private static int loadedThisTick = 0;
