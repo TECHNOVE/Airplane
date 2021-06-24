@@ -45,7 +45,7 @@ paperweight {
     serverProject.set(project(":Airplane-Server"))
 
     useStandardUpstream("purpur") {
-        url.set(github("PaulBGD", "Purpur"))
+        url.set(github("pl3xgaming", "Purpur"))
         ref.set(providers.gradleProperty("purpurRef"))
 
         withStandardPatcher {
