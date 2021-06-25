@@ -565,10 +565,10 @@ index 0000000000000000000000000000000000000000..6d5e442824de2d71160be49e36f0605a
 +}
 diff --git a/src/main/java/gg/airplane/flare/collectors/TPSCollector.java b/src/main/java/gg/airplane/flare/collectors/TPSCollector.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ad67b2ce02bc47817fa33b49f97446e9daa282dd
+index 0000000000000000000000000000000000000000..c60ce5a53c05e28afae5f9fadbab0a3612d97cc3
 --- /dev/null
 +++ b/src/main/java/gg/airplane/flare/collectors/TPSCollector.java
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,31 @@
 +package gg.airplane.flare.collectors;
 +
 +import gg.airplane.flare.CustomCategories;
@@ -578,6 +578,7 @@ index 0000000000000000000000000000000000000000..ad67b2ce02bc47817fa33b49f97446e9
 +import net.minecraft.server.MinecraftServer;
 +import org.bukkit.Bukkit;
 +
++import java.time.Duration;
 +import java.util.Arrays;
 +
 +public class TPSCollector extends LiveCollector {
@@ -586,6 +587,8 @@ index 0000000000000000000000000000000000000000..ad67b2ce02bc47817fa33b49f97446e9
 +
 +    public TPSCollector() {
 +        super(TPS, MSPT);
++
++        this.interval = Duration.ofSeconds(3);
 +    }
 +
 +    @Override
@@ -599,10 +602,10 @@ index 0000000000000000000000000000000000000000..ad67b2ce02bc47817fa33b49f97446e9
 +}
 diff --git a/src/main/java/gg/airplane/flare/collectors/WorldCountCollector.java b/src/main/java/gg/airplane/flare/collectors/WorldCountCollector.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..5371346acc1639c921791b984a75381daa772a0d
+index 0000000000000000000000000000000000000000..bbc7fc110570310e2b72eae1dcdadbc3dcbf7b04
 --- /dev/null
 +++ b/src/main/java/gg/airplane/flare/collectors/WorldCountCollector.java
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,44 @@
 +package gg.airplane.flare.collectors;
 +
 +import gg.airplane.flare.CustomCategories;
@@ -611,6 +614,8 @@ index 0000000000000000000000000000000000000000..5371346acc1639c921791b984a75381d
 +import gg.airplane.flare.live.formatter.SuffixFormatter;
 +import org.bukkit.Bukkit;
 +import org.bukkit.World;
++
++import java.time.Duration;
 +
 +public class WorldCountCollector extends LiveCollector {
 +
@@ -621,6 +626,8 @@ index 0000000000000000000000000000000000000000..5371346acc1639c921791b984a75381d
 +
 +    public WorldCountCollector() {
 +        super(PLAYER_COUNT, ENTITY_COUNT, CHUNK_COUNT, TILE_ENTITY_COUNT);
++
++        this.interval = Duration.ofSeconds(5);
 +    }
 +
 +    @Override
