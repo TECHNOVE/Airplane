@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/pom.xml b/pom.xml
-index 65c8a649cb0e4d2d8d1b1c21ec30405f60539b9f..efa2ea6b8422f900643eb2f0f65cf067c034cea3 100644
+index 65c8a649cb0e4d2d8d1b1c21ec30405f60539b9f..9b14a752ea1db9ad1b47aaea67fb62df8383f4c9 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -200,6 +200,13 @@
@@ -31,7 +31,7 @@ index 65c8a649cb0e4d2d8d1b1c21ec30405f60539b9f..efa2ea6b8422f900643eb2f0f65cf067
 +        <dependency>
 +            <groupId>com.github.technove</groupId>
 +            <artifactId>Flare</artifactId>
-+            <version>master-SNAPSHOT</version>
++            <version>v3-SNAPSHOT</version>
 +            <scope>compile</scope>
 +        </dependency>
      </dependencies>
@@ -111,10 +111,10 @@ index 807cf274619b8f7be839e249cb62b9817876ca04..66b20250a26d005427601b1cdee43bdd
  }
 diff --git a/src/main/java/gg/airplane/compat/ServerConfigurations.java b/src/main/java/gg/airplane/compat/ServerConfigurations.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..f4976428bc721319d2926e97cbe0f64c6e9e503c
+index 0000000000000000000000000000000000000000..8f85a7d3fde1d22e2510327b2b7c9e965ba3fee8
 --- /dev/null
 +++ b/src/main/java/gg/airplane/compat/ServerConfigurations.java
-@@ -0,0 +1,77 @@
+@@ -0,0 +1,87 @@
 +package gg.airplane.compat;
 +
 +import co.aikar.timings.TimingsManager;
@@ -128,7 +128,9 @@ index 0000000000000000000000000000000000000000..f4976428bc721319d2926e97cbe0f64c
 +import java.io.IOException;
 +import java.nio.charset.StandardCharsets;
 +import java.util.Arrays;
++import java.util.HashMap;
 +import java.util.List;
++import java.util.Map;
 +import java.util.Properties;
 +import java.util.stream.Collectors;
 +
@@ -142,6 +144,14 @@ index 0000000000000000000000000000000000000000..f4976428bc721319d2926e97cbe0f64c
 +      "tuinity.yml",
 +      "airplane.air"
 +    };
++
++    public static Map<String, String> getCleanCopies() throws IOException {
++        Map<String, String> files = new HashMap<>(configurationFiles.length);
++        for (String file : configurationFiles) {
++            files.put(file, getCleanCopy(file));
++        }
++        return files;
++    }
 +
 +    public static String getCleanCopy(String configName) throws IOException {
 +        File file = new File(configName);
@@ -192,18 +202,32 @@ index 0000000000000000000000000000000000000000..f4976428bc721319d2926e97cbe0f64c
 +    }
 +
 +}
-diff --git a/src/main/java/gg/airplane/flare/FlareCommand.java b/src/main/java/gg/airplane/flare/FlareCommand.java
+diff --git a/src/main/java/gg/airplane/flare/CustomCategories.java b/src/main/java/gg/airplane/flare/CustomCategories.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ddc90f1589e683f452c5a74d9d2408803edea029
+index 0000000000000000000000000000000000000000..cf5b8da28dbae29f3050ba3c27a6012db604532a
 --- /dev/null
-+++ b/src/main/java/gg/airplane/flare/FlareCommand.java
-@@ -0,0 +1,149 @@
++++ b/src/main/java/gg/airplane/flare/CustomCategories.java
+@@ -0,0 +1,8 @@
 +package gg.airplane.flare;
 +
-+import com.google.common.collect.ImmutableList;
++import gg.airplane.flare.live.category.GraphCategory;
++
++public class CustomCategories {
++    public static final GraphCategory MC_PERF = new GraphCategory("MC Performance");
++    public static final GraphCategory ENTITIES_AND_CHUNKS = new GraphCategory("Entities & Chunks");
++}
+diff --git a/src/main/java/gg/airplane/flare/FlareCommand.java b/src/main/java/gg/airplane/flare/FlareCommand.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..295b10a936d616cacbf33064e8a384fc3ac1a423
+--- /dev/null
++++ b/src/main/java/gg/airplane/flare/FlareCommand.java
+@@ -0,0 +1,147 @@
++package gg.airplane.flare;
++
 +import gg.airplane.AirplaneConfig;
 +import gg.airplane.flare.exceptions.UserReportableException;
 +import gg.airplane.flare.profiling.AsyncProfilerIntegration;
++import gg.airplane.flare.profiling.ProfileType;
 +import net.kyori.adventure.text.Component;
 +import net.kyori.adventure.text.event.ClickEvent;
 +import net.kyori.adventure.text.format.NamedTextColor;
@@ -215,7 +239,9 @@ index 0000000000000000000000000000000000000000..ddc90f1589e683f452c5a74d9d240880
 +import org.bukkit.command.ConsoleCommandSender;
 +import org.bukkit.craftbukkit.scheduler.MinecraftInternalPlugin;
 +import org.bukkit.util.StringUtil;
++import org.jetbrains.annotations.NotNull;
 +
++import java.time.Duration;
 +import java.util.ArrayList;
 +import java.util.Collections;
 +import java.util.List;
@@ -238,7 +264,7 @@ index 0000000000000000000000000000000000000000..ddc90f1589e683f452c5a74d9d240880
 +    }
 +
 +    @Override
-+    public boolean execute(CommandSender sender, String commandLabel, String[] args) {
++    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, String @NotNull [] args) {
 +        if (!testPermission(sender)) return true;
 +        if (AirplaneConfig.accessToken.length() == 0) {
 +            Component clickable = Component.text(BASE_URL, HEX, TextDecoration.UNDERLINED).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, BASE_URL));
@@ -247,9 +273,9 @@ index 0000000000000000000000000000000000000000..ddc90f1589e683f452c5a74d9d240880
 +            return true;
 +        }
 +
-+        if (AsyncProfilerIntegration.doesNotSupportProfiling()) {
++        if (!FlareSetup.isSupported()) {
 +            sender.sendMessage(PREFIX.append(
-+              Component.text("Profiling is not supported in this environment, reason: " + AsyncProfilerIntegration.getDisabledReason(), NamedTextColor.RED)));
++              Component.text("Profiling is not supported in this environment, check your startup logs for the error.", NamedTextColor.RED)));
 +            return true;
 +        }
 +        if (ProfilingManager.isProfiling()) {
@@ -265,7 +291,7 @@ index 0000000000000000000000000000000000000000..ddc90f1589e683f452c5a74d9d240880
 +                sender.sendMessage(PREFIX.append(Component.text("Profiling has already been stopped.", HEX)));
 +            }
 +        } else {
-+            ProfileType profileType = null;
++            ProfileType profileType = ProfileType.ITIMER;
 +            if (args.length > 0) {
 +                try {
 +                    profileType = ProfileType.valueOf(args[0].toUpperCase());
@@ -294,18 +320,18 @@ index 0000000000000000000000000000000000000000..ddc90f1589e683f452c5a74d9d240880
 +            ProfileType finalProfileType = profileType;
 +            Bukkit.getScheduler().runTaskAsynchronously(new MinecraftInternalPlugin(), () -> {
 +                try {
-+                    if (ProfilingManager.start(finalProfileType, finalInterval)) {
++                    if (ProfilingManager.start(new ProfilingSettings(finalProfileType, Duration.ofMillis(finalInterval)))) {
 +                        if (!(sender instanceof ConsoleCommandSender)) {
 +                            sender.sendMessage(PREFIX.append(Component
-+                              .text("Flare has been started: " + ProfilingManager.getProfilingUrl().get(), HEX)
-+                              .clickEvent(ClickEvent.openUrl(ProfilingManager.getProfilingUrl().get()))
++                              .text("Flare has been started: " + ProfilingManager.getProfilingUrl(), HEX)
++                              .clickEvent(ClickEvent.openUrl(ProfilingManager.getProfilingUrl()))
 +                            ));
 +                            sender.sendMessage(PREFIX.append(Component.text("  Run /" + commandLabel + " to stop the Flare.", HEX)));
 +                        }
 +                    } else {
 +                        sender.sendMessage(PREFIX.append(Component
-+                          .text("Flare has already been started: " + ProfilingManager.getProfilingUrl().get(), HEX)
-+                          .clickEvent(ClickEvent.openUrl(ProfilingManager.getProfilingUrl().get()))
++                          .text("Flare has already been started: " + ProfilingManager.getProfilingUrl(), HEX)
++                          .clickEvent(ClickEvent.openUrl(ProfilingManager.getProfilingUrl()))
 +                        ));
 +                    }
 +                } catch (UserReportableException e) {
@@ -318,13 +344,9 @@ index 0000000000000000000000000000000000000000..ddc90f1589e683f452c5a74d9d240880
 +    }
 +
 +    @Override
-+    public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
-+        if (AsyncProfilerIntegration.doesNotSupportProfiling()) {
-+            return ImmutableList.of();
-+        }
-+
++    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, String @NotNull [] args) throws IllegalArgumentException {
 +        List<String> list = new ArrayList<>();
-+        if (AsyncProfilerIntegration.isProfiling()) {
++        if (ProfilingManager.isProfiling()) {
 +            if (args.length == 1) {
 +                String lastWord = args[0];
 +                if (StringUtil.startsWithIgnoreCase("status", lastWord)) {
@@ -349,206 +371,168 @@ index 0000000000000000000000000000000000000000..ddc90f1589e683f452c5a74d9d240880
 +}
 diff --git a/src/main/java/gg/airplane/flare/FlareSetup.java b/src/main/java/gg/airplane/flare/FlareSetup.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ff5498a443c99f3c5969b2a4282339521f66d067
+index 0000000000000000000000000000000000000000..cd1998569b702a67d5d15b033b6bdda6d9cdcfe6
 --- /dev/null
 +++ b/src/main/java/gg/airplane/flare/FlareSetup.java
-@@ -0,0 +1,150 @@
+@@ -0,0 +1,32 @@
++package gg.airplane.flare;
++
++import gg.airplane.flare.profiling.InitializationException;
++import net.minecraft.server.MinecraftServer;
++import org.apache.logging.log4j.Level;
++
++public class FlareSetup {
++
++    private static boolean initialized = false;
++    private static boolean supported = false;
++
++    public static void init() {
++        if (initialized) {
++            return;
++        }
++
++        initialized = true;
++        try {
++            for (String warning : Flare.initialize()) {
++                MinecraftServer.LOGGER.log(Level.WARN, "Flare warning: " + warning);
++            }
++            supported = true;
++        } catch (InitializationException e) {
++            MinecraftServer.LOGGER.log(Level.WARN, "Failed to enable Flare:", e);
++        }
++    }
++
++    public static boolean isSupported() {
++        return supported;
++    }
++
++}
+diff --git a/src/main/java/gg/airplane/flare/PluginLookup.java b/src/main/java/gg/airplane/flare/PluginLookup.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..22368976212ac6638a31e81d22c322a53c94d276
+--- /dev/null
++++ b/src/main/java/gg/airplane/flare/PluginLookup.java
+@@ -0,0 +1,44 @@
 +package gg.airplane.flare;
 +
 +import com.google.common.cache.Cache;
 +import com.google.common.cache.CacheBuilder;
-+import gg.airplane.AirplaneConfig;
-+import gg.airplane.AirplaneLogger;
-+import gg.airplane.compat.ServerConfigurations;
-+import gg.airplane.flare.profiling.AsyncProfilerIntegration;
-+import net.minecraft.server.MinecraftServer;
 +import org.bukkit.Bukkit;
-+import org.bukkit.craftbukkit.scheduler.MinecraftInternalPlugin;
 +import org.bukkit.plugin.Plugin;
 +import org.bukkit.plugin.java.PluginClassLoader;
-+import org.bukkit.scheduler.BukkitTask;
 +
-+import java.io.IOException;
-+import java.util.HashMap;
-+import java.util.LinkedHashMap;
-+import java.util.Map;
++import java.util.Optional;
 +import java.util.concurrent.TimeUnit;
-+import java.util.logging.Level;
 +
-+public class FlareSetup {
++public class PluginLookup {
++    private static final Cache<String, String> pluginNameCache = CacheBuilder.newBuilder()
++      .expireAfterAccess(1, TimeUnit.MINUTES)
++      .maximumSize(1024)
++      .build();
 +
-+    public static void init() {
-+        ServerConnector.connector = new ServerConnector() {
++    public static Optional<String> getPluginForClass(String name) {
++        if (name.startsWith("net.minecraft") || name.startsWith("java.") || name.startsWith("com.mojang") ||
++          name.startsWith("com.google") || name.startsWith("it.unimi") || name.startsWith("sun")) {
++            return Optional.empty();
++        }
 +
-+            private final Cache<String, String> pluginNameCache = CacheBuilder.newBuilder()
-+              .expireAfterAccess(1, TimeUnit.MINUTES)
-+              .maximumSize(1024)
-+              .build();
++        String existing = pluginNameCache.getIfPresent(name);
++        if (existing != null) {
++            return Optional.ofNullable(existing.isEmpty() ? null : existing);
++        }
 +
-+            @Override
-+            public String getPluginForClass(String name) {
-+                if (name.contains(".") && name.charAt(0) != '/') {
-+                    if (name.startsWith("net.minecraft") || name.startsWith("java.") || name.startsWith("com.mojang") || name.startsWith("com.google") || name.startsWith("it.unimi") || name.startsWith("sun")) {
-+                        return null;
-+                    }
++        String newValue = "";
 +
-+                    String className = name;
-+                    if (className.contains("$")) {
-+                        className = className.substring(0, className.indexOf("$"));
-+                    }
-+                    String existing = pluginNameCache.getIfPresent(name);
-+                    if (existing != null) {
-+                        return existing.isEmpty() ? null : existing;
-+                    }
-+
-+                    String newValue = "";
-+
-+                    for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-+                        ClassLoader classLoader = plugin.getClass().getClassLoader();
-+                        if (classLoader instanceof PluginClassLoader) {
-+                            try {
-+                                Class<?> aClass = ((PluginClassLoader) classLoader)._airplane_findClass(className);
-+                                if (aClass != null) {
-+                                    newValue = plugin.getName();
-+                                }
-+                            } catch (ClassNotFoundException | IllegalAccessError e) {
-+                            }
-+                        }
-+                    }
-+
-+                    pluginNameCache.put(name, newValue);
-+                    return newValue.isEmpty() ? null : newValue;
++        for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
++            ClassLoader classLoader = plugin.getClass().getClassLoader();
++            if (classLoader instanceof PluginClassLoader) {
++                if (((PluginClassLoader) classLoader)._airplane_hasClass(name)) {
++                    newValue = plugin.getName();
++                    break;
 +                }
-+                return null;
 +            }
++        }
 +
-+            @Override
-+            public Thread getMainThread() {
-+                return MinecraftServer.getServer().serverThread;
-+            }
-+
-+            @Override
-+            public Map<String, String> getConfigurations() {
-+                Map<String, String> map = new LinkedHashMap<>();
-+                for (String configurationFile : ServerConfigurations.configurationFiles) {
-+                    try {
-+                        map.put(configurationFile, ServerConfigurations.getCleanCopy(configurationFile));
-+                    } catch (IOException e) {
-+                        this.log(Level.WARNING, "Failed to load config file " + configurationFile, e);
-+                    }
-+                }
-+                return map;
-+            }
-+
-+            @Override
-+            public void log(Level level, String s) {
-+                AirplaneLogger.LOGGER.log(level, s);
-+            }
-+
-+            @Override
-+            public void log(Level level, String s, Throwable throwable) {
-+                AirplaneLogger.LOGGER.log(level, s, throwable);
-+            }
-+
-+            @Override
-+            public String getPrimaryVersion() {
-+                return Bukkit.getVersion();
-+            }
-+
-+            @Override
-+            public String getApiVersion() {
-+                return "bukkit:" + Bukkit.getBukkitVersion();
-+            }
-+
-+            @Override
-+            public String getMcVersion() {
-+                return Bukkit.getMinecraftVersion();
-+            }
-+
-+            private final Map<Runnable, BukkitTask> scheduledRunnables = new HashMap<>();
-+
-+            @Override
-+            public void schedule(Runnable runnable, long l, long l1) {
-+                BukkitTask task = Bukkit.getScheduler().runTaskTimer(new MinecraftInternalPlugin(), runnable, l, l1);
-+                this.scheduledRunnables.put(runnable, task);
-+            }
-+
-+            @Override
-+            public void scheduleAsync(Runnable runnable, long l, long l1) {
-+                BukkitTask task = Bukkit.getScheduler().runTaskTimerAsynchronously(new MinecraftInternalPlugin(), runnable, l, l1);
-+                this.scheduledRunnables.put(runnable, task);
-+            }
-+
-+            @Override
-+            public void cancel(Runnable runnable) {
-+                this.scheduledRunnables.get(runnable).cancel();
-+            }
-+
-+            @Override
-+            public void runAsync(Runnable runnable) {
-+                Bukkit.getScheduler().runTaskAsynchronously(new MinecraftInternalPlugin(), runnable);
-+            }
-+
-+            @Override
-+            public String getWebUrl() {
-+                return AirplaneConfig.profileWebUrl;
-+            }
-+
-+            @Override
-+            public String getToken() {
-+                return AirplaneConfig.accessToken;
-+            }
-+        };
-+        AsyncProfilerIntegration.init();
++        pluginNameCache.put(name, newValue);
++        return Optional.ofNullable(newValue.isEmpty() ? null : newValue);
 +    }
-+
 +}
 diff --git a/src/main/java/gg/airplane/flare/ProfilingManager.java b/src/main/java/gg/airplane/flare/ProfilingManager.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..68a9b09d6251accb31e5a44ed3132098b1960638
+index 0000000000000000000000000000000000000000..6d5e442824de2d71160be49e36f0605a216f247d
 --- /dev/null
 +++ b/src/main/java/gg/airplane/flare/ProfilingManager.java
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,100 @@
 +package gg.airplane.flare;
 +
++import com.google.common.collect.ImmutableList;
++import com.google.common.collect.ImmutableMap;
++import com.google.common.collect.ImmutableSet;
 +import gg.airplane.AirplaneConfig;
 +import gg.airplane.AirplaneLogger;
++import gg.airplane.compat.ServerConfigurations;
++import gg.airplane.flare.collectors.TPSCollector;
++import gg.airplane.flare.collectors.WorldCountCollector;
 +import gg.airplane.flare.exceptions.UserReportableException;
-+import gg.airplane.flare.profiling.ProfileController;
 +import org.bukkit.Bukkit;
 +import org.bukkit.craftbukkit.scheduler.MinecraftInternalPlugin;
 +import org.bukkit.scheduler.BukkitTask;
 +
-+import javax.annotation.Nullable;
-+import java.util.Optional;
++import java.io.IOException;
++import java.util.Objects;
 +import java.util.logging.Level;
 +
 +public class ProfilingManager {
 +
-+    private static ProfileController currentController;
++    private static Flare currentFlare;
 +    private static BukkitTask currentTask = null;
 +
 +    public static synchronized boolean isProfiling() {
-+        return currentController != null;
++        return currentFlare != null;
 +    }
 +
-+    public static synchronized Optional<String> getProfilingUrl() {
-+        if (!isProfiling()) {
-+            return Optional.empty();
++    public static synchronized String getProfilingUrl() {
++        return Objects.requireNonNull(currentFlare).getURL().orElse("Flare is not running");
++    }
++
++    public static synchronized boolean start(ProfilingSettings settings) throws UserReportableException {
++        if (currentFlare != null && currentFlare.isRan()) {
++            currentFlare = null; // errored out
 +        }
-+        return Optional.of(AirplaneConfig.profileWebUrl + "/" + currentController.getId());
-+    }
-+
-+    public static synchronized boolean start(@Nullable ProfileType type, int interval) throws UserReportableException {
 +        if (isProfiling()) {
 +            return false;
 +        }
 +        if (Bukkit.isPrimaryThread()) {
 +            throw new UserReportableException("Profiles should be started off-thread");
 +        }
-+        currentController = new ProfileController(type == null ? ProfileType.WALL : type, Math.max(interval, 1)); // don't allow lower than 20ms: https://bugzilla.redhat.com/show_bug.cgi?id=645528
++
++        try {
++            currentFlare = new Flare(
++              settings,
++              new ServerData(ServerConfigurations.getCleanCopies(), ImmutableMap.of(
++                "Primary Version", Bukkit.getVersion(),
++                "Bukkit Version", Bukkit.getBukkitVersion(),
++                "Minecraft Version", Bukkit.getMinecraftVersion()
++              )),
++              new FlareAuth(AirplaneConfig.accessToken, AirplaneConfig.profileWebUrl),
++              ImmutableList.of(new TPSCollector(), new WorldCountCollector()),
++              PluginLookup::getPluginForClass,
++              ImmutableSet.of(CustomCategories.MC_PERF, CustomCategories.ENTITIES_AND_CHUNKS)
++            );
++        } catch (IOException e) {
++            AirplaneLogger.LOGGER.log(Level.WARNING, "Failed to read configuration files:", e);
++            throw new UserReportableException("Failed to load configuration files, check logs for further details.");
++        }
++
++        try {
++            currentFlare.start();
++        } catch (IllegalStateException e) {
++            AirplaneLogger.LOGGER.log(Level.WARNING, "Error starting Flare:", e);
++            throw new UserReportableException("Failed to start Flare, check logs for further details.");
++        }
++
 +        currentTask = Bukkit.getScheduler().runTaskLater(new MinecraftInternalPlugin(), ProfilingManager::stop, 20 * 60 * 15);
-+        AirplaneLogger.LOGGER.log(Level.INFO, "Flare has been started: " + getProfilingUrl().orElse("An error occurred retrieving the Flare URL."));
++        AirplaneLogger.LOGGER.log(Level.INFO, "Flare has been started: " + getProfilingUrl());
 +        return true;
 +    }
 +
@@ -556,13 +540,17 @@ index 0000000000000000000000000000000000000000..68a9b09d6251accb31e5a44ed3132098
 +        if (!isProfiling()) {
 +            return false;
 +        }
-+        AirplaneLogger.LOGGER.log(Level.INFO, "Flare has been stopped: " + getProfilingUrl().orElse("An error occurred retrieving the Flare URL."));
-+        try {
-+            currentController.cancel();
-+        } catch (Throwable t) {
-+            AirplaneLogger.LOGGER.log(Level.WARNING, "Error occurred stopping Flare", t);
++        if (currentFlare.isRan()) {
++            currentFlare = null;
++            return true;
 +        }
-+        currentController = null;
++        AirplaneLogger.LOGGER.log(Level.INFO, "Flare has been stopped: " + getProfilingUrl());
++        try {
++            currentFlare.stop();
++        } catch (IllegalStateException e) {
++            AirplaneLogger.LOGGER.log(Level.WARNING, "Error occurred stopping Flare", e);
++        }
++        currentFlare = null;
 +
 +        try {
 +            currentTask.cancel();
@@ -574,6 +562,93 @@ index 0000000000000000000000000000000000000000..68a9b09d6251accb31e5a44ed3132098
 +        return true;
 +    }
 +
++}
+diff --git a/src/main/java/gg/airplane/flare/collectors/TPSCollector.java b/src/main/java/gg/airplane/flare/collectors/TPSCollector.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c60ce5a53c05e28afae5f9fadbab0a3612d97cc3
+--- /dev/null
++++ b/src/main/java/gg/airplane/flare/collectors/TPSCollector.java
+@@ -0,0 +1,31 @@
++package gg.airplane.flare.collectors;
++
++import gg.airplane.flare.CustomCategories;
++import gg.airplane.flare.live.CollectorData;
++import gg.airplane.flare.live.LiveCollector;
++import gg.airplane.flare.live.formatter.SuffixFormatter;
++import net.minecraft.server.MinecraftServer;
++import org.bukkit.Bukkit;
++
++import java.time.Duration;
++import java.util.Arrays;
++
++public class TPSCollector extends LiveCollector {
++    private static final CollectorData TPS = new CollectorData("airplane:tps", "TPS", "Ticks per second, or how fast the server updates. For a smooth server this should be a constant 20TPS.", SuffixFormatter.of("TPS"), CustomCategories.MC_PERF);
++    private static final CollectorData MSPT = new CollectorData("airplane:mspt", "MSPT", "Milliseconds per tick, which can show how well your server is performing. This value should always be under 50mspt.", SuffixFormatter.of("mspt"), CustomCategories.MC_PERF);
++
++    public TPSCollector() {
++        super(TPS, MSPT);
++
++        this.interval = Duration.ofSeconds(3);
++    }
++
++    @Override
++    public void run() {
++        long[] times = MinecraftServer.getServer().tickTimes5s.getTimes();
++        double mspt = ((double) Arrays.stream(times).sum() / (double) times.length) * 1.0E-6D;
++
++        this.report(TPS, Math.min(20D, Math.round(Bukkit.getServer().getTPS()[0] * 100d) / 100d));
++        this.report(MSPT, (double) Math.round(mspt * 100d) / 100d);
++    }
++}
+diff --git a/src/main/java/gg/airplane/flare/collectors/WorldCountCollector.java b/src/main/java/gg/airplane/flare/collectors/WorldCountCollector.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..bbc7fc110570310e2b72eae1dcdadbc3dcbf7b04
+--- /dev/null
++++ b/src/main/java/gg/airplane/flare/collectors/WorldCountCollector.java
+@@ -0,0 +1,44 @@
++package gg.airplane.flare.collectors;
++
++import gg.airplane.flare.CustomCategories;
++import gg.airplane.flare.live.CollectorData;
++import gg.airplane.flare.live.LiveCollector;
++import gg.airplane.flare.live.formatter.SuffixFormatter;
++import org.bukkit.Bukkit;
++import org.bukkit.World;
++
++import java.time.Duration;
++
++public class WorldCountCollector extends LiveCollector {
++
++    private static final CollectorData PLAYER_COUNT = new CollectorData("airplane:world:playercount", "Player Count", "The number of players currently on the server.", new SuffixFormatter(" Player", " Players"), CustomCategories.ENTITIES_AND_CHUNKS);
++    private static final CollectorData ENTITY_COUNT = new CollectorData("airplane:world:entitycount", "Entity Count", "The number of entities in all worlds", new SuffixFormatter(" Entity", " Entities"), CustomCategories.ENTITIES_AND_CHUNKS);
++    private static final CollectorData CHUNK_COUNT = new CollectorData("airplane:world:chunkcount", "Chunk Count", "The number of chunks currently loaded.", new SuffixFormatter(" Chunk", " Chunks"), CustomCategories.ENTITIES_AND_CHUNKS);
++    private static final CollectorData TILE_ENTITY_COUNT = new CollectorData("airplane:world:blockentitycount", "Block Entity Count", "The number of block entities currently loaded.", new SuffixFormatter(" Block Entity", " Block Entities"), CustomCategories.ENTITIES_AND_CHUNKS);
++
++    public WorldCountCollector() {
++        super(PLAYER_COUNT, ENTITY_COUNT, CHUNK_COUNT, TILE_ENTITY_COUNT);
++
++        this.interval = Duration.ofSeconds(5);
++    }
++
++    @Override
++    public void run() {
++        int entities = 0;
++        int chunkCount = 0;
++        int tileEntityCount = 0;
++
++        if (!Bukkit.isStopping()) {
++            for (World world : Bukkit.getWorlds()) {
++                entities += world.getEntityCount();
++                chunkCount += world.getChunkCount();
++                tileEntityCount += world.getTileEntityCount();
++            }
++        }
++
++        this.report(PLAYER_COUNT, Bukkit.getOnlinePlayers().size());
++        this.report(ENTITY_COUNT, entities);
++        this.report(CHUNK_COUNT, chunkCount);
++        this.report(TILE_ENTITY_COUNT, tileEntityCount);
++    }
 +}
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/MinecraftInternalPlugin.java b/src/main/java/org/bukkit/craftbukkit/scheduler/MinecraftInternalPlugin.java
 index 49dc0c441b9dd7e7745cf15ced67f383ebee1f99..b343d8ee7435312929558efdaf127334d8e2fff6 100644
@@ -612,3 +687,15 @@ index 49dc0c441b9dd7e7745cf15ced67f383ebee1f99..b343d8ee7435312929558efdaf127334
      }
  
      @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/ServerShutdownThread.java b/src/main/java/org/bukkit/craftbukkit/util/ServerShutdownThread.java
+index c7ed6e0f8a989cec97700df2b15198c9c481c549..2dcb1a7ca5cef0a1715b6219bd47e0ff59565b09 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/ServerShutdownThread.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/ServerShutdownThread.java
+@@ -11,6 +11,7 @@ public class ServerShutdownThread extends Thread {
+ 
+     @Override
+     public void run() {
++        try { gg.airplane.flare.ProfilingManager.stop(); } catch (Throwable t) {} // Airplane - shut down Flare if it's running
+         try {
+             // Paper start - try to shutdown on main
+             server.safeShutdown(false, false);
