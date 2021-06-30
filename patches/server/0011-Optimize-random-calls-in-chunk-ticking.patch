@@ -46,7 +46,7 @@ index 958b7044c196ebd66f60391c33c64ad2ff82d4e8..5b8f23b7739580b8a08de0ed43c0fc01
              boolean flag2 = level.ticksPerAnimalSpawns != 0L && worlddata.getGameTime() % level.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 8d6124710a6feb6c2fbfa0b5a291417870a6e24a..19dae51572fb34b64bc8879e1b3ad0d425f6bdbd 100644
+index a4546a80b0d1fde8c4f92fea575745b1352d95b0..826e4bcdc1f88463e0ba75864a50a1a1f0e5b454 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -881,6 +881,8 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
@@ -77,7 +77,7 @@ index 8d6124710a6feb6c2fbfa0b5a291417870a6e24a..19dae51572fb34b64bc8879e1b3ad0d4
              this.getRandomBlockPosition(j, 0, k, 15, blockposition);
              int normalY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockposition.getX() & 15, blockposition.getZ() & 15);
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index ab6c8083200a74c0f811cfb0a2f596adae39c3c3..ece06a6c99108332fabe02a1c13a2a52f105bc80 100644
+index 54e23d303aad286ab46c3e5f9b17a5f9922e2942..4785cbd47e15f78c0302f1dc9bd904a4839ef8e4 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 @@ -172,6 +172,18 @@ public class LevelChunk implements ChunkAccess {

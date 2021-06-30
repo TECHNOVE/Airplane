@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 1c5dac565ac5e26302a0bf0e23e1db24509a7268..49c8e2eca81a91f36a5850243df9c223b92b3df4 100644
+index 92e28027219428684c81df33301be1937cbef4c9..3d58d72a8fbd1f1fe1461df9d74c66931fb53add 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -66,6 +66,8 @@ dependencies {
