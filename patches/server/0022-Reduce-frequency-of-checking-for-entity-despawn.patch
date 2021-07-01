@@ -8,10 +8,10 @@ entities this starts adding up more than it should, and it's already
 fairly optimized. Just starts being slow when you have 30k entities.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 94c18e824695af69e39288195cc2fa83a13029d6..a673eaad4cd80287e8a357f8c45b2add156ff0b9 100644
+index ac49dc0c8bce07954ab69a18f0ee1f0b7d0db749..57f737e7a48366c597a73356c076d3ff95850b12 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -103,4 +103,13 @@ public class AirplaneConfig {
+@@ -109,4 +109,13 @@ public class AirplaneConfig {
      }
  
  
