@@ -5,7 +5,7 @@ Subject: [PATCH] Cache world height in the chunk, as it's final
 
 
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index d93a364546613211d3b3a29ca22cc8d4b681520e..cfa5b93620a2eeca417b0a83054194e9b5e23610 100644
+index 4785cbd47e15f78c0302f1dc9bd904a4839ef8e4..ee2d00ccbe2d11324bb97fc43a213ed7ba1f111a 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 @@ -184,11 +184,13 @@ public class LevelChunk implements ChunkAccess {

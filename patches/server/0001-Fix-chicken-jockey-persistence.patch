@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KennyTV <jahnke.nassim@gmail.com>
+Date: Sat, 26 Jun 2021 10:43:53 +0200
+Subject: [PATCH] Fix chicken jockey persistence
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/animal/Chicken.java b/src/main/java/net/minecraft/world/entity/animal/Chicken.java
+index a907520c2cd9eacf2fe80d87004afc5f30b6a630..26dea22cf871e27c1514212b6728c9cf5a8dfcc0 100644
+--- a/src/main/java/net/minecraft/world/entity/animal/Chicken.java
++++ b/src/main/java/net/minecraft/world/entity/animal/Chicken.java
+@@ -111,7 +111,7 @@ public class Chicken extends Animal {
+     public void aiStep() {
+         // CraftBukkit start
+         if (this.isChickenJockey()) {
+-            this.persistenceRequired = !this.removeWhenFarAway(0);
++            ((Mob) this).persistenceRequired = !this.removeWhenFarAway(0); // Paper - fix remap by explicitly casting to Mob
+         }
+         // CraftBukkit end
+         super.aiStep();

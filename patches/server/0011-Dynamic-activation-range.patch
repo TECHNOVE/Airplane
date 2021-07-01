@@ -69,7 +69,7 @@ index ab019b577002677a4ce788106f8e5a1d7757a2ae..5077e70e4f408814b1072ceb45c52a32
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 063df6d8ddb230ff1fd3e527e607b275f9b01c56..a75b5daab8c27b783133f3110ba59dd465a99769 100644
+index 63cfc111ccdaa725975234eb3f58c743c57177f3..06cfb280afc66f10f52fa2748fbced595e6ada2e 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -336,6 +336,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -167,10 +167,10 @@ index 9e42dd636c78fdf7e94521b3f72c52a77563f8c9..a963bbdb4266ae43a4a2df76b156ca33
          PiglinAi.updateActivity(this);
          super.customServerAiStep();
 diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-index 65124562a96e1e1e601b790db7a5c5e128c75e5e..3aabf3838b805f524096c44540fd74963009ea9e 100644
+index 65124562a96e1e1e601b790db7a5c5e128c75e5e..465e66a2c50ef0f946664fb911ef1ddb2e06870c 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-@@ -292,16 +292,23 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+@@ -292,6 +292,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
      }
      // Spigot End
  
@@ -178,11 +178,8 @@ index 65124562a96e1e1e601b790db7a5c5e128c75e5e..3aabf3838b805f524096c44540fd7496
      @Override
      protected void customServerAiStep() { mobTick(false); }
      protected void mobTick(boolean inactive) {
-         this.level.getProfiler().push("villagerBrain");
-         // Purpur start
-         if (level.purpurConfig.villagerLobotomizeEnabled) inactive = inactive || isLobotomized();
--        boolean tick = (level.getGameTime() + brainTickOffset) % level.purpurConfig.villagerBrainTicks == 0;
-+        boolean tick = true; //(level.getGameTime() + brainTickOffset) % level.purpurConfig.villagerBrainTicks == 0; // Airplane - skip villagerBrainTicks, as it's a multiplier with DEAR
+@@ -301,7 +302,13 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+         boolean tick = (level.getGameTime() + brainTickOffset) % level.purpurConfig.villagerBrainTicks == 0;
          if (((ServerLevel) level).getServer().lagging ? tick : level.purpurConfig.villagerUseBrainTicksOnlyWhenLagging || tick)
          // Purpur end
 -        if (!inactive) this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error // Paper
@@ -190,8 +187,8 @@ index 65124562a96e1e1e601b790db7a5c5e128c75e5e..3aabf3838b805f524096c44540fd7496
 +        if (!inactive) {
 +            if (!gg.airplane.AirplaneConfig.dynamicVillagerBehavior || behaviorTick++ % this.activatedPriority == 0) {
 +                this.getBrain().tick((ServerLevel) this.level, this);
-+             }
-+         }
++            }
++        }
 +        // Airplane end
          else if (shouldRestock()) restock(); // Purpur
          this.level.getProfiler().pop();

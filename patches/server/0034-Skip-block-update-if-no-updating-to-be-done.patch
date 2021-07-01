@@ -1,0 +1,102 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul <paul@technove.co>
+Date: Tue, 29 Jun 2021 02:40:02 -0500
+Subject: [PATCH] Skip block update if no updating to be done
+
+The block form event can be called very frequently by liquids, however
+the event has the downside of passing a blockstate in it. This means
+plugins can modify the blockstate, and the block gets updated at the end
+of it automatically. This force update, regardless of if anything
+changed, basically does a double update any time a block is formed. This
+patch adds a tracker of how many times a blockstate is modified and only
+updates the block if it was actually modified.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
+index 3c41d80b0ffca929abfcb45cd1dedbc0bf3f5954..0da204bb138a647484576011d53b44eac21247b0 100644
+--- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
++++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
+@@ -24,6 +24,7 @@ public class CraftBlockState implements BlockState {
+     private final BlockPos position;
+     protected net.minecraft.world.level.block.state.BlockState data;
+     protected int flag;
++    protected int modifications = 0; public int getModifications() { return this.modifications; } // Airplane - track whether its been modified
+ 
+     public CraftBlockState(final Block block) {
+         this.world = (CraftWorld) block.getWorld();
+@@ -80,6 +81,7 @@ public class CraftBlockState implements BlockState {
+ 
+     public void setData(net.minecraft.world.level.block.state.BlockState data) {
+         this.data = data;
++        this.modifications++; // Airplane
+     }
+ 
+     public BlockPos getPosition() {
+@@ -99,6 +101,7 @@ public class CraftBlockState implements BlockState {
+     public void setBlockData(BlockData data) {
+         Preconditions.checkArgument(data != null, "BlockData cannot be null");
+         this.data = ((CraftBlockData) data).getState();
++        this.modifications++; // Airplane
+     }
+ 
+     @Override
+@@ -115,6 +118,7 @@ public class CraftBlockState implements BlockState {
+                         + mat.getData().getName() + ", found " + data.getClass().getName());
+             }
+         }
++        this.modifications++; // Airplane
+     }
+ 
+     @Override
+@@ -129,6 +133,7 @@ public class CraftBlockState implements BlockState {
+ 
+         if (this.getType() != type) {
+             this.data = CraftMagicNumbers.getBlock(type).defaultBlockState();
++            this.modifications++; // Airplane
+         }
+     }
+ 
+@@ -223,6 +228,7 @@ public class CraftBlockState implements BlockState {
+     @Override
+     public void setRawData(byte data) {
+         this.data = CraftMagicNumbers.getBlock(this.getType(), data);
++        this.modifications++; // Airplane
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftFurnace.java b/src/main/java/org/bukkit/craftbukkit/block/CraftFurnace.java
+index 92c156b09cc46e5d70ed7d803683787248495a62..189b86761aeb43899fb83e198ccc1da705e5da83 100644
+--- a/src/main/java/org/bukkit/craftbukkit/block/CraftFurnace.java
++++ b/src/main/java/org/bukkit/craftbukkit/block/CraftFurnace.java
+@@ -42,6 +42,7 @@ public abstract class CraftFurnace<T extends AbstractFurnaceBlockEntity> extends
+         this.getSnapshot().litTime = burnTime;
+         // SPIGOT-844: Allow lighting and relighting using this API
+         this.data = this.data.setValue(AbstractFurnaceBlock.LIT, burnTime > 0);
++        this.modifications++; // Airplane
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftJukebox.java b/src/main/java/org/bukkit/craftbukkit/block/CraftJukebox.java
+index c4a8920187317b0daa076a3d7d9dcdae239bdc68..cb8af6c5e654c11f706ec880893a6c9688039348 100644
+--- a/src/main/java/org/bukkit/craftbukkit/block/CraftJukebox.java
++++ b/src/main/java/org/bukkit/craftbukkit/block/CraftJukebox.java
+@@ -70,6 +70,7 @@ public class CraftJukebox extends CraftBlockEntityState<JukeboxBlockEntity> impl
+         } else {
+             this.data = this.data.setValue(JukeboxBlock.HAS_RECORD, true);
+         }
++        this.modifications++; // Airplane
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
+index f8ae2647237027e409e7e111cddce1883dec7bfd..f36195056e32b2ccac178c122f725603e9a46fcb 100644
+--- a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
++++ b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
+@@ -1725,7 +1725,7 @@ public class CraftEventFactory {
+         BlockFormEvent event = (entity == null) ? new BlockFormEvent(blockState.getBlock(), blockState) : new EntityBlockFormEvent(entity.getBukkitEntity(), blockState.getBlock(), blockState);
+         world.getCraftServer().getPluginManager().callEvent(event);
+ 
+-        if (!event.isCancelled()) {
++        if (!event.isCancelled() && blockState.getModifications() > 0) { // Airplane - don't update if plugins didn't modify it
+             blockState.update(true);
+         }
+ 

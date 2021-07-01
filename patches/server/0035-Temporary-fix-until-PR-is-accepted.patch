@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul <paul@technove.co>
+Date: Tue, 29 Jun 2021 17:00:09 -0500
+Subject: [PATCH] Temporary fix until PR is accepted
+
+
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index 7c2e989bfdb9d5c311a7abf10da9a09e44a3ad78..acae6ad67adc013eda3e69427fda7e53529cde59 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -218,7 +218,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+     }
+ 
+     @Override public LevelChunk getChunkIfLoaded(int x, int z) { // Paper - this was added in world too but keeping here for NMS ABI
+-        return this.chunkSource.getChunk(x, z, false);
++        return super.getChunkIfLoaded(x, z); // Airplane - use super
+     }
+ 
+     // Paper start - Asynchronous IO

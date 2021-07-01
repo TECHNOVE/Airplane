@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul <paul@technove.co>
+Date: Wed, 30 Jun 2021 13:50:29 -0500
+Subject: [PATCH] idk
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index f88ade92a25cb5eda7abc658551a42318af66ce9..d8cc08bf6d09929bf376416ce26c7f7609def3b9 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -185,7 +185,7 @@ abstract class IncludeMappings : BaseTask() {
+ }
+ 
+ val includeMappings = tasks.register<IncludeMappings>("includeMappings") {
+-    inputJar.set(tasks.fixJarForReobf.flatMap { it.outputJar })
++    inputJar.set(tasks.shadowJar.flatMap { it.archiveFile }) // Airplane
+     mappings.set(tasks.reobfJar.flatMap { it.mappingsFile })
+ }
+ 
