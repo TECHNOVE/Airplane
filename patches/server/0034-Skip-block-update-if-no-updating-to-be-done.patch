@@ -9,7 +9,9 @@ plugins can modify the blockstate, and the block gets updated at the end
 of it automatically. This force update, regardless of if anything
 changed, basically does a double update any time a block is formed. This
 patch adds a tracker of how many times a blockstate is modified and only
-updates the block if it was actually modified.
+updates the block if it was actually modified. This is as high as a 8%
+improvement, possibly much better if there's liquid lag machines being
+used.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
 index 3c41d80b0ffca929abfcb45cd1dedbc0bf3f5954..0da204bb138a647484576011d53b44eac21247b0 100644
@@ -88,15 +90,19 @@ index c4a8920187317b0daa076a3d7d9dcdae239bdc68..cb8af6c5e654c11f706ec880893a6c96
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
-index f8ae2647237027e409e7e111cddce1883dec7bfd..f36195056e32b2ccac178c122f725603e9a46fcb 100644
+index f8ae2647237027e409e7e111cddce1883dec7bfd..8b57e8c761d14abe98a2cf01baf85c187a4f3e29 100644
 --- a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
 +++ b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
-@@ -1725,7 +1725,7 @@ public class CraftEventFactory {
+@@ -1722,10 +1722,11 @@ public class CraftEventFactory {
+         CraftBlockState blockState = CraftBlockState.getBlockState(world, pos, flag);
+         blockState.setData(block);
+ 
++        int previousMods = blockState.getModifications(); // Airplane
          BlockFormEvent event = (entity == null) ? new BlockFormEvent(blockState.getBlock(), blockState) : new EntityBlockFormEvent(entity.getBukkitEntity(), blockState.getBlock(), blockState);
          world.getCraftServer().getPluginManager().callEvent(event);
  
 -        if (!event.isCancelled()) {
-+        if (!event.isCancelled() && blockState.getModifications() > 0) { // Airplane - don't update if plugins didn't modify it
++        if (!event.isCancelled() && blockState.getModifications() > previousMods) { // Airplane - don't update if plugins didn't modify it
              blockState.update(true);
          }
  

@@ -83,10 +83,10 @@ index d50b61876f15d95b836b3dd81d9c3492c91a8448..5460f57f0473868b3fb09c526a1767f7
  
          return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 108dadb24607ea42cf857879386c34c9bb72dbee..c71f6ef96b505f7ef2caee0556659cab77ddc43e 100644
+index a87be8fe6fbed952bfee76bab49e313b2fbfa62d..215fd83ed51829f6e709a7101b7757aa083470a5 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1729,7 +1729,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1730,7 +1730,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @DontObfuscate
      public String getServerModName() {

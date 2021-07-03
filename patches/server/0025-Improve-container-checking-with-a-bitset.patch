@@ -116,7 +116,7 @@ index 0000000000000000000000000000000000000000..04565b596f7579eb22263ef844513aeb
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 9be7f9783571bf33f5efbd5e08aa83268dfc59fb..751535e0c809f0685b409aedee122d906fe5ba89 100644
+index 877412e9271f6f3979738f43853a1a8893a66214..6016d34421adca8f973d13505022ab6b14eac5ba 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -605,6 +605,21 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
@@ -142,7 +142,7 @@ index 9be7f9783571bf33f5efbd5e08aa83268dfc59fb..751535e0c809f0685b409aedee122d90
          this.getCraftServer().getLogger().log(Level.SEVERE, "Block at {0}, {1}, {2} is {3} but has {4}" + ". "
                  + "Bukkit will attempt to fix this, but there may be additional damage that we cannot recover.", new Object[]{pos.getX(), pos.getY(), pos.getZ(), type, found});
 diff --git a/src/main/java/net/minecraft/world/CompoundContainer.java b/src/main/java/net/minecraft/world/CompoundContainer.java
-index 087ae3a6b49872a3580eb1a572bdbc493711a77a..60cdeb82df78e6b0d743b6168058e9d632ba692c 100644
+index 087ae3a6b49872a3580eb1a572bdbc493711a77a..5ef8657197beea06c1dcad6a32968c56a823b182 100644
 --- a/src/main/java/net/minecraft/world/CompoundContainer.java
 +++ b/src/main/java/net/minecraft/world/CompoundContainer.java
 @@ -1,5 +1,6 @@
@@ -152,7 +152,7 @@ index 087ae3a6b49872a3580eb1a572bdbc493711a77a..60cdeb82df78e6b0d743b6168058e9d6
  import net.minecraft.world.entity.player.Player;
  import net.minecraft.world.item.ItemStack;
  
-@@ -72,6 +73,30 @@ public class CompoundContainer implements Container {
+@@ -72,6 +73,23 @@ public class CompoundContainer implements Container {
          this.container2 = second;
      }
  
@@ -173,18 +173,11 @@ index 087ae3a6b49872a3580eb1a572bdbc493711a77a..60cdeb82df78e6b0d743b6168058e9d6
 +    }
 +    // Airplane end
 +
-+    // Airplane start
-+    @Override
-+    public ItemStack getHopperItem(int i) {
-+        return i >= this.container1.getContainerSize() ? this.container2.getHopperItem(i - this.container1.getContainerSize()) : this.container1.getHopperItem(i);
-+    }
-+    // Airplane end
-+
      @Override
      public int getContainerSize() {
          return this.container1.getContainerSize() + this.container2.getContainerSize();
 diff --git a/src/main/java/net/minecraft/world/Container.java b/src/main/java/net/minecraft/world/Container.java
-index 7437f01ca8f416e2c9150250e324af4725a4efb6..c24df23d7696a26e625859c4d1718ba8971bebef 100644
+index 7437f01ca8f416e2c9150250e324af4725a4efb6..bdcd0e38a3ba904811112f41d8bfbfc0902ef190 100644
 --- a/src/main/java/net/minecraft/world/Container.java
 +++ b/src/main/java/net/minecraft/world/Container.java
 @@ -1,6 +1,8 @@
@@ -192,11 +185,11 @@ index 7437f01ca8f416e2c9150250e324af4725a4efb6..c24df23d7696a26e625859c4d1718ba8
  
  import java.util.Set;
 +
-+import net.minecraft.core.Direction;
++import net.minecraft.core.Direction; // Airplane
  import net.minecraft.world.entity.player.Player;
  import net.minecraft.world.item.Item;
  import net.minecraft.world.item.ItemStack;
-@@ -9,6 +11,69 @@ import org.bukkit.craftbukkit.entity.CraftHumanEntity;
+@@ -9,6 +11,63 @@ import org.bukkit.craftbukkit.entity.CraftHumanEntity;
  // CraftBukkit end
  
  public interface Container extends Clearable {
@@ -204,14 +197,14 @@ index 7437f01ca8f416e2c9150250e324af4725a4efb6..c24df23d7696a26e625859c4d1718ba8
 +    default boolean hasEmptySlot(@org.jetbrains.annotations.Nullable Direction enumdirection) { // there is a slot with 0 items in it
 +        if (this instanceof WorldlyContainer worldlyContainer) {
 +            for (int i : worldlyContainer.getSlotsForFace(enumdirection)) {
-+                if (this.getHopperItem(i).isEmpty()) {
++                if (this.getItem(i).isEmpty()) {
 +                    return true;
 +                }
 +            }
 +        } else {
 +            int size = this.getContainerSize();
 +            for (int i = 0; i < size; i++) {
-+                if (this.getHopperItem(i).isEmpty()) {
++                if (this.getItem(i).isEmpty()) {
 +                    return true;
 +                }
 +            }
@@ -222,7 +215,7 @@ index 7437f01ca8f416e2c9150250e324af4725a4efb6..c24df23d7696a26e625859c4d1718ba8
 +    default boolean isCompletelyFull(@org.jetbrains.annotations.Nullable Direction enumdirection) { // every stack is maxed
 +        if (this instanceof WorldlyContainer worldlyContainer) {
 +            for (int i : worldlyContainer.getSlotsForFace(enumdirection)) {
-+                ItemStack itemStack = this.getHopperItem(i);
++                ItemStack itemStack = this.getItem(i);
 +                if (itemStack.getCount() < itemStack.getMaxStackSize()) {
 +                    return false;
 +                }
@@ -230,7 +223,7 @@ index 7437f01ca8f416e2c9150250e324af4725a4efb6..c24df23d7696a26e625859c4d1718ba8
 +        } else {
 +            int size = this.getContainerSize();
 +            for (int i = 0; i < size; i++) {
-+                ItemStack itemStack = this.getHopperItem(i);
++                ItemStack itemStack = this.getItem(i);
 +                if (itemStack.getCount() < itemStack.getMaxStackSize()) {
 +                    return false;
 +                }
@@ -242,14 +235,14 @@ index 7437f01ca8f416e2c9150250e324af4725a4efb6..c24df23d7696a26e625859c4d1718ba8
 +    default boolean isCompletelyEmpty(@org.jetbrains.annotations.Nullable Direction enumdirection) {
 +        if (this instanceof WorldlyContainer worldlyContainer) {
 +            for (int i : worldlyContainer.getSlotsForFace(enumdirection)) {
-+                if (!this.getHopperItem(i).isEmpty()) {
++                if (!this.getItem(i).isEmpty()) {
 +                    return false;
 +                }
 +            }
 +        } else {
 +            int size = this.getContainerSize();
 +            for (int i = 0; i < size; i++) {
-+                if (!this.getHopperItem(i).isEmpty()) {
++                if (!this.getItem(i).isEmpty()) {
 +                    return false;
 +                }
 +            }
@@ -257,15 +250,46 @@ index 7437f01ca8f416e2c9150250e324af4725a4efb6..c24df23d7696a26e625859c4d1718ba8
 +        return true;
 +    }
 +    // Airplane end
-+
-+    // Airplane start - way for inventories to know it's a hopper, skipping certain steps
-+    default ItemStack getHopperItem(int index) {
-+        return this.getItem(index);
-+    }
-+    // Airplane end
  
      int LARGE_MAX_STACK_SIZE = 64;
  
+diff --git a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
+index f57864ce919ef4721cfb5913c636fe8903ce4cc1..4792d3d60e60202face2eb851c9f5b122dcfc19d 100644
+--- a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
++++ b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
+@@ -40,7 +40,7 @@ import org.bukkit.inventory.InventoryHolder;
+ 
+ public abstract class AbstractMinecartContainer extends AbstractMinecart implements Container, MenuProvider {
+ 
+-    private NonNullList<ItemStack> itemStacks;
++    private gg.airplane.structs.ItemListWithBitset itemStacks; // Airplane
+     @Nullable
+     public ResourceLocation lootTable;
+     public long lootTableSeed;
+@@ -89,12 +89,12 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
+ 
+     protected AbstractMinecartContainer(EntityType<?> type, Level world) {
+         super(type, world);
+-        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY); // CraftBukkit - SPIGOT-3513
++        this.itemStacks = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize()); // CraftBukkit - SPIGOT-3513 // Airplane
+     }
+ 
+     protected AbstractMinecartContainer(EntityType<?> type, double x, double y, double z, Level world) {
+         super(type, world, x, y, z);
+-        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY); // CraftBukkit - SPIGOT-3513
++        this.itemStacks = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize()); // CraftBukkit - SPIGOT-3513 // Airplane
+     }
+ 
+     @Override
+@@ -217,7 +217,7 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
+     protected void readAdditionalSaveData(CompoundTag nbt) {
+         super.readAdditionalSaveData(nbt);
+         this.lootableData.loadNbt(nbt); // Paper
+-        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        this.itemStacks = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize()); // Airplane
+         if (nbt.contains("LootTable", 8)) {
+             this.lootTable = new ResourceLocation(nbt.getString("LootTable"));
+             this.lootTableSeed = nbt.getLong("LootTableSeed");
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
 index 52de9852f87d346714a950b60a0004d386ac10f0..305a8f5ea917c7e242011fa98a3e161517afe9be 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
@@ -334,7 +358,7 @@ index 52de9852f87d346714a950b60a0004d386ac10f0..305a8f5ea917c7e242011fa98a3e1615
  
      @Override
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index 3b1442bf4c83650369e925d76f07dc67c6cbbc83..8a46c03b4d129c89d82a00ce725ddb129c668322 100644
+index 3b1442bf4c83650369e925d76f07dc67c6cbbc83..80ae677938ad0ed79bc63974a1fec62e49506713 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 @@ -44,7 +44,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
@@ -394,11 +418,11 @@ index 3b1442bf4c83650369e925d76f07dc67c6cbbc83..8a46c03b4d129c89d82a00ce725ddb12
          boolean foundItem = false;
          for (int i = 0; i < hopper.getContainerSize(); ++i) {
 -            ItemStack item = hopper.getItem(i);
-+            ItemStack item = hopper.getHopperItem(i); // Airplane
++            ItemStack item = hopper.getItem(i); // Airplane
              if (!item.isEmpty()) {
                  foundItem = true;
                  ItemStack origItemStack = item;
-@@ -403,24 +420,30 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -403,12 +420,18 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
      }
  
      private static boolean isFullContainer(Container inventory, Direction direction) {
@@ -419,20 +443,6 @@ index 3b1442bf4c83650369e925d76f07dc67c6cbbc83..8a46c03b4d129c89d82a00ce725ddb12
      }
      private static boolean allMatch(Container iinventory, Direction enumdirection, java.util.function.BiPredicate<ItemStack, Integer> test) {
          if (iinventory instanceof WorldlyContainer) {
-             for (int i : ((WorldlyContainer) iinventory).getSlotsForFace(enumdirection)) {
--                if (!test.test(iinventory.getItem(i), i)) {
-+                if (!test.test(iinventory.getHopperItem(i), i)) { // Airplane
-                     return false;
-                 }
-             }
-         } else {
-             int size = iinventory.getContainerSize();
-             for (int i = 0; i < size; i++) {
--                if (!test.test(iinventory.getItem(i), i)) {
-+                if (!test.test(iinventory.getHopperItem(i), i)) { // Airplane
-                     return false;
-                 }
-             }
 @@ -585,7 +608,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
  
          if (HopperBlockEntity.canPlaceItemInContainer(to, stack, slot, enumdirection)) {
@@ -461,33 +471,21 @@ index 3b1442bf4c83650369e925d76f07dc67c6cbbc83..8a46c03b4d129c89d82a00ce725ddb12
  
      public static void entityInside(Level world, BlockPos pos, BlockState state, Entity entity, HopperBlockEntity blockEntity) {
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
-index ed3518fe7c841d9e1a9c97626acaa3d765a6d76f..37e32747586295f1eb8976bbff7a16de5f37da18 100644
+index ed3518fe7c841d9e1a9c97626acaa3d765a6d76f..ac564148956beb984650341c5c0994573f4f7225 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
-@@ -96,8 +96,10 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
+@@ -96,13 +96,8 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
      public boolean isEmpty() {
          this.unpackLootTable((Player)null);
          // Paper start
 -        for (ItemStack itemStack : this.getItems()) {
 -            if (!itemStack.isEmpty()) {
-+        // Airplane start - don't use abstract iterator
-+        java.util.List<ItemStack> items = this.getItems();
-+        for (int i = 0; i < items.size(); i++) {
-+            if (!items.get(i).isEmpty()) { // Airplane end
-                 return false;
-             }
-         }
-@@ -111,6 +113,13 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
-         return this.getItems().get(slot);
+-                return false;
+-            }
+-        }
++        return this.isCompletelyEmpty(null); // Airplane - use super
+         // Paper end
+-        return true;
      }
  
-+    // Airplane start - skip loot system for hoppers
-+    @Override
-+    public ItemStack getHopperItem(int index) {
-+        return this.getItems().get(index);
-+    }
-+    // Airplane end
-+
      @Override
-     public ItemStack removeItem(int slot, int amount) {
-         this.unpackLootTable((Player)null);

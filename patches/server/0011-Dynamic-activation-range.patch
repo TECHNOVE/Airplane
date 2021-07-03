@@ -130,6 +130,39 @@ index faa53d08a12cc7441c670cae6d301de3f498ffe7..b17f401d723b1466a3b7e05da3dfeebd
      }
      public boolean hasTasks() {
          for (WrappedGoal task : this.availableGoals) {
+diff --git a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
+index a75d7da8278b5a0671d85708898731d9bd3344e2..765dcf6dc7a1b684a64c73b49dbc719e759f0c1e 100644
+--- a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
++++ b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
+@@ -306,9 +306,11 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
+         return true;
+     }
+ 
++    private int behaviorTick = 0; // Airplane
+     @Override
+     protected void customServerAiStep() {
+         this.level.getProfiler().push("axolotlBrain");
++        if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
+         this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error
+         this.level.getProfiler().pop();
+         this.level.getProfiler().push("axolotlActivityUpdate");
+diff --git a/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java b/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
+index 93439e518b071cc19eeabe4c8db7676e5a31cfff..f802410e8c977dce530594e77d73f2cdd9fa231e 100644
+--- a/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
++++ b/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
+@@ -152,10 +152,12 @@ public class Goat extends Animal {
+         return (Brain<Goat>) super.getBrain(); // CraftBukkit - decompile error
+     }
+ 
++    private int behaviorTick = 0; // Airplane
+     @Override
+     protected void customServerAiStep() {
+         this.level.getProfiler().push("goatBrain");
+         if (getRider() == null) // Purpur - only use brain if no rider
++        if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
+         this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error
+         this.level.getProfiler().pop();
+         this.level.getProfiler().push("goatActivityUpdate");
 diff --git a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java b/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
 index 5e3d7321a73144c3e4c43c18c5b748b2d0139db8..6f3cd61eee41f5ec1d550f28511e524790cd875f 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
@@ -167,7 +200,7 @@ index 9e42dd636c78fdf7e94521b3f72c52a77563f8c9..a963bbdb4266ae43a4a2df76b156ca33
          PiglinAi.updateActivity(this);
          super.customServerAiStep();
 diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-index 65124562a96e1e1e601b790db7a5c5e128c75e5e..465e66a2c50ef0f946664fb911ef1ddb2e06870c 100644
+index fd5c077628733365527f339efc96f0a8620b8e1a..adbed472b2a99fef72ab08bca7350b01d67c592e 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
 @@ -292,6 +292,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler

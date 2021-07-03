@@ -5,10 +5,10 @@ Subject: [PATCH] Config to disable method profiler
 
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index a673eaad4cd80287e8a357f8c45b2add156ff0b9..6fc23a85ddd66a69b83684cdb602b6a312e9d72b 100644
+index 3c13ee6b907add5fbb51f6955020b6bc3ac28c6f..0a69cded7cb896c70effc65f9530feb7ae59a01b 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -112,4 +112,13 @@ public class AirplaneConfig {
+@@ -118,4 +118,13 @@ public class AirplaneConfig {
      }
  
  
@@ -23,10 +23,10 @@ index a673eaad4cd80287e8a357f8c45b2add156ff0b9..6fc23a85ddd66a69b83684cdb602b6a3
 +
  }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index c71f6ef96b505f7ef2caee0556659cab77ddc43e..a1bad83459618b00774c47a2317637bf36abdfe9 100644
+index 215fd83ed51829f6e709a7101b7757aa083470a5..69b298a85770b9e6caac374e521cf25a7a14bbd2 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -2306,6 +2306,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -2307,6 +2307,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      }
  
      public ProfilerFiller getProfiler() {
@@ -35,10 +35,10 @@ index c71f6ef96b505f7ef2caee0556659cab77ddc43e..a1bad83459618b00774c47a2317637bf
      }
  
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 8e0089d9ca0e13a850427ec303aaa4b15742970f..be84cb90d167c612d2f6c33f13f904d28c8624a8 100644
+index 6e47f4c80af425a662d0bfda0349e0241f9d0535..0c7bda7ac9bf0e648b0c106800b1e24ac68c40d9 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
-@@ -1568,6 +1568,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+@@ -1575,6 +1575,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
      }
  
      public ProfilerFiller getProfiler() {

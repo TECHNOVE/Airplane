@@ -1,0 +1,104 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul <paul@technove.co>
+Date: Fri, 2 Jul 2021 18:25:18 -0500
+Subject: [PATCH] Reduce entity allocations
+
+
+diff --git a/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java b/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
+index e883b2af853666c11a14a541aac331d97c6ad057..50b52af498166f0d269b34d96769b4f72bc69838 100644
+--- a/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
++++ b/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
+@@ -393,6 +393,8 @@ public final class CollisionUtil {
+                                                               final List<AABB> into, final boolean loadChunks, final boolean collidesWithUnloaded,
+                                                               final boolean checkBorder, final boolean checkOnly, final BiPredicate<BlockState, BlockPos> predicate) {
+         boolean ret = false;
++        BlockPos.MutableBlockPos mutablePos; // Airplane
++
+ 
+         if (entity != null) {
+             if (CollisionUtil.isAlmostCollidingOnBorder(getter.getWorldBorder(), aabb)) {
+@@ -403,7 +405,8 @@ public final class CollisionUtil {
+                     ret = true;
+                 }
+             }
+-        }
++            mutablePos = entity.cachedBlockPos; // Airplane
++        } else mutablePos = new BlockPos.MutableBlockPos(); // Airplane
+ 
+         int minBlockX = Mth.floor(aabb.minX - COLLISION_EPSILON) - 1;
+         int maxBlockX = Mth.floor(aabb.maxX + COLLISION_EPSILON) + 1;
+@@ -419,7 +422,7 @@ public final class CollisionUtil {
+         final int minBlock = minSection << 4;
+         final int maxBlock = (maxSection << 4) | 15;
+ 
+-        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
++        //BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos(); // Airplane - moved up
+         CollisionContext collisionShape = null;
+ 
+         // special cases:
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 196e60b77db8900f5f4929937e032506f00cddc3..88c8fe8d8674887cf39b0de71471eb9930ad406f 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -338,6 +338,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+     // Spigot end
+     // Airplane start
+     public int activatedPriority = gg.airplane.AirplaneConfig.maximumActivationPrio; // golf score
++    public final BlockPos.MutableBlockPos cachedBlockPos = new BlockPos.MutableBlockPos(); // used where needed
+     // Airplane end
+ 
+     public float getBukkitYaw() {
+@@ -2458,9 +2459,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+ 
+             // Tuinity start
+             return com.tuinity.tuinity.util.CollisionUtil.getCollisionsForBlocksOrWorldBorder(this.level, this, axisalignedbb, null,
+-                false, false, false, true, (iblockdata, blockposition) -> {
+-                    return iblockdata.isSuffocating(this.level, blockposition);
+-            });
++                false, false, false, true, this.level.isAlmostSuffocating); // Airplane - don't allocate lambda here
+             // Tuinity end
+         }
+     }
+diff --git a/src/main/java/net/minecraft/world/entity/ai/attributes/AttributeMap.java b/src/main/java/net/minecraft/world/entity/ai/attributes/AttributeMap.java
+index 9cbfda029782385d1a7987f5be46d450bd8a758e..d3e97858dacc850012e5585ac44a1aeafc82b8f4 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/attributes/AttributeMap.java
++++ b/src/main/java/net/minecraft/world/entity/ai/attributes/AttributeMap.java
+@@ -22,9 +22,11 @@ public class AttributeMap {
+     private final Map<Attribute, AttributeInstance> attributes = Maps.newHashMap();
+     private final Set<AttributeInstance> dirtyAttributes = Sets.newHashSet();
+     private final AttributeSupplier supplier;
++    private final java.util.function.Function<Attribute, AttributeInstance> createInstance; // Airplane
+ 
+     public AttributeMap(AttributeSupplier defaultAttributes) {
+         this.supplier = defaultAttributes;
++        this.createInstance = attribute -> this.supplier.createInstance(this::onAttributeModified, attribute); // Airplane
+     }
+ 
+     private void onAttributeModified(AttributeInstance instance) {
+@@ -44,11 +46,10 @@ public class AttributeMap {
+         }).collect(Collectors.toList());
+     }
+ 
++
+     @Nullable
+     public AttributeInstance getInstance(Attribute attribute) {
+-        return this.attributes.computeIfAbsent(attribute, (attributex) -> {
+-            return this.supplier.createInstance(this::onAttributeModified, attributex);
+-        });
++        return this.attributes.computeIfAbsent(attribute, this.createInstance); // Airplane - cache lambda, as for some reason java allocates it anyways
+     }
+ 
+     public boolean hasAttribute(Attribute attribute) {
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index 0c7bda7ac9bf0e648b0c106800b1e24ac68c40d9..b429e5a83736c0ba8126e9ffd35714a5d527c8df 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -178,6 +178,8 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+     public final Map<Explosion.CacheKey, Float> explosionDensityCache = new HashMap<>(); // Paper - Optimize explosions
+     public java.util.ArrayDeque<net.minecraft.world.level.block.RedstoneTorchBlock.Toggle> redstoneUpdateInfos; // Paper - Move from Map in BlockRedstoneTorch to here
+ 
++    public final java.util.function.BiPredicate<BlockState, BlockPos> isAlmostSuffocating = (iblockdata, blockposition) -> iblockdata.isSuffocating(this, blockposition); // Airplane - move here, no allocs
++
+     // Paper start - fix and optimise world upgrading
+     // copied from below
+     public static ResourceKey<DimensionType> getDimensionKey(DimensionType manager) {
