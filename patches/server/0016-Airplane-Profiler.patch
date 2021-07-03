@@ -32,7 +32,7 @@ index bf2e5f4bd1ce307c9040c5097f1a4508e5b3e23d..f8df3d09723d177b36618559f9ee078b
      testImplementation("io.github.classgraph:classgraph:4.8.47") // Paper - mob goal test
      testImplementation("junit:junit:4.13.1")
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 5077e70e4f408814b1072ceb45c52a322a7662d2..ac49dc0c8bce07954ab69a18f0ee1f0b7d0db749 100644
+index 5077e70e4f408814b1072ceb45c52a322a7662d2..e22ccbe13a252b9406c02d5c516b245d5ff57a0f 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -1,8 +1,10 @@
@@ -70,7 +70,7 @@ index 5077e70e4f408814b1072ceb45c52a322a7662d2..ac49dc0c8bce07954ab69a18f0ee1f0b
 +        if (accessToken.length() > 0) {
 +            gg.airplane.flare.FlareSetup.init(); // Airplane
 +            SimpleCommandMap commandMap = MinecraftServer.getServer().server.getCommandMap();
-+            if (commandMap.getCommand("flare") != null) {
++            if (commandMap.getCommand("flare") == null) {
 +                commandMap.register("flare", "Airplane", new FlareCommand());
 +            }
 +        }
