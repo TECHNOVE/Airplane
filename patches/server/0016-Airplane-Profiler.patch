@@ -594,10 +594,10 @@ index 0000000000000000000000000000000000000000..c60ce5a53c05e28afae5f9fadbab0a36
 +}
 diff --git a/src/main/java/gg/airplane/flare/collectors/WorldCountCollector.java b/src/main/java/gg/airplane/flare/collectors/WorldCountCollector.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..bbc7fc110570310e2b72eae1dcdadbc3dcbf7b04
+index 0000000000000000000000000000000000000000..7efdcff30639f90fc2dde273eaa680eee1deb31e
 --- /dev/null
 +++ b/src/main/java/gg/airplane/flare/collectors/WorldCountCollector.java
-@@ -0,0 +1,44 @@
+@@ -0,0 +1,45 @@
 +package gg.airplane.flare.collectors;
 +
 +import gg.airplane.flare.CustomCategories;
@@ -606,6 +606,7 @@ index 0000000000000000000000000000000000000000..bbc7fc110570310e2b72eae1dcdadbc3
 +import gg.airplane.flare.live.formatter.SuffixFormatter;
 +import org.bukkit.Bukkit;
 +import org.bukkit.World;
++import org.bukkit.craftbukkit.CraftWorld;
 +
 +import java.time.Duration;
 +
@@ -630,7 +631,7 @@ index 0000000000000000000000000000000000000000..bbc7fc110570310e2b72eae1dcdadbc3
 +
 +        if (!Bukkit.isStopping()) {
 +            for (World world : Bukkit.getWorlds()) {
-+                entities += world.getEntityCount();
++                entities += ((CraftWorld) world).getHandle().entityManager.getEntityGetter().getCount();
 +                chunkCount += world.getChunkCount();
 +                tileEntityCount += world.getTileEntityCount();
 +            }
@@ -642,6 +643,32 @@ index 0000000000000000000000000000000000000000..bbc7fc110570310e2b72eae1dcdadbc3
 +        this.report(TILE_ENTITY_COUNT, tileEntityCount);
 +    }
 +}
+diff --git a/src/main/java/net/minecraft/world/level/entity/LevelEntityGetter.java b/src/main/java/net/minecraft/world/level/entity/LevelEntityGetter.java
+index da1ad0b2679e392ed81b50c15f012c63cb5c939e..81e83022421e2c311c32f6e6007cfc0c82efb822 100644
+--- a/src/main/java/net/minecraft/world/level/entity/LevelEntityGetter.java
++++ b/src/main/java/net/minecraft/world/level/entity/LevelEntityGetter.java
+@@ -6,6 +6,8 @@ import javax.annotation.Nullable;
+ import net.minecraft.world.phys.AABB;
+ 
+ public interface LevelEntityGetter<T extends EntityAccess> {
++    int getCount(); // Airplane
++
+     @Nullable
+     T get(int id);
+ 
+diff --git a/src/main/java/net/minecraft/world/level/entity/LevelEntityGetterAdapter.java b/src/main/java/net/minecraft/world/level/entity/LevelEntityGetterAdapter.java
+index 3b13f6ea36a3bfecabe09221eb5c48dddab119db..c02b9104c0cc1a7319cca29d5e32a5c2a33bff18 100644
+--- a/src/main/java/net/minecraft/world/level/entity/LevelEntityGetterAdapter.java
++++ b/src/main/java/net/minecraft/world/level/entity/LevelEntityGetterAdapter.java
+@@ -14,6 +14,8 @@ public class LevelEntityGetterAdapter<T extends EntityAccess> implements LevelEn
+         this.sectionStorage = cache;
+     }
+ 
++    @Override public int getCount() { return this.visibleEntities.count(); } // Airplane
++
+     @Nullable
+     @Override
+     public T get(int id) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/MinecraftInternalPlugin.java b/src/main/java/org/bukkit/craftbukkit/scheduler/MinecraftInternalPlugin.java
 index 49dc0c441b9dd7e7745cf15ced67f383ebee1f99..b343d8ee7435312929558efdaf127334d8e2fff6 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/MinecraftInternalPlugin.java
