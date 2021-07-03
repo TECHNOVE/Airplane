@@ -24,25 +24,22 @@ index 0000000000000000000000000000000000000000..6dc9cba47950165eca2d362bc10cbfbb
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 2f286e74947ef227e80122ad4e1764d33381276e..637515577abb4700a51e0f0ce274a6a619db74e4 100644
+index 2f286e74947ef227e80122ad4e1764d33381276e..0c3ef6246b0372679a1c0f2d0da23d2ca5dbbece 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -1601,11 +1601,22 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -1601,11 +1601,20 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
          VoxelShape voxelshape1 = newState.getCollisionShape(this, pos);
  
          if (Shapes.joinIsNotEmpty(voxelshape, voxelshape1, BooleanOp.NOT_SAME)) {
 -            Iterator iterator = this.navigatingMobs.iterator();
--
--            while (iterator.hasNext()) {
 +            // Airplane start - use area map for notifying
 +            com.destroystokyo.paper.util.misc.PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<Mob> mobs =
 +                    this.entityManager.navigatingMobMap.getObjectsInRange(ChunkPos.asLong(pos));
 +            if (mobs == null) return;
-+
+ 
+-            while (iterator.hasNext()) {
 +            Object[] mobSet = mobs.getBackingSet();
 +
-+            int updated = 0;
-+            int total = 0;
 +            for (int i = 0; i < mobSet.length; i++) {
 +                Object raw = mobSet[i];
 +                if (raw == null) continue;
@@ -54,7 +51,7 @@ index 2f286e74947ef227e80122ad4e1764d33381276e..637515577abb4700a51e0f0ce274a6a6
                  try {
                      entityinsentient = (Mob) iterator.next();
                  } catch (java.util.ConcurrentModificationException ex) {
-@@ -1615,13 +1626,17 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -1615,6 +1624,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
                      this.sendBlockUpdated(pos, oldState, newState, flags);
                      return;
                  }
@@ -62,17 +59,15 @@ index 2f286e74947ef227e80122ad4e1764d33381276e..637515577abb4700a51e0f0ce274a6a6
                  // CraftBukkit end
                  PathNavigation navigationabstract = entityinsentient.getNavigation();
  
-                 if (!navigationabstract.hasDelayedRecomputation()) {
+@@ -1622,6 +1632,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
                      navigationabstract.recomputePath(pos);
-+                    updated++;
                  }
-+                total++;
              }
 +            // Airplane end
  
          }
          } // Paper
-@@ -2418,7 +2433,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -2418,7 +2429,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
              }
  
              if (entity instanceof Mob) {
@@ -81,7 +76,7 @@ index 2f286e74947ef227e80122ad4e1764d33381276e..637515577abb4700a51e0f0ce274a6a6
              }
  
              if (entity instanceof EnderDragon) {
-@@ -2488,7 +2503,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -2488,7 +2499,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
              }
  
              if (entity instanceof Mob) {
