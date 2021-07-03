@@ -24,10 +24,10 @@ index 0000000000000000000000000000000000000000..6dc9cba47950165eca2d362bc10cbfbb
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 2f286e74947ef227e80122ad4e1764d33381276e..0c3ef6246b0372679a1c0f2d0da23d2ca5dbbece 100644
+index 7f11b84fc566b88e0aae0b015237a7f5786fbeeb..60c4bcdbc20f4b4198f49cd43b98ebd557c99692 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -1601,11 +1601,20 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -1651,11 +1651,20 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
          VoxelShape voxelshape1 = newState.getCollisionShape(this, pos);
  
          if (Shapes.joinIsNotEmpty(voxelshape, voxelshape1, BooleanOp.NOT_SAME)) {
@@ -51,7 +51,7 @@ index 2f286e74947ef227e80122ad4e1764d33381276e..0c3ef6246b0372679a1c0f2d0da23d2c
                  try {
                      entityinsentient = (Mob) iterator.next();
                  } catch (java.util.ConcurrentModificationException ex) {
-@@ -1615,6 +1624,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -1665,6 +1674,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
                      this.sendBlockUpdated(pos, oldState, newState, flags);
                      return;
                  }
@@ -59,7 +59,7 @@ index 2f286e74947ef227e80122ad4e1764d33381276e..0c3ef6246b0372679a1c0f2d0da23d2c
                  // CraftBukkit end
                  PathNavigation navigationabstract = entityinsentient.getNavigation();
  
-@@ -1622,6 +1632,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -1672,6 +1682,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
                      navigationabstract.recomputePath(pos);
                  }
              }
@@ -67,7 +67,7 @@ index 2f286e74947ef227e80122ad4e1764d33381276e..0c3ef6246b0372679a1c0f2d0da23d2c
  
          }
          } // Paper
-@@ -2418,7 +2429,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -2468,7 +2479,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
              }
  
              if (entity instanceof Mob) {
@@ -76,7 +76,7 @@ index 2f286e74947ef227e80122ad4e1764d33381276e..0c3ef6246b0372679a1c0f2d0da23d2c
              }
  
              if (entity instanceof EnderDragon) {
-@@ -2488,7 +2499,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -2538,7 +2549,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
              }
  
              if (entity instanceof Mob) {
@@ -86,19 +86,20 @@ index 2f286e74947ef227e80122ad4e1764d33381276e..0c3ef6246b0372679a1c0f2d0da23d2c
  
              if (entity instanceof EnderDragon) {
 diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
-index c4d1e8d1319b20abbaff1d0ddce5207dc654ad9f..6474d1aa7824d7449f34c881c7926d34909abd07 100644
+index 4e5344288db1f75e3d01a38378da9ffd5ecfd727..52cd9af01695989659eafa56c7dd684e5d861fa3 100644
 --- a/src/main/java/net/minecraft/world/entity/Mob.java
 +++ b/src/main/java/net/minecraft/world/entity/Mob.java
-@@ -124,6 +124,8 @@ public abstract class Mob extends LivingEntity {
-     private BlockPos restrictCenter;
+@@ -126,6 +126,9 @@ public abstract class Mob extends LivingEntity {
      private float restrictRadius;
  
+     public int ticksSinceLastInteraction; // Purpur
++
 +    public final com.destroystokyo.paper.util.misc.PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<Mob> cachedSingleHashSet; // Airplane
 +
      public boolean aware = true; // CraftBukkit
  
      protected Mob(EntityType<? extends Mob> type, Level world) {
-@@ -152,6 +154,8 @@ public abstract class Mob extends LivingEntity {
+@@ -156,6 +159,8 @@ public abstract class Mob extends LivingEntity {
          // CraftBukkit start - default persistance to type's persistance value
          this.persistenceRequired = !this.removeWhenFarAway(0);
          // CraftBukkit end
