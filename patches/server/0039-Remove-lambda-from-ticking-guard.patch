@@ -31,7 +31,7 @@ index bf6327406a348ebf065c934bda4cf67789fc89b9..2f286e74947ef227e80122ad4e1764d3
                      }
                  }
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 5a760139c6027ac1faa6cb35ed8cd6adf7c18599..e25fe46d92f0642813157b5bfb6c3c4ee6426651 100644
+index 9cb9b47a4e565a243b02455aeb98ba136d01a315..41b74a08a8b6315f6f801ddcfbf482f54a2093ab 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -1063,13 +1063,13 @@ public abstract class Level implements LevelAccessor, AutoCloseable {

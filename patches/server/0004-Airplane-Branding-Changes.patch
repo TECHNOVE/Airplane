@@ -20,10 +20,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 9535ff31bf34646765641cb0195c77b94acdaf56..92e28027219428684c81df33301be1937cbef4c9 100644
+index fbd71fc0d2619278565537cd565a99282d84f587..b5ab6fd94bdded2b8e475aee93dc9bfbd21afe96 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -30,7 +30,7 @@ repositories {
+@@ -36,7 +36,7 @@ repositories {
  }
  
  dependencies {
@@ -32,7 +32,7 @@ index 9535ff31bf34646765641cb0195c77b94acdaf56..92e28027219428684c81df33301be193
      implementation("com.destroystokyo.paper:paper-mojangapi:1.16.5-R0.1-SNAPSHOT") // Tuinity
      // Paper start
      implementation("org.jline:jline-terminal-jansi:3.12.1")
-@@ -82,7 +82,7 @@ tasks.jar {
+@@ -88,7 +88,7 @@ tasks.jar {
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
              "Implementation-Title" to "CraftBukkit",

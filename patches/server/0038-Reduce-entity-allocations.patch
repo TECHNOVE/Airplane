@@ -5,7 +5,7 @@ Subject: [PATCH] Reduce entity allocations
 
 
 diff --git a/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java b/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
-index e883b2af853666c11a14a541aac331d97c6ad057..50b52af498166f0d269b34d96769b4f72bc69838 100644
+index d08289dda13d31ec1019722af554dc1d834b41e4..21ccf6d150dd8c57abe43fafd6de87f105607a20 100644
 --- a/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
 +++ b/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
 @@ -393,6 +393,8 @@ public final class CollisionUtil {
@@ -15,7 +15,7 @@ index e883b2af853666c11a14a541aac331d97c6ad057..50b52af498166f0d269b34d96769b4f7
 +        BlockPos.MutableBlockPos mutablePos; // Airplane
 +
  
-         if (entity != null) {
+         if (checkBorder) {
              if (CollisionUtil.isAlmostCollidingOnBorder(getter.getWorldBorder(), aabb)) {
 @@ -403,7 +405,8 @@ public final class CollisionUtil {
                      ret = true;
@@ -90,7 +90,7 @@ index 9cbfda029782385d1a7987f5be46d450bd8a758e..d3e97858dacc850012e5585ac44a1aea
  
      public boolean hasAttribute(Attribute attribute) {
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 95c2b3705806414af7181f55a11acbf151b62cf0..5a760139c6027ac1faa6cb35ed8cd6adf7c18599 100644
+index 56fbb2a80c1d1df8314119a9d2168b208a59d2e1..9cb9b47a4e565a243b02455aeb98ba136d01a315 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -176,6 +176,8 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
