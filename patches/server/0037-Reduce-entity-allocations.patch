@@ -5,7 +5,7 @@ Subject: [PATCH] Reduce entity allocations
 
 
 diff --git a/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java b/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
-index d08289dda13d31ec1019722af554dc1d834b41e4..21ccf6d150dd8c57abe43fafd6de87f105607a20 100644
+index 089d66ce4913e97c5fc79daee0f2fd932664f28f..f3d0aa9eb56c871c12a318ce26b955833d7d1848 100644
 --- a/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
 +++ b/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
 @@ -393,6 +393,8 @@ public final class CollisionUtil {
@@ -90,7 +90,7 @@ index 9cbfda029782385d1a7987f5be46d450bd8a758e..d3e97858dacc850012e5585ac44a1aea
  
      public boolean hasAttribute(Attribute attribute) {
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 56fbb2a80c1d1df8314119a9d2168b208a59d2e1..9cb9b47a4e565a243b02455aeb98ba136d01a315 100644
+index 604fa5b86778c920d1a4aa1c65b9baf64e68964a..6dd3e8909627d306f7500b8961dc1484bffad327 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -176,6 +176,8 @@ public abstract class Level implements LevelAccessor, AutoCloseable {

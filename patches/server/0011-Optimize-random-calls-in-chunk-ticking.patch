@@ -46,7 +46,7 @@ index 958b7044c196ebd66f60391c33c64ad2ff82d4e8..5b8f23b7739580b8a08de0ed43c0fc01
              boolean flag2 = level.ticksPerAnimalSpawns != 0L && worlddata.getGameTime() % level.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index a4546a80b0d1fde8c4f92fea575745b1352d95b0..826e4bcdc1f88463e0ba75864a50a1a1f0e5b454 100644
+index a83b4e9b6b5bd6a57d4bc2f1cdc78ffb7e7d2fdd..8d20de10f15c02a2a3a65b37dda9bc6975b3ee23 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -881,6 +881,8 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
@@ -75,7 +75,7 @@ index a4546a80b0d1fde8c4f92fea575745b1352d95b0..826e4bcdc1f88463e0ba75864a50a1a1
 +         if (!this.paperConfig.disableIceAndSnow && (this.currentIceAndSnowTick++ & 15) == 0) { // Paper - Disable ice and snow // Paper - optimise random ticking  // Airplane - optimize further random ticking
              // Paper start - optimise chunk ticking
              this.getRandomBlockPosition(j, 0, k, 15, blockposition);
-             int normalY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockposition.getX() & 15, blockposition.getZ() & 15);
+             int normalY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockposition.getX() & 15, blockposition.getZ() & 15) + 1;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 index 54e23d303aad286ab46c3e5f9b17a5f9922e2942..4785cbd47e15f78c0302f1dc9bd904a4839ef8e4 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java

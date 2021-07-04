@@ -5,7 +5,7 @@ Subject: [PATCH] Config to disable method profiler
 
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 57f737e7a48366c597a73356c076d3ff95850b12..8b34e089835c022c86f63a19301d04b57b2d0db8 100644
+index 3c13ee6b907add5fbb51f6955020b6bc3ac28c6f..0a69cded7cb896c70effc65f9530feb7ae59a01b 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -118,4 +118,13 @@ public class AirplaneConfig {
@@ -35,10 +35,10 @@ index cdad7bf3e3f7c5d8cc4f3fd7bf4039bb5692b8f9..4696a6bb393f75a3915f6ecc2d36c22a
      }
  
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 1d9ccd35c365c24d9cdd53575b3d336172ad1132..95c2b3705806414af7181f55a11acbf151b62cf0 100644
+index 6c23d666063472885a414fa89fa6bf5229bae620..604fa5b86778c920d1a4aa1c65b9baf64e68964a 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
-@@ -1521,6 +1521,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+@@ -1528,6 +1528,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
      }
  
      public ProfilerFiller getProfiler() {
