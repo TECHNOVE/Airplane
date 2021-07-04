@@ -24,10 +24,10 @@ index 0000000000000000000000000000000000000000..6dc9cba47950165eca2d362bc10cbfbb
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 7f11b84fc566b88e0aae0b015237a7f5786fbeeb..60c4bcdbc20f4b4198f49cd43b98ebd557c99692 100644
+index 29b9c653ef6278d964549b6e346c31bbc14b760f..76fb88b8d7995466e49312a0d33dba95a5e43664 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -1651,11 +1651,20 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -1676,11 +1676,20 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
          VoxelShape voxelshape1 = newState.getCollisionShape(this, pos);
  
          if (Shapes.joinIsNotEmpty(voxelshape, voxelshape1, BooleanOp.NOT_SAME)) {
@@ -51,7 +51,7 @@ index 7f11b84fc566b88e0aae0b015237a7f5786fbeeb..60c4bcdbc20f4b4198f49cd43b98ebd5
                  try {
                      entityinsentient = (Mob) iterator.next();
                  } catch (java.util.ConcurrentModificationException ex) {
-@@ -1665,6 +1674,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -1690,6 +1699,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
                      this.sendBlockUpdated(pos, oldState, newState, flags);
                      return;
                  }
@@ -59,7 +59,7 @@ index 7f11b84fc566b88e0aae0b015237a7f5786fbeeb..60c4bcdbc20f4b4198f49cd43b98ebd5
                  // CraftBukkit end
                  PathNavigation navigationabstract = entityinsentient.getNavigation();
  
-@@ -1672,6 +1682,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -1697,6 +1707,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
                      navigationabstract.recomputePath(pos);
                  }
              }
@@ -67,7 +67,7 @@ index 7f11b84fc566b88e0aae0b015237a7f5786fbeeb..60c4bcdbc20f4b4198f49cd43b98ebd5
  
          }
          } // Paper
-@@ -2468,7 +2479,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -2493,7 +2504,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
              }
  
              if (entity instanceof Mob) {
@@ -76,7 +76,7 @@ index 7f11b84fc566b88e0aae0b015237a7f5786fbeeb..60c4bcdbc20f4b4198f49cd43b98ebd5
              }
  
              if (entity instanceof EnderDragon) {
-@@ -2538,7 +2549,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -2563,7 +2574,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
              }
  
              if (entity instanceof Mob) {

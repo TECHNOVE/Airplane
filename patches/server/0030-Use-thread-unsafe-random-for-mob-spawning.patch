@@ -5,10 +5,10 @@ Subject: [PATCH] Use thread unsafe random for mob spawning
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 751535e0c809f0685b409aedee122d906fe5ba89..7c2e989bfdb9d5c311a7abf10da9a09e44a3ad78 100644
+index b6fede08d803bd8c44094fd6d03ff6272945a9bd..1a776b28c33d798d7ac88254acde89d5b2067169 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -937,7 +937,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -942,7 +942,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
      }
      // Paper start - optimise random block ticking
      private final BlockPos.MutableBlockPos chunkTickMutablePosition = new BlockPos.MutableBlockPos();
@@ -18,7 +18,7 @@ index 751535e0c809f0685b409aedee122d906fe5ba89..7c2e989bfdb9d5c311a7abf10da9a09e
  
      private int currentIceAndSnowTick = 0; protected void resetIceAndSnowTick() { this.currentIceAndSnowTick = this.randomTickRandom.nextInt(16); } // Airplane
 diff --git a/src/main/java/net/minecraft/world/level/NaturalSpawner.java b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-index b2329de658df71ce03a6fe0c41c02997afdf868f..d6350952e45b90aff81f303849251fd82136cca6 100644
+index 0059f0488acc22ebddc2faf4c5879f9f0c24fd14..074e25789152b8194797d6a3bae242e08f6be577 100644
 --- a/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 +++ b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 @@ -407,12 +407,12 @@ public final class NaturalSpawner {

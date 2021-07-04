@@ -116,10 +116,10 @@ index 0000000000000000000000000000000000000000..04565b596f7579eb22263ef844513aeb
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 877412e9271f6f3979738f43853a1a8893a66214..6016d34421adca8f973d13505022ab6b14eac5ba 100644
+index 14e3690ace3f9b88aee8dc39cae563da4bb39d2b..b6fede08d803bd8c44094fd6d03ff6272945a9bd 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -605,6 +605,21 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -610,6 +610,21 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
          return result;
      }
  

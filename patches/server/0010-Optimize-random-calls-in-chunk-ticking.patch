@@ -46,10 +46,10 @@ index 958b7044c196ebd66f60391c33c64ad2ff82d4e8..5b8f23b7739580b8a08de0ed43c0fc01
              boolean flag2 = level.ticksPerAnimalSpawns != 0L && worlddata.getGameTime() % level.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 84febe41f4b1bb8a7117ed4212b10388e4eff9fe..9be7f9783571bf33f5efbd5e08aa83268dfc59fb 100644
+index 42f6664ea6ddb3892b4549a78755efccd6f0f329..14e3690ace3f9b88aee8dc39cae563da4bb39d2b 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -925,6 +925,8 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -930,6 +930,8 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
      private final com.tuinity.tuinity.util.math.ThreadUnsafeRandom randomTickRandom = new com.tuinity.tuinity.util.math.ThreadUnsafeRandom();
      // Paper end
  
@@ -58,7 +58,7 @@ index 84febe41f4b1bb8a7117ed4212b10388e4eff9fe..9be7f9783571bf33f5efbd5e08aa8326
      public void tickChunk(LevelChunk chunk, int randomTickSpeed) {
          ChunkPos chunkcoordintpair = chunk.getPos();
          boolean flag = this.isRaining();
-@@ -935,7 +937,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -940,7 +942,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
          gameprofilerfiller.push("thunder");
          final BlockPos.MutableBlockPos blockposition = this.chunkTickMutablePosition; // Paper - use mutable to reduce allocation rate, final to force compile fail on change
  
@@ -67,7 +67,7 @@ index 84febe41f4b1bb8a7117ed4212b10388e4eff9fe..9be7f9783571bf33f5efbd5e08aa8326
              blockposition.set(this.findLightningTargetAround(this.getBlockRandomPos(j, 0, k, 15))); // Paper
              if (this.isRainingAt(blockposition)) {
                  DifficultyInstance difficultydamagescaler = this.getCurrentDifficultyAt(blockposition);
-@@ -965,7 +967,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
+@@ -970,7 +972,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
          }
  
          gameprofilerfiller.popPush("iceandsnow");
@@ -75,7 +75,7 @@ index 84febe41f4b1bb8a7117ed4212b10388e4eff9fe..9be7f9783571bf33f5efbd5e08aa8326
 +         if (!this.paperConfig.disableIceAndSnow && (this.currentIceAndSnowTick++ & 15) == 0) { // Paper - Disable ice and snow // Paper - optimise random ticking  // Airplane - optimize further random ticking
              // Paper start - optimise chunk ticking
              this.getRandomBlockPosition(j, 0, k, 15, blockposition);
-             int normalY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockposition.getX() & 15, blockposition.getZ() & 15);
+             int normalY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockposition.getX() & 15, blockposition.getZ() & 15) + 1;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 index 54e23d303aad286ab46c3e5f9b17a5f9922e2942..4785cbd47e15f78c0302f1dc9bd904a4839ef8e4 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
