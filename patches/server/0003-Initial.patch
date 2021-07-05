@@ -4,6 +4,41 @@ Date: Mon, 21 Jun 2021 15:25:32 -0500
 Subject: [PATCH] Initial
 
 
+diff --git a/build.gradle.kts b/build.gradle.kts
+index fbd71fc0d2619278565537cd565a99282d84f587..1f278f22260f4810e27fd07c9e7fecf14036fe3d 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -3,7 +3,6 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
+ import io.papermc.paperweight.tasks.BaseTask
+ import io.papermc.paperweight.tasks.GenerateReobfMappings
+ import io.papermc.paperweight.tasks.PatchMappings
+-import io.papermc.paperweight.util.Constants
+ import io.papermc.paperweight.util.Git
+ import io.papermc.paperweight.util.cache
+ import io.papermc.paperweight.util.defaultOutput
+@@ -113,22 +112,6 @@ publishing {
+     }
+ }
+ 
+-val generateReobfMappings = rootProject.tasks.named<GenerateReobfMappings>("generateReobfMappings")
+-
+-val patchReobfMappings by tasks.registering<PatchMappings> {
+-    inputMappings.set(generateReobfMappings.flatMap { it.reobfMappings })
+-    patch.set(rootProject.layout.cache.resolve("paperweight/upstreams/paper/build-data/reobf-mappings-patch.tiny"))
+-
+-    fromNamespace.set(Constants.DEOBF_NAMESPACE)
+-    toNamespace.set(Constants.SPIGOT_NAMESPACE)
+-
+-    outputMappings.set(layout.cache.resolve("paperweight/mappings/reobf-patched.tiny"))
+-}
+-
+-tasks.reobfJar {
+-    mappingsFile.set(patchReobfMappings.flatMap { it.outputMappings })
+-}
+-
+ val generatePom = tasks.named<GenerateMavenPom>("generatePomFileForMavenPublication")
+ 
+ tasks.shadowJar {
 diff --git a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java b/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
 index c510da19883d1aa79b2fc25e2d9c8f5cd8dd7bfa..d86b2b5bdb6b7446cee5edda40c7ea316b74a200 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
