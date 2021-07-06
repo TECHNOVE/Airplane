@@ -5,10 +5,10 @@ Subject: [PATCH] idk
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index f88ade92a25cb5eda7abc658551a42318af66ce9..d8cc08bf6d09929bf376416ce26c7f7609def3b9 100644
+index 7e530e2b1770572509498690ba4728e950017de2..cc6f552d70b1bfe1a522b83a20aa95c61d95fd79 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -185,7 +185,7 @@ abstract class IncludeMappings : BaseTask() {
+@@ -168,7 +168,7 @@ abstract class IncludeMappings : BaseTask() {
  }
  
  val includeMappings = tasks.register<IncludeMappings>("includeMappings") {

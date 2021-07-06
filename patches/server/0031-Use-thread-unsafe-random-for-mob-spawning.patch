@@ -5,7 +5,7 @@ Subject: [PATCH] Use thread unsafe random for mob spawning
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index b6fede08d803bd8c44094fd6d03ff6272945a9bd..1a776b28c33d798d7ac88254acde89d5b2067169 100644
+index 2688d813f5c4aeb91ebc5a65300dc0df6114fff0..692f08df8fbd277722cd3439de4aa63048b031dd 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -942,7 +942,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl

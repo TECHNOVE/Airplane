@@ -46,7 +46,7 @@ index 958b7044c196ebd66f60391c33c64ad2ff82d4e8..5b8f23b7739580b8a08de0ed43c0fc01
              boolean flag2 = level.ticksPerAnimalSpawns != 0L && worlddata.getGameTime() % level.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 42f6664ea6ddb3892b4549a78755efccd6f0f329..14e3690ace3f9b88aee8dc39cae563da4bb39d2b 100644
+index 05635818b4ae597b6b2053dbf9c8351f6ea9ea42..c8f09278ab11f9f7ddea7fa228fe4dff2d11ba11 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -930,6 +930,8 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Worl
