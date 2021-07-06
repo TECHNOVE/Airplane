@@ -17,3 +17,43 @@ index 7e530e2b1770572509498690ba4728e950017de2..cc6f552d70b1bfe1a522b83a20aa95c6
      mappings.set(tasks.reobfJar.flatMap { it.mappingsFile })
  }
  
+diff --git a/src/main/java/net/minecraft/core/BlockPos.java b/src/main/java/net/minecraft/core/BlockPos.java
+index 30a4b80eacf76ad7f0a48b79bcf01b752c0af48a..177134c0f232e04cb081c3182340f764fbaf4b8e 100644
+--- a/src/main/java/net/minecraft/core/BlockPos.java
++++ b/src/main/java/net/minecraft/core/BlockPos.java
+@@ -484,9 +484,9 @@ public class BlockPos extends Vec3i {
+         }
+ 
+         public BlockPos.MutableBlockPos set(int x, int y, int z) {
+-            this.x = x; // Tuinity - force inline
+-            this.y = y; // Tuinity - force inline
+-            this.z = z; // Tuinity - force inline
++            ((Vec3i) this).x = x; // Tuinity - force inline
++            ((Vec3i) this).y = y; // Tuinity - force inline
++            ((Vec3i) this).z = z; // Tuinity - force inline
+             return this;
+         }
+ 
+@@ -550,19 +550,19 @@ public class BlockPos extends Vec3i {
+         // Paper start - comment out useless overrides @Override - TODO figure out why this is suddenly important to keep
+         @Override
+         public BlockPos.MutableBlockPos setX(int i) {
+-            this.x = i; // Tuinity
++            ((Vec3i) this).x = i; // Tuinity
+             return this;
+         }
+ 
+         @Override
+         public BlockPos.MutableBlockPos setY(int i) {
+-            this.y = i; // Tuinity
++            ((Vec3i) this).y = i; // Tuinity
+             return this;
+         }
+ 
+         @Override
+         public BlockPos.MutableBlockPos setZ(int i) {
+-            this.z = i; // Tuinity
++            ((Vec3i) this).z = i; // Tuinity
+             return this;
+         }
+         // Paper end
