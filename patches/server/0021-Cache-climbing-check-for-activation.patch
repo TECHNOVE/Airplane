@@ -5,7 +5,7 @@ Subject: [PATCH] Cache climbing check for activation
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 5973dcbfc7dbb532222dc5856ed3df3fc9e55a1f..f59aabf306c3ffed4a5f34dcb434750abe7b461a 100644
+index 402b785b5fd0e1c3c5c02505dca332990ec64e37..c22bf8f7df311ae3f2973667764e9768bcc9065d 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -142,7 +142,6 @@ import org.bukkit.event.entity.EntityTeleportEvent;
@@ -16,7 +16,7 @@ index 5973dcbfc7dbb532222dc5856ed3df3fc9e55a1f..f59aabf306c3ffed4a5f34dcb434750a
  
  public abstract class LivingEntity extends Entity {
  
-@@ -1820,6 +1819,20 @@ public abstract class LivingEntity extends Entity {
+@@ -1824,6 +1823,20 @@ public abstract class LivingEntity extends Entity {
          return this.lastClimbablePos;
      }
  

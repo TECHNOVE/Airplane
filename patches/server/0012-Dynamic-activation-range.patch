@@ -69,7 +69,7 @@ index ab019b577002677a4ce788106f8e5a1d7757a2ae..5077e70e4f408814b1072ceb45c52a32
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index ca7718053a6a2eb715ea3671bd4bc15304ede420..f71b665139e176825e8bc8dc1cbe59300dc27c2c 100644
+index e75efd67acb063e3ce7506839e4a888241bda703..e60c78de80e0f6976d50496436e81fbd6defcd25 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -336,6 +336,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -83,10 +83,10 @@ index ca7718053a6a2eb715ea3671bd4bc15304ede420..f71b665139e176825e8bc8dc1cbe5930
      public float getBukkitYaw() {
          return this.yRot;
 diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
-index 154b3c767d079f72643c826b962892c1029b0a1b..287e588ede2b6df6053f551dae930a49d2de9c88 100644
+index f8c6d88d6bf71e7bc46b5f44e688229da5fd3da2..8c79aae87cfaad6aa69f1eb3d5af83f91d00efde 100644
 --- a/src/main/java/net/minecraft/world/entity/Mob.java
 +++ b/src/main/java/net/minecraft/world/entity/Mob.java
-@@ -202,10 +202,10 @@ public abstract class Mob extends LivingEntity {
+@@ -203,10 +203,10 @@ public abstract class Mob extends LivingEntity {
      @Override
      public void inactiveTick() {
          super.inactiveTick();
@@ -99,7 +99,7 @@ index 154b3c767d079f72643c826b962892c1029b0a1b..287e588ede2b6df6053f551dae930a49
              this.targetSelector.tick();
          }
      }
-@@ -833,9 +833,11 @@ public abstract class Mob extends LivingEntity {
+@@ -834,9 +834,11 @@ public abstract class Mob extends LivingEntity {
          this.sensing.tick();
          this.level.getProfiler().pop();
          this.level.getProfiler().push("targetSelector");
@@ -131,10 +131,10 @@ index faa53d08a12cc7441c670cae6d301de3f498ffe7..b17f401d723b1466a3b7e05da3dfeebd
      public boolean hasTasks() {
          for (WrappedGoal task : this.availableGoals) {
 diff --git a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
-index 25ebcb30cf5165675f26802983b6f68404b93b06..ae5c82af936c21dfae4d93d0f85319dee25929fc 100644
+index c72819b03f9339dadd691155f196f6744f14da75..72fc7deb997165f977b8401a0f07057ee01d00a7 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
-@@ -279,9 +279,11 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
+@@ -275,9 +275,11 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
          return true;
      }
  
@@ -147,10 +147,10 @@ index 25ebcb30cf5165675f26802983b6f68404b93b06..ae5c82af936c21dfae4d93d0f85319de
          this.level.getProfiler().pop();
          this.level.getProfiler().push("axolotlActivityUpdate");
 diff --git a/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java b/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
-index 580f3e8de2e10ddc01430e84fc42e243736c4810..b0541ab561c5ff2218a438f20ed971aa2c20bff5 100644
+index 15787afad42f9299638a1c9e57d26678805f18ee..0d220ea2d2651c46ba60c68bdd8dad3182c69740 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
-@@ -130,9 +130,11 @@ public class Goat extends Animal {
+@@ -144,9 +144,11 @@ public class Goat extends Animal {
          return (Brain<Goat>) super.getBrain(); // CraftBukkit - decompile error
      }
  

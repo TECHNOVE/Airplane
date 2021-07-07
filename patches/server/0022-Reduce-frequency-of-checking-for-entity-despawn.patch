@@ -8,7 +8,7 @@ entities this starts adding up more than it should, and it's already
 fairly optimized. Just starts being slow when you have 30k entities.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index ac49dc0c8bce07954ab69a18f0ee1f0b7d0db749..57f737e7a48366c597a73356c076d3ff95850b12 100644
+index e22ccbe13a252b9406c02d5c516b245d5ff57a0f..3c13ee6b907add5fbb51f6955020b6bc3ac28c6f 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -109,4 +109,13 @@ public class AirplaneConfig {
@@ -26,10 +26,10 @@ index ac49dc0c8bce07954ab69a18f0ee1f0b7d0db749..57f737e7a48366c597a73356c076d3ff
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
-index 287e588ede2b6df6053f551dae930a49d2de9c88..c4d1e8d1319b20abbaff1d0ddce5207dc654ad9f 100644
+index 8c79aae87cfaad6aa69f1eb3d5af83f91d00efde..9d04574e7a2b0548ed3673f15ba0427a4ae620fa 100644
 --- a/src/main/java/net/minecraft/world/entity/Mob.java
 +++ b/src/main/java/net/minecraft/world/entity/Mob.java
-@@ -779,8 +779,15 @@ public abstract class Mob extends LivingEntity {
+@@ -780,8 +780,15 @@ public abstract class Mob extends LivingEntity {
          return false;
      }
  

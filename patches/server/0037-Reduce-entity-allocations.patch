@@ -37,7 +37,7 @@ index a2f52a68420a2d23d8f54f61f7aeede41567dc0f..4da3e83b61b89978aed968d4aaec3308
  
          // special cases:
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index debbace72046d7f691cc5b7c6be5f5738b73ec9f..d7a84b34d216dec8f66266e33bb7ac12780a3644 100644
+index 15f84b8a512f5153258430bb82752b144560f37c..65f4100e1749402e42431932330ba50cde2d4749 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -338,6 +338,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -90,10 +90,10 @@ index 9cbfda029782385d1a7987f5be46d450bd8a758e..d3e97858dacc850012e5585ac44a1aea
  
      public boolean hasAttribute(Attribute attribute) {
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 604fa5b86778c920d1a4aa1c65b9baf64e68964a..6dd3e8909627d306f7500b8961dc1484bffad327 100644
+index c9bd4c496677a3450931c2ac52793c66095df4be..87854318966a157796788134c8447c0458aa996f 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
-@@ -176,6 +176,8 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+@@ -177,6 +177,8 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
      public final Map<Explosion.CacheKey, Float> explosionDensityCache = new HashMap<>(); // Paper - Optimize explosions
      public java.util.ArrayDeque<net.minecraft.world.level.block.RedstoneTorchBlock.Toggle> redstoneUpdateInfos; // Paper - Move from Map in BlockRedstoneTorch to here
  
