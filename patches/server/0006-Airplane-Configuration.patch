@@ -178,10 +178,10 @@ index 0000000000000000000000000000000000000000..807cf274619b8f7be839e249cb62b981
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 76ff4b0c1ebf4f7b3cf7b752ee8ec4f418c622b9..e6e45270674b10befaec9b5d48473afe4bee9ca2 100644
+index a75d1872d63aeba5376d787336e4793e813ba21f..127e211548675155e8f3c11cf15775406c9f44bc 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -232,6 +232,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -233,6 +233,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
          io.papermc.paper.util.StacktraceDeobfuscator.INSTANCE.getClass(); // load mappings for stacktrace deobf
          // Paper end
          com.tuinity.tuinity.config.TuinityConfig.init((java.io.File) options.valueOf("tuinity-settings")); // Tuinity - Server Config

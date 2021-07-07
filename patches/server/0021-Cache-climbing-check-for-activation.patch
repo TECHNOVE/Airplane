@@ -5,7 +5,7 @@ Subject: [PATCH] Cache climbing check for activation
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 9b3dff2ea71c974a4a95af200c16d058f9992a14..ee4fa43be982b686d5ba84989793def5c0d27dd2 100644
+index c7fe2109e1e87331fa13d5c5f8ba0c837216c5c2..d087131d8f5bc5fef10d41ca63daf4e2d9082c0d 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -143,7 +143,6 @@ import org.bukkit.event.entity.EntityTeleportEvent;
@@ -16,7 +16,7 @@ index 9b3dff2ea71c974a4a95af200c16d058f9992a14..ee4fa43be982b686d5ba84989793def5
  
  public abstract class LivingEntity extends Entity {
  
-@@ -1862,6 +1861,20 @@ public abstract class LivingEntity extends Entity {
+@@ -1866,6 +1865,20 @@ public abstract class LivingEntity extends Entity {
          return this.lastClimbablePos;
      }
  
@@ -38,10 +38,10 @@ index 9b3dff2ea71c974a4a95af200c16d058f9992a14..ee4fa43be982b686d5ba84989793def5
          if (this.isSpectator()) {
              return false;
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 0b5c882c447f944df3b77a21c9ddd41ec24a78f0..0cb3bcc594fc24d75abc32db372189c1b165b154 100644
+index 20cfb1e96f08a391f69212a25fa2e0a81d20a673..0422047697c974d6740ad4f3f8cbd35ac5e48546 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
-@@ -306,7 +306,7 @@ public class ActivationRange
+@@ -296,7 +296,7 @@ public class ActivationRange
          if ( entity instanceof LivingEntity )
          {
              LivingEntity living = (LivingEntity) entity;

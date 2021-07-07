@@ -69,7 +69,7 @@ index ab019b577002677a4ce788106f8e5a1d7757a2ae..5077e70e4f408814b1072ceb45c52a32
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 63cfc111ccdaa725975234eb3f58c743c57177f3..06cfb280afc66f10f52fa2748fbced595e6ada2e 100644
+index 0615c4cc3ada4673cb44eaafc4c7fbe189fb1093..0ffa7b36a3196be3dfa5fa2d25951cee23d08159 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -336,6 +336,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -83,10 +83,10 @@ index 63cfc111ccdaa725975234eb3f58c743c57177f3..06cfb280afc66f10f52fa2748fbced59
      public float getBukkitYaw() {
          return this.yRot;
 diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
-index 4601df22a3ced8752b6aff9f052e564a24466ce4..af4fbbc023c7c1837a3e033d1c7290156e9014ae 100644
+index ad5197e5f814c02e81c52b2acb2e8554f746a28c..1ea7651a802d7ad1a6eb29baebbceb9ec52c5ba1 100644
 --- a/src/main/java/net/minecraft/world/entity/Mob.java
 +++ b/src/main/java/net/minecraft/world/entity/Mob.java
-@@ -206,10 +206,10 @@ public abstract class Mob extends LivingEntity {
+@@ -207,10 +207,10 @@ public abstract class Mob extends LivingEntity {
      @Override
      public void inactiveTick() {
          super.inactiveTick();
@@ -99,7 +99,7 @@ index 4601df22a3ced8752b6aff9f052e564a24466ce4..af4fbbc023c7c1837a3e033d1c729015
              this.targetSelector.tick();
          }
      }
-@@ -870,9 +870,11 @@ public abstract class Mob extends LivingEntity {
+@@ -871,9 +871,11 @@ public abstract class Mob extends LivingEntity {
          this.sensing.tick();
          this.level.getProfiler().pop();
          this.level.getProfiler().push("targetSelector");
@@ -131,10 +131,10 @@ index faa53d08a12cc7441c670cae6d301de3f498ffe7..b17f401d723b1466a3b7e05da3dfeebd
      public boolean hasTasks() {
          for (WrappedGoal task : this.availableGoals) {
 diff --git a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
-index a75d7da8278b5a0671d85708898731d9bd3344e2..765dcf6dc7a1b684a64c73b49dbc719e759f0c1e 100644
+index c9056e16015f6e0ed9e5da03ad036162dbab4d09..2e4cee7d242349745c87faa1acb879386e61d1b7 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
-@@ -306,9 +306,11 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
+@@ -302,9 +302,11 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
          return true;
      }
  
@@ -147,10 +147,10 @@ index a75d7da8278b5a0671d85708898731d9bd3344e2..765dcf6dc7a1b684a64c73b49dbc719e
          this.level.getProfiler().pop();
          this.level.getProfiler().push("axolotlActivityUpdate");
 diff --git a/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java b/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
-index 93439e518b071cc19eeabe4c8db7676e5a31cfff..f802410e8c977dce530594e77d73f2cdd9fa231e 100644
+index ca62d4adafc3195541665192888feac91312d71a..ce2896c609d16a9b9a733930a3c4c3bd32ebec90 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
-@@ -152,10 +152,12 @@ public class Goat extends Animal {
+@@ -166,10 +166,12 @@ public class Goat extends Animal {
          return (Brain<Goat>) super.getBrain(); // CraftBukkit - decompile error
      }
  
@@ -227,7 +227,7 @@ index fd5c077628733365527f339efc96f0a8620b8e1a..adbed472b2a99fef72ab08bca7350b01
          this.level.getProfiler().pop();
          if (this.assignProfessionWhenSpawned) {
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 073b0e6dbd4be7cb7edd8864b1be1c4b6a56e641..0b5c882c447f944df3b77a21c9ddd41ec24a78f0 100644
+index 3cfca02792f48e917dc445e2d32e7c18556c151b..20cfb1e96f08a391f69212a25fa2e0a81d20a673 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -38,6 +38,10 @@ import co.aikar.timings.MinecraftTimings;
@@ -241,16 +241,12 @@ index 073b0e6dbd4be7cb7edd8864b1be1c4b6a56e641..0b5c882c447f944df3b77a21c9ddd41e
  
  public class ActivationRange
  {
-@@ -207,7 +211,37 @@ public class ActivationRange
-             ActivationType.VILLAGER.boundingBox = player.getBoundingBox().inflate( villagerActivationRange, 256, waterActivationRange );
-             // Paper end
- 
--            world.getEntities(null, maxBB).forEach(ActivationRange::activateEntity); // Tuinity
-+            // Airplane start - copied from activateEntity
-+            List<Entity> entities = world.getEntities(null, maxBB);
-+            for (int i = 0, length = entities.size(); i < length; i++) {
-+                Entity entity = entities.get(i);
+@@ -212,6 +216,20 @@ public class ActivationRange
+             for (int i = 0; i < entities.size(); i++) {
+                 Entity entity = entities.get(i);
+                 ActivationRange.activateEntity(entity);
 +
++                // Airplane start
 +                if (gg.airplane.AirplaneConfig.dearEnabled) {
 +                    Vec3 playerVec = player.position();
 +                    Vec3 entityVec = entity.position();
@@ -262,36 +258,7 @@ index 073b0e6dbd4be7cb7edd8864b1be1c4b6a56e641..0b5c882c447f944df3b77a21c9ddd41e
 +                } else {
 +                    entity.activatedPriority = 1;
 +                }
-+
-+                if ( MinecraftServer.currentTick > entity.activatedTick )
-+                {
-+                    if ( entity.defaultActivationState )
-+                    {
-+                        entity.activatedTick = MinecraftServer.currentTick;
-+                        continue;
-+                    }
-+                    if ( entity.activationType.boundingBox.intersects( entity.getBoundingBox() ) )
-+                    {
-+                        entity.activatedTick = MinecraftServer.currentTick;
-+                    }
-+                }
-+            }
-+            // Airplane end
-         }
-         MinecraftTimings.entityActivationCheckTimer.stopTiming();
-     }
-@@ -222,12 +256,12 @@ public class ActivationRange
-         if ( MinecraftServer.currentTick > entity.activatedTick )
-         {
-             if ( entity.defaultActivationState )
--            {
-+            { // Airplane - diff on change
-                 entity.activatedTick = MinecraftServer.currentTick;
-                 return;
++                // Airplane end
              }
-             if ( entity.activationType.boundingBox.intersects( entity.getBoundingBox() ) )
--            {
-+            {  // Airplane - diff on change
-                 entity.activatedTick = MinecraftServer.currentTick;
-             }
+             // Tuinity end
          }

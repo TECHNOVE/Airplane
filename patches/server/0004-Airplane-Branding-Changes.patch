@@ -83,10 +83,10 @@ index d50b61876f15d95b836b3dd81d9c3492c91a8448..5460f57f0473868b3fb09c526a1767f7
  
          return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index a87be8fe6fbed952bfee76bab49e313b2fbfa62d..215fd83ed51829f6e709a7101b7757aa083470a5 100644
+index e74ddf6b72dbd335f8a06f05341d5a4d99afa428..e02c45b50cf65ccdd4644bfe5712f249d072bfd0 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1730,7 +1730,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1732,7 +1732,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @DontObfuscate
      public String getServerModName() {
@@ -95,9 +95,9 @@ index a87be8fe6fbed952bfee76bab49e313b2fbfa62d..215fd83ed51829f6e709a7101b7757aa
 +        return purpurName.equals("Purpur") ? "AirplanePurpur" : purpurName; // Airplane // Purpur // Tuinity // Paper // Spigot // CraftBukkit
      }
  
-     public SystemReport fillSystemReport(SystemReport systemreport) {
+     public SystemReport fillSystemReport(SystemReport details) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index e6c77e7ecfa03f948423a68df0266210d0a0274d..9c085ddc022065fe5bdd1c9dbac91ba5685bfe6a 100644
+index a16f8d1c1faa5bc69a6ea5165f5e44d7e6ae35f5..57575e439bc559a596b963b689c91641ff59a811 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -230,7 +230,7 @@ import javax.annotation.Nullable; // Paper
