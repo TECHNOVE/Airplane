@@ -5,10 +5,10 @@ Subject: [PATCH] Reduce entity allocations
 
 
 diff --git a/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java b/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
-index 089d66ce4913e97c5fc79daee0f2fd932664f28f..f3d0aa9eb56c871c12a318ce26b955833d7d1848 100644
+index a2f52a68420a2d23d8f54f61f7aeede41567dc0f..4da3e83b61b89978aed968d4aaec3308f3f00995 100644
 --- a/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
 +++ b/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
-@@ -393,6 +393,8 @@ public final class CollisionUtil {
+@@ -398,6 +398,8 @@ public final class CollisionUtil {
                                                                final List<AABB> into, final boolean loadChunks, final boolean collidesWithUnloaded,
                                                                final boolean checkBorder, final boolean checkOnly, final BiPredicate<BlockState, BlockPos> predicate) {
          boolean ret = false;
@@ -17,7 +17,7 @@ index 089d66ce4913e97c5fc79daee0f2fd932664f28f..f3d0aa9eb56c871c12a318ce26b95583
  
          if (checkBorder) {
              if (CollisionUtil.isAlmostCollidingOnBorder(getter.getWorldBorder(), aabb)) {
-@@ -403,7 +405,8 @@ public final class CollisionUtil {
+@@ -408,7 +410,8 @@ public final class CollisionUtil {
                      ret = true;
                  }
              }
@@ -27,7 +27,7 @@ index 089d66ce4913e97c5fc79daee0f2fd932664f28f..f3d0aa9eb56c871c12a318ce26b95583
  
          int minBlockX = Mth.floor(aabb.minX - COLLISION_EPSILON) - 1;
          int maxBlockX = Mth.floor(aabb.maxX + COLLISION_EPSILON) + 1;
-@@ -419,7 +422,7 @@ public final class CollisionUtil {
+@@ -424,7 +427,7 @@ public final class CollisionUtil {
          final int minBlock = minSection << 4;
          final int maxBlock = (maxSection << 4) | 15;
  

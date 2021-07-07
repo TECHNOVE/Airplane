@@ -197,7 +197,7 @@ index adc2feafd0c1a38d1b6b65b8aee59d21725b84fe..94f5c84b16865c5a8d77111274b1c365
          PiglinAi.updateActivity(this);
          super.customServerAiStep();
 diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-index 43bb055f0f9ecb82c25e0f47258f45ce4182a75d..4a54e8026561a542eff810a731d66e0fcd35e84c 100644
+index dce94c04d20af637860559c1f27412d151e1b5af..9db53dddcc3c566b6ab638c3c2df3d6633596c0e 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
 @@ -245,11 +245,18 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
@@ -221,7 +221,7 @@ index 43bb055f0f9ecb82c25e0f47258f45ce4182a75d..4a54e8026561a542eff810a731d66e0f
          if (this.assignProfessionWhenSpawned) {
              this.assignProfessionWhenSpawned = false;
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 7361bf04de16d0526dc4cdbd0f564713df041d90..184b42bff59c254c487e4b668dbf784ec04d5c5e 100644
+index 966639cc6ba6684bfb52e91ac047808cf4d003e4..70659402391d70f276d62f3d73a8ec4b12c5e2e1 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -37,6 +37,10 @@ import co.aikar.timings.MinecraftTimings;
@@ -235,16 +235,12 @@ index 7361bf04de16d0526dc4cdbd0f564713df041d90..184b42bff59c254c487e4b668dbf784e
  
  public class ActivationRange
  {
-@@ -205,7 +209,37 @@ public class ActivationRange
-             ActivationType.VILLAGER.boundingBox = player.getBoundingBox().inflate( villagerActivationRange, 256, waterActivationRange );
-             // Paper end
- 
--            world.getEntities(null, maxBB).forEach(ActivationRange::activateEntity); // Tuinity
-+            // Airplane start - copied from activateEntity
-+            List<Entity> entities = world.getEntities(null, maxBB);
-+            for (int i = 0, length = entities.size(); i < length; i++) {
-+                Entity entity = entities.get(i);
+@@ -210,6 +214,21 @@ public class ActivationRange
+             for (int i = 0; i < entities.size(); i++) {
+                 Entity entity = entities.get(i);
+                 ActivationRange.activateEntity(entity);
 +
++                // Airplane start
 +                if (gg.airplane.AirplaneConfig.dearEnabled) {
 +                    Vec3 playerVec = player.position();
 +                    Vec3 entityVec = entity.position();
@@ -256,25 +252,12 @@ index 7361bf04de16d0526dc4cdbd0f564713df041d90..184b42bff59c254c487e4b668dbf784e
 +                } else {
 +                    entity.activatedPriority = 1;
 +                }
++                // Airplane end
 +
-+                if ( MinecraftServer.currentTick > entity.activatedTick )
-+                {
-+                    if ( entity.defaultActivationState )
-+                    {
-+                        entity.activatedTick = MinecraftServer.currentTick;
-+                        continue;
-+                    }
-+                    if ( entity.activationType.boundingBox.intersects( entity.getBoundingBox() ) )
-+                    {
-+                        entity.activatedTick = MinecraftServer.currentTick;
-+                    }
-+                }
-+            }
-+            // Airplane end
+             }
+             // Tuinity end
          }
-         MinecraftTimings.entityActivationCheckTimer.stopTiming();
-     }
-@@ -220,12 +254,12 @@ public class ActivationRange
+@@ -226,12 +245,12 @@ public class ActivationRange
          if ( MinecraftServer.currentTick > entity.activatedTick )
          {
              if ( entity.defaultActivationState )
