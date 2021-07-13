@@ -10,7 +10,7 @@
 [wiki]: https://github.com/TECHNOVE/Airplane/wiki
 
 # Airplane
-A stable, optimized, well supported 1.16.5 Paper fork.
+A stable, optimized, well supported 1.16.5 & 1.17.1 Paper fork.
 
 [Homepage][home] - [Downloads][downloads] - [Blog][blog] - [Discord][discord] - [airplane.air][wiki]
 
