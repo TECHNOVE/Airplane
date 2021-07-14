@@ -19,15 +19,16 @@ dependencies {
     paperclip("io.papermc:paperclip:2.0.1")
 }
 
-subprojects {
+allprojects {
     apply(plugin = "java")
 
     java { toolchain { languageVersion.set(JavaLanguageVersion.of(16)) } }
 
-    tasks.withType<JavaCompile>().configureEach {
-        options.encoding = "UTF-8"
-        options.release.set(16)
-    }
+    tasks.withType<JavaCompile> { options.isFork = true; options.isIncremental = true; options.encoding = Charsets.UTF_8.name(); options.release.set(16) }
+
+    tasks.withType<Javadoc> { options.encoding = Charsets.UTF_8.name() }
+
+    tasks.withType<ProcessResources> { filteringCharset = Charsets.UTF_8.name() }
 
     repositories {
         mavenCentral()
