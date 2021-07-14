@@ -1,7 +1,7 @@
 plugins {
     java
     id("com.github.johnrengelman.shadow") version "7.0.0" apply false
-    id("io.papermc.paperweight.patcher") version "1.1.9-SNAPSHOT"
+    id("io.papermc.paperweight.patcher") version "1.1.6"
 }
 
 repositories {
