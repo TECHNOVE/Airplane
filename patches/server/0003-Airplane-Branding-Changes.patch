@@ -20,27 +20,25 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index d969c31ecc9dce0a12eccedf8a848b22368bc614..01c612c4ecb88e80f174e146467dfcc18562bb25 100644
+index d27914efcfa68a51d07069b46b946a06016933bd..245bce35a1efe1068c5dfb961f90a422d1d15249 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -35,8 +35,8 @@ repositories {
+@@ -36,7 +36,7 @@ repositories {
  }
  
  dependencies {
 -    implementation(project(":Purpur-API")) // Purpur
--    implementation("io.papermc.paper:paper-mojangapi:1.17-R0.1-SNAPSHOT") // Purpur
 +    implementation(project(":Airplane-API")) // Airplane // Tuinity
-+    implementation("com.destroystokyo.paper:paper-mojangapi:1.16.5-R0.1-SNAPSHOT") // Tuinity
+     implementation("com.destroystokyo.paper:paper-mojangapi:1.16.5-R0.1-SNAPSHOT") // Tuinity
      // Paper start
      implementation("org.jline:jline-terminal-jansi:3.12.1")
-     implementation("net.minecrell:terminalconsoleappender:1.2.0")
-@@ -86,7 +86,7 @@ tasks.jar {
+@@ -88,7 +88,7 @@ tasks.jar {
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
              "Implementation-Title" to "CraftBukkit",
 -            "Implementation-Version" to "git-Purpur-$implementationVersion", // Purpur
 +            "Implementation-Version" to "git-AirplanePurpur-$implementationVersion", // Airplane // Tuinity
-             "Implementation-Vendor" to SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Date()), // Paper
+             "Implementation-Vendor" to date, // Paper
              "Specification-Title" to "Bukkit",
              "Specification-Version" to project.version,
 diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
@@ -97,7 +95,7 @@ index e74ddf6b72dbd335f8a06f05341d5a4d99afa428..e02c45b50cf65ccdd4644bfe5712f249
  
      public SystemReport fillSystemReport(SystemReport details) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index a16f8d1c1faa5bc69a6ea5165f5e44d7e6ae35f5..57575e439bc559a596b963b689c91641ff59a811 100644
+index ef1004a277e4ae0bdec410c42271b4060227313f..f337ad025badb73f8bcd8d951e2b8883103afa4b 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -230,7 +230,7 @@ import javax.annotation.Nullable; // Paper

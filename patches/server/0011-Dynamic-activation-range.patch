@@ -69,7 +69,7 @@ index ab019b577002677a4ce788106f8e5a1d7757a2ae..5077e70e4f408814b1072ceb45c52a32
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 0615c4cc3ada4673cb44eaafc4c7fbe189fb1093..0ffa7b36a3196be3dfa5fa2d25951cee23d08159 100644
+index d209a7b09d8429573c93af3d6159f30e6bc877ec..e7ee6193202fc17b923cff9edbb570816e89cbfe 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -336,6 +336,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -83,7 +83,7 @@ index 0615c4cc3ada4673cb44eaafc4c7fbe189fb1093..0ffa7b36a3196be3dfa5fa2d25951cee
      public float getBukkitYaw() {
          return this.yRot;
 diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
-index ad5197e5f814c02e81c52b2acb2e8554f746a28c..1ea7651a802d7ad1a6eb29baebbceb9ec52c5ba1 100644
+index a8c6d7da95fece2d909f55f3fc6fe7f1f632a01b..b4d23464960fa2a4056d915909c1db0c7650d8f6 100644
 --- a/src/main/java/net/minecraft/world/entity/Mob.java
 +++ b/src/main/java/net/minecraft/world/entity/Mob.java
 @@ -207,10 +207,10 @@ public abstract class Mob extends LivingEntity {
@@ -200,7 +200,7 @@ index 9e42dd636c78fdf7e94521b3f72c52a77563f8c9..a963bbdb4266ae43a4a2df76b156ca33
          PiglinAi.updateActivity(this);
          super.customServerAiStep();
 diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-index fd5c077628733365527f339efc96f0a8620b8e1a..adbed472b2a99fef72ab08bca7350b01d67c592e 100644
+index b649ef2c96beeb6c2d98f54375bbeb1159c7f4ba..4660f5e4aedf40d77640366be6b8b9cd899e990a 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
 @@ -292,6 +292,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler

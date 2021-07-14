@@ -5,7 +5,7 @@ Subject: [PATCH] Remove iterators from inventory contains
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/player/Inventory.java b/src/main/java/net/minecraft/world/entity/player/Inventory.java
-index dace7d13787f6fb44af90792599fa16caad68052..8d414822894fc41460bb9ccc53d7b0dfd1204115 100644
+index c7e16e96633e17b951f0681599c5b3efc3ce1e6c..8d329bca0818033df41fbd781028919c73e052a6 100644
 --- a/src/main/java/net/minecraft/world/entity/player/Inventory.java
 +++ b/src/main/java/net/minecraft/world/entity/player/Inventory.java
 @@ -688,6 +688,8 @@ public class Inventory implements Container, Nameable {

@@ -7,7 +7,7 @@ This results in a 3% improvement at 20,000 entities, but more
 importantly is the heaviest part of the entity tracker currently.
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 06cfb280afc66f10f52fa2748fbced595e6ada2e..196e60b77db8900f5f4929937e032506f00cddc3 100644
+index e7ee6193202fc17b923cff9edbb570816e89cbfe..e2da79b8159ca4a2e5c03e20fc1410f0c9d95e17 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -358,17 +358,36 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n

@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
-index 24a95bbee394dae1a3eac937990cae10a287a40b..1ad77fe9f7a337d9a7fc9b0edb51fb62136067d9 100644
+index facd45496e966fe973de2e4cde93f01297932669..124d929d01107f3553a694a92294883378cc2f2f 100644
 --- a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
 +++ b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
 @@ -56,6 +56,37 @@ public abstract class Projectile extends Entity {
