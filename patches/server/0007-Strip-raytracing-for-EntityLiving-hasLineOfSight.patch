@@ -27,17 +27,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index ed745776316c5346ee1b44c8f022c40359b7e642..402b785b5fd0e1c3c5c02505dca332990ec64e37 100644
+index 24c629d5f26bc5aadebcf39a63930b3448525242..3a3d5d2d2861bd0c8836c95b5b0f9f2212372bc8 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -3428,7 +3428,10 @@ public abstract class LivingEntity extends Entity {
+@@ -3431,7 +3431,10 @@ public abstract class LivingEntity extends Entity {
              Vec3 vec3d1 = new Vec3(entity.getX(), entity.getEyeY(), entity.getZ());
  
              // Paper - diff on change - used in CraftLivingEntity#hasLineOfSight(Location) and CraftWorld#lineOfSightExists
--            return vec3d1.distanceTo(vec3d) > 128.0D ? false : this.level.clip(new ClipContext(vec3d, vec3d1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS;
+-            return vec3d1.distanceToSqr(vec3d) > 128D * 128D ? false : this.level.clip(new ClipContext(vec3d, vec3d1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS; // Paper - use distanceToSqr
 +            // Airplane start
-+            //return vec3d1.distanceTo(vec3d) > 128.0D ? false : this.level.clip(new ClipContext(vec3d, vec3d1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS;
-+            return this.level.rayTraceDirect(vec3d, vec3d1, net.minecraft.world.phys.shapes.CollisionContext.of(this)) == net.minecraft.world.phys.BlockHitResult.Type.MISS;
++            //return vec3d1.distanceToSqr(vec3d) > 128D * 128D ? false : this.level.clip(new ClipContext(vec3d, vec3d1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS; // Paper - use distanceToSqr
++            return vec3d1.distanceToSqr(vec3d) > 128D * 128D ? false : this.level.rayTraceDirect(vec3d, vec3d1, net.minecraft.world.phys.shapes.CollisionContext.of(this)) == net.minecraft.world.phys.BlockHitResult.Type.MISS;
 +            // Airplane end
          }
      }
