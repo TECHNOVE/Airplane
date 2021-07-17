@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index c5578607e903110c3846109d89ec41a7e454b92c..3d1e953b2f28bf31b70fea2f8b25bfcb139e69e0 100644
+index c5578607e903110c3846109d89ec41a7e454b92c..47714816b158d61f4a4853bc24bb51d29642a87f 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -1,7 +1,12 @@
@@ -93,7 +93,7 @@ index c5578607e903110c3846109d89ec41a7e454b92c..3d1e953b2f28bf31b70fea2f8b25bfcb
 +        dynamicHoglinBehavior = config.getBoolean("behavior-activation.hoglin", true);
 +
 +        try {
-+            fullyTickBehaviors = config.getList("behavior-activation.fully-tick.behaviors", ValueType.STRING, ImmutableList.of(VillagerPanicTrigger.class.getSimpleName()))
++            fullyTickBehaviors = config.getList("behavior-activation.fully-tick-behaviors", ValueType.STRING, ImmutableList.of(VillagerPanicTrigger.class.getSimpleName()))
 +                    .stream()
 +                    .map(str -> {
 +                        try {
