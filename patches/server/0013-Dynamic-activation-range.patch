@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index c5578607e903110c3846109d89ec41a7e454b92c..47714816b158d61f4a4853bc24bb51d29642a87f 100644
+index 5d12151c99c769210956151b8c3535031da4c642..85ea87549a476d3298de52b7dcd8525849f8d3ca 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -1,7 +1,12 @@
@@ -54,9 +54,9 @@ index c5578607e903110c3846109d89ec41a7e454b92c..47714816b158d61f4a4853bc24bb51d2
  
  public class AirplaneConfig {
  
-@@ -54,4 +63,74 @@ public class AirplaneConfig {
-         }
+@@ -66,4 +75,75 @@ public class AirplaneConfig {
      }
+ 
  
 +    public static boolean dearEnabled;
 +    public static int startDistance;
@@ -127,6 +127,7 @@ index c5578607e903110c3846109d89ec41a7e454b92c..47714816b158d61f4a4853bc24bb51d2
 +            throw new RuntimeException(e);
 +        }
 +    }
++
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java

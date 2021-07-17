@@ -32,7 +32,7 @@ index 723e3144a39bbb9260a7a8cb4b2fce1663f16f8d..e96e49bf02a3a29e047fd431e66d8f93
      testImplementation("io.github.classgraph:classgraph:4.8.47") // Paper - mob goal test
      testImplementation("junit:junit:4.13.1")
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 3d1e953b2f28bf31b70fea2f8b25bfcb139e69e0..57e5fb7523e99172ab1793b90d1f6a19fe5796b3 100644
+index 85ea87549a476d3298de52b7dcd8525849f8d3ca..cc0d677a2dbf91746ef41dcbea0df46868eb9bc8 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -3,11 +3,13 @@ package gg.airplane;
@@ -49,11 +49,10 @@ index 3d1e953b2f28bf31b70fea2f8b25bfcb139e69e0..57e5fb7523e99172ab1793b90d1f6a19
  
  import java.io.File;
  import java.io.FileInputStream;
-@@ -133,4 +135,31 @@ public class AirplaneConfig {
-         }
+@@ -146,4 +148,30 @@ public class AirplaneConfig {
      }
  
-+
+ 
 +    public static String profileWebUrl;
 +
 +    private static void profilerOptions() {
