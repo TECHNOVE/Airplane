@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
-index 37356b36f0ae12d55150f399318581fa77c30cee..7d046e2b459aa87eb73a1189f7351827a62e4960 100644
+index 37356b36f0ae12d55150f399318581fa77c30cee..54047cfb10a7a90cc428ca3aa1aa5eebdcaedec8 100644
 --- a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
 +++ b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
 @@ -42,6 +42,37 @@ public abstract class Projectile extends Entity {
@@ -39,8 +39,8 @@ index 37356b36f0ae12d55150f399318581fa77c30cee..7d046e2b459aa87eb73a1189f7351827
 +            loadedTick = currentTick;
 +            loadedThisTick = 0;
 +        }
-+        int previousX = Mth.floor(this.getX()) >> 4, previousZ = Mth.floor(this.getX()) >> 4;
-+        int newX = Mth.floor(z) >> 4, newZ = Mth.floor(z) >> 4;
++        int previousX = Mth.floor(this.getX()) >> 4, previousZ = Mth.floor(this.getZ()) >> 4;
++        int newX = Mth.floor(x) >> 4, newZ = Mth.floor(z) >> 4;
 +        if (previousX != newX || previousZ != newZ) {
 +            boolean isLoaded = ((net.minecraft.server.level.ServerChunkCache) this.level.getChunkSource()).getChunkAtIfLoadedMainThreadNoCache(newX, newZ) != null;
 +            if (!isLoaded) {
