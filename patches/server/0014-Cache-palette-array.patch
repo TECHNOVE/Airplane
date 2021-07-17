@@ -47,7 +47,7 @@ index ebeb3e3b0619b034a9681da999e9ac33cc241718..5b5ada474cff54b424946fc628d30f25
              for(int j = 0; j < 4096; ++j) {
                  T object2 = this.get(j);
 diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
-index 917fa5a3106259c01d6a01acf770890dbdf50f1a..b9d5785a5feccd905828e7f82264c3cb48c3c773 100644
+index 9815a91040e7cbcbcd171e68b0a935ea26ff8a2a..384897c21ea16b5760d9218c292dd29c9dceeab7 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 @@ -485,6 +485,7 @@ public class ChunkSerializer {

@@ -13,3 +13,6 @@ minecraft net.minecraft.world.entity.monster.hoglin.Hoglin
 minecraft net.minecraft.world.entity.ai.behavior.AcquirePoi
 minecraft net.minecraft.world.phys.shapes.EntityCollisionContext
 minecraft net.minecraft.world.level.storage.loot.LootContext
+minecraft net.minecraft.world.entity.ai.behavior.Behavior
+minecraft net.minecraft.world.entity.ai.Brain
+minecraft net.minecraft.world.entity.ai.sensing.Sensor

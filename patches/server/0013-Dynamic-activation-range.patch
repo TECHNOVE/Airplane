@@ -27,10 +27,34 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index ab019b577002677a4ce788106f8e5a1d7757a2ae..5077e70e4f408814b1072ceb45c52a322a7662d2 100644
+index c5578607e903110c3846109d89ec41a7e454b92c..3d1e953b2f28bf31b70fea2f8b25bfcb139e69e0 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -47,4 +47,37 @@ public class AirplaneConfig {
+@@ -1,7 +1,12 @@
+ package gg.airplane;
+ 
+ import co.technove.air.AIR;
++import co.technove.air.ValueType;
++import com.google.common.collect.ImmutableList;
+ import net.minecraft.server.MinecraftServer;
++import net.minecraft.world.entity.ai.behavior.VillagerPanicTrigger;
++import net.minecraft.world.entity.ai.sensing.HurtBySensor;
++import net.minecraft.world.entity.ai.sensing.VillagerHostilesSensor;
+ import org.apache.logging.log4j.Level;
+ 
+ import java.io.File;
+@@ -10,6 +15,10 @@ import java.io.FileOutputStream;
+ import java.io.IOException;
+ import java.lang.reflect.Method;
+ import java.lang.reflect.Modifier;
++import java.util.HashSet;
++import java.util.Optional;
++import java.util.Set;
++import java.util.stream.Collectors;
+ 
+ public class AirplaneConfig {
+ 
+@@ -54,4 +63,74 @@ public class AirplaneConfig {
          }
      }
  
@@ -42,6 +66,8 @@ index ab019b577002677a4ce788106f8e5a1d7757a2ae..5077e70e4f408814b1072ceb45c52a32
 +    public static boolean dynamicVillagerBehavior;
 +    public static boolean dynamicPiglinBehavior;
 +    public static boolean dynamicHoglinBehavior;
++    public static Set<Class<?>> fullyTickBehaviors = new HashSet<>();
++    public static Set<Class<?>> fullyTickSensors = new HashSet<>();
 +
 +    private static void dynamicActivationRange() {
 +        config.setComment("activation-range", "Optimizes how entities act when", "they're far away from the player");
@@ -65,11 +91,46 @@ index ab019b577002677a4ce788106f8e5a1d7757a2ae..5077e70e4f408814b1072ceb45c52a32
 +        dynamicVillagerBehavior = config.getBoolean("behavior-activation.villager", true);
 +        dynamicPiglinBehavior = config.getBoolean("behavior-activation.piglin", true);
 +        dynamicHoglinBehavior = config.getBoolean("behavior-activation.hoglin", true);
++
++        try {
++            fullyTickBehaviors = config.getList("behavior-activation.fully-tick.behaviors", ValueType.STRING, ImmutableList.of(VillagerPanicTrigger.class.getSimpleName()))
++                    .stream()
++                    .map(str -> {
++                        try {
++                            return Optional.of(Class.forName("net.minecraft.world.entity.ai.behavior." + str));
++                        } catch (ClassNotFoundException e) {
++                            MinecraftServer.LOGGER.warn("Failed to find behavior '" + str + "'");
++                            return Optional.<Class<?>>empty();
++                        }
++                    })
++                    .filter(Optional::isPresent)
++                    .map(Optional::get)
++                    .collect(Collectors.toUnmodifiableSet());
++
++            fullyTickSensors = config.getList("behavior-activation.fully-tick-sensors", ValueType.STRING, ImmutableList.of(
++                    VillagerHostilesSensor.class.getSimpleName(),
++                    HurtBySensor.class.getSimpleName()
++            ))
++                    .stream()
++                    .map(str -> {
++                        try {
++                            return Optional.of(Class.forName("net.minecraft.world.entity.ai.sensing." + str));
++                        } catch (ClassNotFoundException e) {
++                            MinecraftServer.LOGGER.warn("Failed to find sensor '" + str + "'");
++                            return Optional.<Class<?>>empty();
++                        }
++                    })
++                    .filter(Optional::isPresent)
++                    .map(Optional::get)
++                    .collect(Collectors.toUnmodifiableSet());
++        } catch (IOException e) {
++            throw new RuntimeException(e);
++        }
 +    }
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index e75efd67acb063e3ce7506839e4a888241bda703..e60c78de80e0f6976d50496436e81fbd6defcd25 100644
+index d9265426ddb91a6cff634b8fcc3ed26072379f43..8d08d19c52940573425aaf477d4e6287be8aacb8 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -336,6 +336,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -111,6 +172,66 @@ index f8c6d88d6bf71e7bc46b5f44e688229da5fd3da2..8c79aae87cfaad6aa69f1eb3d5af83f9
          this.goalSelector.tick();
          this.level.getProfiler().pop();
          this.level.getProfiler().push("navigation");
+diff --git a/src/main/java/net/minecraft/world/entity/ai/Brain.java b/src/main/java/net/minecraft/world/entity/ai/Brain.java
+index a7c71fc4e49079d11b9a0537a4f6d20bbbba815b..f4286c12390b1a1617b839a51f8173f146692534 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/Brain.java
++++ b/src/main/java/net/minecraft/world/entity/ai/Brain.java
+@@ -366,6 +366,7 @@ public class Brain<E extends LivingEntity> {
+         return brain;
+     }
+ 
++    public boolean needsFullTick = true; // Airplane
+     public void tick(ServerLevel world, E entity) {
+         this.forgetOutdatedMemories();
+         this.tickSensors(world, entity);
+@@ -375,6 +376,7 @@ public class Brain<E extends LivingEntity> {
+ 
+     private void tickSensors(ServerLevel world, E entity) {
+         for(Sensor<? super E> sensor : this.sensors.values()) {
++            if (this.needsFullTick || sensor.alwaysFullyTick()) // Airplane
+             sensor.tick(world, entity);
+         }
+ 
+@@ -410,7 +412,7 @@ public class Brain<E extends LivingEntity> {
+                 Activity activity = entry.getKey();
+                 if (this.activeActivities.contains(activity)) {
+                     for(Behavior<? super E> behavior : entry.getValue()) {
+-                        if (behavior.getStatus() == Behavior.Status.STOPPED) {
++                        if ((this.needsFullTick || behavior.alwaysFullyTick()) && behavior.getStatus() == Behavior.Status.STOPPED) { // Airplane
+                             behavior.tryStart(world, entity, l);
+                         }
+                     }
+@@ -424,6 +426,7 @@ public class Brain<E extends LivingEntity> {
+         long l = world.getGameTime();
+ 
+         for(Behavior<? super E> behavior : this.getRunningBehaviors()) {
++            if (this.needsFullTick || behavior.alwaysFullyTick()) // Airplane
+             behavior.tickOrStop(world, entity, l);
+         }
+ 
+diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java b/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
+index b1212e162ba938b3abe0df747a633ba9cbbe57c8..452c308370a688292f989398ecc38b953ea810a5 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
++++ b/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
+@@ -29,6 +29,18 @@ public abstract class Behavior<E extends LivingEntity> {
+         this.entryCondition = requiredMemoryState;
+     }
+ 
++    // Airplane start
++    private boolean fullyTick = false;
++    private int lastUpdateChecked = -1;
++    public boolean alwaysFullyTick() {
++        if (this.lastUpdateChecked != gg.airplane.AirplaneConfig.getUpdates()) {
++            this.lastUpdateChecked = gg.airplane.AirplaneConfig.getUpdates();
++            this.fullyTick = gg.airplane.AirplaneConfig.fullyTickBehaviors.contains(getClass());
++        }
++        return this.fullyTick;
++    }
++    // Airplane end
++
+     public Behavior.Status getStatus() {
+         return this.status;
+     }
 diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java b/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
 index faa53d08a12cc7441c670cae6d301de3f498ffe7..b17f401d723b1466a3b7e05da3dfeebd5cf763c7 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
@@ -130,8 +251,31 @@ index faa53d08a12cc7441c670cae6d301de3f498ffe7..b17f401d723b1466a3b7e05da3dfeebd
      }
      public boolean hasTasks() {
          for (WrappedGoal task : this.availableGoals) {
+diff --git a/src/main/java/net/minecraft/world/entity/ai/sensing/Sensor.java b/src/main/java/net/minecraft/world/entity/ai/sensing/Sensor.java
+index f94aa5147c52d2e36d6018f51b85e9dac7a6208a..5cbef431296bcc0c454c3601f1243839c8533a2a 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/sensing/Sensor.java
++++ b/src/main/java/net/minecraft/world/entity/ai/sensing/Sensor.java
+@@ -29,6 +29,18 @@ public abstract class Sensor<E extends LivingEntity> {
+         this(20);
+     }
+ 
++    // Airplane start
++    private boolean fullyTick = false;
++    private int lastUpdateChecked = -1;
++    public boolean alwaysFullyTick() {
++        if (this.lastUpdateChecked != gg.airplane.AirplaneConfig.getUpdates()) {
++            this.lastUpdateChecked = gg.airplane.AirplaneConfig.getUpdates();
++            this.fullyTick = gg.airplane.AirplaneConfig.fullyTickSensors.contains(getClass());
++        }
++        return this.fullyTick;
++    }
++    // Airplane end
++
+     public final void tick(ServerLevel world, E entity) {
+         if (--this.timeToTick <= 0L) {
+             this.timeToTick = (long)this.scanRate;
 diff --git a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
-index c72819b03f9339dadd691155f196f6744f14da75..72fc7deb997165f977b8401a0f07057ee01d00a7 100644
+index c72819b03f9339dadd691155f196f6744f14da75..8e379fa88e167fb18b0ba08a5984205be98678e3 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
 @@ -275,9 +275,11 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
@@ -142,12 +286,12 @@ index c72819b03f9339dadd691155f196f6744f14da75..72fc7deb997165f977b8401a0f07057e
      @Override
      protected void customServerAiStep() {
          this.level.getProfiler().push("axolotlBrain");
-+        if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
++        this.getBrain().needsFullTick = this.behaviorTick++ % this.activatedPriority == 0; // Airplane
          this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error
          this.level.getProfiler().pop();
          this.level.getProfiler().push("axolotlActivityUpdate");
 diff --git a/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java b/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
-index 15787afad42f9299638a1c9e57d26678805f18ee..0d220ea2d2651c46ba60c68bdd8dad3182c69740 100644
+index 15787afad42f9299638a1c9e57d26678805f18ee..685af5a43d841d7adddd825ae8e47d5ce7127aa8 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
 @@ -144,9 +144,11 @@ public class Goat extends Animal {
@@ -158,12 +302,12 @@ index 15787afad42f9299638a1c9e57d26678805f18ee..0d220ea2d2651c46ba60c68bdd8dad31
      @Override
      protected void customServerAiStep() {
          this.level.getProfiler().push("goatBrain");
-+        if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
++        this.getBrain().needsFullTick = this.behaviorTick++ % this.activatedPriority == 0; // Airplane
          this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error
          this.level.getProfiler().pop();
          this.level.getProfiler().push("goatActivityUpdate");
 diff --git a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java b/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
-index d86b2b5bdb6b7446cee5edda40c7ea316b74a200..8e676f0c06dda35e4fdef55416019b3b5edbbf3a 100644
+index d86b2b5bdb6b7446cee5edda40c7ea316b74a200..f563ca40b2c413b3b03a03fd0e85d2862c5708c9 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
 @@ -126,9 +126,11 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
@@ -174,15 +318,15 @@ index d86b2b5bdb6b7446cee5edda40c7ea316b74a200..8e676f0c06dda35e4fdef55416019b3b
      @Override
      protected void customServerAiStep() {
          this.level.getProfiler().push("hoglinBrain");
-+        if (!gg.airplane.AirplaneConfig.dynamicHoglinBehavior || this.behaviorTick++ % this.activatedPriority == 0) // Airplane
++        this.getBrain().needsFullTick = this.behaviorTick++ % this.activatedPriority == 0; // Airplane
          this.getBrain().tick((ServerLevel)this.level, this);
          this.level.getProfiler().pop();
          HoglinAi.updateActivity(this);
 diff --git a/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java b/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java
-index adc2feafd0c1a38d1b6b65b8aee59d21725b84fe..94f5c84b16865c5a8d77111274b1c3652a3d3b42 100644
+index adc2feafd0c1a38d1b6b65b8aee59d21725b84fe..575c8ba7a405e3526730e5cd3ba139e25930d71e 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java
-@@ -289,10 +289,13 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
+@@ -289,9 +289,11 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
          return !this.cannotHunt;
      }
  
@@ -190,17 +334,15 @@ index adc2feafd0c1a38d1b6b65b8aee59d21725b84fe..94f5c84b16865c5a8d77111274b1c365
      @Override
      protected void customServerAiStep() {
          this.level.getProfiler().push("piglinBrain");
-+        if (!gg.airplane.AirplaneConfig.dynamicPiglinBehavior || this.behaviorTick++ % this.activatedPriority == 0) { // Airplane
++        this.getBrain().needsFullTick = !gg.airplane.AirplaneConfig.dynamicPiglinBehavior || this.behaviorTick++ % this.activatedPriority == 0; // Airplane
          this.getBrain().tick((ServerLevel) this.level, (Piglin) this); // CraftBukkit - decompile error
-+        } // Airplane
          this.level.getProfiler().pop();
          PiglinAi.updateActivity(this);
-         super.customServerAiStep();
 diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-index dce94c04d20af637860559c1f27412d151e1b5af..9db53dddcc3c566b6ab638c3c2df3d6633596c0e 100644
+index eaefa4f5f86f1c836aa29dd64ea786baced4b34d..4b8d7ba45c35a6e69a65fc47a1d2597e3b64c1bb 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-@@ -245,11 +245,18 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+@@ -245,11 +245,17 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
      }
      // Spigot End
  
@@ -212,9 +354,8 @@ index dce94c04d20af637860559c1f27412d151e1b5af..9db53dddcc3c566b6ab638c3c2df3d66
 -        if (!inactive) this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error // Paper
 +        // Airplane start
 +        if (!inactive) {
-+            if (!gg.airplane.AirplaneConfig.dynamicVillagerBehavior || behaviorTick++ % this.activatedPriority == 0) {
-+                this.getBrain().tick((ServerLevel) this.level, this);
-+             }
++            this.getBrain().needsFullTick = !gg.airplane.AirplaneConfig.dynamicVillagerBehavior || behaviorTick++ % this.activatedPriority == 0;
++            this.getBrain().tick((ServerLevel) this.level, this);
 +         }
 +        // Airplane end
          this.level.getProfiler().pop();
