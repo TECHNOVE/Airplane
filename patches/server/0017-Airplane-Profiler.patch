@@ -20,37 +20,39 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 9f3346584603bee59d4ff5f625dcce7b5e286071..dff7c7aaf363c4446202b3680c0bbe69a66aa6a5 100644
+index c522d55d0f966fdf2c9fffe48299c4ae032684f9..8f57361ecb47c531804563fc6ff9311e05b2a17f 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -72,6 +72,7 @@ dependencies {
+@@ -71,6 +71,7 @@ dependencies {
      implementation("org.quiltmc:tiny-mappings-parser:0.3.0") // Paper - needed to read mappings for stacktrace deobfuscation
  
      implementation("com.github.technove:AIR:fe3dbb4420") // Airplane - config
-+    implementation("com.github.technove:Flare:fd8e0c3d7e") // Airplane - flare
++    implementation("com.github.technove:Flare:21f20392b3") // Airplane - flare
  
      testImplementation("io.github.classgraph:classgraph:4.8.47") // Paper - mob goal test
      testImplementation("junit:junit:4.13.1")
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 5077e70e4f408814b1072ceb45c52a322a7662d2..e22ccbe13a252b9406c02d5c516b245d5ff57a0f 100644
+index 85ea87549a476d3298de52b7dcd8525849f8d3ca..cc0d677a2dbf91746ef41dcbea0df46868eb9bc8 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -1,8 +1,10 @@
- package gg.airplane;
- 
+@@ -3,11 +3,13 @@ package gg.airplane;
  import co.technove.air.AIR;
+ import co.technove.air.ValueType;
+ import com.google.common.collect.ImmutableList;
 +import gg.airplane.flare.FlareCommand;
  import net.minecraft.server.MinecraftServer;
+ import net.minecraft.world.entity.ai.behavior.VillagerPanicTrigger;
+ import net.minecraft.world.entity.ai.sensing.HurtBySensor;
+ import net.minecraft.world.entity.ai.sensing.VillagerHostilesSensor;
  import org.apache.logging.log4j.Level;
 +import org.bukkit.command.SimpleCommandMap;
  
  import java.io.File;
  import java.io.FileInputStream;
-@@ -80,4 +82,31 @@ public class AirplaneConfig {
-         dynamicHoglinBehavior = config.getBoolean("behavior-activation.hoglin", true);
+@@ -146,4 +148,30 @@ public class AirplaneConfig {
      }
  
-+
+ 
 +    public static String profileWebUrl;
 +
 +    private static void profilerOptions() {
@@ -451,10 +453,10 @@ index 0000000000000000000000000000000000000000..22368976212ac6638a31e81d22c322a5
 +}
 diff --git a/src/main/java/gg/airplane/flare/ProfilingManager.java b/src/main/java/gg/airplane/flare/ProfilingManager.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..6d5e442824de2d71160be49e36f0605a216f247d
+index 0000000000000000000000000000000000000000..230c72caab3560a4ae513511d6d41bec3ff0888c
 --- /dev/null
 +++ b/src/main/java/gg/airplane/flare/ProfilingManager.java
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,147 @@
 +package gg.airplane.flare;
 +
 +import com.google.common.collect.ImmutableList;
@@ -463,12 +465,21 @@ index 0000000000000000000000000000000000000000..6d5e442824de2d71160be49e36f0605a
 +import gg.airplane.AirplaneConfig;
 +import gg.airplane.AirplaneLogger;
 +import gg.airplane.compat.ServerConfigurations;
++import gg.airplane.flare.collectors.GCEventCollector;
++import gg.airplane.flare.collectors.StatCollector;
 +import gg.airplane.flare.collectors.TPSCollector;
 +import gg.airplane.flare.collectors.WorldCountCollector;
 +import gg.airplane.flare.exceptions.UserReportableException;
++import gg.airplane.flare.proto.ProfilerFileProto;
 +import org.bukkit.Bukkit;
 +import org.bukkit.craftbukkit.scheduler.MinecraftInternalPlugin;
 +import org.bukkit.scheduler.BukkitTask;
++import oshi.SystemInfo;
++import oshi.hardware.CentralProcessor;
++import oshi.hardware.GlobalMemory;
++import oshi.hardware.HardwareAbstractionLayer;
++import oshi.hardware.VirtualMemory;
++import oshi.software.os.OperatingSystem;
 +
 +import java.io.IOException;
 +import java.util.Objects;
@@ -507,10 +518,48 @@ index 0000000000000000000000000000000000000000..6d5e442824de2d71160be49e36f0605a
 +                "Minecraft Version", Bukkit.getMinecraftVersion()
 +              )),
 +              new FlareAuth(AirplaneConfig.accessToken, AirplaneConfig.profileWebUrl),
-+              ImmutableList.of(new TPSCollector(), new WorldCountCollector()),
++              ImmutableList.of(new TPSCollector(), new WorldCountCollector(), new GCEventCollector(), new StatCollector()),
 +              PluginLookup::getPluginForClass,
 +              ImmutableSet.of(CustomCategories.MC_PERF, CustomCategories.ENTITIES_AND_CHUNKS)
-+            );
++            ) {
++                @Override
++                public ProfilerFileProto.CreateProfile.HardwareInfo getHardwareInfo() {
++                    SystemInfo systemInfo = new SystemInfo();
++                    HardwareAbstractionLayer hardware = systemInfo.getHardware();
++
++                    CentralProcessor processor = hardware.getProcessor();
++                    CentralProcessor.ProcessorIdentifier processorIdentifier = processor.getProcessorIdentifier();
++
++                    GlobalMemory memory = hardware.getMemory();
++                    VirtualMemory virtualMemory = memory.getVirtualMemory();
++
++                    return ProfilerFileProto.CreateProfile.HardwareInfo.newBuilder()
++                            .setCpu(ProfilerFileProto.CreateProfile.HardwareInfo.CPU.newBuilder()
++                                    .setModel(processorIdentifier.getName())
++                                    .setCoreCount(processor.getPhysicalProcessorCount())
++                                    .setThreadCount(processor.getLogicalProcessorCount())
++                                    .setFrequency(processor.getMaxFreq())
++                                    .build())
++                            .setMemory(ProfilerFileProto.CreateProfile.HardwareInfo.Memory.newBuilder()
++                                    .setTotal(memory.getTotal())
++                                    .setSwapTotal(virtualMemory.getSwapTotal())
++                                    .setVirtualMax(virtualMemory.getVirtualMax())
++                                    .build())
++                            .build();
++                }
++
++                @Override
++                public ProfilerFileProto.CreateProfile.OperatingSystem getOperatingSystem() {
++                    OperatingSystem os = new SystemInfo().getOperatingSystem();
++
++                    return ProfilerFileProto.CreateProfile.OperatingSystem.newBuilder()
++                            .setManufacturer(os.getManufacturer())
++                            .setFamily(os.getFamily())
++                            .setVersion(os.getVersionInfo().toString())
++                            .setBitness(os.getBitness())
++                            .build();
++                }
++            };
 +        } catch (IOException e) {
 +            AirplaneLogger.LOGGER.log(Level.WARNING, "Failed to read configuration files:", e);
 +            throw new UserReportableException("Failed to load configuration files, check logs for further details.");
@@ -555,9 +604,127 @@ index 0000000000000000000000000000000000000000..6d5e442824de2d71160be49e36f0605a
 +    }
 +
 +}
+diff --git a/src/main/java/gg/airplane/flare/collectors/GCEventCollector.java b/src/main/java/gg/airplane/flare/collectors/GCEventCollector.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..1be0e40a117322e029bb75897578f105989cbb4a
+--- /dev/null
++++ b/src/main/java/gg/airplane/flare/collectors/GCEventCollector.java
+@@ -0,0 +1,65 @@
++package gg.airplane.flare.collectors;
++
++import com.google.common.collect.ImmutableMap;
++import com.sun.management.GarbageCollectionNotificationInfo;
++import gg.airplane.flare.Flare;
++import gg.airplane.flare.live.CollectorData;
++import gg.airplane.flare.live.EventCollector;
++import gg.airplane.flare.live.LiveEvent;
++import gg.airplane.flare.live.category.GraphCategory;
++import gg.airplane.flare.live.formatter.DataFormatter;
++
++import javax.management.ListenerNotFoundException;
++import javax.management.Notification;
++import javax.management.NotificationEmitter;
++import javax.management.NotificationListener;
++import javax.management.openmbean.CompositeData;
++import java.lang.management.GarbageCollectorMXBean;
++import java.lang.management.ManagementFactory;
++
++public class GCEventCollector extends EventCollector implements NotificationListener {
++
++    private static final CollectorData MINOR_GC = new CollectorData("builtin:gc:minor", "Minor GC", "A small pause in the program to allow Garbage Collection to run.", DataFormatter.MILLISECONDS, GraphCategory.SYSTEM);
++    private static final CollectorData MAJOR_GC = new CollectorData("builtin:gc:major", "Major GC", "A large pause in the program to allow Garbage Collection to run.", DataFormatter.MILLISECONDS, GraphCategory.SYSTEM);
++    private static final CollectorData UNKNOWN_GC = new CollectorData("builtin:gc:generic", "Major GC", "A run of the Garbage Collection.", DataFormatter.MILLISECONDS, GraphCategory.SYSTEM);
++
++    public GCEventCollector() {
++        super(MINOR_GC, MAJOR_GC, UNKNOWN_GC);
++    }
++
++    private static CollectorData fromString(String string) {
++        if (string.endsWith("minor GC")) {
++            return MINOR_GC;
++        } else if (string.endsWith("major GC")) {
++            return MAJOR_GC;
++        }
++        return UNKNOWN_GC;
++    }
++
++    @Override
++    public void start(Flare flare) {
++        for (GarbageCollectorMXBean garbageCollectorBean : ManagementFactory.getGarbageCollectorMXBeans()) {
++            NotificationEmitter notificationEmitter = (NotificationEmitter) garbageCollectorBean;
++            notificationEmitter.addNotificationListener(this, null, null);
++        }
++    }
++
++    @Override
++    public void stop(Flare flare) {
++        for (GarbageCollectorMXBean garbageCollectorBean : ManagementFactory.getGarbageCollectorMXBeans()) {
++            NotificationEmitter notificationEmitter = (NotificationEmitter) garbageCollectorBean;
++            try {
++                notificationEmitter.removeNotificationListener(this);
++            } catch (ListenerNotFoundException e) {
++            }
++        }
++    }
++
++    @Override
++    public void handleNotification(Notification notification, Object o) {
++        if (notification.getType().equals(GarbageCollectionNotificationInfo.GARBAGE_COLLECTION_NOTIFICATION)) {
++            GarbageCollectionNotificationInfo gcInfo = GarbageCollectionNotificationInfo.from((CompositeData) notification.getUserData());
++            reportEvent(new LiveEvent(fromString(gcInfo.getGcAction()), System.currentTimeMillis(), (int) gcInfo.getGcInfo().getDuration(), ImmutableMap.of()));
++        }
++    }
++}
+diff --git a/src/main/java/gg/airplane/flare/collectors/StatCollector.java b/src/main/java/gg/airplane/flare/collectors/StatCollector.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..e36290f881a9a406e0864107954c62e6ea86f6c9
+--- /dev/null
++++ b/src/main/java/gg/airplane/flare/collectors/StatCollector.java
+@@ -0,0 +1,41 @@
++package gg.airplane.flare.collectors;
++
++import com.sun.management.OperatingSystemMXBean;
++import gg.airplane.flare.live.CollectorData;
++import gg.airplane.flare.live.LiveCollector;
++import gg.airplane.flare.live.category.GraphCategory;
++import gg.airplane.flare.live.formatter.DataFormatter;
++import oshi.SystemInfo;
++import oshi.hardware.CentralProcessor;
++
++import java.lang.management.ManagementFactory;
++import java.time.Duration;
++
++public class StatCollector extends LiveCollector {
++
++    private static final CollectorData CPU = new CollectorData("builtin:stat:cpu", "CPU Load", "The total amount of CPU usage across all cores.", DataFormatter.PERCENT, GraphCategory.SYSTEM);
++    private static final CollectorData CPU_PROCESS = new CollectorData("builtin:stat:cpu_process", "Process CPU", "The amount of CPU being used by this process.", DataFormatter.PERCENT, GraphCategory.SYSTEM);
++    private static final CollectorData MEMORY = new CollectorData("builtin:stat:memory_used", "Memory", "The amount of memory being used currently.", DataFormatter.BYTES, GraphCategory.SYSTEM);
++    private static final CollectorData MEMORY_TOTAL = new CollectorData("builtin:stat:memory_total", "Memory Total", "The total amount of memory allocated.", DataFormatter.BYTES, GraphCategory.SYSTEM);
++
++    private final OperatingSystemMXBean bean;
++    private final CentralProcessor processor;
++
++    public StatCollector() {
++        super(CPU, CPU_PROCESS, MEMORY, MEMORY_TOTAL);
++        this.interval = Duration.ofSeconds(5);
++
++        this.bean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
++        this.processor = new SystemInfo().getHardware().getProcessor();
++    }
++
++    @Override
++    public void run() {
++        Runtime runtime = Runtime.getRuntime();
++
++        this.report(CPU, this.processor.getSystemLoadAverage(1)[0] / 100); // percentage
++        this.report(CPU_PROCESS, this.bean.getProcessCpuLoad());
++        this.report(MEMORY, runtime.totalMemory() - runtime.freeMemory());
++        this.report(MEMORY_TOTAL, runtime.totalMemory());
++    }
++}
 diff --git a/src/main/java/gg/airplane/flare/collectors/TPSCollector.java b/src/main/java/gg/airplane/flare/collectors/TPSCollector.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..c60ce5a53c05e28afae5f9fadbab0a3612d97cc3
+index 0000000000000000000000000000000000000000..066c9b50d812242a2e9f5734bb680f997ea59541
 --- /dev/null
 +++ b/src/main/java/gg/airplane/flare/collectors/TPSCollector.java
 @@ -0,0 +1,31 @@
@@ -580,7 +747,7 @@ index 0000000000000000000000000000000000000000..c60ce5a53c05e28afae5f9fadbab0a36
 +    public TPSCollector() {
 +        super(TPS, MSPT);
 +
-+        this.interval = Duration.ofSeconds(3);
++        this.interval = Duration.ofSeconds(5);
 +    }
 +
 +    @Override

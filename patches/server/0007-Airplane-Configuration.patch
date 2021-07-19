@@ -22,10 +22,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 245bce35a1efe1068c5dfb961f90a422d1d15249..9f3346584603bee59d4ff5f625dcce7b5e286071 100644
+index aa5d8de7d4cc029afd41940b2674fd94db96ea80..c522d55d0f966fdf2c9fffe48299c4ae032684f9 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -71,6 +71,8 @@ dependencies {
+@@ -70,6 +70,8 @@ dependencies {
  
      implementation("org.quiltmc:tiny-mappings-parser:0.3.0") // Paper - needed to read mappings for stacktrace deobfuscation
  
@@ -107,10 +107,10 @@ index 0000000000000000000000000000000000000000..89c89e633f14b5820147e734b1b7ad8c
 +}
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ab019b577002677a4ce788106f8e5a1d7757a2ae
+index 0000000000000000000000000000000000000000..c5578607e903110c3846109d89ec41a7e454b92c
 --- /dev/null
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -0,0 +1,50 @@
+@@ -0,0 +1,57 @@
 +package gg.airplane;
 +
 +import co.technove.air.AIR;
@@ -127,6 +127,11 @@ index 0000000000000000000000000000000000000000..ab019b577002677a4ce788106f8e5a1d
 +public class AirplaneConfig {
 +
 +    private static AIR config;
++    private static int updates = 0;
++
++    public static int getUpdates() {
++        return updates;
++    }
 +
 +    public static void load() throws IOException {
 +        File configFile = new File("airplane.air");
@@ -145,7 +150,7 @@ index 0000000000000000000000000000000000000000..ab019b577002677a4ce788106f8e5a1d
 +        config.getString("info.version", "1.0");
 +
 +        for (Method method : AirplaneConfig.class.getDeclaredMethods()) {
-+            if (Modifier.isStatic(method.getModifiers()) && Modifier.isPrivate(method.getModifiers())) {
++            if (Modifier.isStatic(method.getModifiers()) && Modifier.isPrivate(method.getModifiers()) && !method.getName().startsWith("lambda")) {
 +                method.setAccessible(true);
 +                try {
 +                    method.invoke(null);
@@ -154,6 +159,8 @@ index 0000000000000000000000000000000000000000..ab019b577002677a4ce788106f8e5a1d
 +                }
 +            }
 +        }
++
++        updates++;
 +
 +        try (FileOutputStream outputStream = new FileOutputStream(configFile)) {
 +            config.save(outputStream);

@@ -38,10 +38,10 @@ index a20e7cd191b3fdfe61db8677ff715e0c28745577..74358ddddaab9658cbc56ce948c29da2
          if (this.isSpectator()) {
              return false;
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 20cfb1e96f08a391f69212a25fa2e0a81d20a673..0422047697c974d6740ad4f3f8cbd35ac5e48546 100644
+index 8cfabed7e20dab7d334697252f6a92a836499d90..a1ebf22478a69dce1115f241cd2e3a9884f72ccc 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
-@@ -296,7 +296,7 @@ public class ActivationRange
+@@ -297,7 +297,7 @@ public class ActivationRange
          if ( entity instanceof LivingEntity )
          {
              LivingEntity living = (LivingEntity) entity;

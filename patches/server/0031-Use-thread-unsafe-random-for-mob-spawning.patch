@@ -5,10 +5,10 @@ Subject: [PATCH] Use thread unsafe random for mob spawning
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index e7f32a4f20f49cde5918b992b444393fd8226d68..fc0eb5a1e34d764a5978ecd22a4238cbdaca90c7 100644
+index 9e874120674d2114587e270410ae2c8fca6b83d1..0da0823c4cf0205ba41b84b1de6630bce16a56aa 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -882,7 +882,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -878,7 +878,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
      }
      // Paper start - optimise random block ticking
      private final BlockPos.MutableBlockPos chunkTickMutablePosition = new BlockPos.MutableBlockPos();

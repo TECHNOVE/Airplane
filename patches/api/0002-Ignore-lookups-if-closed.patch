@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul <paul@technove.co>
+Date: Tue, 6 Jul 2021 17:51:18 -0500
+Subject: [PATCH] Ignore lookups if closed
+
+
+diff --git a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
+index 653b8597b513dabf091be6e07b3972db2ca74569..989f86d122e13d896898acf73498bc5804ddb175 100644
+--- a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
++++ b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
+@@ -46,6 +46,8 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
+     private final Set<String> seenIllegalAccess = Collections.newSetFromMap(new ConcurrentHashMap<>());
+     private java.util.logging.Logger logger; // Paper - add field
+ 
++    private boolean closed = false; // Airplane
++
+     static {
+         ClassLoader.registerAsParallelCapable();
+     }
+@@ -154,7 +156,7 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
+         }
+         Class<?> result = classes.get(name);
+ 
+-        if (result == null) {
++        if (result == null && !this.closed) { // Airplane
+             String path = name.replace('.', '/').concat(".class");
+             JarEntry entry = jar.getJarEntry(path);
+ 
+@@ -209,6 +211,7 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
+         try {
+             super.close();
+         } finally {
++            this.closed = true; // Airplane
+             jar.close();
+         }
+     }
