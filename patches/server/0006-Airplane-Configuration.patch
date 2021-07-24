@@ -22,10 +22,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index dac8be410597cc8ef560823847ce6ce9dbe3de4c..723e3144a39bbb9260a7a8cb4b2fce1663f16f8d 100644
+index 8b227cca045ef47671d070a1ea46c38112356f59..0d487170c530315a0e48636c92614e08cab4c497 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -69,6 +69,8 @@ dependencies {
+@@ -68,6 +68,8 @@ dependencies {
  
      implementation("org.quiltmc:tiny-mappings-parser:0.3.0") // Paper - needed to read mappings for stacktrace deobfuscation
  
@@ -185,11 +185,11 @@ index 0000000000000000000000000000000000000000..807cf274619b8f7be839e249cb62b981
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 9667a74c9b77ea6acd9d2ebce30c685ed4b53e59..6c982f1227fdeb3d8d44e7c535175630c7dbbdce 100644
+index 1b324839e37d510552f5f5497de009add69ecda5..aa9ddbec584129694e975ff1083c1ff651a5d7c8 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -224,6 +224,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
-         io.papermc.paper.util.StacktraceDeobfuscator.INSTANCE.getClass(); // load mappings for stacktrace deobf
+         io.papermc.paper.util.ObfHelper.INSTANCE.getClass(); // load mappings for stacktrace deobf and etc.
          // Paper end
          com.tuinity.tuinity.config.TuinityConfig.init((java.io.File) options.valueOf("tuinity-settings")); // Tuinity - Server Config
 +        gg.airplane.AirplaneConfig.load(); // Airplane - config

@@ -5,7 +5,7 @@ Subject: [PATCH] Initial
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index b6b87323a8c7e36f55c46c66720580d335787d63..c3788ec268bb03fdb4e96524feb8263e83d0d974 100644
+index 67af91a962f2d54486fbeaf26648c896cec27bd3..d4a2a4ce603c56ff7d8d100b1c164a49b9f4409d 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -3,7 +3,6 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
@@ -16,7 +16,7 @@ index b6b87323a8c7e36f55c46c66720580d335787d63..c3788ec268bb03fdb4e96524feb8263e
  import io.papermc.paperweight.util.Git
  import io.papermc.paperweight.util.cache
  import io.papermc.paperweight.util.defaultOutput
-@@ -112,14 +111,15 @@ publishing {
+@@ -111,14 +110,15 @@ publishing {
      }
  }
  

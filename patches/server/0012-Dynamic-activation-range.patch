@@ -131,7 +131,7 @@ index 5d12151c99c769210956151b8c3535031da4c642..85ea87549a476d3298de52b7dcd85258
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index d9265426ddb91a6cff634b8fcc3ed26072379f43..8d08d19c52940573425aaf477d4e6287be8aacb8 100644
+index 2453492429a743677db07e31d575c1473fedf4ad..3a6e65cc2c78ed4c07c81e0177d3a64bb235b34d 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -336,6 +336,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -145,10 +145,10 @@ index d9265426ddb91a6cff634b8fcc3ed26072379f43..8d08d19c52940573425aaf477d4e6287
      public float getBukkitYaw() {
          return this.yRot;
 diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
-index f8c6d88d6bf71e7bc46b5f44e688229da5fd3da2..8c79aae87cfaad6aa69f1eb3d5af83f91d00efde 100644
+index 5eb93bacd303ebed0a702221f8ae31631d42f45d..8bc9cb5930e826ec4297c9c3f7cac993d103c59a 100644
 --- a/src/main/java/net/minecraft/world/entity/Mob.java
 +++ b/src/main/java/net/minecraft/world/entity/Mob.java
-@@ -203,10 +203,10 @@ public abstract class Mob extends LivingEntity {
+@@ -207,10 +207,10 @@ public abstract class Mob extends LivingEntity {
      @Override
      public void inactiveTick() {
          super.inactiveTick();
@@ -161,7 +161,7 @@ index f8c6d88d6bf71e7bc46b5f44e688229da5fd3da2..8c79aae87cfaad6aa69f1eb3d5af83f9
              this.targetSelector.tick();
          }
      }
-@@ -834,9 +834,11 @@ public abstract class Mob extends LivingEntity {
+@@ -838,9 +838,11 @@ public abstract class Mob extends LivingEntity {
          this.sensing.tick();
          this.level.getProfiler().pop();
          this.level.getProfiler().push("targetSelector");
@@ -211,11 +211,11 @@ index a7c71fc4e49079d11b9a0537a4f6d20bbbba815b..f4286c12390b1a1617b839a51f8173f1
          }
  
 diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java b/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
-index b1212e162ba938b3abe0df747a633ba9cbbe57c8..452c308370a688292f989398ecc38b953ea810a5 100644
+index b1928807851a4fca53e117573b25c62a6deeb8e1..3f97773ae584d52541a44f61f695178876ab3e86 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
-@@ -29,6 +29,18 @@ public abstract class Behavior<E extends LivingEntity> {
-         this.entryCondition = requiredMemoryState;
+@@ -49,6 +49,18 @@ public abstract class Behavior<E extends LivingEntity> {
+         // Paper end
      }
  
 +    // Airplane start
@@ -253,10 +253,10 @@ index faa53d08a12cc7441c670cae6d301de3f498ffe7..b17f401d723b1466a3b7e05da3dfeebd
      public boolean hasTasks() {
          for (WrappedGoal task : this.availableGoals) {
 diff --git a/src/main/java/net/minecraft/world/entity/ai/sensing/Sensor.java b/src/main/java/net/minecraft/world/entity/ai/sensing/Sensor.java
-index f94aa5147c52d2e36d6018f51b85e9dac7a6208a..5cbef431296bcc0c454c3601f1243839c8533a2a 100644
+index ef0677e8a09800a5eeb30ae6575fbd5acf181a7c..9a07f77831417926fb306f41226b17b288ffe0f1 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/sensing/Sensor.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/sensing/Sensor.java
-@@ -29,6 +29,18 @@ public abstract class Sensor<E extends LivingEntity> {
+@@ -49,6 +49,18 @@ public abstract class Sensor<E extends LivingEntity> {
          this(20);
      }
  
@@ -274,9 +274,9 @@ index f94aa5147c52d2e36d6018f51b85e9dac7a6208a..5cbef431296bcc0c454c3601f1243839
 +
      public final void tick(ServerLevel world, E entity) {
          if (--this.timeToTick <= 0L) {
-             this.timeToTick = (long)this.scanRate;
+             // Paper start - configurable sensor tick rate and timings
 diff --git a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
-index c72819b03f9339dadd691155f196f6744f14da75..8e379fa88e167fb18b0ba08a5984205be98678e3 100644
+index fa365420a4593bc7d652b0d92f4750602fcb334b..4de980d0948369f0040e154e98dd4db02e17ce72 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
 @@ -275,9 +275,11 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
@@ -324,7 +324,7 @@ index d86b2b5bdb6b7446cee5edda40c7ea316b74a200..f563ca40b2c413b3b03a03fd0e85d286
          this.level.getProfiler().pop();
          HoglinAi.updateActivity(this);
 diff --git a/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java b/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java
-index adc2feafd0c1a38d1b6b65b8aee59d21725b84fe..575c8ba7a405e3526730e5cd3ba139e25930d71e 100644
+index c7ad0e317c0c74e5ad3e08278c5e7b31c894413e..1f6c420a79435451d9c6acf7c7e216ef71ee0d0d 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java
 @@ -289,9 +289,11 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
