@@ -5,10 +5,10 @@ Subject: [PATCH] Expose findClass for profiler
 
 
 diff --git a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
-index 81da90531cc3a7ab13d455860f89411081825949..4b52a57bf6228a6df51290d0b6896dc9e48bc14e 100644
+index d2fa792e182736070a119e96b4ae79337de53d2a..e614ef411f026f6af2e7039abb7dd9dd712ed572 100644
 --- a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
 +++ b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
-@@ -153,6 +153,7 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
+@@ -155,6 +155,7 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
          throw new ClassNotFoundException(name);
      }
  

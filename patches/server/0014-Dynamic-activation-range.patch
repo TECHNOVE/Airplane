@@ -69,10 +69,10 @@ index ab019b577002677a4ce788106f8e5a1d7757a2ae..5077e70e4f408814b1072ceb45c52a32
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 286275b44cece17a7044eebd6549415600e06359..033372536f4dc2efd56dc563e3b62d18fee3a20a 100644
+index 2815a7fb9d8640ec7e0ff3b54e189a7657e4b6d9..7708f0152f3f1606335e0d7c01446cc49c21e134 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -289,6 +289,9 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
+@@ -290,6 +290,9 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
      public void inactiveTick() { }
      // Spigot end
      public boolean shouldBeRemoved; // Paper

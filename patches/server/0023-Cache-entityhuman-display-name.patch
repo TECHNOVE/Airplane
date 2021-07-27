@@ -5,7 +5,7 @@ Subject: [PATCH] Cache entityhuman display name
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/player/EntityHuman.java b/src/main/java/net/minecraft/world/entity/player/EntityHuman.java
-index 383b4cacc8c9f4fd5d2a83f683e5174ea5025f61..0443aaa9fc4058cc4ce61977a89cdf6ea6452b65 100644
+index be7c38c54311d6ea99a4ce2eec63863b649de3b2..176f092828a938c0d5036fbc594dbc26623b1713 100644
 --- a/src/main/java/net/minecraft/world/entity/player/EntityHuman.java
 +++ b/src/main/java/net/minecraft/world/entity/player/EntityHuman.java
 @@ -161,7 +161,8 @@ public abstract class EntityHuman extends EntityLiving {
@@ -18,7 +18,7 @@ index 383b4cacc8c9f4fd5d2a83f683e5174ea5025f61..0443aaa9fc4058cc4ce61977a89cdf6e
      private ItemStack bL;
      private final ItemCooldown bM;
      @Nullable
-@@ -1874,7 +1875,12 @@ public abstract class EntityHuman extends EntityLiving {
+@@ -1877,7 +1878,12 @@ public abstract class EntityHuman extends EntityLiving {
  
      @Override
      public IChatBaseComponent getDisplayName() {
