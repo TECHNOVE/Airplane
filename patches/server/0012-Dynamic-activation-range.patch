@@ -27,10 +27,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 5d12151c99c769210956151b8c3535031da4c642..85ea87549a476d3298de52b7dcd8525849f8d3ca 100644
+index 5d12151c99c769210956151b8c3535031da4c642..fe4b698778fab0d0da13374a1a3d10f3cf35eac6 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -1,7 +1,12 @@
+@@ -1,7 +1,14 @@
  package gg.airplane;
  
  import co.technove.air.AIR;
@@ -38,12 +38,14 @@ index 5d12151c99c769210956151b8c3535031da4c642..85ea87549a476d3298de52b7dcd85258
 +import com.google.common.collect.ImmutableList;
  import net.minecraft.server.MinecraftServer;
 +import net.minecraft.world.entity.ai.behavior.VillagerPanicTrigger;
++import net.minecraft.world.entity.ai.sensing.GolemSensor;
 +import net.minecraft.world.entity.ai.sensing.HurtBySensor;
++import net.minecraft.world.entity.ai.sensing.NearestLivingEntitySensor;
 +import net.minecraft.world.entity.ai.sensing.VillagerHostilesSensor;
  import org.apache.logging.log4j.Level;
  
  import java.io.File;
-@@ -10,6 +15,10 @@ import java.io.FileOutputStream;
+@@ -10,6 +17,10 @@ import java.io.FileOutputStream;
  import java.io.IOException;
  import java.lang.reflect.Method;
  import java.lang.reflect.Modifier;
@@ -54,7 +56,7 @@ index 5d12151c99c769210956151b8c3535031da4c642..85ea87549a476d3298de52b7dcd85258
  
  public class AirplaneConfig {
  
-@@ -66,4 +75,75 @@ public class AirplaneConfig {
+@@ -66,4 +77,77 @@ public class AirplaneConfig {
      }
  
  
@@ -109,7 +111,9 @@ index 5d12151c99c769210956151b8c3535031da4c642..85ea87549a476d3298de52b7dcd85258
 +
 +            fullyTickSensors = config.getList("behavior-activation.fully-tick-sensors", ValueType.STRING, ImmutableList.of(
 +                    VillagerHostilesSensor.class.getSimpleName(),
-+                    HurtBySensor.class.getSimpleName()
++                    HurtBySensor.class.getSimpleName(),
++                    GolemSensor.class.getSimpleName(),
++                    NearestLivingEntitySensor.class.getSimpleName()
 +            ))
 +                    .stream()
 +                    .map(str -> {
