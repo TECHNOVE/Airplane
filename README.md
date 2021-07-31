@@ -32,7 +32,9 @@ If you are interested in making a fork of Airplane, check out this template [her
 
 ## Patreon
 
-Thanks to all our Patrons! It is your help that keeps this project running.
+Thanks to all our Patrons! It is your help that keeps this project running. Check out our Private Quarters & First Class Patrons:
+
+[![Purity Vanilla](https://i.imgur.com/SC88aEg.png)][purity]
 
 ## Building
 
