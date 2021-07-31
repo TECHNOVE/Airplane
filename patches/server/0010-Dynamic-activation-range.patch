@@ -257,7 +257,7 @@ index faa53d08a12cc7441c670cae6d301de3f498ffe7..b17f401d723b1466a3b7e05da3dfeebd
      public boolean hasTasks() {
          for (WrappedGoal task : this.availableGoals) {
 diff --git a/src/main/java/net/minecraft/world/entity/ai/sensing/Sensor.java b/src/main/java/net/minecraft/world/entity/ai/sensing/Sensor.java
-index ef0677e8a09800a5eeb30ae6575fbd5acf181a7c..9a07f77831417926fb306f41226b17b288ffe0f1 100644
+index 8f99a78a55ab8f0ddfa1dd790a9a4a8c23a7f841..f2882d17dbbb59944c8ed831e85ecb7ba17700fb 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/sensing/Sensor.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/sensing/Sensor.java
 @@ -49,6 +49,18 @@ public abstract class Sensor<E extends LivingEntity> {
