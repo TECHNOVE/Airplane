@@ -16,3 +16,4 @@ minecraft net.minecraft.world.level.storage.loot.LootContext
 minecraft net.minecraft.world.entity.ai.behavior.Behavior
 minecraft net.minecraft.world.entity.ai.Brain
 minecraft net.minecraft.world.entity.ai.sensing.Sensor
+minecraft net.minecraft.world.entity.ai.behavior.VillagerPanicTrigger

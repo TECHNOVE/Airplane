@@ -107,7 +107,7 @@ index 0000000000000000000000000000000000000000..89c89e633f14b5820147e734b1b7ad8c
 +}
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..c5578607e903110c3846109d89ec41a7e454b92c
+index 0000000000000000000000000000000000000000..dadf83dbabfc523c6d65af3db98e80b58b8d8155
 --- /dev/null
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -0,0 +1,57 @@
@@ -150,7 +150,7 @@ index 0000000000000000000000000000000000000000..c5578607e903110c3846109d89ec41a7
 +        config.getString("info.version", "1.0");
 +
 +        for (Method method : AirplaneConfig.class.getDeclaredMethods()) {
-+            if (Modifier.isStatic(method.getModifiers()) && Modifier.isPrivate(method.getModifiers()) && !method.getName().startsWith("lambda")) {
++            if (Modifier.isStatic(method.getModifiers()) && Modifier.isPrivate(method.getModifiers()) && method.getReturnType() == Void.TYPE && !method.getName().startsWith("lambda")) {
 +                method.setAccessible(true);
 +                try {
 +                    method.invoke(null);
