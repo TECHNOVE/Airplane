@@ -16,7 +16,7 @@ toothpick {
     nmsRevision = "R0.1-SNAPSHOT"
 
     upstream = "Tuinity"
-    upstreamBranch = "origin/master"
+    upstreamBranch = "origin/ver/1.16.5"
 
     paperclipName = "launcher-airplane"
 

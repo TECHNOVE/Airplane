@@ -57,7 +57,7 @@ index 52c0ab1ce46e1f3233ef746d9bc699356fa9fae4..b480bd3044370b8eb733166f0c4b7373
                  metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
                      Map<String, Map<String, Integer>> map = new HashMap<>();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index d50b61876f15d95b836b3dd81d9c3492c91a8448..5460f57f0473868b3fb09c526a1767f717a2740e 100644
+index 42259255f116f991e5d53eff1ad744d984fd9511..3c4bd267e8a15f89226379e25c80869c1d4c9106 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 @@ -29,8 +29,8 @@ public class PaperVersionFetcher implements VersionFetcher {
@@ -65,7 +65,7 @@ index d50b61876f15d95b836b3dd81d9c3492c91a8448..5460f57f0473868b3fb09c526a1767f7
      @Override
      public Component getVersionMessage(@Nonnull String serverVersion) {
 -        String[] parts = serverVersion.substring("git-Tuinity-".length()).split("[-\\s]"); // Tuinity
--        final Component updateMessage = getUpdateStatusMessage("Spottedleaf/Tuinity", GITHUB_BRANCH_NAME, parts[0]); // Tuinity
+-        final Component updateMessage = getUpdateStatusMessage("Tuinity/Tuinity", GITHUB_BRANCH_NAME, parts[0]); // Tuinity
 +        String[] parts = serverVersion.substring("git-Airplane-".length()).split("[-\\s]"); // Tuinity
 +        final Component updateMessage = getUpdateStatusMessage("TECHNOVE/Airplane", GITHUB_BRANCH_NAME, parts[0]); // Tuinity
          final Component history = getHistory();
