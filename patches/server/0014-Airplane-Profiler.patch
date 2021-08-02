@@ -20,11 +20,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 6a5d66e6139aa157d62f71d606b9c7aa3b96f29d..52c5de6a49054e4775c15f75d81c9a49e6b086ca 100644
+index dcf519b8076cd67146f1aba2464bcb482604a9a5..c5b4a4bd057909e30b57c4979f4b8b3657ebeb47 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -70,6 +70,7 @@ dependencies {
-     implementation("org.quiltmc:tiny-mappings-parser:0.3.0") // Paper - needed to read mappings for stacktrace deobfuscation
+@@ -72,6 +72,7 @@ dependencies {
+     implementation("com.velocitypowered:velocity-native:1.1.0-SNAPSHOT") // Tuinity
  
      implementation("com.github.technove:AIR:fe3dbb4420") // Airplane - config
 +    implementation("com.github.technove:Flare:21f20392b3") // Airplane - flare

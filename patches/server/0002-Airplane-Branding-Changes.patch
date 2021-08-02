@@ -20,19 +20,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index d658b7502185f1f7c938d510e2f8404fdaa66bb6..59fbec653b6a37b2b574faa7d38c3c6976335fd4 100644
+index f5a9c41fdbaede65cf4607737421571f0c344c1f..7df523aaf7f709dd2390fbd8217223022f2b361c 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -34,7 +34,7 @@ repositories {
+@@ -35,7 +35,7 @@ repositories {
  }
  
  dependencies {
 -    implementation(project(":Tuinity-API")) // Tuinity
 +    implementation(project(":Airplane-API")) // Airplane // Tuinity
-     implementation("com.destroystokyo.paper:paper-mojangapi:1.16.5-R0.1-SNAPSHOT") // Tuinity
+     implementation("io.papermc.paper:paper-mojangapi:1.17.1-R0.1-SNAPSHOT") // Tuinity
      // Paper start
      implementation("org.jline:jline-terminal-jansi:3.12.1")
-@@ -86,7 +86,7 @@ tasks.jar {
+@@ -88,7 +88,7 @@ tasks.jar {
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
              "Implementation-Title" to "CraftBukkit",
