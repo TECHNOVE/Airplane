@@ -45,3 +45,16 @@ index 75022e5888de2730bb29d1e7535ddc63e2c5f713..a7c71fc4e49079d11b9a0537a4f6d20b
          }
  
          MemoryValue(MemoryModuleType<U> type, Optional<? extends ExpirableValue<U>> data) {
+diff --git a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java b/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
+index 5e3d7321a73144c3e4c43c18c5b748b2d0139db8..f1f14f5de59732478753e38c5c51536fe246a053 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
++++ b/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
+@@ -145,7 +145,7 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
+ 
+     @Override
+     public Brain<Hoglin> getBrain() {
+-        return (Brain<Hoglin>) super.getBrain(); // Purpur - decompile error
++        return (Brain<Hoglin>) super.getBrain(); // Airplane - decompile fix
+     }
+ 
+     @Override

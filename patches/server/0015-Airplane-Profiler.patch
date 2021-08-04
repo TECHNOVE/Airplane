@@ -20,11 +20,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index c522d55d0f966fdf2c9fffe48299c4ae032684f9..8f57361ecb47c531804563fc6ff9311e05b2a17f 100644
+index 2c8b197800ac23a6c7ef7992323dff5c187268ee..f1eb3a90a79c34ac4fe267d71925bc92260713ba 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -71,6 +71,7 @@ dependencies {
-     implementation("org.quiltmc:tiny-mappings-parser:0.3.0") // Paper - needed to read mappings for stacktrace deobfuscation
+@@ -73,6 +73,7 @@ dependencies {
+     implementation("com.velocitypowered:velocity-native:1.1.0-SNAPSHOT") // Tuinity
  
      implementation("com.github.technove:AIR:fe3dbb4420") // Airplane - config
 +    implementation("com.github.technove:Flare:21f20392b3") // Airplane - flare
@@ -32,24 +32,26 @@ index c522d55d0f966fdf2c9fffe48299c4ae032684f9..8f57361ecb47c531804563fc6ff9311e
      testImplementation("io.github.classgraph:classgraph:4.8.47") // Paper - mob goal test
      testImplementation("junit:junit:4.13.1")
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 85ea87549a476d3298de52b7dcd8525849f8d3ca..cc0d677a2dbf91746ef41dcbea0df46868eb9bc8 100644
+index 32082ff3737770161f8b76f28a1da27dffc6bb21..b38af06d8c312a1954359474bc4392fc12e615c7 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -3,11 +3,13 @@ package gg.airplane;
- import co.technove.air.AIR;
+@@ -4,6 +4,7 @@ import co.technove.air.AIR;
  import co.technove.air.ValueType;
  import com.google.common.collect.ImmutableList;
+ import io.papermc.paper.util.ObfHelper;
 +import gg.airplane.flare.FlareCommand;
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.world.entity.ai.behavior.VillagerPanicTrigger;
- import net.minecraft.world.entity.ai.sensing.HurtBySensor;
+ import net.minecraft.world.entity.ai.sensing.GolemSensor;
+@@ -11,6 +12,7 @@ import net.minecraft.world.entity.ai.sensing.HurtBySensor;
+ import net.minecraft.world.entity.ai.sensing.NearestLivingEntitySensor;
  import net.minecraft.world.entity.ai.sensing.VillagerHostilesSensor;
  import org.apache.logging.log4j.Level;
 +import org.bukkit.command.SimpleCommandMap;
  
  import java.io.File;
  import java.io.FileInputStream;
-@@ -146,4 +148,30 @@ public class AirplaneConfig {
+@@ -160,4 +162,30 @@ public class AirplaneConfig {
      }
  
  

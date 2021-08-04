@@ -5,10 +5,10 @@ Subject: [PATCH] Quicker sequencing of futures for chunk gen
 
 
 diff --git a/src/main/java/net/minecraft/Util.java b/src/main/java/net/minecraft/Util.java
-index 81f4f26a6b83079d36acd1fd86dede0eb1116c01..621c4b42185b3c65903408b6285ba56fa42e626a 100644
+index 59437f04911662f06596ef61b91017caa6427eec..b763805b1e731b87793a8dafec478bd36f80b4a7 100644
 --- a/src/main/java/net/minecraft/Util.java
 +++ b/src/main/java/net/minecraft/Util.java
-@@ -315,6 +315,10 @@ public class Util {
+@@ -316,6 +316,10 @@ public class Util {
      }
  
      public static <V> CompletableFuture<List<V>> sequence(List<? extends CompletableFuture<? extends V>> futures) {
@@ -19,7 +19,7 @@ index 81f4f26a6b83079d36acd1fd86dede0eb1116c01..621c4b42185b3c65903408b6285ba56f
          return futures.stream().reduce(CompletableFuture.completedFuture(Lists.newArrayList()), (completableFuture, completableFuture2) -> {
              return completableFuture2.thenCombine(completableFuture, (object, list) -> {
                  List<V> list2 = Lists.newArrayListWithCapacity(list.size() + 1);
-@@ -330,6 +334,8 @@ public class Util {
+@@ -331,6 +335,8 @@ public class Util {
                  return list3;
              });
          });

@@ -5,7 +5,7 @@ Subject: [PATCH] Patch Paper to use fast item merge raytracing
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/item/ItemEntity.java b/src/main/java/net/minecraft/world/entity/item/ItemEntity.java
-index 5201e59c7ce9e92790c185279ba69d7fbbfccf90..9ec17c9b469dd058cf382164027f0392a92b2c29 100644
+index 22d5f7e543461461ba0560f3fcfb769a8f082dce..d3c09c1b3951cf11d6eff798d3b3e5a85c879b20 100644
 --- a/src/main/java/net/minecraft/world/entity/item/ItemEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/item/ItemEntity.java
 @@ -249,10 +249,16 @@ public class ItemEntity extends Entity {

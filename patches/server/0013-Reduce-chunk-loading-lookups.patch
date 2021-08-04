@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/world/entity/monster/EnderMan.java b/src/main/java/net/minecraft/world/entity/monster/EnderMan.java
-index ba61f78874d8578b862f317fe00a3162c45253e0..3e15f892f210611edf68dc56b912be5b4890dbcb 100644
+index 42370072dac9144be5c07f88d24d8ba4705d68dd..e76164aa8e8750cb188bec250d0cca262c88d8e6 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/EnderMan.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/EnderMan.java
 @@ -331,11 +331,17 @@ public class EnderMan extends Monster implements NeutralMob {

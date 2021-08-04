@@ -5,7 +5,7 @@ Subject: [PATCH] Disable Paper timings by default
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-index a8d99549afbfbb0cbb45dd9dc278315e5ae5ea9d..6a79f329a99539d0413c207e4beaac13dabd6bd3 100644
+index d2046a6a9c5fe293d5f24138262517e77e64b303..e6ed874b707435b3ac5af500b7b85ac046f305c5 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
 @@ -207,6 +207,15 @@ public class PaperConfig {
@@ -22,5 +22,5 @@ index a8d99549afbfbb0cbb45dd9dc278315e5ae5ea9d..6a79f329a99539d0413c207e4beaac13
 +        timings = reallyEnableTimings;
 +        // Airplane end
          boolean verboseTimings = getBoolean("timings.verbose", true);
-         TimingsManager.privacy = getBoolean("timings.server-name-privacy", false);
-         TimingsManager.hiddenConfigs = getList("timings.hidden-config-entries", Lists.newArrayList("database", "settings.bungeecord-addresses", "settings.velocity-support.secret"));
+         TimingsManager.url = getString("timings.url", "https://timings.pl3x.net/");
+         if (!TimingsManager.url.endsWith("/")) {
