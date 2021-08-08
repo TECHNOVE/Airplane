@@ -107,7 +107,7 @@ index 0000000000000000000000000000000000000000..89c89e633f14b5820147e734b1b7ad8c
 +}
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..dadf83dbabfc523c6d65af3db98e80b58b8d8155
+index 0000000000000000000000000000000000000000..18b4b81abb76a4831bca4eefc96688d507f87310
 --- /dev/null
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -0,0 +1,57 @@
@@ -144,9 +144,9 @@ index 0000000000000000000000000000000000000000..dadf83dbabfc523c6d65af3db98e80b5
 +        }
 +
 +        config.setComment("info",
-+          "Airplane Configuration",
-+          "Read https://blog.airplane.gg/ to find out more about Airplane",
-+          "Join our Discord to receive support & optimization help: https://discord.gg/3gtc45q");
++                "Airplane Configuration",
++                "Read https://blog.airplane.gg/ to find out more about Airplane",
++                "Join our Discord to receive support & optimization help: https://discord.gg/3gtc45q");
 +        config.getString("info.version", "1.0");
 +
 +        for (Method method : AirplaneConfig.class.getDeclaredMethods()) {

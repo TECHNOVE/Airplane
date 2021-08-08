@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index f6eac82ba8b6ca6ebaff12522da7e1bd63a7efb3..f1ed8777d47f40f48fbacaaba2f00afab36718d2 100644
+index 3e9cec38450b9828cabc620d467af73f60b8d4e4..f1ed8777d47f40f48fbacaaba2f00afab36718d2 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -1,7 +1,10 @@
@@ -49,19 +49,6 @@ index f6eac82ba8b6ca6ebaff12522da7e1bd63a7efb3..f1ed8777d47f40f48fbacaaba2f00afa
  
  public class AirplaneConfig {
  
-@@ -31,9 +35,9 @@ public class AirplaneConfig {
-         }
- 
-         config.setComment("info",
--          "Airplane Configuration",
--          "Read https://blog.airplane.gg/ to find out more about Airplane",
--          "Join our Discord to receive support & optimization help: https://discord.gg/3gtc45q");
-+                "Airplane Configuration",
-+                "Read https://blog.airplane.gg/ to find out more about Airplane",
-+                "Join our Discord to receive support & optimization help: https://discord.gg/3gtc45q");
-         config.getString("info.version", "1.0");
- 
-         for (Method method : AirplaneConfig.class.getDeclaredMethods()) {
 @@ -66,4 +70,37 @@ public class AirplaneConfig {
      }
  
