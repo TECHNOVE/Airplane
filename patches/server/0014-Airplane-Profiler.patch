@@ -32,26 +32,22 @@ index dcf519b8076cd67146f1aba2464bcb482604a9a5..c5b4a4bd057909e30b57c4979f4b8b36
      testImplementation("io.github.classgraph:classgraph:4.8.47") // Paper - mob goal test
      testImplementation("junit:junit:4.13.1")
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 32082ff3737770161f8b76f28a1da27dffc6bb21..b38af06d8c312a1954359474bc4392fc12e615c7 100644
+index f1ed8777d47f40f48fbacaaba2f00afab36718d2..a98fc9278610e3fd64817986871a17722dfe56e4 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -4,6 +4,7 @@ import co.technove.air.AIR;
+@@ -3,9 +3,11 @@ package gg.airplane;
+ import co.technove.air.AIR;
  import co.technove.air.ValueType;
- import com.google.common.collect.ImmutableList;
- import io.papermc.paper.util.ObfHelper;
+ import net.minecraft.core.Registry;
 +import gg.airplane.flare.FlareCommand;
  import net.minecraft.server.MinecraftServer;
- import net.minecraft.world.entity.ai.behavior.VillagerPanicTrigger;
- import net.minecraft.world.entity.ai.sensing.GolemSensor;
-@@ -11,6 +12,7 @@ import net.minecraft.world.entity.ai.sensing.HurtBySensor;
- import net.minecraft.world.entity.ai.sensing.NearestLivingEntitySensor;
- import net.minecraft.world.entity.ai.sensing.VillagerHostilesSensor;
+ import net.minecraft.world.entity.EntityType;
  import org.apache.logging.log4j.Level;
 +import org.bukkit.command.SimpleCommandMap;
  
  import java.io.File;
  import java.io.FileInputStream;
-@@ -160,4 +162,30 @@ public class AirplaneConfig {
+@@ -103,4 +105,30 @@ public class AirplaneConfig {
      }
  
  

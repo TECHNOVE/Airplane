@@ -5,10 +5,10 @@ Subject: [PATCH] Config to disable method profiler
 
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index b38af06d8c312a1954359474bc4392fc12e615c7..8cba5c293c7e018edad4fb4acb5c34041d3545c8 100644
+index a98fc9278610e3fd64817986871a17722dfe56e4..e6d8a509d653bf76e54fc3a0cc5f2ceb41aa5031 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -188,4 +188,13 @@ public class AirplaneConfig {
+@@ -131,4 +131,13 @@ public class AirplaneConfig {
      }
  
  
