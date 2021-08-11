@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 6b06af2f0a3d52cb85646e9655ffaa30d98aaf86..4c8be3611bb69a3406bd8f16f94bd5098fe46567 100644
+index 8d5d5f2cc52227d4302160094d8c93ca59505c19..2ac3e88cf166a3e944f0a02fb8a379234ea3e643 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -2,7 +2,9 @@ package gg.airplane;
@@ -38,9 +38,9 @@ index 6b06af2f0a3d52cb85646e9655ffaa30d98aaf86..4c8be3611bb69a3406bd8f16f94bd509
  import net.minecraft.server.MinecraftServer;
 +import net.minecraft.world.entity.EntityType;
  import org.apache.logging.log4j.Level;
- import org.jetbrains.annotations.Nullable;
- import org.simpleyaml.configuration.comments.CommentType;
-@@ -15,6 +17,7 @@ import java.io.IOException;
+ import org.bukkit.configuration.Configuration;
+ import org.bukkit.configuration.ConfigurationSection;
+@@ -19,6 +21,7 @@ import java.io.IOException;
  import java.lang.reflect.Method;
  import java.lang.reflect.Modifier;
  import java.util.List;
@@ -48,7 +48,7 @@ index 6b06af2f0a3d52cb85646e9655ffaa30d98aaf86..4c8be3611bb69a3406bd8f16f94bd509
  
  public class AirplaneConfig {
  
-@@ -159,4 +162,37 @@ public class AirplaneConfig {
+@@ -179,4 +182,37 @@ public class AirplaneConfig {
      }
  
  

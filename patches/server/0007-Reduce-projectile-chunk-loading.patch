@@ -20,10 +20,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 190ee2ffea6bdd10f62c01966a2896de58ca05a7..6b06af2f0a3d52cb85646e9655ffaa30d98aaf86 100644
+index 8e714f112c6fa37eb92398a9d7d7f7b8b48c3832..8d5d5f2cc52227d4302160094d8c93ca59505c19 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -147,5 +147,16 @@ public class AirplaneConfig {
+@@ -167,5 +167,16 @@ public class AirplaneConfig {
          return config.getStringList(key);
      }
  
