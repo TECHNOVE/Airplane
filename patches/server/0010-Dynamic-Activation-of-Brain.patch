@@ -27,29 +27,28 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 3e9cec38450b9828cabc620d467af73f60b8d4e4..f1ed8777d47f40f48fbacaaba2f00afab36718d2 100644
+index 6b06af2f0a3d52cb85646e9655ffaa30d98aaf86..4c8be3611bb69a3406bd8f16f94bd5098fe46567 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -1,7 +1,10 @@
- package gg.airplane;
+@@ -2,7 +2,9 @@ package gg.airplane;
  
  import co.technove.air.AIR;
-+import co.technove.air.ValueType;
+ import co.technove.air.ValueType;
 +import net.minecraft.core.Registry;
  import net.minecraft.server.MinecraftServer;
 +import net.minecraft.world.entity.EntityType;
  import org.apache.logging.log4j.Level;
- 
- import java.io.File;
-@@ -10,6 +13,7 @@ import java.io.FileOutputStream;
- import java.io.IOException;
+ import org.jetbrains.annotations.Nullable;
+ import org.simpleyaml.configuration.comments.CommentType;
+@@ -15,6 +17,7 @@ import java.io.IOException;
  import java.lang.reflect.Method;
  import java.lang.reflect.Modifier;
+ import java.util.List;
 +import java.util.Collections;
  
  public class AirplaneConfig {
  
-@@ -66,4 +70,37 @@ public class AirplaneConfig {
+@@ -159,4 +162,37 @@ public class AirplaneConfig {
      }
  
  
@@ -59,18 +58,16 @@ index 3e9cec38450b9828cabc620d467af73f60b8d4e4..f1ed8777d47f40f48fbacaaba2f00afa
 +    public static int maximumActivationPrio;
 +    public static int activationDistanceMod;
 +
-+    private static void dynamicActivationRange() throws IOException {
-+        config.setComment("activation-range", "Optimizes how entities act when", "they're far away from the player");
-+
-+        dearEnabled = config.getBoolean("activation-range.enabled", true);
-+        startDistance = config.getInt("activation-range.start-distance", 12,
++    private static void dynamicActivationOfBrains() throws IOException {
++        dearEnabled = getBoolean("dab.enabled", "activation-range.enabled", true);
++        startDistance = getInt("dab.start-distance", "activation-range.start-distance", 12,
 +                "This value determines how far away an entity has to be",
 +                "from the player to start being effected by DEAR.");
 +        startDistanceSquared = startDistance * startDistance;
-+        maximumActivationPrio = config.getInt("activation-range.max-tick-freq", 20,
++        maximumActivationPrio = getInt("dab.max-tick-freq", "activation-range.max-tick-freq", 20,
 +                "This value defines how often in ticks, the furthest entity",
 +                "will get their pathfinders and behaviors ticked. 20 = 1s");
-+        activationDistanceMod = config.getInt("activation-range.activation-dist-mod", 8,
++        activationDistanceMod = getInt("dab.activation-dist-mod", "activation-range.activation-dist-mod", 8,
 +                "This value defines how much distance modifies an entity's",
 +                "tick frequency. freq = (distanceToPlayer^2) / (2^value)",
 +                "If you want further away entities to tick less often, use 7.",
@@ -79,10 +76,12 @@ index 3e9cec38450b9828cabc620d467af73f60b8d4e4..f1ed8777d47f40f48fbacaaba2f00afa
 +        for (EntityType<?> entityType : Registry.ENTITY_TYPE) {
 +            entityType.dabEnabled = true; // reset all, before setting the ones to true
 +        }
-+        config.getList("activation-range.blacklisted-entities", ValueType.STRING, Collections.emptyList(), "A list of entities to ignore for activation")
++        getStringList("dab.blacklisted-entities", "activation-range.blacklisted-entities", Collections.emptyList(), "A list of entities to ignore for activation")
 +                .forEach(name -> EntityType.byString(name).ifPresentOrElse(entityType -> {
 +                    entityType.dabEnabled = false;
 +                }, () -> MinecraftServer.LOGGER.log(Level.WARN, "Unknown entity \"" + name + "\"")));
++
++        setComment("dab", "Optimizes entity brains when", "they're far away from the player");
 +    }
 +
 +

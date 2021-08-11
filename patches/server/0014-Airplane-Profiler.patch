@@ -20,22 +20,22 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index dcf519b8076cd67146f1aba2464bcb482604a9a5..dd879992d82aa0559aafe7936fdd6b2d9c425d2a 100644
+index 49da4bf4d5f5847818a386c0c69e1206c5bf9ee1..84c66e718c717f6ac91fb6b66e99ee6378c9051c 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -72,6 +72,7 @@ dependencies {
-     implementation("com.velocitypowered:velocity-native:1.1.0-SNAPSHOT") // Tuinity
+@@ -73,6 +73,7 @@ dependencies {
  
      implementation("com.github.technove:AIR:fe3dbb4420") // Airplane - config
+     implementation ("me.carleslc.Simple-YAML:Simple-Yaml:1.7.2") // Airplane - more config
 +    implementation("com.github.technove:Flare:2c4a2114a0") // Airplane - flare
  
      testImplementation("io.github.classgraph:classgraph:4.8.47") // Paper - mob goal test
      testImplementation("junit:junit:4.13.1")
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index f1ed8777d47f40f48fbacaaba2f00afab36718d2..d3657ef63f43f089d3b57f74c8eb4e22137954a5 100644
+index 4c8be3611bb69a3406bd8f16f94bd5098fe46567..404a8cca587e54fd07481be8c41f4d3e98b85884 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -3,9 +3,11 @@ package gg.airplane;
+@@ -3,6 +3,7 @@ package gg.airplane;
  import co.technove.air.AIR;
  import co.technove.air.ValueType;
  import net.minecraft.core.Registry;
@@ -43,37 +43,39 @@ index f1ed8777d47f40f48fbacaaba2f00afab36718d2..d3657ef63f43f089d3b57f74c8eb4e22
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.world.entity.EntityType;
  import org.apache.logging.log4j.Level;
+@@ -10,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
+ import org.simpleyaml.configuration.comments.CommentType;
+ import org.simpleyaml.configuration.file.YamlFile;
+ import org.simpleyaml.exceptions.InvalidConfigurationException;
 +import org.bukkit.command.SimpleCommandMap;
  
  import java.io.File;
  import java.io.FileInputStream;
-@@ -13,6 +15,7 @@ import java.io.FileOutputStream;
- import java.io.IOException;
+@@ -17,6 +19,7 @@ import java.io.IOException;
  import java.lang.reflect.Method;
  import java.lang.reflect.Modifier;
+ import java.util.List;
 +import java.net.URI;
  import java.util.Collections;
  
  public class AirplaneConfig {
-@@ -103,4 +106,30 @@ public class AirplaneConfig {
+@@ -195,4 +198,40 @@ public class AirplaneConfig {
      }
  
  
 +    public static URI profileWebUrl;
 +
 +    private static void profilerOptions() {
-+        config.setComment("flare", "Configures Flare, the built-in profiler");
++        profileWebUrl = URI.create(getString("flare.url", "https://flare.airplane.gg", "Sets the server to use for profiles."));
 +
-+        profileWebUrl = URI.create(config.getString("flare.url", "https://flare.airplane.gg", "Sets the server to use for profiles."));
++        setComment("flare", "Configures Flare, the built-in profiler");
 +    }
 +
 +
 +    public static String accessToken;
 +
 +    private static void airplaneWebServices() {
-+        config.setComment("web-services", "Options for connecting to Airplane's online utilities");
-+
-+        accessToken = config.getString("web-services.token", "");
++        accessToken = getString("web-services.token", "");
 +        // todo lookup token (off-thread) and let users know if their token is valid
 +        if (accessToken.length() > 0) {
 +            gg.airplane.flare.FlareSetup.init(); // Airplane
@@ -82,6 +84,18 @@ index f1ed8777d47f40f48fbacaaba2f00afab36718d2..d3657ef63f43f089d3b57f74c8eb4e22
 +                commandMap.register("flare", "Airplane", new FlareCommand());
 +            }
 +        }
++
++        setComment("web-services", "Options for connecting to Airplane's online utilities");
++
++    }
++
++
++    public static boolean disableMethodProfiler;
++
++    private static void miscSettings() {
++        disableMethodProfiler = config.getBoolean("misc.disable-method-profiler", true);
++
++        config.setComment("misc", "Settings for things that don't belong elsewhere");
 +    }
 +
 +

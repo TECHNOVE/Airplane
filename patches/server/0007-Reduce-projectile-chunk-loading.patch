@@ -20,25 +20,25 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index c5578607e903110c3846109d89ec41a7e454b92c..5d12151c99c769210956151b8c3535031da4c642 100644
+index 190ee2ffea6bdd10f62c01966a2896de58ca05a7..6b06af2f0a3d52cb85646e9655ffaa30d98aaf86 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -54,4 +54,16 @@ public class AirplaneConfig {
-         }
+@@ -147,5 +147,16 @@ public class AirplaneConfig {
+         return config.getStringList(key);
      }
  
-+
 +    public static int maxProjectileLoadsPerTick;
 +    public static int maxProjectileLoadsPerProjectile;
 +
-+    private static void projectileLoading() {
-+        config.setComment("projectile", "Optimizes projectile settings");
 +
-+        maxProjectileLoadsPerTick = config.getInt("projectile.max-loads-per-tick", 10, "Controls how many chunks are allowed", "to be sync loaded by projectiles in a tick.");
-+        maxProjectileLoadsPerProjectile = config.getInt("projectile.max-loads-per-projectile", 10, "Controls how many chunks a projectile", "can load in its lifetime before it gets", "automatically removed.");
++    private static void projectileLoading() {
++        maxProjectileLoadsPerTick = getInt("projectile.max-loads-per-tick", 10, "Controls how many chunks are allowed", "to be sync loaded by projectiles in a tick.");
++        maxProjectileLoadsPerProjectile = getInt("projectile.max-loads-per-projectile", 10, "Controls how many chunks a projectile", "can load in its lifetime before it gets", "automatically removed.");
++
++        setComment("projectile", "Optimizes projectile settings");
 +    }
 +
-+
+ 
  }
 diff --git a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
 index 37356b36f0ae12d55150f399318581fa77c30cee..008e3b769011df76697ad0abcdde5727cef05f64 100644
