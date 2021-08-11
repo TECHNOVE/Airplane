@@ -32,7 +32,7 @@ index 49da4bf4d5f5847818a386c0c69e1206c5bf9ee1..84c66e718c717f6ac91fb6b66e99ee63
      testImplementation("io.github.classgraph:classgraph:4.8.47") // Paper - mob goal test
      testImplementation("junit:junit:4.13.1")
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 4c8be3611bb69a3406bd8f16f94bd5098fe46567..404a8cca587e54fd07481be8c41f4d3e98b85884 100644
+index 4c8be3611bb69a3406bd8f16f94bd5098fe46567..c52cada9ebf20cad59856e5ff29ff30bc071e3ad 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
 @@ -3,6 +3,7 @@ package gg.airplane;
@@ -59,7 +59,7 @@ index 4c8be3611bb69a3406bd8f16f94bd5098fe46567..404a8cca587e54fd07481be8c41f4d3e
  import java.util.Collections;
  
  public class AirplaneConfig {
-@@ -195,4 +198,40 @@ public class AirplaneConfig {
+@@ -195,4 +198,31 @@ public class AirplaneConfig {
      }
  
  
@@ -87,15 +87,6 @@ index 4c8be3611bb69a3406bd8f16f94bd5098fe46567..404a8cca587e54fd07481be8c41f4d3e
 +
 +        setComment("web-services", "Options for connecting to Airplane's online utilities");
 +
-+    }
-+
-+
-+    public static boolean disableMethodProfiler;
-+
-+    private static void miscSettings() {
-+        disableMethodProfiler = config.getBoolean("misc.disable-method-profiler", true);
-+
-+        config.setComment("misc", "Settings for things that don't belong elsewhere");
 +    }
 +
 +

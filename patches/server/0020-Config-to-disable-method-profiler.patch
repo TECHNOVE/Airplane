@@ -5,19 +5,19 @@ Subject: [PATCH] Config to disable method profiler
 
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index 404a8cca587e54fd07481be8c41f4d3e98b85884..6d7e5211a78808e3e908fcd1db3935542c0e3f70 100644
+index c52cada9ebf20cad59856e5ff29ff30bc071e3ad..404a8cca587e54fd07481be8c41f4d3e98b85884 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -234,4 +234,13 @@ public class AirplaneConfig {
+@@ -225,4 +225,13 @@ public class AirplaneConfig {
      }
  
  
 +    public static boolean disableMethodProfiler;
 +
 +    private static void miscSettings() {
-+        config.setComment("misc", "Settings for things that don't belong elsewhere");
-+
 +        disableMethodProfiler = config.getBoolean("misc.disable-method-profiler", true);
++
++        config.setComment("misc", "Settings for things that don't belong elsewhere");
 +    }
 +
 +
