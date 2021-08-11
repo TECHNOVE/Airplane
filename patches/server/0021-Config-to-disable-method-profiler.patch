@@ -5,25 +5,25 @@ Subject: [PATCH] Config to disable method profiler
 
 
 diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
-index b38af06d8c312a1954359474bc4392fc12e615c7..8cba5c293c7e018edad4fb4acb5c34041d3545c8 100644
+index c52cada9ebf20cad59856e5ff29ff30bc071e3ad..404a8cca587e54fd07481be8c41f4d3e98b85884 100644
 --- a/src/main/java/gg/airplane/AirplaneConfig.java
 +++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -188,4 +188,13 @@ public class AirplaneConfig {
+@@ -225,4 +225,13 @@ public class AirplaneConfig {
      }
  
  
 +    public static boolean disableMethodProfiler;
 +
 +    private static void miscSettings() {
-+        config.setComment("misc", "Settings for things that don't belong elsewhere");
-+
 +        disableMethodProfiler = config.getBoolean("misc.disable-method-profiler", true);
++
++        config.setComment("misc", "Settings for things that don't belong elsewhere");
 +    }
 +
 +
  }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 8308e0e7acd7399c42b186f6f69913eb31c90c59..1ea82baf9f14ec7820abf29b2db5b218c967ca90 100644
+index 7b63fed9c343bb01e3dba6fc58070d78f90b5354..c9cadf5b24e740f2762f765cbb029335cf9bf168 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -2309,6 +2309,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa

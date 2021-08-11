@@ -1,0 +1,334 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul Sauve <paul@technove.co>
+Date: Fri, 15 Jan 2021 19:05:01 -0600
+Subject: [PATCH] Dynamic Activation of Brain
+
+This replaces the current method of ticking an inactive entity's
+pathfinder 1/4 times with a new method that's dynamic based off how far
+away it is from a player. If an entity is within 32 blocks, it gets
+ticked every tick. If it's within 45 blocks, it gets ticked every other
+tick. If it's within 55 blocks, it gets ticked once every three ticks.
+(these numbers have since been changed, but the idea is the same.)
+
+Airplane
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
+index 6b06af2f0a3d52cb85646e9655ffaa30d98aaf86..4c8be3611bb69a3406bd8f16f94bd5098fe46567 100644
+--- a/src/main/java/gg/airplane/AirplaneConfig.java
++++ b/src/main/java/gg/airplane/AirplaneConfig.java
+@@ -2,7 +2,9 @@ package gg.airplane;
+ 
+ import co.technove.air.AIR;
+ import co.technove.air.ValueType;
++import net.minecraft.core.Registry;
+ import net.minecraft.server.MinecraftServer;
++import net.minecraft.world.entity.EntityType;
+ import org.apache.logging.log4j.Level;
+ import org.jetbrains.annotations.Nullable;
+ import org.simpleyaml.configuration.comments.CommentType;
+@@ -15,6 +17,7 @@ import java.io.IOException;
+ import java.lang.reflect.Method;
+ import java.lang.reflect.Modifier;
+ import java.util.List;
++import java.util.Collections;
+ 
+ public class AirplaneConfig {
+ 
+@@ -159,4 +162,37 @@ public class AirplaneConfig {
+     }
+ 
+ 
++    public static boolean dearEnabled;
++    public static int startDistance;
++    public static int startDistanceSquared;
++    public static int maximumActivationPrio;
++    public static int activationDistanceMod;
++
++    private static void dynamicActivationOfBrains() throws IOException {
++        dearEnabled = getBoolean("dab.enabled", "activation-range.enabled", true);
++        startDistance = getInt("dab.start-distance", "activation-range.start-distance", 12,
++                "This value determines how far away an entity has to be",
++                "from the player to start being effected by DEAR.");
++        startDistanceSquared = startDistance * startDistance;
++        maximumActivationPrio = getInt("dab.max-tick-freq", "activation-range.max-tick-freq", 20,
++                "This value defines how often in ticks, the furthest entity",
++                "will get their pathfinders and behaviors ticked. 20 = 1s");
++        activationDistanceMod = getInt("dab.activation-dist-mod", "activation-range.activation-dist-mod", 8,
++                "This value defines how much distance modifies an entity's",
++                "tick frequency. freq = (distanceToPlayer^2) / (2^value)",
++                "If you want further away entities to tick less often, use 7.",
++                "If you want further away entities to tick more often, try 9.");
++
++        for (EntityType<?> entityType : Registry.ENTITY_TYPE) {
++            entityType.dabEnabled = true; // reset all, before setting the ones to true
++        }
++        getStringList("dab.blacklisted-entities", "activation-range.blacklisted-entities", Collections.emptyList(), "A list of entities to ignore for activation")
++                .forEach(name -> EntityType.byString(name).ifPresentOrElse(entityType -> {
++                    entityType.dabEnabled = false;
++                }, () -> MinecraftServer.LOGGER.log(Level.WARN, "Unknown entity \"" + name + "\"")));
++
++        setComment("dab", "Optimizes entity brains when", "they're far away from the player");
++    }
++
++
+ }
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 8d7fe80d3a8bf49b5dda3b9f46754dc2559ade2f..81f0fa59d32234399247f7d74a3a6673f91493a7 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -336,6 +336,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+     protected int numCollisions = 0; // Paper
+     public void inactiveTick() { }
+     // Spigot end
++    // Airplane start
++    public int activatedPriority = gg.airplane.AirplaneConfig.maximumActivationPrio; // golf score
++    // Airplane end
+ 
+     public float getBukkitYaw() {
+         return this.yRot;
+diff --git a/src/main/java/net/minecraft/world/entity/EntityType.java b/src/main/java/net/minecraft/world/entity/EntityType.java
+index 00b6243977a318f81e9524968f21a7f0e24f425d..cbf57a7e8c312ef0906743a84e00f8f8f9f7a305 100644
+--- a/src/main/java/net/minecraft/world/entity/EntityType.java
++++ b/src/main/java/net/minecraft/world/entity/EntityType.java
+@@ -309,6 +309,8 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
+ 
+     public final String id;
+ 
++    public boolean dabEnabled = false; // Airplane
++
+     public EntityType(EntityType.EntityFactory<T> entitytypes_b, MobCategory enumcreaturetype, boolean flag, boolean flag1, boolean flag2, boolean flag3, ImmutableSet<Block> canSpawnInside, EntityDimensions dimensions, int maxTrackDistance, int trackTickInterval, String id) { // Paper - add id
+         this.factory = entitytypes_b;
+         this.category = enumcreaturetype;
+diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
+index 4b7a7ddccb50a89b25f67e0f1f540476e4aaa33e..f0415c76f52f124b3060505d0d4269d941d4f490 100644
+--- a/src/main/java/net/minecraft/world/entity/Mob.java
++++ b/src/main/java/net/minecraft/world/entity/Mob.java
+@@ -211,10 +211,10 @@ public abstract class Mob extends LivingEntity {
+     @Override
+     public void inactiveTick() {
+         super.inactiveTick();
+-        if (this.goalSelector.inactiveTick()) {
++        if (this.goalSelector.inactiveTick(this.activatedPriority, true)) { // Airplane - pass activated priroity
+             this.goalSelector.tick();
+         }
+-        if (this.targetSelector.inactiveTick()) {
++        if (this.targetSelector.inactiveTick(this.activatedPriority, true)) { // Airplane - pass activated priority
+             this.targetSelector.tick();
+         }
+     }
+@@ -875,9 +875,11 @@ public abstract class Mob extends LivingEntity {
+         this.sensing.tick();
+         this.level.getProfiler().pop();
+         this.level.getProfiler().push("targetSelector");
++        if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Airplane - use this to alternate ticking
+         this.targetSelector.tick();
+         this.level.getProfiler().pop();
+         this.level.getProfiler().push("goalSelector");
++        if (this.goalSelector.inactiveTick(this.activatedPriority, false)) // Airplane - use this to alternate ticking
+         this.goalSelector.tick();
+         this.level.getProfiler().pop();
+         this.level.getProfiler().push("navigation");
+diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/VillagerPanicTrigger.java b/src/main/java/net/minecraft/world/entity/ai/behavior/VillagerPanicTrigger.java
+index 42d466f7f162943886078eba3db18f2dfc2d7bee..32da2d3f87758bee359522769ebbee73f4f3256a 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/behavior/VillagerPanicTrigger.java
++++ b/src/main/java/net/minecraft/world/entity/ai/behavior/VillagerPanicTrigger.java
+@@ -37,7 +37,11 @@ public class VillagerPanicTrigger extends Behavior<Villager> {
+ 
+     @Override
+     protected void tick(ServerLevel serverLevel, Villager villager, long l) {
+-        if (l % 100L == 0L) {
++        // Airplane start
++        if (villager.nextGolemPanic < 0) villager.nextGolemPanic = l + 100;
++        if (--villager.nextGolemPanic < l) {
++            villager.nextGolemPanic = -1;
++            // Airplane end
+             villager.spawnGolemIfNeeded(serverLevel, l, 3);
+         }
+ 
+diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java b/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
+index faa53d08a12cc7441c670cae6d301de3f498ffe7..b17f401d723b1466a3b7e05da3dfeebd5cf763c7 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
++++ b/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
+@@ -49,9 +49,12 @@ public class GoalSelector {
+     }
+ 
+     // Paper start
+-    public boolean inactiveTick() {
++    public boolean inactiveTick(int tickRate, boolean inactive) { // Airplane start
++        if (inactive && !gg.airplane.AirplaneConfig.dearEnabled) tickRate = 4; // reset to Paper's
++        tickRate = Math.min(tickRate, this.newGoalRate);
+         this.curRate++;
+-        return this.curRate % this.newGoalRate == 0;
++        return this.curRate % tickRate == 0;
++        // Airplane end
+     }
+     public boolean hasTasks() {
+         for (WrappedGoal task : this.availableGoals) {
+diff --git a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
+index 80c0e17f49b6d8f060122eed5bc6d67299ad3f5c..be4beb44c5db58a0ac33e21948b45bc792c692e1 100644
+--- a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
++++ b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
+@@ -302,9 +302,11 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
+         return true;
+     }
+ 
++    private int behaviorTick = 0; // Airplane
+     @Override
+     protected void customServerAiStep() {
+         this.level.getProfiler().push("axolotlBrain");
++        if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
+         this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error
+         this.level.getProfiler().pop();
+         this.level.getProfiler().push("axolotlActivityUpdate");
+diff --git a/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java b/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
+index ca62d4adafc3195541665192888feac91312d71a..ce2896c609d16a9b9a733930a3c4c3bd32ebec90 100644
+--- a/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
++++ b/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
+@@ -166,10 +166,12 @@ public class Goat extends Animal {
+         return (Brain<Goat>) super.getBrain(); // CraftBukkit - decompile error
+     }
+ 
++    private int behaviorTick = 0; // Airplane
+     @Override
+     protected void customServerAiStep() {
+         this.level.getProfiler().push("goatBrain");
+         if (getRider() == null) // Purpur - only use brain if no rider
++        if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
+         this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error
+         this.level.getProfiler().pop();
+         this.level.getProfiler().push("goatActivityUpdate");
+diff --git a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java b/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
+index f1f14f5de59732478753e38c5c51536fe246a053..975e15a501f01c1f87b80ee20d57f4d26051f326 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
++++ b/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
+@@ -148,10 +148,12 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
+         return (Brain<Hoglin>) super.getBrain(); // Airplane - decompile fix
+     }
+ 
++    private int behaviorTick; // Airplane
+     @Override
+     protected void customServerAiStep() {
+         this.level.getProfiler().push("hoglinBrain");
+         if (getRider() == null) // Purpur - only use brain if no rider
++        if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
+         this.getBrain().tick((ServerLevel)this.level, this);
+         this.level.getProfiler().pop();
+         HoglinAi.updateActivity(this);
+diff --git a/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java b/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java
+index cdb797f23b4460a24a090d3983debcc523913943..5c9321901c8f220f895a278cc4940560cf72dc19 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java
++++ b/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java
+@@ -306,10 +306,12 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
+         return !this.cannotHunt;
+     }
+ 
++    private int behaviorTick; // Airplane
+     @Override
+     protected void customServerAiStep() {
+         this.level.getProfiler().push("piglinBrain");
+         if (getRider() == null) // Purpur - only use brain if no rider
++        if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
+         this.getBrain().tick((ServerLevel) this.level, (Piglin) this); // CraftBukkit - decompile error
+         this.level.getProfiler().pop();
+         PiglinAi.updateActivity(this);
+diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
+index b649ef2c96beeb6c2d98f54375bbeb1159c7f4ba..8671c606893fbbe3c5f5e0ebc2c78fabd054792f 100644
+--- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
++++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
+@@ -144,6 +144,8 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+     private final int brainTickOffset; // Purpur
+     boolean lobotomized = false; // Purpur
+ 
++    public long nextGolemPanic = -1; // Airplane
++
+     public Villager(EntityType<? extends Villager> entityType, Level world) {
+         this(entityType, world, VillagerType.PLAINS);
+     }
+@@ -292,6 +294,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+     }
+     // Spigot End
+ 
++    private int behaviorTick = 0; // Airplane
+     @Override
+     protected void customServerAiStep() { mobTick(false); }
+     protected void mobTick(boolean inactive) {
+@@ -301,7 +304,12 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+         boolean tick = (level.getGameTime() + brainTickOffset) % level.purpurConfig.villagerBrainTicks == 0;
+         if (((ServerLevel) level).getServer().lagging ? tick : level.purpurConfig.villagerUseBrainTicksOnlyWhenLagging || tick)
+         // Purpur end
+-        if (!inactive) this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error // Paper
++        // Airplane start
++        if (!inactive) {
++            if (level.purpurConfig.villagerBrainTicks != 1 || this.behaviorTick++ % this.activatedPriority == 0) // Airplane
++            this.getBrain().tick((ServerLevel) this.level, this);
++         }
++        // Airplane end
+         else if (shouldRestock()) restock(); // Purpur
+         this.level.getProfiler().pop();
+         if (this.assignProfessionWhenSpawned) {
+diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
+index 3cfca02792f48e917dc445e2d32e7c18556c151b..7fbc75d515df231d02143c8e84cd4fe42e8301b9 100644
+--- a/src/main/java/org/spigotmc/ActivationRange.java
++++ b/src/main/java/org/spigotmc/ActivationRange.java
+@@ -38,6 +38,10 @@ import co.aikar.timings.MinecraftTimings;
+ import net.minecraft.world.entity.schedule.Activity;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.phys.AABB;
++// Airplane start
++import net.minecraft.world.phys.Vec3;
++import java.util.List;
++// Airplane end
+ 
+ public class ActivationRange
+ {
+@@ -212,6 +216,21 @@ public class ActivationRange
+             for (int i = 0; i < entities.size(); i++) {
+                 Entity entity = entities.get(i);
+                 ActivationRange.activateEntity(entity);
++
++                // Airplane start
++                if (gg.airplane.AirplaneConfig.dearEnabled && entity.getType().dabEnabled) {
++                    Vec3 playerVec = player.position();
++                    Vec3 entityVec = entity.position();
++                    double diffX = playerVec.x - entityVec.x, diffY = playerVec.y - entityVec.y, diffZ = playerVec.z - entityVec.z;
++                    int squaredDistance = (int) (diffX * diffX + diffY * diffY + diffZ * diffZ);
++                    entity.activatedPriority = squaredDistance > gg.airplane.AirplaneConfig.startDistanceSquared ?
++                      Math.max(1, Math.min(squaredDistance >> gg.airplane.AirplaneConfig.activationDistanceMod, gg.airplane.AirplaneConfig.maximumActivationPrio)) :
++                      1;
++                } else {
++                    entity.activatedPriority = 1;
++                }
++                // Airplane end
++
+             }
+             // Tuinity end
+         }
+@@ -228,12 +247,12 @@ public class ActivationRange
+         if ( MinecraftServer.currentTick > entity.activatedTick )
+         {
+             if ( entity.defaultActivationState )
+-            {
++            { // Airplane - diff on change
+                 entity.activatedTick = MinecraftServer.currentTick;
+                 return;
+             }
+             if ( entity.activationType.boundingBox.intersects( entity.getBoundingBox() ) )
+-            {
++            {  // Airplane - diff on change
+                 entity.activatedTick = MinecraftServer.currentTick;
+             }
+         }

@@ -66,7 +66,7 @@ index 4d8740678049aa749b42618470e9cc838555528d..f5d01bce4d5547b4aeca96b7962b2090
                  metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
                      Map<String, Map<String, Integer>> map = new HashMap<>();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index 128b268539e956d0f78084b62c10138e6eb4c22a..5749a2cb5cb68bff1ddae84ed187f41b6dd59dda 100644
+index 128b268539e956d0f78084b62c10138e6eb4c22a..24019b1e3c68f3b8f362d4a1a8cf925cf135ce5d 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 @@ -29,8 +29,8 @@ public class PaperVersionFetcher implements VersionFetcher {
@@ -80,30 +80,23 @@ index 128b268539e956d0f78084b62c10138e6eb4c22a..5749a2cb5cb68bff1ddae84ed187f41b
          final Component history = getHistory();
  
          return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
-@@ -55,6 +55,8 @@ public class PaperVersionFetcher implements VersionFetcher {
-     private static Component getUpdateStatusMessage(@Nonnull String repo, @Nonnull String branch, @Nonnull String versionInfo) {
+@@ -56,11 +56,14 @@ public class PaperVersionFetcher implements VersionFetcher {
          int distance;
          // Purpur start - put this back...
-+        // Airplane start
-+        /*
          try {
++            /*
              int build = Integer.parseInt(versionInfo);
              distance = fetchDistanceFromSiteApi(build, getMinecraftVersion());
-@@ -62,9 +64,11 @@ public class PaperVersionFetcher implements VersionFetcher {
+             if (distance < 0) {
                  distance = fetchDistanceFromJenkins(build);
              }
++             */
++            throw new NumberFormatException();
          } catch (NumberFormatException ignored) {
-+         */
              versionInfo = versionInfo.replace("\"", "");
              distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
--        }
-+        //}
-+        // Airplane end
-         // Purpur end
- 
-         switch (distance) {
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index efddedd3fdec7fc146be5a572ce86e58d3c7c1e4..8308e0e7acd7399c42b186f6f69913eb31c90c59 100644
+index efddedd3fdec7fc146be5a572ce86e58d3c7c1e4..7b63fed9c343bb01e3dba6fc58070d78f90b5354 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1732,7 +1732,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -111,13 +104,13 @@ index efddedd3fdec7fc146be5a572ce86e58d3c7c1e4..8308e0e7acd7399c42b186f6f69913eb
      @DontObfuscate
      public String getServerModName() {
 -        return net.pl3x.purpur.PurpurConfig.serverModName; // Purpur // Tuinity // Paper // Spigot // CraftBukkit
-+        String purpurName = net.pl3x.purpur.PurpurConfig.serverModName;
-+        return purpurName.equals("Purpur") ? "AirplanePurpur" : purpurName; // Airplane // Purpur // Tuinity // Paper // Spigot // CraftBukkit
++        String serverName = net.pl3x.purpur.PurpurConfig.serverModName;
++        return serverName.equals("Purpur") ? "AirplanePurpur" : serverName; // Airplane // Purpur // Tuinity // Paper // Spigot // CraftBukkit
      }
  
      public SystemReport fillSystemReport(SystemReport details) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 0e09d8f573e466b17cce6187adc769b61bbfb2d6..27c2d8fc73427abf4ffe43cc470975e37d24f3f4 100644
+index a0177be669c921728267bd48ed3c7af302d6d314..0fc2978889ff7f3191f74b3f706f85efc41e3084 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -240,7 +240,7 @@ import javax.annotation.Nullable; // Paper
