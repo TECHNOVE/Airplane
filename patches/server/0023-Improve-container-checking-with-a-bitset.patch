@@ -332,7 +332,7 @@ index 52de9852f87d346714a950b60a0004d386ac10f0..305a8f5ea917c7e242011fa98a3e1615
  
      @Override
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index 3b1442bf4c83650369e925d76f07dc67c6cbbc83..a1f483f87f560f79910d6b2ac8384aa95a085254 100644
+index a3f0e2ab3eeebeb7c43fda3ddb1f16f8696255d3..99e75feae404d8812f55d562acb11af94330e2c1 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 @@ -44,7 +44,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
@@ -425,8 +425,8 @@ index 3b1442bf4c83650369e925d76f07dc67c6cbbc83..a1f483f87f560f79910d6b2ac8384aa9
 +            boolean flag1 = to.isCompletelyEmpty(enumdirection); // Airplane
  
              if (itemstack1.isEmpty()) {
-                 IGNORE_TILE_UPDATES = true; // Paper
-@@ -726,7 +749,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+                 int originalCount = stack.getCount(); // Paper
+@@ -735,7 +758,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
  
      @Override
      protected void setItems(NonNullList<ItemStack> list) {
