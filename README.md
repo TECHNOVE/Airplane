@@ -28,11 +28,15 @@ A stable, optimized, well supported 1.17 Paper fork.
 ## Downloads
 The latest JAR file can be downloaded from [the downloads page][downloads]. You can also clone this repository and build it yourself.
 
+### Unstable Builds
+If you're interested, unstable builds can be obtained from the actions tab on the github page
+
 If you are interested in making a fork of Airplane, check out this template [here][fork]!
 
 ## Patreon
 
 Thanks to all our Patrons! It is your help that keeps this project running. Check out our Private Quarters & First Class Patrons:
+
 
 [![Purity Vanilla](https://i.imgur.com/SC88aEg.png)][purity]
 
