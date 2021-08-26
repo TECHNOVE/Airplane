@@ -18,10 +18,6 @@ jobs:
           -   name: Build with Gradle
               run: ./gradlew build
 
-          -   name: run test server
-              timeout-minutes: 5
-              run: ./gradlew runAutoTestServer
-
           -   name: Upload build artifacts
               uses: actions/upload-artifact@v1
               with:
