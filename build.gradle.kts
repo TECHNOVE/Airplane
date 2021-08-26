@@ -9,13 +9,13 @@ repositories {
     maven("https://papermc.io/repo/repository/maven-public/") {
         content { onlyForConfigurations("paperclip") }
     }
-    maven("https://maven.quiltmc.org/repository/release/") {
+    maven("https://maven.fabricmc.net/net/fabricmc/tiny-remapper/") {
         content { onlyForConfigurations("remapper") }
     }
 }
 
 dependencies {
-    remapper("org.quiltmc:tiny-remapper:0.4.3")
+    remapper("net.fabricmc:tiny-remapper:0.5.0")
     paperclip("io.papermc:paperclip:2.1.0-SNAPSHOT")
 }
 
