@@ -101,7 +101,7 @@ index 218f5bafeed8551b55b91c7fccaf6935c8b631ca..f5d01bce4d5547b4aeca96b7962b2090
                  metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
                      Map<String, Map<String, Integer>> map = new HashMap<>();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index 580bae0d414d371a07a6bfeefc41fdd989dc0083..2352bd3bbae810e25fa4ff4de701e85c86e1fe11 100644
+index 580bae0d414d371a07a6bfeefc41fdd989dc0083..51d89d6bcbcc24a6be6a836263ebb1ed23e91cba 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 @@ -29,8 +29,8 @@ public class PaperVersionFetcher implements VersionFetcher {
@@ -115,6 +115,25 @@ index 580bae0d414d371a07a6bfeefc41fdd989dc0083..2352bd3bbae810e25fa4ff4de701e85c
          final Component history = getHistory();
  
          return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
+@@ -54,13 +54,13 @@ public class PaperVersionFetcher implements VersionFetcher {
+ 
+     private static Component getUpdateStatusMessage(@Nonnull String repo, @Nonnull String branch, @Nonnull String versionInfo) {
+         int distance;
+-        try {
+-            int jenkinsBuild = Integer.parseInt(versionInfo);
+-            distance = fetchDistanceFromSiteApi(jenkinsBuild, getMinecraftVersion());
+-        } catch (NumberFormatException ignored) {
++        //try {
++        //    int jenkinsBuild = Integer.parseInt(versionInfo);
++        //    distance = fetchDistanceFromSiteApi(jenkinsBuild, getMinecraftVersion());
++        //} catch (NumberFormatException ignored) {
+             versionInfo = versionInfo.replace("\"", "");
+             distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
+-        }
++        //}
+ 
+         switch (distance) {
+             case -1:
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
 index edd2333e0fb24a50bc388249224e9311aa90a10f..458b4509ad7fc9d5f9b96c2191df16014ec298b4 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
