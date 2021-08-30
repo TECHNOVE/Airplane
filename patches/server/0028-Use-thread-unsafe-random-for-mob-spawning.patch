@@ -5,20 +5,20 @@ Subject: [PATCH] Use thread unsafe random for mob spawning
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index ad02d30bcad577dbe38b6c16657899636f891007..14ee66b677ad5de2058ae2083bed4a0fdcee20a9 100644
+index f33d0828c291ba6df19825874579d7fec597f106..6c4fd437f6f8149fae21b1f0c87cb20e131c800c 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -835,7 +835,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
      }
      // Paper start - optimise random block ticking
      private final BlockPos.MutableBlockPos chunkTickMutablePosition = new BlockPos.MutableBlockPos();
--    private final com.tuinity.tuinity.util.math.ThreadUnsafeRandom randomTickRandom = new com.tuinity.tuinity.util.math.ThreadUnsafeRandom();
-+    private final com.tuinity.tuinity.util.math.ThreadUnsafeRandom randomTickRandom = new com.tuinity.tuinity.util.math.ThreadUnsafeRandom(); public java.util.Random getThreadUnsafeRandom() { return this.randomTickRandom; } // Airplane - getter
+-    private final io.papermc.paper.util.math.ThreadUnsafeRandom randomTickRandom = new io.papermc.paper.util.math.ThreadUnsafeRandom();
++    private final io.papermc.paper.util.math.ThreadUnsafeRandom randomTickRandom = new io.papermc.paper.util.math.ThreadUnsafeRandom(); public java.util.Random getThreadUnsafeRandom() { return this.randomTickRandom; } // Airplane - getter
      // Paper end
  
      private int currentIceAndSnowTick = 0; protected void resetIceAndSnowTick() { this.currentIceAndSnowTick = this.randomTickRandom.nextInt(16); } // Airplane
 diff --git a/src/main/java/net/minecraft/world/level/NaturalSpawner.java b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-index c6821bfb28b582733cd977864c28ca5cf0c69872..ea77694307e5972b6c9ecf5f23515885974ed493 100644
+index 403f50ef908f65c62d4aaa7e5328faa0a7654480..e5fa91b5e19edab169b361865e7a6b2742c9ca4b 100644
 --- a/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 +++ b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 @@ -407,12 +407,12 @@ public final class NaturalSpawner {

@@ -332,7 +332,7 @@ index 52de9852f87d346714a950b60a0004d386ac10f0..305a8f5ea917c7e242011fa98a3e1615
  
      @Override
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index a3f0e2ab3eeebeb7c43fda3ddb1f16f8696255d3..99e75feae404d8812f55d562acb11af94330e2c1 100644
+index d41851f9119c334cae3fc2c433d6450a3eed9096..ddf82e65d3ef1f53b72017bf5159b9f7b5484632 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 @@ -44,7 +44,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
@@ -425,8 +425,8 @@ index a3f0e2ab3eeebeb7c43fda3ddb1f16f8696255d3..99e75feae404d8812f55d562acb11af9
 +            boolean flag1 = to.isCompletelyEmpty(enumdirection); // Airplane
  
              if (itemstack1.isEmpty()) {
-                 int originalCount = stack.getCount(); // Paper
-@@ -735,7 +758,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+                 // Spigot start - SPIGOT-6693, InventorySubcontainer#setItem
+@@ -731,7 +754,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
  
      @Override
      protected void setItems(NonNullList<ItemStack> list) {

@@ -87,10 +87,10 @@ index 8d5d5f2cc52227d4302160094d8c93ca59505c19..2ac3e88cf166a3e944f0a02fb8a37923
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 2453492429a743677db07e31d575c1473fedf4ad..3a6e65cc2c78ed4c07c81e0177d3a64bb235b34d 100644
+index cfe6921b8da87c5dd09772988fb8e4e0da541cd9..50d273de36d46c1470ac37501b6d713e39f42eae 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -336,6 +336,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -338,6 +338,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
      protected int numCollisions = 0; // Paper
      public void inactiveTick() { }
      // Spigot end
@@ -114,7 +114,7 @@ index ac99265aacd4a28490705e3079ed04023fb1c54a..96b881fcb4c3871b2fc00080afc19900
          this.factory = entitytypes_b;
          this.category = enumcreaturetype;
 diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
-index 5eb93bacd303ebed0a702221f8ae31631d42f45d..8bc9cb5930e826ec4297c9c3f7cac993d103c59a 100644
+index 8a864238e154e2131834d013652746b7e7a78c97..b8e512e1c4b00b468b2d22add5653b98f4a2c81a 100644
 --- a/src/main/java/net/minecraft/world/entity/Mob.java
 +++ b/src/main/java/net/minecraft/world/entity/Mob.java
 @@ -207,10 +207,10 @@ public abstract class Mob extends LivingEntity {
@@ -275,7 +275,7 @@ index eaefa4f5f86f1c836aa29dd64ea786baced4b34d..0f7f7aef78a1f34fe113eeb00a88fd26
          if (this.assignProfessionWhenSpawned) {
              this.assignProfessionWhenSpawned = false;
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 966639cc6ba6684bfb52e91ac047808cf4d003e4..010f42097b145440ce6d046420d3a1db489fc785 100644
+index b5da2f39ff6e2e7cb519c5d22be6ae4d77dc60ab..bd0cc767ae978eeb332f86971cc9bea517b4f955 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -37,6 +37,10 @@ import co.aikar.timings.MinecraftTimings;
@@ -309,7 +309,7 @@ index 966639cc6ba6684bfb52e91ac047808cf4d003e4..010f42097b145440ce6d046420d3a1db
 +                // Airplane end
 +
              }
-             // Tuinity end
+             // Paper end
          }
 @@ -226,12 +245,12 @@ public class ActivationRange
          if ( MinecraftServer.currentTick > entity.activatedTick )

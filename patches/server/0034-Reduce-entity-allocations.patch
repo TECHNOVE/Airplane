@@ -4,43 +4,11 @@ Date: Fri, 2 Jul 2021 18:25:18 -0500
 Subject: [PATCH] Reduce entity allocations
 
 
-diff --git a/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java b/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
-index a2f52a68420a2d23d8f54f61f7aeede41567dc0f..4da3e83b61b89978aed968d4aaec3308f3f00995 100644
---- a/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
-+++ b/src/main/java/com/tuinity/tuinity/util/CollisionUtil.java
-@@ -398,6 +398,8 @@ public final class CollisionUtil {
-                                                               final List<AABB> into, final boolean loadChunks, final boolean collidesWithUnloaded,
-                                                               final boolean checkBorder, final boolean checkOnly, final BiPredicate<BlockState, BlockPos> predicate) {
-         boolean ret = false;
-+        BlockPos.MutableBlockPos mutablePos; // Airplane
-+
- 
-         if (checkBorder) {
-             if (CollisionUtil.isAlmostCollidingOnBorder(getter.getWorldBorder(), aabb)) {
-@@ -408,7 +410,8 @@ public final class CollisionUtil {
-                     ret = true;
-                 }
-             }
--        }
-+            mutablePos = entity.cachedBlockPos; // Airplane
-+        } else mutablePos = new BlockPos.MutableBlockPos(); // Airplane
- 
-         int minBlockX = Mth.floor(aabb.minX - COLLISION_EPSILON) - 1;
-         int maxBlockX = Mth.floor(aabb.maxX + COLLISION_EPSILON) + 1;
-@@ -424,7 +427,7 @@ public final class CollisionUtil {
-         final int minBlock = minSection << 4;
-         final int maxBlock = (maxSection << 4) | 15;
- 
--        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
-+        //BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos(); // Airplane - moved up
-         CollisionContext collisionShape = null;
- 
-         // special cases:
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 8a385e8ee8a62f1362a5f9461aebd85c470929b4..8b88311545c56c28de41317911daf5903e3e5e14 100644
+index e519f8ec6430225002a3591235cb495ba367a65f..d898b5c55f7659a344259cc0d5bc4abfb837eb15 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -338,6 +338,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -340,6 +340,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
      // Spigot end
      // Airplane start
      public int activatedPriority = gg.airplane.AirplaneConfig.maximumActivationPrio; // golf score
@@ -48,15 +16,15 @@ index 8a385e8ee8a62f1362a5f9461aebd85c470929b4..8b88311545c56c28de41317911daf590
      // Airplane end
  
      public float getBukkitYaw() {
-@@ -2457,9 +2458,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -2459,9 +2460,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
  
-             // Tuinity start
-             return com.tuinity.tuinity.util.CollisionUtil.getCollisionsForBlocksOrWorldBorder(this.level, this, axisalignedbb, null,
+             // Paper start
+             return io.papermc.paper.util.CollisionUtil.getCollisionsForBlocksOrWorldBorder(this.level, this, axisalignedbb, null,
 -                false, false, false, true, (iblockdata, blockposition) -> {
 -                    return iblockdata.isSuffocating(this.level, blockposition);
 -            });
 +                false, false, false, true, this.level.isAlmostSuffocating); // Airplane - don't allocate lambda here
-             // Tuinity end
+             // Paper end
          }
      }
 diff --git a/src/main/java/net/minecraft/world/entity/ai/attributes/AttributeMap.java b/src/main/java/net/minecraft/world/entity/ai/attributes/AttributeMap.java
@@ -90,10 +58,10 @@ index 9cbfda029782385d1a7987f5be46d450bd8a758e..d3e97858dacc850012e5585ac44a1aea
  
      public boolean hasAttribute(Attribute attribute) {
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index c9bd4c496677a3450931c2ac52793c66095df4be..87854318966a157796788134c8447c0458aa996f 100644
+index f4ca7aa01d65cc0c7cf16cb2b1a7c48c0aff917f..e49c8adfbb95dc1b23f1213de6aadddac12b12cb 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
-@@ -177,6 +177,8 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+@@ -175,6 +175,8 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
      public final Map<Explosion.CacheKey, Float> explosionDensityCache = new HashMap<>(); // Paper - Optimize explosions
      public java.util.ArrayDeque<net.minecraft.world.level.block.RedstoneTorchBlock.Toggle> redstoneUpdateInfos; // Paper - Move from Map in BlockRedstoneTorch to here
  

@@ -34,10 +34,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-index 3f0168a9edfa67f99e6fe9ce161878034e57c3f4..59b5d658c6dee34c819101a507ba4e7ecb5b80e0 100644
+index 6b5d0d15c8de2c783a49a0369342fe67c1a511fa..c6da3c0dd65671851fdbc0cf7a6e32e92be3b968 100644
 --- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 +++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-@@ -987,6 +987,7 @@ public class ServerChunkCache extends ChunkSource {
+@@ -985,6 +985,7 @@ public class ServerChunkCache extends ChunkSource {
              }
              // Paper end - optimize isOutisdeRange
              this.level.getProfiler().push("pollingChunks");
@@ -46,11 +46,11 @@ index 3f0168a9edfa67f99e6fe9ce161878034e57c3f4..59b5d658c6dee34c819101a507ba4e7e
              boolean flag2 = level.ticksPerAnimalSpawns != 0L && worlddata.getGameTime() % level.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index f9ed48f5bbde84fd1804e482f2777b516cc3a1ef..ad02d30bcad577dbe38b6c16657899636f891007 100644
+index f40ac8dbd1193410c5fe164a0952f2394e111248..f33d0828c291ba6df19825874579d7fec597f106 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -838,6 +838,8 @@ public class ServerLevel extends Level implements WorldGenLevel {
-     private final com.tuinity.tuinity.util.math.ThreadUnsafeRandom randomTickRandom = new com.tuinity.tuinity.util.math.ThreadUnsafeRandom();
+     private final io.papermc.paper.util.math.ThreadUnsafeRandom randomTickRandom = new io.papermc.paper.util.math.ThreadUnsafeRandom();
      // Paper end
  
 +    private int currentIceAndSnowTick = 0; protected void resetIceAndSnowTick() { this.currentIceAndSnowTick = this.randomTickRandom.nextInt(16); } // Airplane
@@ -77,12 +77,12 @@ index f9ed48f5bbde84fd1804e482f2777b516cc3a1ef..ad02d30bcad577dbe38b6c1665789963
              this.getRandomBlockPosition(j, 0, k, 15, blockposition);
              int normalY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockposition.getX() & 15, blockposition.getZ() & 15) + 1;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index 4f6a356e3a27915f1d95132a0a5fddb163735cf6..3a8d1c79e85386efa39de5fac085bbdee0c076c1 100644
+index 86686c24b0b7de4b4bfadbc77419a8872a8e86ee..ff0fab668801d0b32abffbfedc7eb24abf71fed0 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 @@ -172,6 +172,18 @@ public class LevelChunk implements ChunkAccess {
      }
-     // Tuinity end - rewrite light engine
+     // Paper end - rewrite light engine
  
 +    // Airplane start - instead of using a random every time the chunk is ticked, define when lightning strikes preemptively
 +    private int lightningTick;

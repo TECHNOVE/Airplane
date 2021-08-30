@@ -5,10 +5,10 @@ Subject: [PATCH] Remove streams and iterators from range check
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
-index b9b985268f5627a238c302f81400a05bfd7c592d..c82ae84190273609b0f5f533eb41a0e5363c16bf 100644
+index 9bb61ea359693f69a570f60be30f8b9b59ab0d19..00bd9c816a62791e892724ebfca08f3cce3645ff 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
-@@ -2453,8 +2453,28 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2455,8 +2455,28 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
              return ChunkMap.this.level.getServer().getScaledTrackingDistance(initialDistance);
          }
  
@@ -37,7 +37,7 @@ index b9b985268f5627a238c302f81400a05bfd7c592d..c82ae84190273609b0f5f533eb41a0e5
              Iterator iterator = this.entity.getIndirectPassengers().iterator();
  
              while (iterator.hasNext()) {
-@@ -2466,6 +2486,9 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2468,6 +2488,9 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
                      i = j;
                  }
              }

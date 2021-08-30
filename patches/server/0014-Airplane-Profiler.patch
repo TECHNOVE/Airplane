@@ -20,10 +20,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 49da4bf4d5f5847818a386c0c69e1206c5bf9ee1..84c66e718c717f6ac91fb6b66e99ee6378c9051c 100644
+index 0420d443bbaf3731cbd28004359868cd80af28ae..8a4c00b978b289d162321a043efb0a5ca4c9ef4a 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -73,6 +73,7 @@ dependencies {
+@@ -70,6 +70,7 @@ dependencies {
  
      implementation("com.github.technove:AIR:fe3dbb4420") // Airplane - config
      implementation ("me.carleslc.Simple-YAML:Simple-Yaml:1.7.2") // Airplane - more config
@@ -835,10 +835,10 @@ index 3b13f6ea36a3bfecabe09221eb5c48dddab119db..c02b9104c0cc1a7319cca29d5e32a5c2
      @Override
      public T get(int id) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/MinecraftInternalPlugin.java b/src/main/java/org/bukkit/craftbukkit/scheduler/MinecraftInternalPlugin.java
-index 49dc0c441b9dd7e7745cf15ced67f383ebee1f99..b343d8ee7435312929558efdaf127334d8e2fff6 100644
+index 909b2c98e7a9117d2f737245e4661792ffafb744..9da898c6f44832b4421b8c2745e3121bd13a71ab 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/MinecraftInternalPlugin.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scheduler/MinecraftInternalPlugin.java
-@@ -19,7 +19,8 @@ public class MinecraftInternalPlugin extends PluginBase {
+@@ -22,7 +22,8 @@ public class MinecraftInternalPlugin extends PluginBase {
      private boolean enabled = true;
  
      private final String pluginName;
@@ -848,7 +848,7 @@ index 49dc0c441b9dd7e7745cf15ced67f383ebee1f99..b343d8ee7435312929558efdaf127334
  
      public MinecraftInternalPlugin() {
          this.pluginName = "Minecraft";
-@@ -72,7 +73,12 @@ public class MinecraftInternalPlugin extends PluginBase {
+@@ -75,7 +76,12 @@ public class MinecraftInternalPlugin extends PluginBase {
  
      @Override
      public PluginLogger getLogger() {
@@ -862,7 +862,7 @@ index 49dc0c441b9dd7e7745cf15ced67f383ebee1f99..b343d8ee7435312929558efdaf127334
      }
  
      @Override
-@@ -82,7 +88,7 @@ public class MinecraftInternalPlugin extends PluginBase {
+@@ -85,7 +91,7 @@ public class MinecraftInternalPlugin extends PluginBase {
  
      @Override
      public Server getServer() {

@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/world/level/chunk/PalettedContainer.java b/src/main/java/net/minecraft/world/level/chunk/PalettedContainer.java
-index ebeb3e3b0619b034a9681da999e9ac33cc241718..5b5ada474cff54b424946fc628d30f25a6774684 100644
+index c9e942669458668a184aaec3bc0a5509dd6ab5f0..178e56ffc87ea2beb4d84d1f278f4acf90102379 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/PalettedContainer.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/PalettedContainer.java
 @@ -263,13 +263,17 @@ public class PalettedContainer<T> implements PaletteResize<T> {
@@ -47,10 +47,10 @@ index ebeb3e3b0619b034a9681da999e9ac33cc241718..5b5ada474cff54b424946fc628d30f25
              for(int j = 0; j < 4096; ++j) {
                  T object2 = this.get(j);
 diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
-index 9815a91040e7cbcbcd171e68b0a935ea26ff8a2a..384897c21ea16b5760d9218c292dd29c9dceeab7 100644
+index 4ec0cd61c860a90bbe44244bb3f6b628c4533c98..6b870d5d45a668e52eec639e149b43722489dab0 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
-@@ -485,6 +485,7 @@ public class ChunkSerializer {
+@@ -502,6 +502,7 @@ public class ChunkSerializer {
          return new AsyncSaveData(blockLight, skyLight, blockTickListSerialized, fluidTickListSerialized, blockEntitiesSerialized, world.getGameTime());
      }
  
@@ -58,7 +58,7 @@ index 9815a91040e7cbcbcd171e68b0a935ea26ff8a2a..384897c21ea16b5760d9218c292dd29c
      public static CompoundTag write(ServerLevel world, ChunkAccess chunk) {
          return saveChunk(world, chunk, null);
      }
-@@ -518,6 +519,7 @@ public class ChunkSerializer {
+@@ -535,6 +536,7 @@ public class ChunkSerializer {
          ThreadedLevelLightEngine lightenginethreaded = world.getChunkSource().getLightEngine();
          boolean flag = chunk.isLightCorrect();
  
@@ -66,7 +66,7 @@ index 9815a91040e7cbcbcd171e68b0a935ea26ff8a2a..384897c21ea16b5760d9218c292dd29c
          for (int i = lightenginethreaded.getMinLightSection(); i < lightenginethreaded.getMaxLightSection(); ++i) {
              int finalI = i; // CraftBukkit - decompile errors
              LevelChunkSection chunksection = (LevelChunkSection) Arrays.stream(achunksection).filter((chunksection1) -> {
-@@ -532,7 +534,7 @@ public class ChunkSerializer {
+@@ -549,7 +551,7 @@ public class ChunkSerializer {
  
                  nbttagcompound2.putByte("Y", (byte) (i & 255));
                  if (chunksection != LevelChunk.EMPTY_SECTION) {
@@ -74,4 +74,4 @@ index 9815a91040e7cbcbcd171e68b0a935ea26ff8a2a..384897c21ea16b5760d9218c292dd29c
 +                    chunksection.getStates().write(nbttagcompound2, "Palette", "BlockStates", is); // Airplane - reuse array
                  }
  
-                 // Tuinity start - replace light engine
+                 // Paper start - replace light engine

@@ -1,7 +1,7 @@
 plugins {
     java
     id("com.github.johnrengelman.shadow") version "7.0.0" apply false
-    id("io.papermc.paperweight.patcher") version "1.1.9"
+    id("io.papermc.paperweight.patcher") version "1.1.11"
 }
 
 repositories {
@@ -9,13 +9,10 @@ repositories {
     maven("https://papermc.io/repo/repository/maven-public/") {
         content { onlyForConfigurations("paperclip") }
     }
-    maven("https://maven.quiltmc.org/repository/release/") {
-        content { onlyForConfigurations("remapper") }
-    }
 }
 
 dependencies {
-    remapper("org.quiltmc:tiny-remapper:0.4.1")
+    remapper("org.quiltmc:tiny-remapper:0.4.3:fat")
     paperclip("io.papermc:paperclip:2.0.1")
 }
 
@@ -44,12 +41,13 @@ subprojects {
 paperweight {
     serverProject.set(project(":Airplane-Server"))
 
-    useStandardUpstream("tuinity") {
-        url.set(github("Tuinity", "Tuinity"))
-        ref.set(providers.gradleProperty("tuinityRef"))
+    usePaperUpstream(providers.gradleProperty("paperRef")) {
+        withPaperPatcher {
+            remapRepo.set("https://maven.quiltmc.org/repository/release/")
+            decompileRepo.set("https://files.minecraftforge.net/maven/")
 
-        withStandardPatcher {
-            baseName("Tuinity")
+            apiPatchDir.set(layout.projectDirectory.dir("patches/api"))
+            serverPatchDir.set(layout.projectDirectory.dir("patches/server"))
 
             apiOutputDir.set(layout.projectDirectory.dir("Airplane-API"))
             serverOutputDir.set(layout.projectDirectory.dir("Airplane-Server"))

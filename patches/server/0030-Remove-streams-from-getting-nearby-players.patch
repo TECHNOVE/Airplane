@@ -7,10 +7,10 @@ This results in a 3% improvement at 20,000 entities, but more
 importantly is the heaviest part of the entity tracker currently.
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 3a6e65cc2c78ed4c07c81e0177d3a64bb235b34d..8a385e8ee8a62f1362a5f9461aebd85c470929b4 100644
+index 50d273de36d46c1470ac37501b6d713e39f42eae..e519f8ec6430225002a3591235cb495ba367a65f 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -358,17 +358,36 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -360,17 +360,36 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
          this.isLegacyTrackingEntity = isLegacyTrackingEntity;
      }
  
@@ -32,7 +32,7 @@ index 3a6e65cc2c78ed4c07c81e0177d3a64bb235b34d..8a385e8ee8a62f1362a5f9461aebd85c
 +    }
 +
      public final com.destroystokyo.paper.util.misc.PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer> getPlayersInTrackRange() {
-         // Tuinity start - determine highest range of passengers
+         // determine highest range of passengers
          if (this.passengers.isEmpty()) {
              return ((ServerLevel)this.level).getChunkSource().chunkMap.playerEntityTrackerTrackMaps[this.trackingRangeType.ordinal()]
                  .getObjectsInRange(MCUtil.getCoordinateKey(this));
@@ -48,7 +48,7 @@ index 3a6e65cc2c78ed4c07c81e0177d3a64bb235b34d..8a385e8ee8a62f1362a5f9461aebd85c
          for (Entity passenger : passengers) {
              org.spigotmc.TrackingRange.TrackingRangeType passengerType = passenger.trackingRangeType;
              int passengerRange = chunkMap.getEntityTrackerRange(passengerType.ordinal());
-@@ -377,6 +396,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -379,6 +398,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
                  range = passengerRange;
              }
          }
@@ -57,4 +57,4 @@ index 3a6e65cc2c78ed4c07c81e0177d3a64bb235b34d..8a385e8ee8a62f1362a5f9461aebd85c
 +        // Airplane end
  
          return chunkMap.playerEntityTrackerTrackMaps[type.ordinal()].getObjectsInRange(MCUtil.getCoordinateKey(this));
-         // Tuinity end - determine highest range of passengers
+     }

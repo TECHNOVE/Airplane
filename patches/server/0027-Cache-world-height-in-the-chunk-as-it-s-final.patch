@@ -5,7 +5,7 @@ Subject: [PATCH] Cache world height in the chunk, as it's final
 
 
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index 3a8d1c79e85386efa39de5fac085bbdee0c076c1..b2e71a78424dbe1ce87b982b073d8534de890181 100644
+index ff0fab668801d0b32abffbfedc7eb24abf71fed0..e265980f07d95a7912bf8873819033e51ef04c98 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 @@ -184,11 +184,13 @@ public class LevelChunk implements ChunkAccess {
@@ -19,7 +19,7 @@ index 3a8d1c79e85386efa39de5fac085bbdee0c076c1..b2e71a78424dbe1ce87b982b073d8534
  
      public LevelChunk(Level world, ChunkPos pos, ChunkBiomeContainer biomes, UpgradeData upgradeData, TickList<Block> blockTickScheduler, TickList<Fluid> fluidTickScheduler, long inhabitedTime, @Nullable LevelChunkSection[] sections, @Nullable Consumer<LevelChunk> loadToWorldConsumer) {
 +        this.levelHeight = world.getHeight(); this.minBuildHeight = world.getMinBuildHeight(); // Airplane
-         // Tuinity start
+         // Paper start
          this.blockNibbles = StarLightEngine.getFilledEmptyLight(world);
          this.skyNibbles = StarLightEngine.getFilledEmptyLight(world);
 @@ -1309,13 +1311,17 @@ public class LevelChunk implements ChunkAccess {
