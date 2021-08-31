@@ -12,7 +12,7 @@
 # Airplane
 A stable, optimized, well supported 1.17 Paper fork.
 
-[Homepage][home] - [Downloads][downloads] - [Blog][blog] - [Discord][discord] - [airplane.air][wiki]
+[Homepage][home] - [Downloads][downloads] - [Blog][blog] - [Discord][discord] - [airplane.yml][wiki]
 
 ## Features
 

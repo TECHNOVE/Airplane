@@ -47,10 +47,10 @@ index c9e942669458668a184aaec3bc0a5509dd6ab5f0..178e56ffc87ea2beb4d84d1f278f4acf
              for(int j = 0; j < 4096; ++j) {
                  T object2 = this.get(j);
 diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
-index 4ec0cd61c860a90bbe44244bb3f6b628c4533c98..6b870d5d45a668e52eec639e149b43722489dab0 100644
+index 7921ee2786d0d6a60d43786b20efc03a0f9178e3..9ea4229f58679c6c833762fc6a50471445ff0b9d 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
-@@ -502,6 +502,7 @@ public class ChunkSerializer {
+@@ -500,6 +500,7 @@ public class ChunkSerializer {
          return new AsyncSaveData(blockLight, skyLight, blockTickListSerialized, fluidTickListSerialized, blockEntitiesSerialized, world.getGameTime());
      }
  
@@ -58,7 +58,7 @@ index 4ec0cd61c860a90bbe44244bb3f6b628c4533c98..6b870d5d45a668e52eec639e149b4372
      public static CompoundTag write(ServerLevel world, ChunkAccess chunk) {
          return saveChunk(world, chunk, null);
      }
-@@ -535,6 +536,7 @@ public class ChunkSerializer {
+@@ -533,6 +534,7 @@ public class ChunkSerializer {
          ThreadedLevelLightEngine lightenginethreaded = world.getChunkSource().getLightEngine();
          boolean flag = chunk.isLightCorrect();
  
@@ -66,7 +66,7 @@ index 4ec0cd61c860a90bbe44244bb3f6b628c4533c98..6b870d5d45a668e52eec639e149b4372
          for (int i = lightenginethreaded.getMinLightSection(); i < lightenginethreaded.getMaxLightSection(); ++i) {
              int finalI = i; // CraftBukkit - decompile errors
              LevelChunkSection chunksection = (LevelChunkSection) Arrays.stream(achunksection).filter((chunksection1) -> {
-@@ -549,7 +551,7 @@ public class ChunkSerializer {
+@@ -547,7 +549,7 @@ public class ChunkSerializer {
  
                  nbttagcompound2.putByte("Y", (byte) (i & 255));
                  if (chunksection != LevelChunk.EMPTY_SECTION) {

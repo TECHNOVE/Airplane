@@ -87,7 +87,7 @@ index 8d5d5f2cc52227d4302160094d8c93ca59505c19..2ac3e88cf166a3e944f0a02fb8a37923
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index cfe6921b8da87c5dd09772988fb8e4e0da541cd9..50d273de36d46c1470ac37501b6d713e39f42eae 100644
+index 94857a736d2a16e8ade286c6f2ddf8bd798008eb..4022fd8e60480aa4e3fea914c53c4096f377b2c2 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -338,6 +338,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -101,18 +101,17 @@ index cfe6921b8da87c5dd09772988fb8e4e0da541cd9..50d273de36d46c1470ac37501b6d713e
      public float getBukkitYaw() {
          return this.yRot;
 diff --git a/src/main/java/net/minecraft/world/entity/EntityType.java b/src/main/java/net/minecraft/world/entity/EntityType.java
-index ac99265aacd4a28490705e3079ed04023fb1c54a..96b881fcb4c3871b2fc00080afc19900b28633f5 100644
+index 1c446dba5de89698397041ee38a2e1a00bec8a56..03371c99c34ba4b2ffde3f6da36f171b582e3c3f 100644
 --- a/src/main/java/net/minecraft/world/entity/EntityType.java
 +++ b/src/main/java/net/minecraft/world/entity/EntityType.java
-@@ -298,6 +298,8 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
- 
-     public final String id;
+@@ -294,6 +294,7 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
+         return Registry.ENTITY_TYPE.getOptional(ResourceLocation.tryParse(id));
+     }
  
 +    public boolean dabEnabled = false; // Airplane
-+
-     public EntityType(EntityType.EntityFactory<T> entitytypes_b, MobCategory enumcreaturetype, boolean flag, boolean flag1, boolean flag2, boolean flag3, ImmutableSet<Block> canSpawnInside, EntityDimensions dimensions, int maxTrackDistance, int trackTickInterval, String id) { // Paper - add id
-         this.factory = entitytypes_b;
-         this.category = enumcreaturetype;
+     // Paper start - add id
+     public final String id;
+ 
 diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
 index 8a864238e154e2131834d013652746b7e7a78c97..b8e512e1c4b00b468b2d22add5653b98f4a2c81a 100644
 --- a/src/main/java/net/minecraft/world/entity/Mob.java
@@ -160,7 +159,7 @@ index 42d466f7f162943886078eba3db18f2dfc2d7bee..32da2d3f87758bee359522769ebbee73
          }
  
 diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java b/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
-index faa53d08a12cc7441c670cae6d301de3f498ffe7..b17f401d723b1466a3b7e05da3dfeebd5cf763c7 100644
+index f779f202985d34cb7e379b0f3d5690dd20f091ba..36b5d504cd864ab30cc239201d6a4a52c9d16b7d 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
 @@ -49,9 +49,12 @@ public class GoalSelector {
