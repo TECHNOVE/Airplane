@@ -5,7 +5,7 @@ Subject: [PATCH] Reduce entity allocations
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index e519f8ec6430225002a3591235cb495ba367a65f..d898b5c55f7659a344259cc0d5bc4abfb837eb15 100644
+index c76c25d3fa6b0d07271d534edf12b1c32ca5c0bf..732eb171f6a8fe1b02044a00fcf85217c41116ac 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -340,6 +340,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -16,7 +16,7 @@ index e519f8ec6430225002a3591235cb495ba367a65f..d898b5c55f7659a344259cc0d5bc4abf
      // Airplane end
  
      public float getBukkitYaw() {
-@@ -2459,9 +2460,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -2464,9 +2465,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
  
              // Paper start
              return io.papermc.paper.util.CollisionUtil.getCollisionsForBlocksOrWorldBorder(this.level, this, axisalignedbb, null,

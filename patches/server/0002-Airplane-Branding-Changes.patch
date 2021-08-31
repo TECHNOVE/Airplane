@@ -135,10 +135,10 @@ index 580bae0d414d371a07a6bfeefc41fdd989dc0083..51d89d6bcbcc24a6be6a836263ebb1ed
          switch (distance) {
              case -1:
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index edd2333e0fb24a50bc388249224e9311aa90a10f..458b4509ad7fc9d5f9b96c2191df16014ec298b4 100644
+index 099db3a627c1d3c08f3b923bb02a1cb8a0a268ab..320d907e7ac177a5890f392bf99a4251f1794ddf 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1730,7 +1730,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1721,7 +1721,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @DontObfuscate
      public String getServerModName() {
