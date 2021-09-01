@@ -85,7 +85,7 @@ index 0f0b0bbcc0e47b8fe3e1e5d4a4ef0eed389d020b..57dfcf9efaa5905add9330070f3c0860
              TimingsManager.url += "/";
          }
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index 51d89d6bcbcc24a6be6a836263ebb1ed23e91cba..3ec521ad1e131a281979b489f29dd6d44f58f492 100644
+index 2352bd3bbae810e25fa4ff4de701e85c86e1fe11..b564e9a65de293922f7ccb2e9f3df9d483992ae1 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 @@ -18,7 +18,7 @@ import java.util.stream.StreamSupport;
@@ -97,6 +97,23 @@ index 51d89d6bcbcc24a6be6a836263ebb1ed23e91cba..3ec521ad1e131a281979b489f29dd6d4
      private static @Nullable String mcVer;
  
      @Override
+@@ -54,13 +54,15 @@ public class PaperVersionFetcher implements VersionFetcher {
+ 
+     private static Component getUpdateStatusMessage(@Nonnull String repo, @Nonnull String branch, @Nonnull String versionInfo) {
+         int distance;
++        /*
+         try {
+             int jenkinsBuild = Integer.parseInt(versionInfo);
+             distance = fetchDistanceFromSiteApi(jenkinsBuild, getMinecraftVersion());
+         } catch (NumberFormatException ignored) {
++         */
+             versionInfo = versionInfo.replace("\"", "");
+             distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
+-        }
++        //}
+ 
+         switch (distance) {
+             case -1:
 diff --git a/src/main/java/com/destroystokyo/paper/entity/ai/MobGoalHelper.java b/src/main/java/com/destroystokyo/paper/entity/ai/MobGoalHelper.java
 index 79006251a707dd94099db26fbb503f8699b7a8b5..7550a2f35454ace8909620931ec6fc0812883ad2 100644
 --- a/src/main/java/com/destroystokyo/paper/entity/ai/MobGoalHelper.java
@@ -692,10 +709,10 @@ index 0544ac93513d3a274bfb53bb6120bd598f4d603b..9ce5984fbeba4839290c9d213d441957
      public final boolean spawnNpcs = this.get("spawn-npcs", true);
      public final boolean pvp = this.get("pvp", true);
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
-index 8f3cc52083e9040d43a3f65a9181dfef740fa888..33b840d959708b3e4e593e4cd416518963a6ded8 100644
+index 2eacfbe3512f374169d96ac66c8be5a4f1561b6a..676b1585233a0824b03894ab3ae6b024c7776bd6 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
-@@ -2273,7 +2273,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2272,7 +2272,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
  
      public class TrackedEntity {
  
