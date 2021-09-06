@@ -116,10 +116,10 @@ index 0000000000000000000000000000000000000000..1a9d71739019d12772bec6076b195552
 +}
 diff --git a/src/main/java/gg/airplane/compat/ServerConfigurations.java b/src/main/java/gg/airplane/compat/ServerConfigurations.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..59e6f3c31e8efa7f3e827b641f19bc3a9cd809ef
+index 0000000000000000000000000000000000000000..f9a71ff3edd7e7b6cda680e5a156373b5aa813c2
 --- /dev/null
 +++ b/src/main/java/gg/airplane/compat/ServerConfigurations.java
-@@ -0,0 +1,79 @@
+@@ -0,0 +1,78 @@
 +package gg.airplane.compat;
 +
 +import co.aikar.timings.TimingsManager;
@@ -146,7 +146,6 @@ index 0000000000000000000000000000000000000000..59e6f3c31e8efa7f3e827b641f19bc3a
 +      "bukkit.yml",
 +      "spigot.yml",
 +      "paper.yml",
-+      "tuinity.yml",
 +      "airplane.yml"
 +    };
 +
