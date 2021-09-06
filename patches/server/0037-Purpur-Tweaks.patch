@@ -1,0 +1,20 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul <paul@technove.co>
+Date: Mon, 6 Sep 2021 12:56:49 -0500
+Subject: [PATCH] Purpur Tweaks
+
+
+diff --git a/src/main/java/gg/airplane/compat/ServerConfigurations.java b/src/main/java/gg/airplane/compat/ServerConfigurations.java
+index f9a71ff3edd7e7b6cda680e5a156373b5aa813c2..da9880b0e5e1e8aed5c50d27e878787bb15affb3 100644
+--- a/src/main/java/gg/airplane/compat/ServerConfigurations.java
++++ b/src/main/java/gg/airplane/compat/ServerConfigurations.java
+@@ -24,7 +24,8 @@ public class ServerConfigurations {
+       "bukkit.yml",
+       "spigot.yml",
+       "paper.yml",
+-      "airplane.yml"
++      "airplane.yml",
++      "purpur.yml"
+     };
+ 
+     public static Map<String, String> getCleanCopies() throws IOException {
