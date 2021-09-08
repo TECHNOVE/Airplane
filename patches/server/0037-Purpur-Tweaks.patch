@@ -18,3 +18,19 @@ index f9a71ff3edd7e7b6cda680e5a156373b5aa813c2..da9880b0e5e1e8aed5c50d27e878787b
      };
  
      public static Map<String, String> getCleanCopies() throws IOException {
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index e12e4066af513323625bc4a7b4c6d324f99b3a8c..e81e084870609a10f9c239e2b4c9f23374b517b8 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1737,7 +1737,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+     @DontObfuscate
+     public String getServerModName() {
+-        return "AirplanePurpur"; // Airplane - Airplane > //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
++        // Airplane start
++        String purpurName = net.pl3x.purpur.PurpurConfig.serverModName;
++        return purpurName.equals("Purpur") ? "AirplanePurpur" : purpurName; // Airplane - Airplane > //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
++        // Airplane end
+     }
+ 
+     public SystemReport fillSystemReport(SystemReport details) {
