@@ -6,23 +6,26 @@ Subject: [PATCH] Improve container checking with a bitset
 
 diff --git a/src/main/java/gg/airplane/structs/ItemListWithBitset.java b/src/main/java/gg/airplane/structs/ItemListWithBitset.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..04565b596f7579eb22263ef844513aeba3437eb3
+index 0000000000000000000000000000000000000000..1b7a4ee47f4445d7f2ac91d3a73ae113edbdddb2
 --- /dev/null
 +++ b/src/main/java/gg/airplane/structs/ItemListWithBitset.java
-@@ -0,0 +1,105 @@
+@@ -0,0 +1,114 @@
 +package gg.airplane.structs;
 +
 +import net.minecraft.core.NonNullList;
 +import net.minecraft.world.item.ItemStack;
 +import org.apache.commons.lang.Validate;
 +import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
 +
++import java.util.AbstractList;
 +import java.util.Arrays;
++import java.util.List;
 +
-+public class ItemListWithBitset extends NonNullList<ItemStack> {
-+    public static ItemListWithBitset fromNonNullList(NonNullList<ItemStack> list) {
-+        if (list instanceof ItemListWithBitset) {
-+            return (ItemListWithBitset) list;
++public class ItemListWithBitset extends AbstractList<ItemStack> {
++    public static ItemListWithBitset fromList(List<ItemStack> list) {
++        if (list instanceof ItemListWithBitset ours) {
++            return ours;
 +        }
 +        return new ItemListWithBitset(list);
 +    }
@@ -38,7 +41,15 @@ index 0000000000000000000000000000000000000000..04565b596f7579eb22263ef844513aeb
 +    private long bitSet = 0;
 +    private final long allBits;
 +
-+    private ItemListWithBitset(NonNullList<ItemStack> list) {
++    private static class OurNonNullList extends NonNullList<ItemStack> {
++        protected OurNonNullList(List<ItemStack> delegate) {
++            super(delegate, ItemStack.EMPTY);
++        }
++    }
++
++    public final NonNullList<ItemStack> nonNullList = new OurNonNullList(this);
++
++    private ItemListWithBitset(List<ItemStack> list) {
 +        this(list.size());
 +
 +        for (int i = 0; i < list.size(); i++) {
@@ -47,8 +58,6 @@ index 0000000000000000000000000000000000000000..04565b596f7579eb22263ef844513aeb
 +    }
 +
 +    public ItemListWithBitset(int size) {
-+        super(null, ItemStack.EMPTY);
-+
 +        Validate.isTrue(size < Long.BYTES * 8, "size is too large");
 +
 +        this.items = createArray(size);
@@ -228,56 +237,69 @@ index 7437f01ca8f416e2c9150250e324af4725a4efb6..bdcd0e38a3ba904811112f41d8bfbfc0
      int LARGE_MAX_STACK_SIZE = 64;
  
 diff --git a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
-index f57864ce919ef4721cfb5913c636fe8903ce4cc1..4792d3d60e60202face2eb851c9f5b122dcfc19d 100644
+index f57864ce919ef4721cfb5913c636fe8903ce4cc1..610d756b4a264deb58ea8144c951f652697805ee 100644
 --- a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
 +++ b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
-@@ -40,7 +40,7 @@ import org.bukkit.inventory.InventoryHolder;
+@@ -40,7 +40,10 @@ import org.bukkit.inventory.InventoryHolder;
  
  public abstract class AbstractMinecartContainer extends AbstractMinecart implements Container, MenuProvider {
  
--    private NonNullList<ItemStack> itemStacks;
-+    private gg.airplane.structs.ItemListWithBitset itemStacks; // Airplane
++    // Airplane start
+     private NonNullList<ItemStack> itemStacks;
++    private gg.airplane.structs.ItemListWithBitset itemStacksOptimized;
++    // Airplane end
      @Nullable
      public ResourceLocation lootTable;
      public long lootTableSeed;
-@@ -89,12 +89,12 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
+@@ -89,12 +92,18 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
  
      protected AbstractMinecartContainer(EntityType<?> type, Level world) {
          super(type, world);
 -        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY); // CraftBukkit - SPIGOT-3513
-+        this.itemStacks = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize()); // CraftBukkit - SPIGOT-3513 // Airplane
++        // Airplane start
++        this.itemStacksOptimized = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize()); // CraftBukkit - SPIGOT-3513
++        this.itemStacks = this.itemStacksOptimized.nonNullList;
++        // Airplane end
      }
  
      protected AbstractMinecartContainer(EntityType<?> type, double x, double y, double z, Level world) {
          super(type, world, x, y, z);
 -        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY); // CraftBukkit - SPIGOT-3513
-+        this.itemStacks = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize()); // CraftBukkit - SPIGOT-3513 // Airplane
++        // Airplane start
++        this.itemStacksOptimized = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize()); // CraftBukkit - SPIGOT-3513
++        this.itemStacks = this.itemStacksOptimized.nonNullList;
++        // Airplane end
      }
  
      @Override
-@@ -217,7 +217,7 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
+@@ -217,7 +226,10 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
      protected void readAdditionalSaveData(CompoundTag nbt) {
          super.readAdditionalSaveData(nbt);
          this.lootableData.loadNbt(nbt); // Paper
 -        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-+        this.itemStacks = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize()); // Airplane
++        // Airplane start
++        this.itemStacksOptimized = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.itemStacks = this.itemStacksOptimized.nonNullList;
++        // Airplane end
          if (nbt.contains("LootTable", 8)) {
              this.lootTable = new ResourceLocation(nbt.getString("LootTable"));
              this.lootTableSeed = nbt.getLong("LootTableSeed");
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
-index 52de9852f87d346714a950b60a0004d386ac10f0..305a8f5ea917c7e242011fa98a3e161517afe9be 100644
+index 52de9852f87d346714a950b60a0004d386ac10f0..86bbd9fcee5982cf901ef0480052025ccf57ccb4 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
-@@ -32,7 +32,7 @@ import org.bukkit.entity.HumanEntity;
+@@ -32,7 +32,10 @@ import org.bukkit.entity.HumanEntity;
  public class ChestBlockEntity extends RandomizableContainerBlockEntity implements LidBlockEntity {
  
      private static final int EVENT_SET_OPEN_COUNT = 1;
--    private NonNullList<ItemStack> items;
-+    private gg.airplane.structs.ItemListWithBitset items; // Airplane
++    // Airplane start
+     private NonNullList<ItemStack> items;
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
++    // Airplane end
      public final ContainerOpenersCounter openersCounter;
      private final ChestLidController chestLidController;
  
-@@ -66,9 +66,10 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
+@@ -66,9 +69,13 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
      }
      // CraftBukkit end
  
@@ -285,88 +307,102 @@ index 52de9852f87d346714a950b60a0004d386ac10f0..305a8f5ea917c7e242011fa98a3e1615
      protected ChestBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
          super(type, pos, state);
 -        this.items = NonNullList.withSize(27, ItemStack.EMPTY);
-+        this.items = new gg.airplane.structs.ItemListWithBitset(27); // Airplane - use with bitset
++        // Airplane start
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(27);
++        this.items = this.optimizedItems.nonNullList;
++        // Airplane end
          this.openersCounter = new ContainerOpenersCounter() {
              @Override
              protected void onOpen(Level world, BlockPos pos, BlockState state) {
-@@ -99,6 +100,23 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
+@@ -99,6 +106,23 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
          this.chestLidController = new ChestLidController();
      }
  
 +    // Airplane start
 +    @Override
 +    public boolean hasEmptySlot(Direction enumdirection) {
-+        return isNative ? !this.items.hasFullStacks() : super.hasEmptySlot(enumdirection);
++        return isNative ? !this.optimizedItems.hasFullStacks() : super.hasEmptySlot(enumdirection);
 +    }
 +
 +    @Override
 +    public boolean isCompletelyFull(Direction enumdirection) {
-+        return isNative ? this.items.hasFullStacks() && super.isCompletelyFull(enumdirection) : super.isCompletelyFull(enumdirection);
++        return isNative ? this.optimizedItems.hasFullStacks() && super.isCompletelyFull(enumdirection) : super.isCompletelyFull(enumdirection);
 +    }
 +
 +    @Override
 +    public boolean isCompletelyEmpty(Direction enumdirection) {
-+        return isNative && this.items.isCompletelyEmpty() || super.isCompletelyEmpty(enumdirection);
++        return isNative && this.optimizedItems.isCompletelyEmpty() || super.isCompletelyEmpty(enumdirection);
 +    }
 +    // Airplane end
 +
      public ChestBlockEntity(BlockPos pos, BlockState state) {
          this(BlockEntityType.CHEST, pos, state);
      }
-@@ -116,7 +134,7 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
+@@ -116,7 +140,10 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
      @Override
      public void load(CompoundTag nbt) {
          super.load(nbt);
 -        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-+        this.items = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize()); // Airplane
++        // Airplane start
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Airplane end
          if (!this.tryLoadLootTable(nbt)) {
              ContainerHelper.loadAllItems(nbt, this.items);
          }
-@@ -189,7 +207,7 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
+@@ -189,7 +216,10 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
  
      @Override
      protected void setItems(NonNullList<ItemStack> list) {
 -        this.items = list;
-+        this.items = gg.airplane.structs.ItemListWithBitset.fromNonNullList(list); // Airplane
++        // Airplane start
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(list);
++        this.items = this.optimizedItems.nonNullList;
++        // Airplane end
      }
  
      @Override
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index d41851f9119c334cae3fc2c433d6450a3eed9096..ddf82e65d3ef1f53b72017bf5159b9f7b5484632 100644
+index d41851f9119c334cae3fc2c433d6450a3eed9096..97061e93c4a3b6ffcd15f07284a31dd17739837c 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-@@ -44,7 +44,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -44,7 +44,10 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
  
      public static final int MOVE_ITEM_SPEED = 8;
      public static final int HOPPER_CONTAINER_SIZE = 5;
--    private NonNullList<ItemStack> items;
-+    private gg.airplane.structs.ItemListWithBitset items; // Airplane
++    // Airplane start
+     private NonNullList<ItemStack> items;
++    private gg.airplane.structs.ItemListWithBitset optimizedItems; // Airplane
++    // Airplane end
      private int cooldownTime;
      private long tickedGameTime;
  
-@@ -80,14 +80,31 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -80,14 +83,37 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
  
      public HopperBlockEntity(BlockPos pos, BlockState state) {
          super(BlockEntityType.HOPPER, pos, state);
 -        this.items = NonNullList.withSize(5, ItemStack.EMPTY);
-+        this.items = new gg.airplane.structs.ItemListWithBitset(5); // Airplane
++        // Airplane start
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(5);
++        this.items = this.optimizedItems.nonNullList;
++        // Airplane end
          this.cooldownTime = -1;
      }
  
 +    // Airplane start
 +    @Override
-+   public boolean hasEmptySlot(Direction enumdirection) {
-+        return !this.items.hasFullStacks();
++    public boolean hasEmptySlot(Direction enumdirection) {
++        return !this.optimizedItems.hasFullStacks();
 +    }
 +
 +    @Override
 +    public boolean isCompletelyFull(Direction enumdirection) {
-+        return this.items.hasFullStacks() && super.isCompletelyFull(enumdirection);
++        return this.optimizedItems.hasFullStacks() && super.isCompletelyFull(enumdirection);
 +    }
 +
 +    @Override
 +    public boolean isCompletelyEmpty(Direction enumdirection) {
-+        return this.items.isCompletelyEmpty() || super.isCompletelyEmpty(enumdirection);
++        return this.optimizedItems.isCompletelyEmpty() || super.isCompletelyEmpty(enumdirection);
 +    }
 +    // Airplane end
 +
@@ -374,20 +410,23 @@ index d41851f9119c334cae3fc2c433d6450a3eed9096..ddf82e65d3ef1f53b72017bf5159b9f7
      public void load(CompoundTag nbt) {
          super.load(nbt);
 -        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-+        this.items = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize()); // Airplane
++        // Airplane start
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Airplane end
          if (!this.tryLoadLootTable(nbt)) {
              ContainerHelper.loadAllItems(nbt, this.items);
          }
-@@ -160,7 +177,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -160,7 +186,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
                      flag = HopperBlockEntity.a(world, pos, state, (Container) blockEntity, blockEntity); // CraftBukkit
                  }
  
 -                if (!blockEntity.inventoryFull()) {
-+                if (!blockEntity.items.hasFullStacks() || !blockEntity.inventoryFull()) { // Airplane - use bitset first
++                if (!blockEntity.optimizedItems.hasFullStacks() || !blockEntity.inventoryFull()) { // Airplane - use bitset first
                      flag |= booleansupplier.getAsBoolean();
                  }
  
-@@ -199,7 +216,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -199,7 +225,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
          skipPushModeEventFire = skipHopperEvents;
          boolean foundItem = false;
          for (int i = 0; i < hopper.getContainerSize(); ++i) {
@@ -396,7 +435,7 @@ index d41851f9119c334cae3fc2c433d6450a3eed9096..ddf82e65d3ef1f53b72017bf5159b9f7
              if (!item.isEmpty()) {
                  foundItem = true;
                  ItemStack origItemStack = item;
-@@ -403,12 +420,18 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -403,12 +429,18 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
      }
  
      private static boolean isFullContainer(Container inventory, Direction direction) {
@@ -417,7 +456,7 @@ index d41851f9119c334cae3fc2c433d6450a3eed9096..ddf82e65d3ef1f53b72017bf5159b9f7
      }
      private static boolean allMatch(Container iinventory, Direction enumdirection, java.util.function.BiPredicate<ItemStack, Integer> test) {
          if (iinventory instanceof WorldlyContainer) {
-@@ -585,7 +608,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -585,7 +617,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
  
          if (HopperBlockEntity.canPlaceItemInContainer(to, stack, slot, enumdirection)) {
              boolean flag = false;
@@ -426,12 +465,15 @@ index d41851f9119c334cae3fc2c433d6450a3eed9096..ddf82e65d3ef1f53b72017bf5159b9f7
  
              if (itemstack1.isEmpty()) {
                  // Spigot start - SPIGOT-6693, InventorySubcontainer#setItem
-@@ -731,7 +754,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -731,7 +763,10 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
  
      @Override
      protected void setItems(NonNullList<ItemStack> list) {
 -        this.items = list;
-+        this.items = gg.airplane.structs.ItemListWithBitset.fromNonNullList(list); // Airplane
++        // Airplane start
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(list);
++        this.items = this.optimizedItems.nonNullList;
++        // Airplane end
      }
  
      public static void entityInside(Level world, BlockPos pos, BlockState state, Entity entity, HopperBlockEntity blockEntity) {
