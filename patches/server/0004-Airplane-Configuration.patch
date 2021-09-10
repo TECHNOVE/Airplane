@@ -22,15 +22,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 81737e9f8b180db7ca50577ecb2098a8b5f70a75..0420d443bbaf3731cbd28004359868cd80af28ae 100644
+index 81737e9f8b180db7ca50577ecb2098a8b5f70a75..76f699dd7837cad32b89344ca5c8a5d7ea319052 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -68,6 +68,9 @@ dependencies {
+@@ -68,6 +68,12 @@ dependencies {
      implementation("org.quiltmc:tiny-mappings-parser:0.3.0") // Paper - needed to read mappings for stacktrace deobfuscation
      implementation("com.velocitypowered:velocity-native:1.1.0-SNAPSHOT") // Paper
  
 +    implementation("com.github.technove:AIR:fe3dbb4420") // Airplane - config
-+    implementation ("me.carleslc.Simple-YAML:Simple-Yaml:1.7.2") // Airplane - more config
++    implementation("org.yaml:snakeyaml:1.28")
++    implementation ("me.carleslc.Simple-YAML:Simple-Yaml:1.7.2") { // Airplane - more config
++        exclude(group="org.yaml", module="snakeyaml") // exclude snakeyaml dependency because its old (1.26)
++    } // Airplane - more config
 +
      testImplementation("io.github.classgraph:classgraph:4.8.47") // Paper - mob goal test
      testImplementation("junit:junit:4.13.1")
@@ -50,7 +53,7 @@ index 7d44abcb4fff9717a1af55879deb7eb9c2d9e7e9..da6a5b1b2f5203a0fab8e4fccd727951
  
          new TimingsExport(listeners, parent, history).start();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-index 5f0b6eb34e94516f67dcd29efcb7bb3bf3fb316e..6ba32b6efd32e6861f2c6bc8296b12c5c9cee593 100644
+index 092833afb57d96a8e935c42bf52d318fd9f51d13..0f0b0bbcc0e47b8fe3e1e5d4a4ef0eed389d020b 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
 @@ -217,10 +217,11 @@ public class PaperConfig {
