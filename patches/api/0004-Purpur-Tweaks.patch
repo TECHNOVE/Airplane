@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul <paul@technove.co>
+Date: Sat, 11 Sep 2021 11:10:28 -0500
+Subject: [PATCH] Purpur Tweaks
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 8550b2a95df396cf64f564fb2400df38af2397dd..5ad665d285e0da8128ad62314af92872e5a4f7b3 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -39,7 +39,9 @@ dependencies {
+     apiAndDocs("net.kyori:adventure-text-serializer-plain")
+     api("org.apache.logging.log4j:log4j-api:2.14.1") // Paper
+     api("org.slf4j:slf4j-api:1.7.30") // Paper
+-    api("net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT") // Purpur
++    api("net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT") {
++        isTransitive = false
++    } // Purpur
+ 
+     implementation("org.ow2.asm:asm:9.1")
+     implementation("org.ow2.asm:asm-commons:9.1")
