@@ -1,22 +1,22 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Paul <paul@technove.co>
-Date: Mon, 30 Aug 2021 15:13:27 -0500
-Subject: [PATCH] Purpur Patches (MIT)
+Date: Sun, 12 Sep 2021 19:43:01 -0500
+Subject: [PATCH] Purpur (MIT)
 
 
 diff --git a/src/main/java/co/aikar/timings/TimingsExport.java b/src/main/java/co/aikar/timings/TimingsExport.java
-index da6a5b1b2f5203a0fab8e4fccd727951df7c9c9a..3369247da2e686ec86e1b66b06d39b73cdb5291d 100644
+index da6a5b1b2f5203a0fab8e4fccd727951df7c9c9a..bca3bc0b8687940dff181bab6a5a2a3c11423358 100644
 --- a/src/main/java/co/aikar/timings/TimingsExport.java
 +++ b/src/main/java/co/aikar/timings/TimingsExport.java
-@@ -226,10 +226,15 @@ public class TimingsExport extends Thread {
+@@ -226,10 +226,14 @@ public class TimingsExport extends Thread {
          // Information on the users Config
  
          parent.put("config", createObject(
+-            pair("spigot", mapAsJSON(Bukkit.spigot().getSpigotConfig(), null)),
 +            // Purpur start
 +            pair("server.properties", mapAsJSON(Bukkit.spigot().getServerProperties())),
-+            pair("bukkit", mapAsJSON(Bukkit.spigot().getBukkitConfig(), null)),
-             pair("spigot", mapAsJSON(Bukkit.spigot().getSpigotConfig(), null)),
              pair("bukkit", mapAsJSON(Bukkit.spigot().getBukkitConfig(), null)),
++            pair("spigot", mapAsJSON(Bukkit.spigot().getSpigotConfig(), null)),
              pair("paper", mapAsJSON(Bukkit.spigot().getPaperConfig(), null)), // Airplane
 -            pair("airplane", mapAsJSON(gg.airplane.AirplaneConfig.getConfigCopy(), null)) // Airplane
 +            pair("airplane", mapAsJSON(gg.airplane.AirplaneConfig.getConfigCopy(), null)), // Airplane
@@ -25,7 +25,7 @@ index da6a5b1b2f5203a0fab8e4fccd727951df7c9c9a..3369247da2e686ec86e1b66b06d39b73
          ));
  
          new TimingsExport(listeners, parent, history).start();
-@@ -270,6 +275,19 @@ public class TimingsExport extends Thread {
+@@ -270,6 +274,19 @@ public class TimingsExport extends Thread {
          return timingsCost;
      }
  
@@ -46,7 +46,7 @@ index da6a5b1b2f5203a0fab8e4fccd727951df7c9c9a..3369247da2e686ec86e1b66b06d39b73
  
          JSONObject object = new JSONObject();
 diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
-index f5d01bce4d5547b4aeca96b7962b2090f47ea541..8cd929c2b900ebe96200a7e8d6c3bd20e6a03f28 100644
+index f5d01bce4d5547b4aeca96b7962b2090f47ea541..05f1b6d103ec20f196b60944f5bc007384c449f1 100644
 --- a/src/main/java/com/destroystokyo/paper/Metrics.java
 +++ b/src/main/java/com/destroystokyo/paper/Metrics.java
 @@ -593,8 +593,7 @@ public class Metrics {
@@ -55,12 +55,23 @@ index f5d01bce4d5547b4aeca96b7962b2090f47ea541..8cd929c2b900ebe96200a7e8d6c3bd20
              if (config.getBoolean("enabled", true)) {
 -                Metrics metrics = new Metrics("Airplane", serverUUID, logFailedRequests, Bukkit.getLogger()); // Tuinity - we have our own bstats page // Airplane
 -
-+                Metrics metrics = new Metrics("Airplane", serverUUID, logFailedRequests, Bukkit.getLogger()); // Airplane
++                Metrics metrics = new Metrics("Purpur", serverUUID, logFailedRequests, Bukkit.getLogger()); // Airplane // Purpur
                  metrics.addCustomChart(new Metrics.SimplePie("minecraft_version", () -> {
                      String minecraftVersion = Bukkit.getVersion();
                      minecraftVersion = minecraftVersion.substring(minecraftVersion.indexOf("MC: ") + 4, minecraftVersion.length() - 1);
+@@ -602,8 +601,8 @@ public class Metrics {
+                 }));
+ 
+                 metrics.addCustomChart(new Metrics.SingleLineChart("players", () -> Bukkit.getOnlinePlayers().size()));
+-                metrics.addCustomChart(new Metrics.SimplePie("online_mode", () -> Bukkit.getOnlineMode() ? "online" : "offline"));
+-                metrics.addCustomChart(new Metrics.SimplePie("airplane_version", () -> (Metrics.class.getPackage().getImplementationVersion() != null) ? Metrics.class.getPackage().getImplementationVersion() : "unknown")); // Tuinity - we have our own bstats page // Airplane
++                metrics.addCustomChart(new Metrics.SimplePie("online_mode", () -> Bukkit.getOnlineMode() ? "online" : (PaperConfig.isProxyOnlineMode() ? "bungee" : "offline"))); // Purpur
++                metrics.addCustomChart(new Metrics.SimplePie("purpur_version", () -> (Metrics.class.getPackage().getImplementationVersion() != null) ? Metrics.class.getPackage().getImplementationVersion() : "unknown")); // Airplane // Purpur
+ 
+                 metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
+                     Map<String, Map<String, Integer>> map = new HashMap<>();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-index 0f0b0bbcc0e47b8fe3e1e5d4a4ef0eed389d020b..57dfcf9efaa5905add9330070f3c08607d43285b 100644
+index 3cb9e223c90f97aa106ee1e9512d33897a6bac1a..ee7dcd9bb2ad9d18690ba2645aaf1fa733e48e19 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
 @@ -118,6 +118,11 @@ public class PaperConfig {
@@ -84,44 +95,14 @@ index 0f0b0bbcc0e47b8fe3e1e5d4a4ef0eed389d020b..57dfcf9efaa5905add9330070f3c0860
          if (!TimingsManager.url.endsWith("/")) {
              TimingsManager.url += "/";
          }
-diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index 2352bd3bbae810e25fa4ff4de701e85c86e1fe11..b564e9a65de293922f7ccb2e9f3df9d483992ae1 100644
---- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-+++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-@@ -18,7 +18,7 @@ import java.util.stream.StreamSupport;
- 
- public class PaperVersionFetcher implements VersionFetcher {
-     private static final java.util.regex.Pattern VER_PATTERN = java.util.regex.Pattern.compile("^([0-9\\.]*)\\-.*R"); // R is an anchor, will always give '-R' at end
--    private static final String GITHUB_BRANCH_NAME = "master";
-+    private static final String GITHUB_BRANCH_NAME = "purpur/1.17";
-     private static @Nullable String mcVer;
- 
-     @Override
-@@ -54,13 +54,15 @@ public class PaperVersionFetcher implements VersionFetcher {
- 
-     private static Component getUpdateStatusMessage(@Nonnull String repo, @Nonnull String branch, @Nonnull String versionInfo) {
-         int distance;
-+        /*
-         try {
-             int jenkinsBuild = Integer.parseInt(versionInfo);
-             distance = fetchDistanceFromSiteApi(jenkinsBuild, getMinecraftVersion());
-         } catch (NumberFormatException ignored) {
-+         */
-             versionInfo = versionInfo.replace("\"", "");
-             distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
--        }
-+        //}
- 
-         switch (distance) {
-             case -1:
 diff --git a/src/main/java/com/destroystokyo/paper/entity/ai/MobGoalHelper.java b/src/main/java/com/destroystokyo/paper/entity/ai/MobGoalHelper.java
-index 79006251a707dd94099db26fbb503f8699b7a8b5..7550a2f35454ace8909620931ec6fc0812883ad2 100644
+index 181abe014baba9ac51064c003381281a8fa43fe4..cfd1dcec3efcd4caf2431cbda99bc9f15d39ed69 100644
 --- a/src/main/java/com/destroystokyo/paper/entity/ai/MobGoalHelper.java
 +++ b/src/main/java/com/destroystokyo/paper/entity/ai/MobGoalHelper.java
-@@ -234,6 +234,10 @@ public class MobGoalHelper {
-         deobfuscationMap.put("wither_a", "wither_do_nothing");
-         deobfuscationMap.put("wolf_a", "wolf_avoid_entity");
-         deobfuscationMap.put("zombie_a", "zombie_attack_turtle_egg");
+@@ -135,6 +135,10 @@ public class MobGoalHelper {
+     static {
+         // TODO these kinda should be checked on each release, in case obfuscation changes
+         deobfuscationMap.put("abstract_skeleton_1", "abstract_skeleton_melee");
 +        // Purpur start
 +        deobfuscationMap.put("zombie_1", "zombie_attack_villager");
 +        deobfuscationMap.put("drowned_1", "drowned_attack_villager");
@@ -152,7 +133,7 @@ index fa56cd09102a89692b42f1d14257990508c5c720..f9251183df72ddc56662fd3f02acf216
          setListData(vector);
      }
 diff --git a/src/main/java/com/mojang/brigadier/tree/CommandNode.java b/src/main/java/com/mojang/brigadier/tree/CommandNode.java
-index 30274979d8dafc7c0a374c3e6b1d1b5dbd6cfe4c..a3bc8192c10f888c0d395709108019670f0bad62 100644
+index f64aa22ed6fcb4af67317b99f459ee5296392548..36c91793e0aa4895193623cf8cba7820d31f4eca 100644
 --- a/src/main/java/com/mojang/brigadier/tree/CommandNode.java
 +++ b/src/main/java/com/mojang/brigadier/tree/CommandNode.java
 @@ -34,6 +34,7 @@ public abstract class CommandNode<S> implements Comparable<CommandNode<S>> {
@@ -483,19 +464,18 @@ index 689ad22925b2561f7c8db961743eb1f821dbb25f..fa3c960992cc240161817e54659d83fe
      public ClientboundSetTimePacket(long time, long timeOfDay, boolean doDaylightCycle) {
          this.gameTime = time % 192000; // Paper - fix guardian beam
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 635ccc60d32333e178b28faae9c26de107b380d7..e12e4066af513323625bc4a7b4c6d324f99b3a8c 100644
+index f6d335b377dbf6f744e5f6ced56cf437e6e6bab3..3c471f406d742e0eb8ac8c35dc807b109d9b185c 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -295,6 +295,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -295,6 +295,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      public org.bukkit.command.RemoteConsoleCommandSender remoteConsole;
      //public ConsoleReader reader; // Paper
      public static int currentTick = 0; // Paper - Further improve tick loop
-+    public static long currentTickLong = 0L; // Paper
 +    public static final long startTimeMillis = System.currentTimeMillis();
      public java.util.Queue<Runnable> processQueue = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();
      public int autosavePeriod;
      public boolean serverAutoSave = false; // Paper
-@@ -305,10 +307,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -305,7 +306,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      public static final int TPS = 20;
      public static final int TICK_TIME = 1000000000 / MinecraftServer.TPS;
      private static final int SAMPLE_INTERVAL = 20; // Paper
@@ -504,10 +484,7 @@ index 635ccc60d32333e178b28faae9c26de107b380d7..e12e4066af513323625bc4a7b4c6d324
 +    public boolean lagging = false; // Purpur
      public final SlackActivityAccountant slackActivityAccountant = new SlackActivityAccountant();
      // Spigot end
--    public static long currentTickLong = 0L; // Paper
- 
-     public volatile Thread shutdownThread; // Paper
-     public volatile boolean abnormalExit = false; // Paper
+     public static long currentTickLong = 0L; // Paper
 @@ -1133,6 +1135,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.safeShutdown(flag, false);
      }
@@ -574,8 +551,8 @@ index 635ccc60d32333e178b28faae9c26de107b380d7..e12e4066af513323625bc4a7b4c6d324
  
      @DontObfuscate
      public String getServerModName() {
--        return "Airplane"; // Airplane - Airplane > //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
-+        return "AirplanePurpur"; // Airplane - Airplane > //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
+-        return "Airplane"; // Airplane // Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
++        return net.pl3x.purpur.PurpurConfig.serverModName; // Purpur - Purpur > // Airplane > // Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
      }
  
      public SystemReport fillSystemReport(SystemReport details) {
@@ -657,7 +634,7 @@ index a0dc380e90415de9068ea408d62a1605c82631df..60fd566f7e1499ecf2ad91216a667f12
                          itemStack.setCount(1);
                          ItemEntity itemEntity2 = serverPlayer.drop(itemStack, false, false, true); // Paper - Fix duplicating /give items on item drop cancel
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 8242200f073aee40482b190c7c0aafd5320ac4fe..417e7e5e0a6f6b64b66c7c0c3cad930352fbdddc 100644
+index 2a569d05edf0f5337afbcd6803c0513d338ca55e..5de94d015302098fe0feb60b227a05695c49f67c 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -178,8 +178,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
@@ -685,8 +662,8 @@ index 8242200f073aee40482b190c7c0aafd5320ac4fe..417e7e5e0a6f6b64b66c7c0c3cad9303
 +        net.pl3x.purpur.PurpurConfig.registerCommands();
 +        // Purpur end
          com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // load version history now
-         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
          io.papermc.paper.util.ObfHelper.INSTANCE.getClass(); // load mappings for stacktrace deobf and etc.
+         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
 @@ -340,6 +349,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
                  DedicatedServer.LOGGER.info("JMX monitoring enabled");
              }
@@ -709,7 +686,7 @@ index 0544ac93513d3a274bfb53bb6120bd598f4d603b..9ce5984fbeba4839290c9d213d441957
      public final boolean spawnNpcs = this.get("spawn-npcs", true);
      public final boolean pvp = this.get("pvp", true);
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
-index 2eacfbe3512f374169d96ac66c8be5a4f1561b6a..676b1585233a0824b03894ab3ae6b024c7776bd6 100644
+index 961787473601fcddef98f321eb4fb5127c0f8ebc..8ab5000cd5a2e31d6efbabb4a8698028694af923 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
 @@ -2272,7 +2272,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
@@ -766,7 +743,7 @@ index c71bc00973899feec0ec5530bf3d237928810cf4..8994ce2c8c0855b9037326fdf1235c3f
          this.entity.stopSeenByPlayer(player);
          player.connection.send(new ClientboundRemoveEntitiesPacket(new int[]{this.entity.getId()}));
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index d743d50a9b3ad9502fc11adc6fe43e9a58d7a94b..bf91d6c0d67aa72a6272dc878b07e292386f94f2 100644
+index 416f579560115caddadf6a400b80a4d1d6ebe04c..93e2d0aafc8c599bdc0585685805594d7e1d012a 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -83,6 +83,7 @@ import net.minecraft.world.entity.MobCategory;
@@ -1324,7 +1301,7 @@ index 12998d0e9ae0e148a155faa4468b0f78b8462cc9..a11a7deefb7fdf7ca9b23f85f5ae5f7c
 +    // Purpur end
  }
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 559572d3ff37e016ed07d428cf5d73a00ef48d70..852f7efbd2c60d51d50bf19df3acb6efdb5833ee 100644
+index 86ff3ee13ac571570965966fc5b2392bb928ffb0..e27d5dd0eaf164eb2a33ae0410a0b1c02e4e56ab 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -228,6 +228,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
@@ -1489,7 +1466,7 @@ index 559572d3ff37e016ed07d428cf5d73a00ef48d70..852f7efbd2c60d51d50bf19df3acb6ef
                                  }
  
 +                                // Purpur Start
-+                                if (this.player.isSprinting() && this.player.level.purpurConfig.dontRunWithScissors && (this.player.getItemInHand(InteractionHand.MAIN_HAND).getItem() == Items.SHEARS || this.player.getItemInHand(InteractionHand.OFF_HAND).getItem() == Items.SHEARS) && (int) (Math.random() * 10) == 0) {
++                                if (this.player.level.purpurConfig.dontRunWithScissors && this.player.isSprinting() && (isScissor(this.player.getItemInHand(InteractionHand.MAIN_HAND)) || isScissor(this.player.getItemInHand(InteractionHand.OFF_HAND))) && (int) (Math.random() * 10) == 0) {
 +                                    this.player.hurt(net.minecraft.world.damagesource.DamageSource.MAGIC, (float) this.player.level.purpurConfig.scissorsRunningDamage);
 +                                    if (!net.pl3x.purpur.PurpurConfig.dontRunWithScissors.isBlank()) this.player.sendActionBarMessage(net.pl3x.purpur.PurpurConfig.dontRunWithScissors);
 +                                }
@@ -1498,7 +1475,20 @@ index 559572d3ff37e016ed07d428cf5d73a00ef48d70..852f7efbd2c60d51d50bf19df3acb6ef
                                  this.player.checkMovementStatistics(this.player.getX() - d3, this.player.getY() - d4, this.player.getZ() - d5);
                                  this.lastGoodX = this.player.getX();
                                  this.lastGoodY = this.player.getY();
-@@ -1850,6 +1902,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+@@ -1522,6 +1574,12 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+         }
+     }
+ 
++    // Purpur start
++    public boolean isScissor(ItemStack stack) {
++        return stack.is(Items.SHEARS) && (stack.getTag() == null || stack.getTag().getInt("CustomModelData") == 0);
++    }
++    // Purpur end
++
+     // Paper start - optimise out extra getCubes
+     private boolean hasNewCollision(final ServerLevel world, final Entity entity, final AABB oldBox, final AABB newBox) {
+         final List<AABB> collisions = io.papermc.paper.util.CachedLists.getTempCollisionList();
+@@ -1859,6 +1917,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
  
              boolean cancelled;
              if (movingobjectposition == null || movingobjectposition.getType() != HitResult.Type.BLOCK) {
@@ -1506,7 +1496,7 @@ index 559572d3ff37e016ed07d428cf5d73a00ef48d70..852f7efbd2c60d51d50bf19df3acb6ef
                  org.bukkit.event.player.PlayerInteractEvent event = CraftEventFactory.callPlayerInteractEvent(this.player, Action.RIGHT_CLICK_AIR, itemstack, enumhand);
                  cancelled = event.useItemInHand() == Event.Result.DENY;
              } else {
-@@ -1902,12 +1955,21 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+@@ -1911,12 +1970,21 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
      @Override
      public void handleResourcePackResponse(ServerboundResourcePackPacket packet) {
          PacketUtils.ensureRunningOnSameThread(packet, this, this.player.getLevel());
@@ -1528,7 +1518,7 @@ index 559572d3ff37e016ed07d428cf5d73a00ef48d70..852f7efbd2c60d51d50bf19df3acb6ef
          player.getBukkitEntity().setResourcePackStatus(packStatus);
          this.cserver.getPluginManager().callEvent(new PlayerResourcePackStatusEvent(this.getCraftPlayer(), packStatus)); // CraftBukkit
          // Paper end
-@@ -2412,6 +2474,8 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+@@ -2421,6 +2489,8 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
  
                          ServerGamePacketListenerImpl.this.cserver.getPluginManager().callEvent(event);
  
@@ -1537,7 +1527,7 @@ index 559572d3ff37e016ed07d428cf5d73a00ef48d70..852f7efbd2c60d51d50bf19df3acb6ef
                          // Fish bucket - SPIGOT-4048
                          if ((entity instanceof AbstractFish && origItem != null && origItem.asItem() == Items.WATER_BUCKET) && (event.isCancelled() || ServerGamePacketListenerImpl.this.player.getInventory().getSelected() == null || ServerGamePacketListenerImpl.this.player.getInventory().getSelected().getItem() != origItem)) {
                              ServerGamePacketListenerImpl.this.send(new ClientboundAddMobPacket((AbstractFish) entity));
-@@ -3035,11 +3099,16 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+@@ -3045,11 +3115,16 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
                      }
                  }
                  // Paper end
@@ -1559,7 +1549,7 @@ index 559572d3ff37e016ed07d428cf5d73a00ef48d70..852f7efbd2c60d51d50bf19df3acb6ef
              }
              SignChangeEvent event = new SignChangeEvent((org.bukkit.craftbukkit.block.CraftBlock) player.getWorld().getBlockAt(x, y, z), this.player.getBukkitEntity(), lines);
              this.cserver.getPluginManager().callEvent(event);
-@@ -3061,6 +3130,16 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+@@ -3071,6 +3146,16 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
  
      @Override
      public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
@@ -1576,7 +1566,7 @@ index 559572d3ff37e016ed07d428cf5d73a00ef48d70..852f7efbd2c60d51d50bf19df3acb6ef
          //PlayerConnectionUtils.ensureMainThread(packetplayinkeepalive, this, this.player.getWorldServer()); // CraftBukkit // Paper - This shouldn't be on the main thread
          if (this.keepAlivePending && packet.getId() == this.keepAliveChallenge) {
              int i = (int) (Util.getMillis() - this.keepAliveTime);
-@@ -3104,6 +3183,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+@@ -3114,6 +3199,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
      private static final ResourceLocation CUSTOM_UNREGISTER = new ResourceLocation("unregister");
  
      private static final ResourceLocation MINECRAFT_BRAND = new ResourceLocation("brand"); // Paper - Brand support
@@ -1584,7 +1574,7 @@ index 559572d3ff37e016ed07d428cf5d73a00ef48d70..852f7efbd2c60d51d50bf19df3acb6ef
  
      @Override
      public void handleCustomPayload(ServerboundCustomPayloadPacket packet) {
-@@ -3128,6 +3208,13 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+@@ -3138,6 +3224,13 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
                  ServerGamePacketListenerImpl.LOGGER.error("Couldn\'t unregister custom payload", ex);
                  this.disconnect("Invalid payload UNREGISTER!", org.bukkit.event.player.PlayerKickEvent.Cause.INVALID_PAYLOAD); // Paper - kick event cause
              }
@@ -1800,15 +1790,14 @@ index 823efad652d8ff9e96b99375b102fef6f017716e..60f89d7c77a5e792e21e93e35ed1670b
                  }
                  // CraftBukkit start
 diff --git a/src/main/java/net/minecraft/stats/ServerRecipeBook.java b/src/main/java/net/minecraft/stats/ServerRecipeBook.java
-index 63a4fa2408edf84b490ca39e824977135d78eff0..ca9fbc35b6c43b771116ed8607397f22456975dd 100644
+index 63a4fa2408edf84b490ca39e824977135d78eff0..461796c9c559f43bd2e0126b12a46bfc41c830a5 100644
 --- a/src/main/java/net/minecraft/stats/ServerRecipeBook.java
 +++ b/src/main/java/net/minecraft/stats/ServerRecipeBook.java
-@@ -121,7 +121,7 @@ public class ServerRecipeBook extends RecipeBook {
-                 ResourceLocation minecraftkey = new ResourceLocation(s);
+@@ -122,6 +122,7 @@ public class ServerRecipeBook extends RecipeBook {
                  Optional<? extends Recipe<?>> optional = recipeManager.byKey(minecraftkey);
  
--                if (!optional.isPresent()) {
-+                if (!optional.isPresent() && !net.pl3x.purpur.PurpurConfig.loggerSuppressUnrecognizedRecipeErrors) { // Purpur
+                 if (!optional.isPresent()) {
++                    if (!net.pl3x.purpur.PurpurConfig.loggerSuppressUnrecognizedRecipeErrors) // Purpur
                      ServerRecipeBook.LOGGER.error("Tried to load unrecognized recipe: {} removed now.", minecraftkey);
                  } else {
                      handler.accept((Recipe) optional.get());
@@ -3869,7 +3858,7 @@ index ec9c235f00cc1b992340dfe0a0b79803361caac5..b84aa3aa391aab6c7bcb804ec3cad672
      public ItemStack getBucketItemStack() {
          return new ItemStack(Items.COD_BUCKET);
 diff --git a/src/main/java/net/minecraft/world/entity/animal/Cow.java b/src/main/java/net/minecraft/world/entity/animal/Cow.java
-index c9dcbc2dcb2736d0f448496c67121db29b7d4deb..c718697a9511ccf761467644967397b777446db9 100644
+index c9dcbc2dcb2736d0f448496c67121db29b7d4deb..66ecd29cc52483e0a79ec6c9c5dbf071501825d5 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/Cow.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/Cow.java
 @@ -1,6 +1,7 @@
@@ -3888,7 +3877,13 @@ index c9dcbc2dcb2736d0f448496c67121db29b7d4deb..c718697a9511ccf761467644967397b7
  import net.minecraft.world.level.block.state.BlockState;
  // CraftBukkit start
  import org.bukkit.craftbukkit.event.CraftEventFactory;
-@@ -40,11 +42,35 @@ public class Cow extends Animal {
+@@ -35,25 +37,59 @@ import org.bukkit.craftbukkit.inventory.CraftItemStack;
+ // CraftBukkit end
+ 
+ public class Cow extends Animal {
++    private boolean isNaturallyAggressiveToPlayers; // Purpur
+ 
+     public Cow(EntityType<? extends Cow> type, Level world) {
          super(type, world);
      }
  
@@ -3906,11 +3901,18 @@ index c9dcbc2dcb2736d0f448496c67121db29b7d4deb..c718697a9511ccf761467644967397b7
 +    @Override
 +    public void initAttributes() {
 +        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level.purpurConfig.cowMaxHealth);
++        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.level.purpurConfig.cowNaturallyAggressiveToPlayersDamage); // Purpur
 +    }
 +
 +    @Override
 +    public int getPurpurBreedTime() {
 +        return this.level.purpurConfig.cowBreedingTicks;
++    }
++
++    @Override
++    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor world, net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType spawnReason, net.minecraft.world.entity.SpawnGroupData entityData, net.minecraft.nbt.CompoundTag entityNbt) {
++        this.isNaturallyAggressiveToPlayers = level.purpurConfig.cowNaturallyAggressiveToPlayersChance > 0.0D && random.nextDouble() <= level.purpurConfig.cowNaturallyAggressiveToPlayersChance;
++        return super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
 +    }
 +    // Purpur end
 +
@@ -3919,12 +3921,24 @@ index c9dcbc2dcb2736d0f448496c67121db29b7d4deb..c718697a9511ccf761467644967397b7
          this.goalSelector.addGoal(0, new FloatGoal(this));
 +        this.goalSelector.addGoal(0, new net.pl3x.purpur.entity.ai.HasRider(this)); // Purpur
          this.goalSelector.addGoal(1, new PanicGoal(this, 2.0D));
++        this.goalSelector.addGoal(1, new net.minecraft.world.entity.ai.goal.MeleeAttackGoal(this, 1.2000000476837158D, true)); // Purpur
          this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D));
 +        if (level.purpurConfig.cowFeedMushrooms > 0) this.goalSelector.addGoal(3, new TemptGoal(this, 1.25D, Ingredient.of(Items.WHEAT, Blocks.RED_MUSHROOM.asItem(), Blocks.BROWN_MUSHROOM.asItem()), false)); else // Purpur
          this.goalSelector.addGoal(3, new TemptGoal(this, 1.25D, Ingredient.of(Items.WHEAT), false));
          this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.25D));
          this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
-@@ -83,6 +109,7 @@ public class Cow extends Animal {
+         this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
+         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
++        this.targetSelector.addGoal(0, new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, target -> isNaturallyAggressiveToPlayers)); // Purpur
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, 0.20000000298023224D);
++        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, 0.20000000298023224D).add(Attributes.ATTACK_DAMAGE, 0.0D); // Purpur
+     }
+ 
+     @Override
+@@ -83,6 +119,7 @@ public class Cow extends Animal {
  
      @Override
      public InteractionResult mobInteract(Player player, InteractionHand hand) {
@@ -3932,7 +3946,7 @@ index c9dcbc2dcb2736d0f448496c67121db29b7d4deb..c718697a9511ccf761467644967397b7
          ItemStack itemstack = player.getItemInHand(hand);
  
          if (itemstack.is(Items.BUCKET) && !this.isBaby()) {
-@@ -90,7 +117,7 @@ public class Cow extends Animal {
+@@ -90,7 +127,7 @@ public class Cow extends Animal {
              org.bukkit.event.player.PlayerBucketFillEvent event = CraftEventFactory.callPlayerBucketFillEvent((ServerLevel) player.level, player, this.blockPosition(), this.blockPosition(), null, itemstack, Items.MILK_BUCKET, hand); // Paper - add enumHand
  
              if (event.isCancelled()) {
@@ -3941,7 +3955,7 @@ index c9dcbc2dcb2736d0f448496c67121db29b7d4deb..c718697a9511ccf761467644967397b7
              }
              // CraftBukkit end
  
-@@ -99,11 +126,80 @@ public class Cow extends Animal {
+@@ -99,11 +136,80 @@ public class Cow extends Animal {
  
              player.setItemInHand(hand, itemstack1);
              return InteractionResult.sidedSuccess(this.level.isClientSide);
@@ -4023,14 +4037,15 @@ index c9dcbc2dcb2736d0f448496c67121db29b7d4deb..c718697a9511ccf761467644967397b7
      public Cow getBreedOffspring(ServerLevel world, AgeableMob entity) {
          return (Cow) EntityType.COW.create((Level) world);
 diff --git a/src/main/java/net/minecraft/world/entity/animal/Dolphin.java b/src/main/java/net/minecraft/world/entity/animal/Dolphin.java
-index f3093815066e6881a2bb638ae4643f69374450b3..2aead13e8f879b614445715fb1912a20b9abf4b9 100644
+index f3093815066e6881a2bb638ae4643f69374450b3..a33724bee284c3f05b1807d6564ddf1564278167 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/Dolphin.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/Dolphin.java
-@@ -84,14 +84,87 @@ public class Dolphin extends WaterAnimal {
+@@ -84,19 +84,94 @@ public class Dolphin extends WaterAnimal {
      public static final Predicate<ItemEntity> ALLOWED_ITEMS = (entityitem) -> {
          return !entityitem.hasPickUpDelay() && entityitem.isAlive() && entityitem.isInWater();
      };
 +    private int spitCooldown; // Purpur
++    private boolean isNaturallyAggressiveToPlayers; // Purpur
  
      public Dolphin(EntityType<? extends Dolphin> type, Level world) {
          super(type, world);
@@ -4115,23 +4130,36 @@ index f3093815066e6881a2bb638ae4643f69374450b3..2aead13e8f879b614445715fb1912a20
      @Nullable
      @Override
      public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType spawnReason, @Nullable SpawnGroupData entityData, @Nullable CompoundTag entityNbt) {
-@@ -166,6 +239,7 @@ public class Dolphin extends WaterAnimal {
+         this.setAirSupply(this.getMaxAirSupply());
+         this.setXRot(0.0F);
++        this.isNaturallyAggressiveToPlayers = level.purpurConfig.dolphinNaturallyAggressiveToPlayersChance > 0.0D && random.nextDouble() <= level.purpurConfig.dolphinNaturallyAggressiveToPlayersChance; // Purpur
+         return super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
+     }
+ 
+@@ -166,17 +241,21 @@ public class Dolphin extends WaterAnimal {
      protected void registerGoals() {
          this.goalSelector.addGoal(0, new BreathAirGoal(this));
          this.goalSelector.addGoal(0, new TryFindWaterGoal(this));
 +        this.goalSelector.addGoal(0, new net.pl3x.purpur.entity.ai.HasRider(this)); // Purpur
++        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2000000476837158D, true)); // Purpur
          this.goalSelector.addGoal(1, new Dolphin.DolphinSwimToTreasureGoal(this));
          this.goalSelector.addGoal(2, new Dolphin.DolphinSwimWithPlayerGoal(this, 4.0D));
          this.goalSelector.addGoal(4, new RandomSwimmingGoal(this, 1.0D, 10));
-@@ -176,6 +250,7 @@ public class Dolphin extends WaterAnimal {
+         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
+         this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 6.0F));
+         this.goalSelector.addGoal(5, new DolphinJumpGoal(this, 10));
+-        this.goalSelector.addGoal(6, new MeleeAttackGoal(this, 1.2000000476837158D, true));
++        //this.goalSelector.addGoal(6, new MeleeAttackGoal(this, 1.2000000476837158D, true)); // Purpur - moved up
          this.goalSelector.addGoal(8, new Dolphin.PlayWithItemsGoal());
          this.goalSelector.addGoal(8, new FollowBoatGoal(this));
          this.goalSelector.addGoal(9, new AvoidEntityGoal<>(this, Guardian.class, 8.0F, 1.0D, 1.0D));
 +        this.targetSelector.addGoal(0, new net.pl3x.purpur.entity.ai.HasRider(this)); // Purpur
          this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, new Class[]{Guardian.class})).setAlertOthers(new Class[0])); // CraftBukkit - decompile error
++        this.targetSelector.addGoal(2, new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, target -> isNaturallyAggressiveToPlayers)); // Purpur
      }
  
-@@ -227,7 +302,7 @@ public class Dolphin extends WaterAnimal {
+     public static AttributeSupplier.Builder createAttributes() {
+@@ -227,7 +306,7 @@ public class Dolphin extends WaterAnimal {
  
      @Override
      protected boolean canRide(Entity entity) {
@@ -4140,7 +4168,7 @@ index f3093815066e6881a2bb638ae4643f69374450b3..2aead13e8f879b614445715fb1912a20
      }
  
      @Override
-@@ -262,6 +337,11 @@ public class Dolphin extends WaterAnimal {
+@@ -262,6 +341,11 @@ public class Dolphin extends WaterAnimal {
      @Override
      public void tick() {
          super.tick();
@@ -4152,7 +4180,7 @@ index f3093815066e6881a2bb638ae4643f69374450b3..2aead13e8f879b614445715fb1912a20
          if (this.isNoAi()) {
              this.setAirSupply(this.getMaxAirSupply());
          } else {
-@@ -417,6 +497,7 @@ public class Dolphin extends WaterAnimal {
+@@ -417,6 +501,7 @@ public class Dolphin extends WaterAnimal {
  
          @Override
          public boolean canUse() {
@@ -5964,7 +5992,7 @@ index 0d220ea2d2651c46ba60c68bdd8dad3182c69740..ce2896c609d16a9b9a733930a3c4c3bd
          this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error
          this.level.getProfiler().pop();
 diff --git a/src/main/java/net/minecraft/world/entity/animal/horse/AbstractHorse.java b/src/main/java/net/minecraft/world/entity/animal/horse/AbstractHorse.java
-index 5c104bf219e5e4acb8acfb160bd92f0a0621d864..03ae6519a523ee73cce664d85074b5f9525de6d6 100644
+index 5c104bf219e5e4acb8acfb160bd92f0a0621d864..206be7e1fc85fed99118020490d8494d197597ab 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/horse/AbstractHorse.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/horse/AbstractHorse.java
 @@ -113,12 +113,48 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
@@ -6016,7 +6044,7 @@ index 5c104bf219e5e4acb8acfb160bd92f0a0621d864..03ae6519a523ee73cce664d85074b5f9
          this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
          this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
          this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorse.class));
-@@ -126,6 +162,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
+@@ -126,11 +162,13 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
          this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 0.7D));
          this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
          this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
@@ -6024,7 +6052,13 @@ index 5c104bf219e5e4acb8acfb160bd92f0a0621d864..03ae6519a523ee73cce664d85074b5f9
          this.addBehaviourGoals();
      }
  
-@@ -284,7 +321,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
+     protected void addBehaviourGoals() {
+         this.goalSelector.addGoal(0, new FloatGoal(this));
++        if (this.level.purpurConfig.horseTemptedByGold) this.goalSelector.addGoal(3, new net.minecraft.world.entity.ai.goal.TemptGoal(this, 1.25D, Ingredient.of(Items.GOLDEN_CARROT, Items.GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE), false)); // Purpur
+     }
+ 
+     @Override
+@@ -284,7 +322,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
  
      @Override
      protected int calculateFallDamage(float fallDistance, float damageMultiplier) {
@@ -6033,7 +6067,7 @@ index 5c104bf219e5e4acb8acfb160bd92f0a0621d864..03ae6519a523ee73cce664d85074b5f9
      }
  
      protected int getInventorySize() {
-@@ -357,7 +394,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
+@@ -357,7 +395,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
      @Nullable
      @Override
      protected SoundEvent getAmbientSound() {
@@ -6042,7 +6076,7 @@ index 5c104bf219e5e4acb8acfb160bd92f0a0621d864..03ae6519a523ee73cce664d85074b5f9
              this.stand();
          }
  
-@@ -1123,7 +1160,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
+@@ -1123,7 +1161,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
              entityData = new AgeableMob.AgeableMobGroupData(0.2F);
          }
  
@@ -6128,7 +6162,7 @@ index 6326471fe48133bef94e98fd028e60a951bccf2b..b077b3d389e3439cf1115009a0edb4ed
      protected void randomizeAttributes() {
          this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)this.generateRandomMaxHealth());
 diff --git a/src/main/java/net/minecraft/world/entity/animal/horse/Llama.java b/src/main/java/net/minecraft/world/entity/animal/horse/Llama.java
-index 5c31519193126b715105e1e83bb54f6a1681d19e..8f12851f220bb23102f52f523a4c5d9855a46e95 100644
+index 5c31519193126b715105e1e83bb54f6a1681d19e..02035b4d062e4a44b8711d940cc3680c3132fb4d 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/horse/Llama.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/horse/Llama.java
 @@ -65,11 +65,71 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
@@ -6212,7 +6246,7 @@ index 5c31519193126b715105e1e83bb54f6a1681d19e..8f12851f220bb23102f52f523a4c5d98
      }
  
      @Override
-@@ -107,12 +167,19 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
+@@ -107,21 +167,30 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
              this.inventory.setItem(1, ItemStack.of(nbt.getCompound("DecorItem")));
          }
  
@@ -6232,7 +6266,10 @@ index 5c31519193126b715105e1e83bb54f6a1681d19e..8f12851f220bb23102f52f523a4c5d98
          this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
          this.goalSelector.addGoal(2, new LlamaFollowCaravanGoal(this, (double)2.1F));
          this.goalSelector.addGoal(3, new RangedAttackGoal(this, 1.25D, 40, 20.0F));
-@@ -122,6 +189,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
+         this.goalSelector.addGoal(3, new PanicGoal(this, 1.2D));
+         this.goalSelector.addGoal(4, new BreedGoal(this, 1.0D));
++        if (this.level.purpurConfig.llamaTemptedByHay) this.goalSelector.addGoal(5, new net.minecraft.world.entity.ai.goal.TemptGoal(this, 1.25D, Ingredient.of(Items.HAY_BLOCK), false)); // Purpur
+         this.goalSelector.addGoal(5, new FollowParentGoal(this, 1.0D));
          this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 0.7D));
          this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
          this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
@@ -6240,7 +6277,7 @@ index 5c31519193126b715105e1e83bb54f6a1681d19e..8f12851f220bb23102f52f523a4c5d98
          this.targetSelector.addGoal(1, new Llama.LlamaHurtByTargetGoal(this));
          this.targetSelector.addGoal(2, new Llama.LlamaAttackWolfGoal(this));
      }
-@@ -426,6 +494,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
+@@ -426,6 +495,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
  
      public void leaveCaravan() {
          if (this.caravanHead != null) {
@@ -6248,7 +6285,7 @@ index 5c31519193126b715105e1e83bb54f6a1681d19e..8f12851f220bb23102f52f523a4c5d98
              this.caravanHead.caravanTail = null;
          }
  
-@@ -433,6 +502,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
+@@ -433,6 +503,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
      }
  
      public void joinCaravan(Llama llama) {
@@ -6256,7 +6293,7 @@ index 5c31519193126b715105e1e83bb54f6a1681d19e..8f12851f220bb23102f52f523a4c5d98
          this.caravanHead = llama;
          this.caravanHead.caravanTail = this;
      }
-@@ -450,6 +520,13 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
+@@ -450,6 +521,13 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
          return this.caravanHead;
      }
  
@@ -10241,7 +10278,7 @@ index 4cab98b5e441a174482893d3d289bbafa1f7a5fc..89defd6b6d64e9048b0b2e7c872f1a19
              return 1;
          }
 diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-index 0f7f7aef78a1f34fe113eeb00a88fd2610351344..597d21bd2d7dde000e02986557be205380e2aa0a 100644
+index 0f7f7aef78a1f34fe113eeb00a88fd2610351344..e5adfd16d132828727040b56a90c1173c9b71a44 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
 @@ -141,6 +141,8 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
@@ -10389,6 +10426,27 @@ index 0f7f7aef78a1f34fe113eeb00a88fd2610351344..597d21bd2d7dde000e02986557be2053
          BlockPos blockposition = this.blockPosition();
  
          for (int i = 0; i < 10; ++i) {
+@@ -1115,10 +1175,16 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+ 
+     @Override
+     public void startSleeping(BlockPos pos) {
+-        super.startSleeping(pos);
+-        this.brain.setMemory(MemoryModuleType.LAST_SLEPT, this.level.getGameTime()); // CraftBukkit - decompile error
+-        this.brain.eraseMemory(MemoryModuleType.WALK_TARGET);
+-        this.brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
++        // Purpur start
++        if (level.purpurConfig.bedExplodeOnVillagerSleep && this.level.getBlockState(pos).getBlock() instanceof net.minecraft.world.level.block.BedBlock) {
++            this.level.explode(null, DamageSource.explosion((net.minecraft.world.level.Explosion) null), null, (double) pos.getX() + 0.5D, (double) pos.getY() + 0.5D, (double) pos.getZ() + 0.5D, (float) this.level.purpurConfig.bedExplosionPower, this.level.purpurConfig.bedExplosionFire, this.level.purpurConfig.bedExplosionEffect);
++        } else {
++            super.startSleeping(pos);
++            this.brain.setMemory(MemoryModuleType.LAST_SLEPT, this.level.getGameTime()); // CraftBukkit - decompile error
++            this.brain.eraseMemory(MemoryModuleType.WALK_TARGET);
++            this.brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
++        }
++        // Purpur end
+     }
+ 
+     @Override
 diff --git a/src/main/java/net/minecraft/world/entity/npc/VillagerProfession.java b/src/main/java/net/minecraft/world/entity/npc/VillagerProfession.java
 index 901fc6520d58a5fa5f2cf1b4fa78fec6008aa409..9050cd25663c71197c597aac0ab2e6121b76b13b 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/VillagerProfession.java
@@ -10860,11 +10918,11 @@ index 85a509e4fc0e4b9f182585e17b7deab2fea7e6c0..c4bdebd4310035a5cce5a5790f538eb0
 +    // Purpur end
  }
 diff --git a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
-index 008e3b769011df76697ad0abcdde5727cef05f64..cf01bd0827d6f4012f22eef33782f651493be720 100644
+index 461173191361fdb0c2c950eacf03ba43693e1908..62abfc9ed33312acee299afa447ef4e208bd9cd7 100644
 --- a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
 +++ b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
 @@ -33,9 +33,10 @@ public abstract class Projectile extends Entity {
-     private Entity cachedOwner;
+     public Entity cachedOwner;
      private boolean leftOwner;
      private boolean hasBeenShot;
 +    public int life; // Purpur - moved from AbstractArrow
@@ -10988,7 +11046,7 @@ index 77941e3981e49cf5662b3e3c86a9c419080b17c8..8c6243aab556c993b43ab52e216bcb0a
 +    // Purpur end
  }
 diff --git a/src/main/java/net/minecraft/world/entity/projectile/ThrownEnderpearl.java b/src/main/java/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
-index 541ca82405d0b4d1457dcd63b58dc61eb67482d6..6e4cffa397d07c9c0910f2a1ec0fb8bf04a1b6ba 100644
+index 1b2ada3663cc0739782ac591f2ee1f6d0fb94841..a2109b4f6705b726ac2c4a8eb639e9c515752b8c 100644
 --- a/src/main/java/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
 +++ b/src/main/java/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
 @@ -69,9 +69,10 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
@@ -11012,7 +11070,7 @@ index 541ca82405d0b4d1457dcd63b58dc61eb67482d6..6e4cffa397d07c9c0910f2a1ec0fb8bf
                          CraftEventFactory.entityDamage = null;
                      }
                      // CraftBukkit end
-@@ -121,4 +122,11 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
+@@ -131,4 +132,11 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
  
          return super.changeDimension(destination);
      }
@@ -12454,32 +12512,6 @@ index 6f4e6105aa1d6546daa2424f57972fd29db25fa3..5e06dbb25359b593c6960652ee99f822
 +    }
 +    // Purpur end
  }
-diff --git a/src/main/java/net/minecraft/world/level/biome/Biome.java b/src/main/java/net/minecraft/world/level/biome/Biome.java
-index b5c6b0bc307aef2835761cfa50413cebfd624795..b0a0247003ea2fcc653172d8592dd00c5241391f 100644
---- a/src/main/java/net/minecraft/world/level/biome/Biome.java
-+++ b/src/main/java/net/minecraft/world/level/biome/Biome.java
-@@ -223,6 +223,7 @@ public final class Biome {
-         return this.generationSettings;
-     }
- 
-+    private static final java.security.SecureRandom SECURE_RANDOM = new java.security.SecureRandom(); // Purpur
-     public void generate(StructureFeatureManager structureAccessor, ChunkGenerator chunkGenerator, WorldGenRegion region, long populationSeed, WorldgenRandom random, BlockPos origin) {
-         List<List<Supplier<ConfiguredFeature<?, ?>>>> list = this.generationSettings.features();
-         Registry<ConfiguredFeature<?, ?>> registry = region.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY); // Paper - diff on change
-@@ -261,6 +262,13 @@ public final class Biome {
-                 }
-             }
- 
-+            // Purpur start
-+            long populatorSeed = populationSeed;
-+            if (((net.minecraft.server.level.ServerChunkCache) region.getChunkSource()).getLevel().purpurConfig.randomPopulatorSeed) {
-+                populatorSeed = SECURE_RANDOM.nextLong();
-+            }
-+            // Purpur end
-+
-             if (list.size() > j) {
-                 for(Supplier<ConfiguredFeature<?, ?>> supplier2 : list.get(j)) {
-                     ConfiguredFeature<?, ?> configuredFeature = supplier2.get();
 diff --git a/src/main/java/net/minecraft/world/level/block/AzaleaBlock.java b/src/main/java/net/minecraft/world/level/block/AzaleaBlock.java
 index 47b32d89766862b998824fd3dd97265899651c15..8c0646dda3032bce8a95c66c9e504b68a32af85f 100644
 --- a/src/main/java/net/minecraft/world/level/block/AzaleaBlock.java
@@ -13244,7 +13276,7 @@ index bc2f2c69d437e99cb965cede7dfd42228151b26c..c42349d0f6b0025525278295b36f4030
              EntityPortalEnterEvent event = new EntityPortalEnterEvent(entity.getBukkitEntity(), new org.bukkit.Location(world.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
              world.getCraftServer().getPluginManager().callEvent(event);
 diff --git a/src/main/java/net/minecraft/world/level/block/NoteBlock.java b/src/main/java/net/minecraft/world/level/block/NoteBlock.java
-index f8e58d9f71703139a736d93e7f1996e027a29444..c74df3b5c2a25469ad3fb6a853438bbcc7faf79b 100644
+index f8e58d9f71703139a736d93e7f1996e027a29444..f6c0c9fca005f72c3764a4a4f8df05825796e950 100644
 --- a/src/main/java/net/minecraft/world/level/block/NoteBlock.java
 +++ b/src/main/java/net/minecraft/world/level/block/NoteBlock.java
 @@ -35,11 +35,13 @@ public class NoteBlock extends Block {
@@ -13261,7 +13293,14 @@ index f8e58d9f71703139a736d93e7f1996e027a29444..c74df3b5c2a25469ad3fb6a853438bbc
          return direction == Direction.DOWN ? (BlockState) state.setValue(NoteBlock.INSTRUMENT, NoteBlockInstrument.byState(neighborState)) : super.updateShape(state, direction, neighborState, world, pos, neighborPos);
      }
  
-@@ -59,7 +61,7 @@ public class NoteBlock extends Block {
+@@ -53,13 +55,14 @@ public class NoteBlock extends Block {
+                 state = world.getBlockState(pos); // CraftBukkit - SPIGOT-5617: update in case changed in event
+             }
+ 
++            if (!net.pl3x.purpur.PurpurConfig.disableNoteBlockUpdates) // Purpur
+             world.setBlock(pos, (BlockState) state.setValue(NoteBlock.POWERED, flag1), 3);
+         }
+ 
      }
  
      private void play(Level world, BlockPos blockposition, BlockState data) { // CraftBukkit
@@ -13419,12 +13458,15 @@ index 0169d874247a96c2e10a65ecb9c0c093f5a6ecfb..b760e2d014b3ae70671878082bb853b7
  
      @Override
 diff --git a/src/main/java/net/minecraft/world/level/block/SpawnerBlock.java b/src/main/java/net/minecraft/world/level/block/SpawnerBlock.java
-index b1e04d41de80971a7a1616beb0860226ecc25045..295ae3877b955978105b756055c21e63cf3b84ab 100644
+index b1e04d41de80971a7a1616beb0860226ecc25045..a499cf626a54fcef62bc34bba4193ba0565d8379 100644
 --- a/src/main/java/net/minecraft/world/level/block/SpawnerBlock.java
 +++ b/src/main/java/net/minecraft/world/level/block/SpawnerBlock.java
-@@ -2,8 +2,16 @@ package net.minecraft.world.level.block;
+@@ -1,9 +1,19 @@
+ package net.minecraft.world.level.block;
  
  import javax.annotation.Nullable;
++
++import net.kyori.adventure.text.minimessage.MiniMessage;
  import net.minecraft.core.BlockPos;
 +import net.minecraft.nbt.CompoundTag;
 +import net.minecraft.nbt.ListTag;
@@ -13439,7 +13481,7 @@ index b1e04d41de80971a7a1616beb0860226ecc25045..295ae3877b955978105b756055c21e63
  import net.minecraft.world.level.BlockGetter;
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.block.entity.BlockEntity;
-@@ -13,6 +21,18 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+@@ -13,6 +23,19 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
  import net.minecraft.world.level.block.state.BlockBehaviour;
  import net.minecraft.world.level.block.state.BlockState;
  
@@ -13451,6 +13493,7 @@ index b1e04d41de80971a7a1616beb0860226ecc25045..295ae3877b955978105b756055c21e63
 +import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 +
 +import java.util.List;
++import java.util.Locale;
 +
 +import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 +// Purpur end
@@ -13458,7 +13501,7 @@ index b1e04d41de80971a7a1616beb0860226ecc25045..295ae3877b955978105b756055c21e63
  public class SpawnerBlock extends BaseEntityBlock {
  
      protected SpawnerBlock(BlockBehaviour.Properties settings) {
-@@ -30,6 +50,59 @@ public class SpawnerBlock extends BaseEntityBlock {
+@@ -30,6 +53,55 @@ public class SpawnerBlock extends BaseEntityBlock {
          return createTickerHelper(type, BlockEntityType.MOB_SPAWNER, world.isClientSide ? SpawnerBlockEntity::clientTick : SpawnerBlockEntity::serverTick);
      }
  
@@ -13469,39 +13512,35 @@ index b1e04d41de80971a7a1616beb0860226ecc25045..295ae3877b955978105b756055c21e63
 +            ResourceLocation type = ((SpawnerBlockEntity) blockEntity).getSpawner().getEntityId(level, pos);
 +            if (type != null) {
 +                final Component mobName = PaperAdventure.asAdventure(EntityType.getFromKey(type).getDescription());
-+                final TextReplacementConfig config = TextReplacementConfig.builder()
-+                    .matchLiteral("{mob}")
-+                    .replacement(mobName)
-+                    .build();
-+
 +                CompoundTag display = new CompoundTag();
-+                boolean customDisplay = false;
++                CompoundTag tag = new CompoundTag();
 +
 +                String name = level.purpurConfig.silkTouchSpawnerName;
 +                if (name != null && !name.isEmpty() && !name.equals("Spawner")) {
-+                    final Component displayName = PaperAdventure.LEGACY_AMPERSAND.deserialize(name).replaceText(config).decoration(ITALIC, false);
-+                    display.put("Name", StringTag.valueOf(GsonComponentSerializer.gson().serialize(displayName)));
-+                    customDisplay = true;
++                    Component displayName = MiniMessage.get().parse(name, "mob", mobName);
++                    if (name.startsWith("<reset>")) {
++                        displayName = displayName.decoration(ITALIC, false);
++                    }
++                    display.put("Name", StringTag.valueOf(PaperAdventure.asJsonString(displayName, Locale.ROOT)));
++                    tag.put("display", display);
 +                }
 +
 +                List<String> lore = level.purpurConfig.silkTouchSpawnerLore;
 +                if (lore != null && !lore.isEmpty()) {
 +                    ListTag list = new ListTag();
 +                    for (String line : lore) {
-+                        final Component lineComponent = PaperAdventure.LEGACY_AMPERSAND.deserialize(line).replaceText(config).decoration(ITALIC, false);
-+                        list.add(StringTag.valueOf(GsonComponentSerializer.gson().serialize(lineComponent)));
++                        Component lineComponent = MiniMessage.get().parse(line, "mob", mobName);
++                        if (line.startsWith("<reset>")) {
++                            lineComponent = lineComponent.decoration(ITALIC, false);
++                        }
++                        list.add(StringTag.valueOf(PaperAdventure.asJsonString(lineComponent, Locale.ROOT)));
 +                    }
 +                    display.put("Lore", list);
-+                    customDisplay = true;
-+                }
-+
-+                CompoundTag tag = new CompoundTag();
-+                if (customDisplay) {
 +                    tag.put("display", display);
 +                }
-+                tag.putString("Purpur.mob_type", type.toString());
 +
 +                ItemStack item = new ItemStack(Blocks.SPAWNER.asItem());
++                tag.putString("Purpur.mob_type", type.toString());
 +                item.setTag(tag);
 +
 +                popResource(level, pos, item);
@@ -13518,7 +13557,7 @@ index b1e04d41de80971a7a1616beb0860226ecc25045..295ae3877b955978105b756055c21e63
      @Override
      public void spawnAfterBreak(BlockState state, ServerLevel world, BlockPos pos, ItemStack stack) {
          super.spawnAfterBreak(state, world, pos, stack);
-@@ -42,6 +115,7 @@ public class SpawnerBlock extends BaseEntityBlock {
+@@ -42,6 +114,7 @@ public class SpawnerBlock extends BaseEntityBlock {
  
      @Override
      public int getExpDrop(BlockState iblockdata, ServerLevel worldserver, BlockPos blockposition, ItemStack itemstack) {
@@ -13750,35 +13789,63 @@ index 242d9b2ecb852d812d4887883cb2aabfd21e3715..c61746ca8ef1b4cec064c0022e419bcf
  
      private static boolean canBurn(@Nullable Recipe<?> recipe, NonNullList<ItemStack> slots, int count) {
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
-index f494063ead9c6303fb3ca880aba2a877ae8d83ab..3b027111ed933856ae86ad5f62aac744021f8880 100644
+index f494063ead9c6303fb3ca880aba2a877ae8d83ab..aa4d3a8a51050df14d5df4a494ee6665a065e2cb 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
-@@ -68,7 +68,7 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
+@@ -68,7 +68,16 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
  
      public BarrelBlockEntity(BlockPos pos, BlockState state) {
          super(BlockEntityType.BARREL, pos, state);
 -        this.items = NonNullList.withSize(27, ItemStack.EMPTY);
-+        this.items = NonNullList.withSize(net.pl3x.purpur.PurpurConfig.barrelSixRows ? 54 : 27, ItemStack.EMPTY); // Purpur
++        // Purpur start
++        this.items = NonNullList.withSize(switch (net.pl3x.purpur.PurpurConfig.barrelRows) {
++            case 6 -> 54;
++            case 5 -> 45;
++            case 4 -> 36;
++            case 2 -> 18;
++            case 1 -> 9;
++            default -> 27;
++        }, ItemStack.EMPTY);
++        // Purpur end
          this.openersCounter = new ContainerOpenersCounter() {
              @Override
              protected void onOpen(Level world, BlockPos pos, BlockState state) {
-@@ -120,7 +120,7 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
+@@ -120,7 +129,16 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
  
      @Override
      public int getContainerSize() {
 -        return 27;
-+        return net.pl3x.purpur.PurpurConfig.barrelSixRows ? 54 : 27; // Purpur
++        // Purpur start
++        return switch (net.pl3x.purpur.PurpurConfig.barrelRows) {
++            case 6 -> 54;
++            case 5 -> 45;
++            case 4 -> 36;
++            case 2 -> 18;
++            case 1 -> 9;
++            default -> 27;
++        };
++        // Purpur end
      }
  
      @Override
-@@ -140,6 +140,7 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
+@@ -140,7 +158,16 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
  
      @Override
      protected AbstractContainerMenu createMenu(int syncId, Inventory playerInventory) {
-+        if (net.pl3x.purpur.PurpurConfig.barrelSixRows) return ChestMenu.sixRows(syncId, playerInventory, (Container) this); // Purpur
-         return ChestMenu.threeRows(syncId, playerInventory, (Container) this);
+-        return ChestMenu.threeRows(syncId, playerInventory, (Container) this);
++        // Purpur start
++        return switch (net.pl3x.purpur.PurpurConfig.barrelRows) {
++            case 6 -> ChestMenu.sixRows(syncId, playerInventory, this);
++            case 5 -> ChestMenu.fiveRows(syncId, playerInventory, this);
++            case 4 -> ChestMenu.fourRows(syncId, playerInventory, this);
++            case 2 -> ChestMenu.twoRows(syncId, playerInventory, this);
++            case 1 -> ChestMenu.oneRow(syncId, playerInventory, this);
++            default -> ChestMenu.threeRows(syncId, playerInventory, this);
++        };
++        // Purpur end
      }
  
+     @Override
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/BeaconBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
 index 3281448bf37da8a1b4b7b44f10f4b2438b4a4f29..418c2ddf8ff50a5071b2a31585b77e9fdc577d9f 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
@@ -14124,221 +14191,12 @@ index 79504dc3448402e73b09c4232b1fd0488872cf68..300c9f136edace2babea4a574090b184
  
                                              for (int l = 0; l < k; ++l) {
                                                  // Paper start
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/BambooFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/BambooFeature.java
-index 7f3792fce13fbc27364b7d881933f54138717f51..f16c2ea9c44bb9889f4b12cb89367ef90a9bf222 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/BambooFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/BambooFeature.java
-@@ -27,7 +27,7 @@ public class BambooFeature extends Feature<ProbabilityFeatureConfiguration> {
-         int i = 0;
-         BlockPos blockPos = context.origin();
-         WorldGenLevel worldGenLevel = context.level();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureBamboo); // Purpur
-         ProbabilityFeatureConfiguration probabilityFeatureConfiguration = context.config();
-         BlockPos.MutableBlockPos mutableBlockPos = blockPos.mutable();
-         BlockPos.MutableBlockPos mutableBlockPos2 = blockPos.mutable();
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/BasaltColumnsFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/BasaltColumnsFeature.java
-index 1949477637d826978e01547624bfccdb5048afb1..1af28ee54dc061d9ab1f06d07f4b8d58e7794677 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/BasaltColumnsFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/BasaltColumnsFeature.java
-@@ -29,7 +29,7 @@ public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
-         int i = context.chunkGenerator().getSeaLevel();
-         BlockPos blockPos = context.origin();
-         WorldGenLevel worldGenLevel = context.level();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureBasaltColumns); // Purpur
-         ColumnFeatureConfiguration columnFeatureConfiguration = context.config();
-         if (!canPlaceAt(worldGenLevel, i, blockPos.mutable())) {
-             return false;
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/BasaltPillarFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/BasaltPillarFeature.java
-index 94c01df47765c7e7e9cc4cd59b87e14ead4e4e86..39b6d627ff7c59b91ab22d5eba8658232784b50f 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/BasaltPillarFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/BasaltPillarFeature.java
-@@ -19,7 +19,7 @@ public class BasaltPillarFeature extends Feature<NoneFeatureConfiguration> {
-     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-         BlockPos blockPos = context.origin();
-         WorldGenLevel worldGenLevel = context.level();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureBasaltPillar); // Purpur
-         if (worldGenLevel.isEmptyBlock(blockPos) && !worldGenLevel.isEmptyBlock(blockPos.above())) {
-             BlockPos.MutableBlockPos mutableBlockPos = blockPos.mutable();
-             BlockPos.MutableBlockPos mutableBlockPos2 = blockPos.mutable();
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/BaseDiskFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/BaseDiskFeature.java
-index 080bc62fa178bb84ad8672268e75be2ad554dfd2..b48084e3b63bda65ab58d5966dc5b0c94cef2992 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/BaseDiskFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/BaseDiskFeature.java
-@@ -14,17 +14,20 @@ public class BaseDiskFeature extends Feature<DiskConfiguration> {
-         super(configCodec);
-     }
- 
-+    protected net.minecraft.core.BlockPos origin; // Purpur
-+    protected java.util.Random random; // Purpur
-+
-     @Override
-     public boolean place(FeaturePlaceContext<DiskConfiguration> context) {
-         DiskConfiguration diskConfiguration = context.config();
--        BlockPos blockPos = context.origin();
-+        BlockPos blockPos = this.origin; // Purpur
-         WorldGenLevel worldGenLevel = context.level();
-         boolean bl = false;
-         int i = blockPos.getY();
-         int j = i + diskConfiguration.halfHeight;
-         int k = i - diskConfiguration.halfHeight - 1;
-         boolean bl2 = diskConfiguration.state.getBlock() instanceof FallingBlock;
--        int l = diskConfiguration.radius.sample(context.random());
-+        int l = diskConfiguration.radius.sample(this.random); // Purpur
- 
-         for(int m = blockPos.getX() - l; m <= blockPos.getX() + l; ++m) {
-             for(int n = blockPos.getZ() - l; n <= blockPos.getZ() + l; ++n) {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/BlockBlobFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/BlockBlobFeature.java
-index fb7002cbc3a80e390f3220e1e8a8c3ad85b97b52..455d6ac2824a8a6cfa8cc89f7f108d2c855c692c 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/BlockBlobFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/BlockBlobFeature.java
-@@ -16,7 +16,7 @@ public class BlockBlobFeature extends Feature<BlockStateConfiguration> {
-     public boolean place(FeaturePlaceContext<BlockStateConfiguration> context) {
-         BlockPos blockPos = context.origin();
-         WorldGenLevel worldGenLevel = context.level();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureForestRock); // Purpur
- 
-         BlockStateConfiguration blockStateConfiguration;
-         for(blockStateConfiguration = context.config(); blockPos.getY() > worldGenLevel.getMinBuildHeight() + 3; blockPos = blockPos.below()) {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/BlockPileFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/BlockPileFeature.java
-index 2cdb1f0dd3e5d184f4cf5f3807c0e76913e62be0..749577d6a8fc01cd89fef885961de2cf59145f75 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/BlockPileFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/BlockPileFeature.java
-@@ -19,7 +19,7 @@ public class BlockPileFeature extends Feature<BlockPileConfiguration> {
-     public boolean place(FeaturePlaceContext<BlockPileConfiguration> context) {
-         BlockPos blockPos = context.origin();
-         WorldGenLevel worldGenLevel = context.level();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureBlockPile); // Purpur
-         BlockPileConfiguration blockPileConfiguration = context.config();
-         if (blockPos.getY() < worldGenLevel.getMinBuildHeight() + 5) {
-             return false;
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/BlueIceFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/BlueIceFeature.java
-index fd289d06417a96a95265f0da835b7ca868eba6b6..0c9ca3866caf870f07c6a1c84832a0efad4934a5 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/BlueIceFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/BlueIceFeature.java
-@@ -19,7 +19,7 @@ public class BlueIceFeature extends Feature<NoneFeatureConfiguration> {
-     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-         BlockPos blockPos = context.origin();
-         WorldGenLevel worldGenLevel = context.level();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureBlueIce); // Purpur
-         if (blockPos.getY() > worldGenLevel.getSeaLevel() - 1) {
-             return false;
-         } else if (!worldGenLevel.getBlockState(blockPos).is(Blocks.WATER) && !worldGenLevel.getBlockState(blockPos.below()).is(Blocks.WATER)) {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/BonusChestFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/BonusChestFeature.java
-index f0897875e9b61a9e49f0acf31fdfac6237dc32b3..47f14f5b331c925222e363ef3b42a5539c1b626f 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/BonusChestFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/BonusChestFeature.java
-@@ -24,7 +24,7 @@ public class BonusChestFeature extends Feature<NoneFeatureConfiguration> {
- 
-     @Override
-     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureBonusChest); // Purpur
-         WorldGenLevel worldGenLevel = context.level();
-         ChunkPos chunkPos = new ChunkPos(context.origin());
-         List<Integer> list = IntStream.rangeClosed(chunkPos.getMinBlockX(), chunkPos.getMaxBlockX()).boxed().collect(Collectors.toList());
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/ChorusPlantFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/ChorusPlantFeature.java
-index 6640061ecc11ec3e4a0203d8d6990489fcf10729..565f32a933090360412d9c98f8945f1719a768d3 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/ChorusPlantFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/ChorusPlantFeature.java
-@@ -17,7 +17,7 @@ public class ChorusPlantFeature extends Feature<NoneFeatureConfiguration> {
-     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureChorusPlant); // Purpur
-         if (worldGenLevel.isEmptyBlock(blockPos) && worldGenLevel.getBlockState(blockPos.below()).is(Blocks.END_STONE)) {
-             ChorusFlowerBlock.generatePlant(worldGenLevel, blockPos, random, 8);
-             return true;
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/CoralClawFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/CoralClawFeature.java
-index 17f603fe4508fd8b803a2e921a169eccf0d20585..76b32e7cb8ec952475a98478294806426ce5a667 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/CoralClawFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/CoralClawFeature.java
-@@ -17,6 +17,14 @@ public class CoralClawFeature extends CoralFeature {
-         super(configCodec);
-     }
- 
-+    // Purpur start
-+    @Override
-+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-+        this.random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureCoralClaw);
-+        return super.place(context);
-+    }
-+    // Purpur end
-+
-     @Override
-     protected boolean placeFeature(LevelAccessor world, Random random, BlockPos pos, BlockState state) {
-         if (!this.placeCoralBlock(world, random, pos, state)) {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/CoralFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/CoralFeature.java
-index 15b99d94b7d3e494a2fe4a205f9145b5fabbc125..650296b6526d06df0bca12262db90aec380d35f3 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/CoralFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/CoralFeature.java
-@@ -18,9 +18,11 @@ public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
-         super(configCodec);
-     }
- 
-+    protected Random random; // Purpur
-+
-     @Override
-     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
--        Random random = context.random();
-+        //Random random = context.random(); // Purpur
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
-         BlockState blockState = BlockTags.CORAL_BLOCKS.getRandomElement(random).defaultBlockState();
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/CoralMushroomFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/CoralMushroomFeature.java
-index 8c2b3a037bac75fcadafd368ff8416f5de00df7f..85522d9c8ac4893aedb208b0f054ff0016808e56 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/CoralMushroomFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/CoralMushroomFeature.java
-@@ -13,6 +13,14 @@ public class CoralMushroomFeature extends CoralFeature {
-         super(configCodec);
-     }
- 
-+    // Purpur start
-+    @Override
-+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-+        this.random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureCoralMushroom);
-+        return super.place(context);
-+    }
-+    // Purpur end
-+
-     @Override
-     protected boolean placeFeature(LevelAccessor world, Random random, BlockPos pos, BlockState state) {
-         int i = random.nextInt(3) + 3;
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/CoralTreeFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/CoralTreeFeature.java
-index 8d1985c96277a50c39858ee7754ed3d34d10d8cb..4cb63f98aca829154c67f354c64d7bef4af095cb 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/CoralTreeFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/CoralTreeFeature.java
-@@ -16,6 +16,14 @@ public class CoralTreeFeature extends CoralFeature {
-         super(configCodec);
-     }
- 
-+    // Purpur start
-+    @Override
-+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-+        this.random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureCoralTree);
-+        return super.place(context);
-+    }
-+    // Purpur end
-+
-     @Override
-     protected boolean placeFeature(LevelAccessor world, Random random, BlockPos pos, BlockState state) {
-         BlockPos.MutableBlockPos mutableBlockPos = pos.mutable();
 diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/DecoratedFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/DecoratedFeature.java
-index ae11f1ecf23b38b84ab09f66796d1509a21bfbd8..6b99c901d30d4334b1651a1853a79603d74e64bf 100644
+index ae11f1ecf23b38b84ab09f66796d1509a21bfbd8..0a4a0a3d81753a7dea6a6483f601254928c697fb 100644
 --- a/src/main/java/net/minecraft/world/level/levelgen/feature/DecoratedFeature.java
 +++ b/src/main/java/net/minecraft/world/level/levelgen/feature/DecoratedFeature.java
-@@ -21,15 +21,19 @@ public class DecoratedFeature extends Feature<DecoratedFeatureConfiguration> {
-         WorldGenLevel worldGenLevel = context.level();
-         DecoratedFeatureConfiguration decoratedFeatureConfiguration = context.config();
-         ChunkGenerator chunkGenerator = context.chunkGenerator();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureDecorated); // Purpur
+@@ -24,12 +24,16 @@ public class DecoratedFeature extends Feature<DecoratedFeatureConfiguration> {
+         Random random = context.random();
          BlockPos blockPos = context.origin();
          ConfiguredFeature<?, ?> configuredFeature = decoratedFeatureConfiguration.feature.get();
 -        decoratedFeatureConfiguration.decorator.getPositions(new DecorationContext(worldGenLevel, chunkGenerator), random, blockPos).forEach((blockPosx) -> {
@@ -14360,539 +14218,11 @@ index ae11f1ecf23b38b84ab09f66796d1509a21bfbd8..6b99c901d30d4334b1651a1853a79603
          return mutableBoolean.isTrue();
      }
  
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/DefaultFlowerFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/DefaultFlowerFeature.java
-index 2bc983496d77058ecbb89d33c5614d798d321b85..4e715ba8c4cbffc681ec3c1256d286538a38bebd 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/DefaultFlowerFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/DefaultFlowerFeature.java
-@@ -29,6 +29,7 @@ public class DefaultFlowerFeature extends AbstractFlowerFeature<RandomPatchConfi
- 
-     @Override
-     public BlockState getRandomFlower(Random random, BlockPos pos, RandomPatchConfiguration config) {
-+        random = getRnd(random, net.pl3x.purpur.PurpurConfig.seedFeatureFlower); // Purpur
-         return config.stateProvider.getState(random, pos);
-     }
- }
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/DeltaFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/DeltaFeature.java
-index fa0d751fbde63c739266495699d28154cd342f79..fb66f270b459919f885ddd09a1c2fa2957c8164d 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/DeltaFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/DeltaFeature.java
-@@ -24,7 +24,7 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
-     @Override
-     public boolean place(FeaturePlaceContext<DeltaFeatureConfiguration> context) {
-         boolean bl = false;
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureDeltaFeature); // Purpur
-         WorldGenLevel worldGenLevel = context.level();
-         DeltaFeatureConfiguration deltaFeatureConfiguration = context.config();
-         BlockPos blockPos = context.origin();
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/DiskReplaceFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/DiskReplaceFeature.java
-index b29719a0af670261073ef2a1d87ca255f9de095b..a957765736a2c49a58254fb6bedbc8f961811224 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/DiskReplaceFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/DiskReplaceFeature.java
-@@ -11,6 +11,8 @@ public class DiskReplaceFeature extends BaseDiskFeature {
- 
-     @Override
-     public boolean place(FeaturePlaceContext<DiskConfiguration> context) {
-+        this.origin = context.origin(); // Purpur
-+        this.random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureDisk); // Purpur
-         return !context.level().getFluidState(context.origin()).is(FluidTags.WATER) ? false : super.place(context);
-     }
- }
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/DripstoneClusterFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/DripstoneClusterFeature.java
-index eeda6ce19bef98f939a4ecd12e0e63c6bf6d3986..3f94aadc6216a83714be8af9e22ed56fb5bc1b93 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/DripstoneClusterFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/DripstoneClusterFeature.java
-@@ -28,7 +28,7 @@ public class DripstoneClusterFeature extends Feature<DripstoneClusterConfigurati
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
-         DripstoneClusterConfiguration dripstoneClusterConfiguration = context.config();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureDripstoneCluster); // Purpur
-         if (!DripstoneUtils.isEmptyOrWater(worldGenLevel, blockPos)) {
-             return false;
-         } else {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/EndIslandFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/EndIslandFeature.java
-index 59867e86bc6ee02098a420e74bd249f66d50e319..58c506f4a2fb9b45e78d59383757421a9b86d1f6 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/EndIslandFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/EndIslandFeature.java
-@@ -16,7 +16,7 @@ public class EndIslandFeature extends Feature<NoneFeatureConfiguration> {
-     @Override
-     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-         WorldGenLevel worldGenLevel = context.level();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureEndIsland); // Purpur
-         BlockPos blockPos = context.origin();
-         float f = (float)(random.nextInt(3) + 4);
- 
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/Feature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/Feature.java
-index 66f97b70985ed728eadcf837f25e81a256c2033b..6120409ab412c1237b44862ed1c402c855ededf0 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/Feature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/Feature.java
-@@ -118,6 +118,21 @@ public abstract class Feature<FC extends FeatureConfiguration> {
-         return Registry.register(Registry.FEATURE, name, feature);
-     }
- 
-+    // Purpur start
-+    @org.jetbrains.annotations.Nullable
-+    private java.util.Random rnd;
-+
-+    protected java.util.Random getRnd(java.util.Random rand, int seed) {
-+        if (seed == -1) {
-+            return rand;
-+        }
-+        if(this.rnd == null) {
-+            this.rnd = new java.util.Random(seed);
-+        }
-+        return this.rnd;
-+    }
-+    // Purpur end
-+
-     public Feature(Codec<FC> configCodec) {
-         this.configuredCodec = configCodec.fieldOf("config").xmap((config) -> {
-             return new ConfiguredFeature<>(this, config);
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/FossilFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/FossilFeature.java
-index 82ea6a21d5fe0853c8fe1ef245609f01e9dbadb7..5032d5d190835aa941dfe5a2203f5b22966f6f2f 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/FossilFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/FossilFeature.java
-@@ -24,7 +24,7 @@ public class FossilFeature extends Feature<FossilFeatureConfiguration> {
- 
-     @Override
-     public boolean place(FeaturePlaceContext<FossilFeatureConfiguration> context) {
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureFossil); // Purpur
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
-         Rotation rotation = Rotation.getRandom(random);
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/GeodeFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/GeodeFeature.java
-index 74a0adf4adf2b701126724e08bb72fa4e8e8560a..37756eb9e84ad8d91e6ede9b6c9264b2dc8371d5 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/GeodeFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/GeodeFeature.java
-@@ -34,7 +34,7 @@ public class GeodeFeature extends Feature<GeodeConfiguration> {
-     @Override
-     public boolean place(FeaturePlaceContext<GeodeConfiguration> context) {
-         GeodeConfiguration geodeConfiguration = context.config();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureGeode); // Purpur
-         BlockPos blockPos = context.origin();
-         WorldGenLevel worldGenLevel = context.level();
-         int i = geodeConfiguration.minGenOffset;
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/GlowLichenFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/GlowLichenFeature.java
-index f8e72b9e68e0ce7611005650bee24842099973a7..817c3117f1d7f0fe2d627e87444f71f8c8fd06df 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/GlowLichenFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/GlowLichenFeature.java
-@@ -23,7 +23,7 @@ public class GlowLichenFeature extends Feature<GlowLichenConfiguration> {
-     public boolean place(FeaturePlaceContext<GlowLichenConfiguration> context) {
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureGlowLichen); // Purpur
-         GlowLichenConfiguration glowLichenConfiguration = context.config();
-         if (!isAirOrWater(worldGenLevel.getBlockState(blockPos))) {
-             return false;
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/GlowstoneFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/GlowstoneFeature.java
-index df6229c8d2d8bc182d113fa1508da5a3948516e2..2a1337006f06f399dd8885c1b0380389c1dde493 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/GlowstoneFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/GlowstoneFeature.java
-@@ -18,7 +18,7 @@ public class GlowstoneFeature extends Feature<NoneFeatureConfiguration> {
-     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureGlowstoneBlob); // Purpur
-         if (!worldGenLevel.isEmptyBlock(blockPos)) {
-             return false;
-         } else {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/GrowingPlantFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/GrowingPlantFeature.java
-index 6f0549c72d9fedae39da1427b6facbf938da5d3f..db22ef9d2a1529096b5b44cc76d909dfadc77e42 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/GrowingPlantFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/GrowingPlantFeature.java
-@@ -17,7 +17,7 @@ public class GrowingPlantFeature extends Feature<GrowingPlantConfiguration> {
-     public boolean place(FeaturePlaceContext<GrowingPlantConfiguration> context) {
-         LevelAccessor levelAccessor = context.level();
-         GrowingPlantConfiguration growingPlantConfiguration = context.config();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureGrowingPlant); // Purpur
-         int i = growingPlantConfiguration.heightDistribution.getRandomValue(random).orElseThrow(IllegalStateException::new).sample(random);
-         BlockPos.MutableBlockPos mutableBlockPos = context.origin().mutable();
-         BlockPos.MutableBlockPos mutableBlockPos2 = mutableBlockPos.mutable().move(growingPlantConfiguration.direction);
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/HugeBrownMushroomFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/HugeBrownMushroomFeature.java
-index 9261ca82851fb28ac17fc636bacd22cd02b1cbc5..e55594840a9cede00bc997ac667438a695acd74a 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/HugeBrownMushroomFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/HugeBrownMushroomFeature.java
-@@ -15,6 +15,7 @@ public class HugeBrownMushroomFeature extends AbstractHugeMushroomFeature {
- 
-     @Override
-     protected void makeCap(LevelAccessor world, Random random, BlockPos start, int y, BlockPos.MutableBlockPos mutable, HugeMushroomFeatureConfiguration config) {
-+        random = getRnd(random, net.pl3x.purpur.PurpurConfig.seedFeatureHugeBrownMushroom); // Purpur
-         int i = config.foliageRadius;
- 
-         for(int j = -i; j <= i; ++j) {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/HugeFungusFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/HugeFungusFeature.java
-index 44ae76882096cc6270a39754adf6070433c1e8d7..4f1cc232ec3e9a498308cf00749d7cda5ba60542 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/HugeFungusFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/HugeFungusFeature.java
-@@ -24,7 +24,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
-     public boolean place(FeaturePlaceContext<HugeFungusConfiguration> context) {
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureHugeFungus); // Purpur
-         ChunkGenerator chunkGenerator = context.chunkGenerator();
-         HugeFungusConfiguration hugeFungusConfiguration = context.config();
-         Block block = hugeFungusConfiguration.validBaseState.getBlock();
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/HugeRedMushroomFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/HugeRedMushroomFeature.java
-index c5e436fa3188bee2cd546a6bc59cdb6b90c5d816..27d4a21321729a52fb9879131cf413df12c1e25d 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/HugeRedMushroomFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/HugeRedMushroomFeature.java
-@@ -15,6 +15,7 @@ public class HugeRedMushroomFeature extends AbstractHugeMushroomFeature {
- 
-     @Override
-     protected void makeCap(LevelAccessor world, Random random, BlockPos start, int y, BlockPos.MutableBlockPos mutable, HugeMushroomFeatureConfiguration config) {
-+        random = getRnd(random, net.pl3x.purpur.PurpurConfig.seedFeatureHugeRedMushroom); // Purpur
-         for(int i = y - 3; i <= y; ++i) {
-             int j = i < y ? config.foliageRadius : config.foliageRadius - 1;
-             int k = config.foliageRadius - 2;
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/IcePatchFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/IcePatchFeature.java
-index 17b03939edeb0a51fdaa4cb5313a9b8e0c81471e..d415263abda0505acd0af16724a3501a0e00f7bc 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/IcePatchFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/IcePatchFeature.java
-@@ -16,14 +16,19 @@ public class IcePatchFeature extends BaseDiskFeature {
-     @Override
-     public boolean place(FeaturePlaceContext<DiskConfiguration> context) {
-         WorldGenLevel worldGenLevel = context.level();
--        ChunkGenerator chunkGenerator = context.chunkGenerator();
--        Random random = context.random();
--        DiskConfiguration diskConfiguration = context.config();
-+        // Purpur start
-+        //ChunkGenerator chunkGenerator = context.chunkGenerator();
-+        this.random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureIcePatch); // Purpur
-+        //DiskConfiguration diskConfiguration = context.config();
-+        // Purpur end
- 
-         BlockPos blockPos;
-         for(blockPos = context.origin(); worldGenLevel.isEmptyBlock(blockPos) && blockPos.getY() > worldGenLevel.getMinBuildHeight() + 2; blockPos = blockPos.below()) {
-         }
- 
--        return !worldGenLevel.getBlockState(blockPos).is(Blocks.SNOW_BLOCK) ? false : super.place(new FeaturePlaceContext<>(worldGenLevel, chunkGenerator, random, blockPos, diskConfiguration));
-+        // Purpur start - lets not allocate _another_ context here...
-+        this.origin = blockPos;
-+        return !worldGenLevel.getBlockState(blockPos).is(Blocks.SNOW_BLOCK) ? false : super.place(context);
-+        // Purpur end
-     }
- }
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/IceSpikeFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/IceSpikeFeature.java
-index a580c19c4d6f00472da0a229808c5962322e5b7f..1fbf9b071e4253b860e863d3b79dfe4079e453a4 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/IceSpikeFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/IceSpikeFeature.java
-@@ -17,7 +17,7 @@ public class IceSpikeFeature extends Feature<NoneFeatureConfiguration> {
-     @Override
-     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-         BlockPos blockPos = context.origin();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureIceSpike); // Purpur
- 
-         WorldGenLevel worldGenLevel;
-         for(worldGenLevel = context.level(); worldGenLevel.isEmptyBlock(blockPos) && blockPos.getY() > worldGenLevel.getMinBuildHeight() + 2; blockPos = blockPos.below()) {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/IcebergFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/IcebergFeature.java
-index c12ce0d8e4e0e3caa7cb4a17787498a546d8bcca..0726174d6e1b4c4653ae53b25e22e36fb68f4cb3 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/IcebergFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/IcebergFeature.java
-@@ -22,7 +22,7 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
-         BlockPos blockPos = context.origin();
-         WorldGenLevel worldGenLevel = context.level();
-         blockPos = new BlockPos(blockPos.getX(), context.chunkGenerator().getSeaLevel(), blockPos.getZ());
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureIceberg); // Purpur
-         boolean bl = random.nextDouble() > 0.7D;
-         BlockState blockState = (context.config()).state;
-         double d = random.nextDouble() * 2.0D * Math.PI;
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/KelpFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/KelpFeature.java
-index ecf431bffe7da1f1a82b054213a736ad0fa17029..54a41a1536ada31402cdfe428c02492c0cc4b6fb 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/KelpFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/KelpFeature.java
-@@ -20,7 +20,7 @@ public class KelpFeature extends Feature<NoneFeatureConfiguration> {
-         int i = 0;
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureKelp); // Purpur
-         int j = worldGenLevel.getHeight(Heightmap.Types.OCEAN_FLOOR, blockPos.getX(), blockPos.getZ());
-         BlockPos blockPos2 = new BlockPos(blockPos.getX(), j, blockPos.getZ());
-         if (worldGenLevel.getBlockState(blockPos2).is(Blocks.WATER)) {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/LakeFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/LakeFeature.java
-index f3d9fc4b64089c5f406b346f92a2bcd00e98e370..5cc88872bf2eb54bb1ac04b1b837617a096b6f4f 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/LakeFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/LakeFeature.java
-@@ -25,7 +25,7 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
-     public boolean place(FeaturePlaceContext<BlockStateConfiguration> context) {
-         BlockPos blockPos = context.origin();
-         WorldGenLevel worldGenLevel = context.level();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureLake); // Purpur
- 
-         BlockStateConfiguration blockStateConfiguration;
-         for(blockStateConfiguration = context.config(); blockPos.getY() > worldGenLevel.getMinBuildHeight() + 5 && worldGenLevel.isEmptyBlock(blockPos); blockPos = blockPos.below()) {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/LargeDripstoneFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/LargeDripstoneFeature.java
-index 975e1f0fb37e1e289eba73cc6cb51adba7ba2667..523bbd94f4b83c0123873083267cf28fc64a2e33 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/LargeDripstoneFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/LargeDripstoneFeature.java
-@@ -26,7 +26,7 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration>
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
-         LargeDripstoneConfiguration largeDripstoneConfiguration = context.config();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureLargeDripstone); // Purpur
-         if (!DripstoneUtils.isEmptyOrWater(worldGenLevel, blockPos)) {
-             return false;
-         } else {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/MonsterRoomFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/MonsterRoomFeature.java
-index d36b6208077254af5f0ebed8e8ce20fd45cbb79d..d60a6e06cd5730f1efbccde71834b0f1b619b66b 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/MonsterRoomFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/MonsterRoomFeature.java
-@@ -34,7 +34,7 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
-     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-         Predicate<BlockState> predicate = Feature.isReplaceable(BlockTags.FEATURES_CANNOT_REPLACE.getName());
-         BlockPos blockPos = context.origin();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureMonsterRoom); // Purpur
-         WorldGenLevel worldGenLevel = context.level();
-         int i = 3;
-         int j = random.nextInt(2) + 2;
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/NetherForestVegetationFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/NetherForestVegetationFeature.java
-index c8af12a5989bb8d8800927c8b2d7988a5d26614c..3f90becb14be2cfd7467596da1b85ee4c8708421 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/NetherForestVegetationFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/NetherForestVegetationFeature.java
-@@ -15,7 +15,8 @@ public class NetherForestVegetationFeature extends Feature<BlockPileConfiguratio
- 
-     @Override
-     public boolean place(FeaturePlaceContext<BlockPileConfiguration> context) {
--        return place(context.level(), context.random(), context.origin(), context.config(), 8, 4);
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureNetherFortressVegetation); // Purpur
-+        return place(context.level(), random, context.origin(), context.config(), 8, 4); // Purpur
-     }
- 
-     public static boolean place(LevelAccessor world, Random random, BlockPos pos, BlockPileConfiguration config, int i, int j) {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/OreFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/OreFeature.java
-index dbe7d624aaaa8455217a5397a66ef6964a3e210f..a6f6a5481d360f8259a0fec84be7183885937d58 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/OreFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/OreFeature.java
-@@ -22,7 +22,7 @@ public class OreFeature extends Feature<OreConfiguration> {
- 
-     @Override
-     public boolean place(FeaturePlaceContext<OreConfiguration> context) {
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureOre); // Purpur
-         BlockPos blockPos = context.origin();
-         WorldGenLevel worldGenLevel = context.level();
-         OreConfiguration oreConfiguration = context.config();
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/RandomBooleanSelectorFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/RandomBooleanSelectorFeature.java
-index e7c0f1ae6b526e0f22bc9f9abc59e1dccc3cc063..b7fee9c4a5a3dc22e4a095d2d07b64252a83a608 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/RandomBooleanSelectorFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/RandomBooleanSelectorFeature.java
-@@ -14,7 +14,7 @@ public class RandomBooleanSelectorFeature extends Feature<RandomBooleanFeatureCo
- 
-     @Override
-     public boolean place(FeaturePlaceContext<RandomBooleanFeatureConfiguration> context) {
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureRandomBooleanSelector); // Purpur
-         RandomBooleanFeatureConfiguration randomBooleanFeatureConfiguration = context.config();
-         WorldGenLevel worldGenLevel = context.level();
-         ChunkGenerator chunkGenerator = context.chunkGenerator();
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/RandomPatchFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/RandomPatchFeature.java
-index 8dfa0a29fdf9977d9b6dd062821effd7fba47719..22d99ef44b9dc6c0fb095ea32afb552410e59962 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/RandomPatchFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/RandomPatchFeature.java
-@@ -17,7 +17,7 @@ public class RandomPatchFeature extends Feature<RandomPatchConfiguration> {
-     @Override
-     public boolean place(FeaturePlaceContext<RandomPatchConfiguration> context) {
-         RandomPatchConfiguration randomPatchConfiguration = context.config();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureRandomPatch); // Purpur
-         BlockPos blockPos = context.origin();
-         WorldGenLevel worldGenLevel = context.level();
-         BlockState blockState = randomPatchConfiguration.stateProvider.getState(random, blockPos);
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/RandomSelectorFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/RandomSelectorFeature.java
-index 3188de86c094f2c820e8dad3086df37f867add34..bcfd697bda3521722576e4b1fcc327971820b5e7 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/RandomSelectorFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/RandomSelectorFeature.java
-@@ -15,7 +15,7 @@ public class RandomSelectorFeature extends Feature<RandomFeatureConfiguration> {
-     @Override
-     public boolean place(FeaturePlaceContext<RandomFeatureConfiguration> context) {
-         RandomFeatureConfiguration randomFeatureConfiguration = context.config();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureRandomSelector); // Purpur
-         WorldGenLevel worldGenLevel = context.level();
-         ChunkGenerator chunkGenerator = context.chunkGenerator();
-         BlockPos blockPos = context.origin();
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/ReplaceBlobsFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/ReplaceBlobsFeature.java
-index efc970a27c556c3b8da6727ffdfda71c90f12556..6634bc093a3308d3b9bd491456ac115062fba2e4 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/ReplaceBlobsFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/ReplaceBlobsFeature.java
-@@ -20,7 +20,7 @@ public class ReplaceBlobsFeature extends Feature<ReplaceSphereConfiguration> {
-     public boolean place(FeaturePlaceContext<ReplaceSphereConfiguration> context) {
-         ReplaceSphereConfiguration replaceSphereConfiguration = context.config();
-         WorldGenLevel worldGenLevel = context.level();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureNetherrackReplaceBlobs); // Purpur
-         Block block = replaceSphereConfiguration.targetState.getBlock();
-         BlockPos blockPos = findTarget(worldGenLevel, context.origin().mutable().clamp(Direction.Axis.Y, worldGenLevel.getMinBuildHeight() + 1, worldGenLevel.getMaxBuildHeight() - 1), block);
-         if (blockPos == null) {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/ReplaceBlockFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/ReplaceBlockFeature.java
-index 72ed95adc043ba78979ba0518d975ff57b35d5e1..513ac0f8a98ae6e1ad6e554c2dd3b16888cb9b68 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/ReplaceBlockFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/ReplaceBlockFeature.java
-@@ -16,9 +16,10 @@ public class ReplaceBlockFeature extends Feature<ReplaceBlockConfiguration> {
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
-         ReplaceBlockConfiguration replaceBlockConfiguration = context.config();
-+        java.util.Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureReplaceSingleBlock); // Purpur
- 
-         for(OreConfiguration.TargetBlockState targetBlockState : replaceBlockConfiguration.targetStates) {
--            if (targetBlockState.target.test(worldGenLevel.getBlockState(blockPos), context.random())) {
-+            if (targetBlockState.target.test(worldGenLevel.getBlockState(blockPos), random)) { // Purpur
-                 worldGenLevel.setBlock(blockPos, targetBlockState.state, 2);
-                 break;
-             }
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/RootSystemFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/RootSystemFeature.java
-index 0ca15ac28c198e96ac21208e3c6bd46377df9b3b..a0c0bd2a5173e6629aa1422efb5be79881acf440 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/RootSystemFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/RootSystemFeature.java
-@@ -26,7 +26,7 @@ public class RootSystemFeature extends Feature<RootSystemConfiguration> {
-         if (!worldGenLevel.getBlockState(blockPos).isAir()) {
-             return false;
-         } else {
--            Random random = context.random();
-+            Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureRootSystem); // Purpur
-             BlockPos blockPos2 = context.origin();
-             RootSystemConfiguration rootSystemConfiguration = context.config();
-             BlockPos.MutableBlockPos mutableBlockPos = blockPos2.mutable();
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/ScatteredOreFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/ScatteredOreFeature.java
-index eb4abeee4009c8f271c51f6c711c03b7a7360937..eb8af78c3fa6bfd960644b419c4500bd37f9a8d4 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/ScatteredOreFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/ScatteredOreFeature.java
-@@ -17,7 +17,7 @@ public class ScatteredOreFeature extends Feature<OreConfiguration> {
-     @Override
-     public boolean place(FeaturePlaceContext<OreConfiguration> context) {
-         WorldGenLevel worldGenLevel = context.level();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureScatteredOre); // Purpur
-         OreConfiguration oreConfiguration = context.config();
-         BlockPos blockPos = context.origin();
-         int i = random.nextInt(oreConfiguration.size + 1);
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/SeaPickleFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/SeaPickleFeature.java
-index 5b1dd00cf379e07ac8770ab7b7ceb20a377fd586..415297785c83835333aef1da552cd510f2c8e4f7 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/SeaPickleFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/SeaPickleFeature.java
-@@ -18,7 +18,7 @@ public class SeaPickleFeature extends Feature<CountConfiguration> {
-     @Override
-     public boolean place(FeaturePlaceContext<CountConfiguration> context) {
-         int i = 0;
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureSeaPickle); // Purpur
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
-         int j = context.config().count().sample(random);
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/SeagrassFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/SeagrassFeature.java
-index fc5a9fba1ecfa8850d31ba68e92c537e65dbed78..f913486542f0ca35cd36eb19f25918505dd2e70a 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/SeagrassFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/SeagrassFeature.java
-@@ -19,7 +19,7 @@ public class SeagrassFeature extends Feature<ProbabilityFeatureConfiguration> {
-     @Override
-     public boolean place(FeaturePlaceContext<ProbabilityFeatureConfiguration> context) {
-         boolean bl = false;
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureSeagrass); // Purpur
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
-         ProbabilityFeatureConfiguration probabilityFeatureConfiguration = context.config();
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/SimpleBlockFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/SimpleBlockFeature.java
-index 1aaa0d7b73e7b89202b3cedd284c3b739d1e3091..7bcde212bc61d6c883b443f97b4a5ae4d3990f39 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/SimpleBlockFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/SimpleBlockFeature.java
-@@ -17,8 +17,9 @@ public class SimpleBlockFeature extends Feature<SimpleBlockConfiguration> {
-         SimpleBlockConfiguration simpleBlockConfiguration = context.config();
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
-+        java.util.Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureSimpleBlock); // Purpur
-         if ((simpleBlockConfiguration.placeOn.isEmpty() || simpleBlockConfiguration.placeOn.contains(worldGenLevel.getBlockState(blockPos.below()))) && (simpleBlockConfiguration.placeIn.isEmpty() || simpleBlockConfiguration.placeIn.contains(worldGenLevel.getBlockState(blockPos))) && (simpleBlockConfiguration.placeUnder.isEmpty() || simpleBlockConfiguration.placeUnder.contains(worldGenLevel.getBlockState(blockPos.above())))) {
--            BlockState blockState = simpleBlockConfiguration.toPlace.getState(context.random(), blockPos);
-+            BlockState blockState = simpleBlockConfiguration.toPlace.getState(random, blockPos); // Purpur
-             if (blockState.canSurvive(worldGenLevel, blockPos)) {
-                 if (blockState.getBlock() instanceof DoublePlantBlock) {
-                     if (!worldGenLevel.isEmptyBlock(blockPos.above())) {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/SimpleRandomSelectorFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/SimpleRandomSelectorFeature.java
-index 51ddafe889ebd3a78eaa31c8f32db4b2931f5a20..60eae6fb250840e689172fb639d79670c501b7bc 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/SimpleRandomSelectorFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/SimpleRandomSelectorFeature.java
-@@ -14,7 +14,7 @@ public class SimpleRandomSelectorFeature extends Feature<SimpleRandomFeatureConf
- 
-     @Override
-     public boolean place(FeaturePlaceContext<SimpleRandomFeatureConfiguration> context) {
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureSimpleRandomSelector); // Purpur
-         SimpleRandomFeatureConfiguration simpleRandomFeatureConfiguration = context.config();
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/SmallDripstoneFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/SmallDripstoneFeature.java
-index 7fe7009538b392ccb7547d0268ac8a1a6f682270..eb8bda1c3f73c3c2727ab893daa8b00008b1c117 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/SmallDripstoneFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/SmallDripstoneFeature.java
-@@ -18,7 +18,7 @@ public class SmallDripstoneFeature extends Feature<SmallDripstoneConfiguration>
-     public boolean place(FeaturePlaceContext<SmallDripstoneConfiguration> context) {
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureSmallDripstone); // Purpur
-         SmallDripstoneConfiguration smallDripstoneConfiguration = context.config();
-         if (!DripstoneUtils.isEmptyOrWater(worldGenLevel, blockPos)) {
-             return false;
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/SpikeFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/SpikeFeature.java
-index c03bf5bdb67b00c75f9fcfead882c4d944282244..5ad051dd62968fb861a4ed2ad5426d6429184173 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/SpikeFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/SpikeFeature.java
-@@ -36,7 +36,8 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
-     }
- 
-     public static List<SpikeFeature.EndSpike> getSpikesForLevel(WorldGenLevel world) {
--        Random random = new Random(world.getSeed());
-+        int seed = net.pl3x.purpur.PurpurConfig.seedFeatureEndSpike; // Purpur
-+        Random random = new Random(seed == -1 ? world.getSeed() : seed); // Purpur
-         long l = random.nextLong() & 65535L;
-         return SPIKE_CACHE.getUnchecked(l);
-     }
-@@ -45,7 +46,7 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
-     public boolean place(FeaturePlaceContext<SpikeConfiguration> context) {
-         SpikeConfiguration spikeConfiguration = context.config();
-         WorldGenLevel worldGenLevel = context.level();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureEndSpike); // Purpur
-         BlockPos blockPos = context.origin();
-         List<SpikeFeature.EndSpike> list = spikeConfiguration.getSpikes();
-         if (list.isEmpty()) {
 diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/TreeFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/TreeFeature.java
-index 0be9ce0734e3ba72893a7349bb9f83a94f4af30c..ba36676977cc3665a4ea20c556133d4faf06af3e 100644
+index 0be9ce0734e3ba72893a7349bb9f83a94f4af30c..f1a04ef36ee5e898529e99d98905b74607a16177 100644
 --- a/src/main/java/net/minecraft/world/level/levelgen/feature/TreeFeature.java
 +++ b/src/main/java/net/minecraft/world/level/levelgen/feature/TreeFeature.java
-@@ -76,6 +76,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
-     }
- 
-     private boolean doPlace(WorldGenLevel world, Random random, BlockPos pos, BiConsumer<BlockPos, BlockState> trunkReplacer, BiConsumer<BlockPos, BlockState> foliageReplacer, TreeConfiguration config) {
-+        random = getRnd(random, net.pl3x.purpur.PurpurConfig.seedFeatureTree); // Purpur
-         int i = config.trunkPlacer.getTreeHeight(random);
-         int j = config.foliagePlacer.foliageHeight(random, i, config);
-         int k = i - j;
-@@ -88,8 +89,9 @@ public class TreeFeature extends Feature<TreeConfiguration> {
-                 int m = this.getMaxFreeTreeHeight(world, i, pos, config);
-                 if (m >= i || optionalInt.isPresent() && m >= optionalInt.getAsInt()) {
-                     List<FoliagePlacer.FoliageAttachment> list = config.trunkPlacer.placeTrunk(world, trunkReplacer, random, m, pos, config);
-+                    final Random finalrandom = random; // Purpur
-                     list.forEach((foliageAttachment) -> {
--                        config.foliagePlacer.createFoliage(world, foliageReplacer, random, config, m, foliageAttachment, j, l);
-+                        config.foliagePlacer.createFoliage(world, foliageReplacer, finalrandom, config, m, foliageAttachment, j, l); // Purpur
-                     });
-                     return true;
-                 } else {
-@@ -147,7 +149,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
+@@ -147,7 +147,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
              worldGenLevel.setBlock(pos, state, 19);
          };
          boolean bl = this.doPlace(worldGenLevel, random, blockPos, biConsumer, biConsumer2, treeConfiguration);
@@ -14901,86 +14231,6 @@ index 0be9ce0734e3ba72893a7349bb9f83a94f4af30c..ba36676977cc3665a4ea20c556133d4f
              if (!treeConfiguration.decorators.isEmpty()) {
                  List<BlockPos> list = Lists.newArrayList(set);
                  List<BlockPos> list2 = Lists.newArrayList(set2);
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/TwistingVinesFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/TwistingVinesFeature.java
-index c4d51a31343b92f62742506d7add2154a0b23015..799127f0bb1a91d640af6f542dbe304428a99092 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/TwistingVinesFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/TwistingVinesFeature.java
-@@ -18,7 +18,8 @@ public class TwistingVinesFeature extends Feature<NoneFeatureConfiguration> {
- 
-     @Override
-     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
--        return place(context.level(), context.random(), context.origin(), 8, 4, 8);
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureTwistingVines); // Purpur
-+        return place(context.level(), random, context.origin(), 8, 4, 8); // Purpur
-     }
- 
-     public static boolean place(LevelAccessor world, Random random, BlockPos pos, int horizontalSpread, int verticalSpread, int length) {
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/UnderwaterMagmaFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/UnderwaterMagmaFeature.java
-index bd5466e532dc0f1b5a1df3bff3144d0bf7ff25f3..661680aa501dd57a228b7c4447969223592c88a8 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/UnderwaterMagmaFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/UnderwaterMagmaFeature.java
-@@ -26,7 +26,7 @@ public class UnderwaterMagmaFeature extends Feature<UnderwaterMagmaConfiguration
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
-         UnderwaterMagmaConfiguration underwaterMagmaConfiguration = context.config();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureUnderwaterMagma); // Purpur
-         OptionalInt optionalInt = getFloorY(worldGenLevel, blockPos, underwaterMagmaConfiguration);
-         if (!optionalInt.isPresent()) {
-             return false;
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/VegetationPatchFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/VegetationPatchFeature.java
-index 62165c0f5d1eba8c2734356bec33998d9dadbd1b..d9b1d92e1bb0123d9f7847a79ed5aa71ce7054d8 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/VegetationPatchFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/VegetationPatchFeature.java
-@@ -23,9 +23,15 @@ public class VegetationPatchFeature extends Feature<VegetationPatchConfiguration
- 
-     @Override
-     public boolean place(FeaturePlaceContext<VegetationPatchConfiguration> context) {
-+        // Purpur start
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureVegetationPatch);
-+        return place0(context, random);
-+    }
-+    protected boolean place0(FeaturePlaceContext<VegetationPatchConfiguration> context, Random random) {
-+        // Purpur end
-         WorldGenLevel worldGenLevel = context.level();
-         VegetationPatchConfiguration vegetationPatchConfiguration = context.config();
--        Random random = context.random();
-+        //Random random = context.random(); // Purpur
-         BlockPos blockPos = context.origin();
-         Predicate<BlockState> predicate = getReplaceableTag(vegetationPatchConfiguration);
-         int i = vegetationPatchConfiguration.xzRadius.sample(random) + 1;
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/WaterloggedVegetationPatchFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/WaterloggedVegetationPatchFeature.java
-index 62506ae3a49b0507d2d492da3a9baf96fea64a25..565e74a8314357a8e6e1a89c830011868d28c2a2 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/WaterloggedVegetationPatchFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/WaterloggedVegetationPatchFeature.java
-@@ -19,6 +19,14 @@ public class WaterloggedVegetationPatchFeature extends VegetationPatchFeature {
-         super(configCodec);
-     }
- 
-+    // Purpur start
-+    @Override
-+    public boolean place(FeaturePlaceContext<VegetationPatchConfiguration> context) {
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureWaterloggedVegetationPatch); // Purpur
-+        return place0(context, random);
-+    }
-+    // Purpur end
-+
-     @Override
-     protected Set<BlockPos> placeGroundPatch(WorldGenLevel world, VegetationPatchConfiguration config, Random random, BlockPos pos, Predicate<BlockState> replaceable, int radiusX, int radiusZ) {
-         Set<BlockPos> set = super.placeGroundPatch(world, config, random, pos, replaceable, radiusX, radiusZ);
-diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/WeepingVinesFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/WeepingVinesFeature.java
-index ed3944a60d09495eb424dd11d00e8c3585177d51..fcf25cc905ece0213a0eb6365a0a57566ad29c9c 100644
---- a/src/main/java/net/minecraft/world/level/levelgen/feature/WeepingVinesFeature.java
-+++ b/src/main/java/net/minecraft/world/level/levelgen/feature/WeepingVinesFeature.java
-@@ -23,7 +23,7 @@ public class WeepingVinesFeature extends Feature<NoneFeatureConfiguration> {
-     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-         WorldGenLevel worldGenLevel = context.level();
-         BlockPos blockPos = context.origin();
--        Random random = context.random();
-+        Random random = getRnd(context.random(), net.pl3x.purpur.PurpurConfig.seedFeatureWeepingVines); // Purpur
-         if (!worldGenLevel.isEmptyBlock(blockPos)) {
-             return false;
-         } else {
 diff --git a/src/main/java/net/minecraft/world/level/levelgen/surfacebuilders/NetherCappedSurfaceBuilder.java b/src/main/java/net/minecraft/world/level/levelgen/surfacebuilders/NetherCappedSurfaceBuilder.java
 index cdfbdb411eacf5f8c6ced2dbc5789e0d49b93e1f..e4013f241a5e9aeb334dadde8b55c7e6ca32233c 100644
 --- a/src/main/java/net/minecraft/world/level/levelgen/surfacebuilders/NetherCappedSurfaceBuilder.java
@@ -15117,10 +14367,10 @@ index 68cc6f2a78a06293a29317fda72ab3ee79b3533a..cfb2e46b34b2982d6724f18214557fc8
  }
 diff --git a/src/main/java/net/pl3x/purpur/PurpurConfig.java b/src/main/java/net/pl3x/purpur/PurpurConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..54215cfbef7b5517151f02976be4a92b1c97b188
+index 0000000000000000000000000000000000000000..15963a7d4d721f3a8b665c1917cd5f2860814a62
 --- /dev/null
 +++ b/src/main/java/net/pl3x/purpur/PurpurConfig.java
-@@ -0,0 +1,500 @@
+@@ -0,0 +1,399 @@
 +package net.pl3x.purpur;
 +
 +import co.aikar.timings.TimingsManager;
@@ -15184,8 +14434,8 @@ index 0000000000000000000000000000000000000000..54215cfbef7b5517151f02976be4a92b
 +        commands = new HashMap<>();
 +        commands.put("purpur", new PurpurCommand("purpur"));
 +
-+        version = getInt("config-version", 19);
-+        set("config-version", 19);
++        version = getInt("config-version", 22);
++        set("config-version", 22);
 +
 +        readConfig(PurpurConfig.class, null);
 +    }
@@ -15321,127 +14571,10 @@ index 0000000000000000000000000000000000000000..54215cfbef7b5517151f02976be4a92b
 +        deathMessageOnlyBroadcastToAffectedPlayer = getBoolean("settings.broadcasts.death.only-broadcast-to-affected-player", deathMessageOnlyBroadcastToAffectedPlayer);
 +    }
 +
-+    public static int seedFeatureBamboo = -1;
-+    public static int seedFeatureBasaltColumns = -1;
-+    public static int seedFeatureBasaltPillar = -1;
-+    public static int seedFeatureBlockPile = -1;
-+    public static int seedFeatureBlueIce = -1;
-+    public static int seedFeatureBonusChest = -1;
-+    public static int seedFeatureChorusPlant = -1;
-+    public static int seedFeatureCoralClaw = -1;
-+    public static int seedFeatureCoralMushroom = -1;
-+    public static int seedFeatureCoralTree = -1;
-+    public static int seedFeatureDecorated = -1;
-+    public static int seedFeatureDeltaFeature = -1;
-+    public static int seedFeatureDisk = -1;
-+    public static int seedFeatureDripstoneCluster = -1;
-+    public static int seedFeatureEndIsland = -1;
-+    public static int seedFeatureEndSpike = -1;
-+    public static int seedFeatureFlower = -1;
-+    public static int seedFeatureForestRock = -1;
-+    public static int seedFeatureFossil = -1;
-+    public static int seedFeatureGeode = -1;
-+    public static int seedFeatureGlowLichen = -1;
-+    public static int seedFeatureGlowstoneBlob = -1;
-+    public static int seedFeatureGrowingPlant = -1;
-+    public static int seedFeatureHugeBrownMushroom = -1;
-+    public static int seedFeatureHugeFungus = -1;
-+    public static int seedFeatureHugeRedMushroom = -1;
-+    public static int seedFeatureIcePatch = -1;
-+    public static int seedFeatureIceSpike = -1;
-+    public static int seedFeatureIceberg = -1;
-+    public static int seedFeatureKelp = -1;
-+    public static int seedFeatureLake = -1;
-+    public static int seedFeatureLargeDripstone = -1;
-+    public static int seedFeatureMonsterRoom = -1;
-+    public static int seedFeatureNetherFortressVegetation = -1;
-+    public static int seedFeatureNetherrackReplaceBlobs = -1;
-+    public static int seedFeatureOre = -1;
-+    public static int seedFeatureRandomBooleanSelector = -1;
-+    public static int seedFeatureRandomPatch = -1;
-+    public static int seedFeatureRandomSelector = -1;
-+    public static int seedFeatureReplaceSingleBlock = -1;
-+    public static int seedFeatureRootSystem = -1;
-+    public static int seedFeatureScatteredOre = -1;
-+    public static int seedFeatureSeaPickle = -1;
-+    public static int seedFeatureSeagrass = -1;
-+    public static int seedFeatureSimpleBlock = -1;
-+    public static int seedFeatureSimpleRandomSelector = -1;
-+    public static int seedFeatureSmallDripstone = -1;
-+    public static int seedFeatureTree = -1;
-+    public static int seedFeatureTwistingVines = -1;
-+    public static int seedFeatureUnderwaterMagma = -1;
-+    public static int seedFeatureVegetationPatch = -1;
-+    public static int seedFeatureWaterloggedVegetationPatch = -1;
-+    public static int seedFeatureWeepingVines = -1;
 +    public static int seedStructureBuriedTreasure = -1;
 +    public static int seedStructureMineshaft = -1;
 +    public static int seedStructureStronghold = -1;
 +    private static void seedSettings() {
-+        if (version < 14) {
-+            int oldValue = getInt("settings.seed.dungeon", -1);
-+            set("settings.seed.feature.monster_room", oldValue);
-+            set("settings.seed.dungeon", null);
-+            oldValue = getInt("settings.seed.end-spike", -1);
-+            set("settings.seed.feature.end_spike", oldValue);
-+            set("settings.seed.end-spike", null);
-+            oldValue = getInt("settings.seed.geode", -1);
-+            set("settings.seed.feature.geode", oldValue);
-+            set("settings.seed.geode", null);
-+        }
-+        seedFeatureBamboo = getInt("settings.seed.feature.bamboo", seedFeatureBamboo);
-+        seedFeatureBasaltColumns = getInt("settings.seed.feature.basalt_columns", seedFeatureBasaltColumns);
-+        seedFeatureBasaltPillar = getInt("settings.seed.feature.basalt_pillar", seedFeatureBasaltPillar);
-+        seedFeatureBlockPile = getInt("settings.seed.feature.block_pile", seedFeatureBlockPile);
-+        seedFeatureBlueIce = getInt("settings.seed.feature.blue_ice", seedFeatureBlueIce);
-+        seedFeatureBonusChest = getInt("settings.seed.feature.bonus_chest", seedFeatureBonusChest);
-+        seedFeatureChorusPlant = getInt("settings.seed.feature.chorus_plant", seedFeatureChorusPlant);
-+        seedFeatureCoralClaw = getInt("settings.seed.feature.coral_claw", seedFeatureCoralClaw);
-+        seedFeatureCoralMushroom = getInt("settings.seed.feature.coral_mushroom", seedFeatureCoralMushroom);
-+        seedFeatureCoralTree = getInt("settings.seed.feature.coral_tree", seedFeatureCoralTree);
-+        seedFeatureDecorated = getInt("settings.seed.feature.decorated", seedFeatureDecorated);
-+        seedFeatureDeltaFeature = getInt("settings.seed.feature.delta_feature", seedFeatureDeltaFeature);
-+        seedFeatureDisk = getInt("settings.seed.feature.disk", seedFeatureDisk);
-+        seedFeatureDripstoneCluster = getInt("settings.seed.feature.dripstone_cluster", seedFeatureDripstoneCluster);
-+        seedFeatureEndIsland = getInt("settings.seed.feature.end_island", seedFeatureEndIsland);
-+        seedFeatureEndSpike = getInt("settings.seed.feature.end_spike", seedFeatureEndSpike);
-+        seedFeatureFlower = getInt("settings.seed.feature.flower", seedFeatureFlower);
-+        seedFeatureForestRock = getInt("settings.seed.feature.forest_rock", seedFeatureForestRock);
-+        seedFeatureFossil = getInt("settings.seed.feature.fossil", seedFeatureFossil);
-+        seedFeatureGeode = getInt("settings.seed.feature.geode", seedFeatureGeode);
-+        seedFeatureGlowLichen = getInt("settings.seed.feature.glow_lichen", seedFeatureGlowLichen);
-+        seedFeatureGlowstoneBlob = getInt("settings.seed.feature.glowstone_blob", seedFeatureGlowstoneBlob);
-+        seedFeatureGrowingPlant = getInt("settings.seed.feature.growing_plant", seedFeatureGrowingPlant);
-+        seedFeatureHugeBrownMushroom = getInt("settings.seed.feature.huge_brown_mushroom", seedFeatureHugeBrownMushroom);
-+        seedFeatureHugeFungus = getInt("settings.seed.feature.huge_fungus", seedFeatureHugeFungus);
-+        seedFeatureHugeRedMushroom = getInt("settings.seed.feature.huge_red_mushroom", seedFeatureHugeRedMushroom);
-+        seedFeatureIcePatch = getInt("settings.seed.feature.ice_patch", seedFeatureIcePatch);
-+        seedFeatureIceSpike = getInt("settings.seed.feature.ice_spike", seedFeatureIceSpike);
-+        seedFeatureIceberg = getInt("settings.seed.feature.iceberg", seedFeatureIceberg);
-+        seedFeatureKelp = getInt("settings.seed.feature.kelp", seedFeatureKelp);
-+        seedFeatureLake = getInt("settings.seed.feature.lake", seedFeatureLake);
-+        seedFeatureLargeDripstone = getInt("settings.seed.feature.large_dripstone", seedFeatureLargeDripstone);
-+        seedFeatureMonsterRoom = getInt("settings.seed.feature.monster_room", seedFeatureMonsterRoom);
-+        seedFeatureNetherFortressVegetation = getInt("settings.seed.feature.nether_forest_vegetation", seedFeatureNetherFortressVegetation);
-+        seedFeatureNetherrackReplaceBlobs = getInt("settings.seed.feature.netherrack_replace_blobs", seedFeatureNetherrackReplaceBlobs);
-+        seedFeatureOre = getInt("settings.seed.feature.ore", seedFeatureOre);
-+        seedFeatureRandomBooleanSelector = getInt("settings.seed.feature.random_boolean_selector", seedFeatureRandomBooleanSelector);
-+        seedFeatureRandomPatch = getInt("settings.seed.feature.random_patch", seedFeatureRandomPatch);
-+        seedFeatureRandomSelector = getInt("settings.seed.feature.random_selector", seedFeatureRandomSelector);
-+        seedFeatureReplaceSingleBlock = getInt("settings.seed.feature.replace_single_block", seedFeatureReplaceSingleBlock);
-+        seedFeatureRootSystem = getInt("settings.seed.feature.root_system", seedFeatureRootSystem);
-+        seedFeatureScatteredOre = getInt("settings.seed.feature.scattered_ore", seedFeatureScatteredOre);
-+        seedFeatureSeaPickle = getInt("settings.seed.feature.sea_pickle", seedFeatureSeaPickle);
-+        seedFeatureSeagrass = getInt("settings.seed.feature.seagrass", seedFeatureSeagrass);
-+        seedFeatureSimpleBlock = getInt("settings.seed.feature.simple_block", seedFeatureSimpleBlock);
-+        seedFeatureSimpleRandomSelector = getInt("settings.seed.feature.simple_random_selector", seedFeatureSimpleRandomSelector);
-+        seedFeatureSmallDripstone = getInt("settings.seed.feature.small_dripstone", seedFeatureSmallDripstone);
-+        seedFeatureTree = getInt("settings.seed.feature.tree", seedFeatureTree);
-+        seedFeatureTwistingVines = getInt("settings.seed.feature.twisting_vines", seedFeatureTwistingVines);
-+        seedFeatureUnderwaterMagma = getInt("settings.seed.feature.underwater_magma", seedFeatureUnderwaterMagma);
-+        seedFeatureVegetationPatch = getInt("settings.seed.feature.vegetation_patch", seedFeatureVegetationPatch);
-+        seedFeatureWaterloggedVegetationPatch = getInt("settings.seed.feature.waterlogged_vegetation_patch", seedFeatureWaterloggedVegetationPatch);
-+        seedFeatureWeepingVines = getInt("settings.seed.feature.weeping_vines", seedFeatureWeepingVines);
 +        seedStructureBuriedTreasure = getInt("settings.seed.structure.buried_treasure", seedStructureBuriedTreasure);
 +        seedStructureMineshaft = getInt("settings.seed.structure.mineshaft", seedStructureMineshaft);
 +        seedStructureStronghold = getInt("settings.seed.structure.stronghold", seedStructureStronghold);
@@ -15539,7 +14672,7 @@ index 0000000000000000000000000000000000000000..54215cfbef7b5517151f02976be4a92b
 +        uptimeSeconds = getString("settings.command.uptime.seconds", uptimeSeconds);
 +    }
 +
-+    public static boolean barrelSixRows = false;
++    public static int barrelRows = 3;
 +    public static boolean enderChestSixRows = false;
 +    public static boolean enderChestPermissionRows = false;
 +    public static boolean cryingObsidianValidForPortalFrame = false;
@@ -15556,8 +14689,24 @@ index 0000000000000000000000000000000000000000..54215cfbef7b5517151f02976be4a92b
 +            set("settings.blocks.ender_chest.six-rows", oldValue);
 +            set("settings.large-ender-chests", null);
 +        }
-+        barrelSixRows = getBoolean("settings.blocks.barrel.six-rows", barrelSixRows);
-+        org.bukkit.event.inventory.InventoryType.BARREL.setDefaultSize(barrelSixRows ? 54 : 27);
++        if (version < 20) {
++            boolean oldValue = getBoolean("settings.blocks.barrel.six-rows", false);
++            set("settings.blocks.barrel.rows", oldValue ? 6 : 3);
++            set("settings.blocks.barrel.six-rows", null);
++        }
++        barrelRows = getInt("settings.blocks.barrel.rows", barrelRows);
++        if (barrelRows < 1 || barrelRows > 6) {
++            Bukkit.getLogger().severe("settings.blocks.barrel.rows must be 1-6, resetting to default");
++            barrelRows = 3;
++        }
++        org.bukkit.event.inventory.InventoryType.BARREL.setDefaultSize(switch (barrelRows) {
++            case 6 -> 54;
++            case 5 -> 45;
++            case 4 -> 36;
++            case 2 -> 18;
++            case 1 -> 9;
++            default -> 27;
++        });
 +        enderChestSixRows = getBoolean("settings.blocks.ender_chest.six-rows", enderChestSixRows);
 +        org.bukkit.event.inventory.InventoryType.ENDER_CHEST.setDefaultSize(enderChestSixRows ? 54 : 27);
 +        enderChestPermissionRows = getBoolean("settings.blocks.ender_chest.use-permissions-for-rows", enderChestPermissionRows);
@@ -15694,10 +14843,10 @@ index 0000000000000000000000000000000000000000..f88da0b86a683b25d429ceea4a36d6dd
 +}
 diff --git a/src/main/java/net/pl3x/purpur/PurpurWorldConfig.java b/src/main/java/net/pl3x/purpur/PurpurWorldConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f5b7278c4
+index 0000000000000000000000000000000000000000..66cce23e9c7927d73bc9ecf038ad6c0d1f9d534d
 --- /dev/null
 +++ b/src/main/java/net/pl3x/purpur/PurpurWorldConfig.java
-@@ -0,0 +1,2546 @@
+@@ -0,0 +1,2566 @@
 +package net.pl3x.purpur;
 +
 +import net.minecraft.core.Registry;
@@ -15716,6 +14865,7 @@ index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f
 +import net.pl3x.purpur.tool.Waxable;
 +import net.pl3x.purpur.tool.Weatherable;
 +import org.apache.commons.lang.BooleanUtils;
++import org.bukkit.ChatColor;
 +import org.bukkit.World;
 +import org.bukkit.configuration.ConfigurationSection;
 +
@@ -16157,25 +15307,32 @@ index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f
 +    }
 +
 +    public boolean silkTouchEnabled = false;
-+    public String silkTouchSpawnerName = "Spawner";
++    public String silkTouchSpawnerName = "<reset><white>Spawner";
 +    public List<String> silkTouchSpawnerLore = new ArrayList<>();
 +    public List<Item> silkTouchTools = new ArrayList<>();
 +    public int minimumSilkTouchSpawnerRequire = 1;
 +    private void silkTouchSettings() {
++        if (PurpurConfig.version < 21) {
++            String oldName = getString("gameplay-mechanics.silk-touch.spawner-name", silkTouchSpawnerName);
++            set("gameplay-mechanics.silk-touch.spawner-name", "<reset>" + ChatColor.toMM(oldName.replace("{mob}", "<mob>")));
++            List<String> list = new ArrayList<>();
++            getList("gameplay-mechanics.silk-touch.spawner-lore", List.of("Spawns a <mob>"))
++                    .forEach(line -> list.add("<reset>" + ChatColor.toMM(line.toString().replace("{mob}", "<mob>"))));
++            set("gameplay-mechanics.silk-touch.spawner-lore", list);
++        }
 +        silkTouchEnabled = getBoolean("gameplay-mechanics.silk-touch.enabled", silkTouchEnabled);
 +        silkTouchSpawnerName = getString("gameplay-mechanics.silk-touch.spawner-name", silkTouchSpawnerName);
 +        minimumSilkTouchSpawnerRequire = getInt("gameplay-mechanics.silk-touch.minimal-level", minimumSilkTouchSpawnerRequire);
 +        silkTouchSpawnerLore.clear();
-+        getList("gameplay-mechanics.silk-touch.spawner-lore", new ArrayList<String>(){{
-+            add("Spawns a {mob}");
-+        }}).forEach(line -> silkTouchSpawnerLore.add(line.toString()));
++        getList("gameplay-mechanics.silk-touch.spawner-lore", List.of("Spawns a <mob>"))
++                .forEach(line -> silkTouchSpawnerLore.add(line.toString()));
 +        silkTouchTools.clear();
-+        getList("gameplay-mechanics.silk-touch.tools", new ArrayList<String>(){{
-+            add("minecraft:iron_pickaxe");
-+            add("minecraft:golden_pickaxe");
-+            add("minecraft:diamond_pickaxe");
-+            add("minecraft:netherite_pickaxe");
-+        }}).forEach(key -> {
++        getList("gameplay-mechanics.silk-touch.tools", List.of(
++            "minecraft:iron_pickaxe",
++            "minecraft:golden_pickaxe",
++            "minecraft:diamond_pickaxe",
++            "minecraft:netherite_pickaxe"
++        )).forEach(key -> {
 +            Item item = Registry.ITEM.get(new ResourceLocation(key.toString()));
 +            if (item != Items.AIR) silkTouchTools.add(item);
 +        });
@@ -16423,11 +15580,13 @@ index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f
 +    }
 +
 +    public boolean bedExplode = true;
++    public boolean bedExplodeOnVillagerSleep = false;
 +    public double bedExplosionPower = 5.0D;
 +    public boolean bedExplosionFire = true;
 +    public Explosion.BlockInteraction bedExplosionEffect = Explosion.BlockInteraction.DESTROY;
 +    private void bedSettings() {
 +        bedExplode = getBoolean("blocks.bed.explode", bedExplode);
++        bedExplodeOnVillagerSleep = getBoolean("blocks.bed.explode-on-villager-sleep", bedExplodeOnVillagerSleep);
 +        bedExplosionPower = getDouble("blocks.bed.explosion-power", bedExplosionPower);
 +        bedExplosionFire = getBoolean("blocks.bed.explosion-fire", bedExplosionFire);
 +        try {
@@ -16843,7 +16002,14 @@ index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f
 +    public double cowMaxHealth = 10.0D;
 +    public int cowFeedMushrooms = 0;
 +    public int cowBreedingTicks = 6000;
++    public double cowNaturallyAggressiveToPlayersChance = 0.0D;
++    public double cowNaturallyAggressiveToPlayersDamage = 2.0D;
 +    private void cowSettings() {
++        if (PurpurConfig.version < 22) {
++            double oldValue = getDouble("mobs.cow.naturally-aggressive-to-players-chance", cowNaturallyAggressiveToPlayersChance);
++            set("mobs.cow.naturally-aggressive-to-players-chance", null);
++            set("mobs.cow.naturally-aggressive-to-players.chance", oldValue);
++        }
 +        cowRidable = getBoolean("mobs.cow.ridable", cowRidable);
 +        cowRidableInWater = getBoolean("mobs.cow.ridable-in-water", cowRidableInWater);
 +        if (PurpurConfig.version < 10) {
@@ -16854,6 +16020,8 @@ index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f
 +        cowMaxHealth = getDouble("mobs.cow.attributes.max_health", cowMaxHealth);
 +        cowFeedMushrooms = getInt("mobs.cow.feed-mushrooms-for-mooshroom", cowFeedMushrooms);
 +        cowBreedingTicks = getInt("mobs.cow.breeding-delay-ticks", cowBreedingTicks);
++        cowNaturallyAggressiveToPlayersChance = getDouble("mobs.cow.naturally-aggressive-to-players.chance", cowNaturallyAggressiveToPlayersChance);
++        cowNaturallyAggressiveToPlayersDamage = getDouble("mobs.cow.naturally-aggressive-to-players.damage", cowNaturallyAggressiveToPlayersDamage);
 +    }
 +
 +    public boolean creeperRidable = false;
@@ -16886,6 +16054,7 @@ index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f
 +    public float dolphinSpitDamage = 2.0F;
 +    public double dolphinMaxHealth = 10.0D;
 +    public boolean dolphinDisableTreasureSearching = false;
++    public double dolphinNaturallyAggressiveToPlayersChance = 0.0D;
 +    private void dolphinSettings() {
 +        dolphinRidable = getBoolean("mobs.dolphin.ridable", dolphinRidable);
 +        dolphinSpitCooldown = getInt("mobs.dolphin.spit.cooldown", dolphinSpitCooldown);
@@ -16898,6 +16067,7 @@ index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f
 +        }
 +        dolphinMaxHealth = getDouble("mobs.dolphin.attributes.max_health", dolphinMaxHealth);
 +        dolphinDisableTreasureSearching = getBoolean("mobs.dolphin.disable-treasure-searching", dolphinDisableTreasureSearching);
++        dolphinNaturallyAggressiveToPlayersChance = getDouble("mobs.dolphin.naturally-aggressive-to-players-chance", dolphinNaturallyAggressiveToPlayersChance);
 +    }
 +
 +    public boolean donkeyRidableInWater = false;
@@ -17177,6 +16347,7 @@ index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f
 +    public double horseMovementSpeedMax = 0.3375D;
 +    public int horseBreedingTicks = 6000;
 +    public boolean horseStandWithRider = true;
++    public boolean horseTemptedByGold = false;
 +    private void horseSettings() {
 +        horseRidableInWater = getBoolean("mobs.horse.ridable-in-water", horseRidableInWater);
 +        if (PurpurConfig.version < 10) {
@@ -17194,6 +16365,7 @@ index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f
 +        horseMovementSpeedMax = getDouble("mobs.horse.attributes.movement_speed.max", horseMovementSpeedMax);
 +        horseBreedingTicks = getInt("mobs.horse.breeding-delay-ticks", horseBreedingTicks);
 +        horseStandWithRider = getBoolean("mobs.horse.stand-with-rider", horseStandWithRider);
++        horseTemptedByGold = getBoolean("mobs.horse.tempted-by-gold", horseTemptedByGold);
 +    }
 +
 +    public boolean huskRidable = false;
@@ -17268,6 +16440,7 @@ index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f
 +    public double llamaMovementSpeedMax = 0.175D;
 +    public int llamaBreedingTicks = 6000;
 +    public boolean llamaJoinCaravans = true;
++    public boolean llamaTemptedByHay = false;
 +    private void llamaSettings() {
 +        llamaRidable = getBoolean("mobs.llama.ridable", llamaRidable);
 +        llamaRidableInWater = getBoolean("mobs.llama.ridable-in-water", llamaRidableInWater);
@@ -17286,6 +16459,7 @@ index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f
 +        llamaMovementSpeedMax = getDouble("mobs.llama.attributes.movement_speed.max", llamaMovementSpeedMax);
 +        llamaBreedingTicks = getInt("mobs.llama.breeding-delay-ticks", llamaBreedingTicks);
 +        llamaJoinCaravans = getBoolean("mobs.llama.join-caravans", llamaJoinCaravans);
++        llamaTemptedByHay = getBoolean("mobs.llama.tempted-by-hay", llamaTemptedByHay);
 +    }
 +
 +    public boolean magmaCubeRidable = false;
@@ -18202,11 +17376,6 @@ index 0000000000000000000000000000000000000000..258bd55eb334d1e841e7ecbf77da985f
 +        zombifiedPiglinJockeyChance = getDouble("mobs.zombified_piglin.jockey.chance", zombifiedPiglinJockeyChance);
 +        zombifiedPiglinJockeyTryExistingChickens = getBoolean("mobs.zombified_piglin.jockey.try-existing-chickens", zombifiedPiglinJockeyTryExistingChickens);
 +        zombifiedPiglinCountAsPlayerKillWhenAngry = getBoolean("mobs.zombified_piglin.count-as-player-kill-when-angry", zombifiedPiglinCountAsPlayerKillWhenAngry);
-+    }
-+
-+    public boolean randomPopulatorSeed = false;
-+    private void seedSettings() {
-+        randomPopulatorSeed = getBoolean("seed.random-populator-seed", randomPopulatorSeed);
 +    }
 +
 +    public float hungerStarvationDamage = 1.0F;
@@ -20058,18 +19227,9 @@ index b20bfe5ab165bf86985e5ff2f93f415d9710e0e4..830d3163990002c7c1ba0a5a63531fa1
 +    // Purpur end - OfflinePlayer API
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index fe1b046f707ee145327475b7f923928f4dfcad05..7f3422ef8a26dc0453560d08957019cce2ca633f 100644
+index 28fa8e5c0d1e78d57d9cfb5ea2998740b8d700dc..80dd0e4003ef6e6dff19ed85b6374f8c38c93a88 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -246,7 +246,7 @@ import javax.annotation.Nullable; // Paper
- import javax.annotation.Nonnull; // Paper
- 
- public final class CraftServer implements Server {
--    private final String serverName = "Airplane"; // Paper // Airplane
-+    private final String serverName = "AirplanePurpur"; // Paper // Airplane
-     private final String serverVersion;
-     private final String bukkitVersion = Versioning.getBukkitVersion();
-     private final Logger logger = Logger.getLogger("Minecraft");
 @@ -284,7 +284,7 @@ public final class CraftServer implements Server {
      public int reloadCount;
      private final io.papermc.paper.datapack.PaperDatapackManager datapackManager; // Paper
@@ -20103,7 +19263,7 @@ index fe1b046f707ee145327475b7f923928f4dfcad05..7f3422ef8a26dc0453560d08957019cc
          this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
          this.ignoreVanillaPermissions = this.commandsConfiguration.getBoolean("ignore-vanilla-permissions");
  
-@@ -1381,6 +1384,19 @@ public final class CraftServer implements Server {
+@@ -1377,6 +1380,19 @@ public final class CraftServer implements Server {
          return true;
      }
  
@@ -20123,7 +19283,7 @@ index fe1b046f707ee145327475b7f923928f4dfcad05..7f3422ef8a26dc0453560d08957019cc
      @Override
      public List<Recipe> getRecipesFor(ItemStack result) {
          Validate.notNull(result, "Result cannot be null");
-@@ -2472,6 +2488,7 @@ public final class CraftServer implements Server {
+@@ -2468,6 +2484,7 @@ public final class CraftServer implements Server {
      @Override
      public double[] getTPS() {
          return new double[] {
@@ -20131,7 +19291,7 @@ index fe1b046f707ee145327475b7f923928f4dfcad05..7f3422ef8a26dc0453560d08957019cc
                  net.minecraft.server.MinecraftServer.getServer().tps1.getAverage(),
                  net.minecraft.server.MinecraftServer.getServer().tps5.getAverage(),
                  net.minecraft.server.MinecraftServer.getServer().tps15.getAverage()
-@@ -2518,6 +2535,18 @@ public final class CraftServer implements Server {
+@@ -2514,6 +2531,18 @@ public final class CraftServer implements Server {
              return com.destroystokyo.paper.PaperConfig.config;
          }
  
@@ -20150,7 +19310,7 @@ index fe1b046f707ee145327475b7f923928f4dfcad05..7f3422ef8a26dc0453560d08957019cc
          @Override
          public void restart() {
              org.spigotmc.RestartCommand.restart();
-@@ -2672,4 +2701,16 @@ public final class CraftServer implements Server {
+@@ -2668,4 +2697,16 @@ public final class CraftServer implements Server {
      }
  
      // Paper end
@@ -20556,7 +19716,7 @@ index 2386edf499cb292241f6ba60c1cdb46f2fe704ff..2f87513408972b7eed7fd0f3f94ac979
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 8c8698f6e17562651fe790dc19825e428d5d0352..53ec1f1725a8b7bff4d93f4d1d6a7344818799f0 100644
+index 1ccbdd2554073a41ca2f37deca3f1ec3e6a0665f..010c5ea04ae1ff2c21e40857b9f8932fb4a45f62 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -25,6 +25,8 @@ import java.util.WeakHashMap;
@@ -20585,7 +19745,7 @@ index 8c8698f6e17562651fe790dc19825e428d5d0352..53ec1f1725a8b7bff4d93f4d1d6a7344
          for (ServerPlayer player : (List<ServerPlayer>) server.getHandle().players) {
              if (player.getBukkitEntity().canSee(this)) {
                  player.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.UPDATE_DISPLAY_NAME, this.getHandle()));
-@@ -1003,6 +1010,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1004,6 +1011,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
          }
  
          if (entity.isVehicle()) {
@@ -20596,7 +19756,7 @@ index 8c8698f6e17562651fe790dc19825e428d5d0352..53ec1f1725a8b7bff4d93f4d1d6a7344
              return false;
          }
  
-@@ -1564,7 +1575,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1565,7 +1576,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
  
      @Override
      public boolean canSee(Player player) {
@@ -20611,7 +19771,7 @@ index 8c8698f6e17562651fe790dc19825e428d5d0352..53ec1f1725a8b7bff4d93f4d1d6a7344
      }
  
      @Override
-@@ -1735,11 +1752,23 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1736,11 +1753,23 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
  
      @Override
      public void setResourcePack(String url, byte[] hash) {
@@ -20636,7 +19796,7 @@ index 8c8698f6e17562651fe790dc19825e428d5d0352..53ec1f1725a8b7bff4d93f4d1d6a7344
      }
  
      public void addChannel(String channel) {
-@@ -1896,6 +1925,28 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1897,6 +1926,28 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
          return this.getHandle().getAbilities().walkingSpeed * 2f;
      }
  
@@ -20665,7 +19825,7 @@ index 8c8698f6e17562651fe790dc19825e428d5d0352..53ec1f1725a8b7bff4d93f4d1d6a7344
      private void validateSpeed(float value) {
          if (value < 0) {
              if (value < -1f) {
-@@ -2549,4 +2600,50 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -2550,4 +2601,50 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
          return this.spigot;
      }
      // Spigot end
@@ -20782,7 +19942,7 @@ index f856b42201c17f8da21251e54fcf052336916e70..ac0803d42be2f36a2f40487ee31413d0
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
-index 31bbf018e3b7cafb1e186c7d00b421fb133331a3..b5e873f8693442f20eb5d67f22c4f96cac54f461 100644
+index 4b06275f2939a351a965f51177a01b3124e2513e..14478b4c8d6f24a21d3f1d49237b4b000f285660 100644
 --- a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
 +++ b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
 @@ -541,6 +541,15 @@ public class CraftEventFactory {
@@ -20837,10 +19997,10 @@ index 31bbf018e3b7cafb1e186c7d00b421fb133331a3..b5e873f8693442f20eb5d67f22c4f96c
              event = new EntityDamageEvent(damagee.getBukkitEntity(), cause, modifiers, modifierFunctions);
          }
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
-index 99d52dc4a3619200e8eb864e8ed8f4a6e469b443..613a0bcb4268f5d3256a871d47ae079ba5d92525 100644
+index 99d52dc4a3619200e8eb864e8ed8f4a6e469b443..1f752673b590f5a3a676db7e04be2c7602de0f51 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
-@@ -165,8 +165,12 @@ public class CraftContainer extends AbstractContainerMenu {
+@@ -165,8 +165,19 @@ public class CraftContainer extends AbstractContainerMenu {
              case PLAYER:
              case CHEST:
              case ENDER_CHEST:
@@ -20849,7 +20009,14 @@ index 99d52dc4a3619200e8eb864e8ed8f4a6e469b443..613a0bcb4268f5d3256a871d47ae079b
 +                break;
              case BARREL:
 -                this.delegate = new ChestMenu(MenuType.GENERIC_9x3, windowId, bottom, top, top.getContainerSize() / 9);
-+                this.delegate = new ChestMenu(net.pl3x.purpur.PurpurConfig.barrelSixRows ? MenuType.GENERIC_9x6 : MenuType.GENERIC_9x3, windowId, bottom, top, top.getContainerSize() / 9);
++                this.delegate = new ChestMenu(switch (net.pl3x.purpur.PurpurConfig.barrelRows) {
++                    case 6 -> MenuType.GENERIC_9x6;
++                    case 5 -> MenuType.GENERIC_9x5;
++                    case 4 -> MenuType.GENERIC_9x4;
++                    case 2 -> MenuType.GENERIC_9x2;
++                    case 1 -> MenuType.GENERIC_9x1;
++                    default -> MenuType.GENERIC_9x3;
++                }, windowId, bottom, top, top.getContainerSize() / 9);
 +                // Purpur end
                  break;
              case DISPENSER:

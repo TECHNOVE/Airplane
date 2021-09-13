@@ -1,18 +1,18 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Paul <paul@technove.co>
-Date: Mon, 30 Aug 2021 15:07:29 -0500
-Subject: [PATCH] Purpur API Patches (MIT)
+Date: Sun, 12 Sep 2021 19:44:03 -0500
+Subject: [PATCH] Purpur API (MIT)
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 689d470ebe2c7e25e4c87f6127978d1d283e55b5..8550b2a95df396cf64f564fb2400df38af2397dd 100644
+index 689d470ebe2c7e25e4c87f6127978d1d283e55b5..9f50b301e8ec5b914e5f9bb0229549078bcbf257 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -39,6 +39,7 @@ dependencies {
      apiAndDocs("net.kyori:adventure-text-serializer-plain")
      api("org.apache.logging.log4j:log4j-api:2.14.1") // Paper
      api("org.slf4j:slf4j-api:1.7.30") // Paper
-+    api("net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT") // Purpur
++    api("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT") // Purpur
  
      implementation("org.ow2.asm:asm:9.1")
      implementation("org.ow2.asm:asm-commons:9.1")
@@ -1594,17 +1594,65 @@ index d36e4bc3c3713407704b865574cba28662f17315..390a0d09b78e46cfebe78bfa3d1dd73a
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/ChatColor.java b/src/main/java/org/bukkit/ChatColor.java
-index 4594701d77c5d0f744bece871b98d9f6f73eb5a7..499b222dee1f11d497a29a9a263a5596401ca1eb 100644
+index 4594701d77c5d0f744bece871b98d9f6f73eb5a7..0aa79a9fbd5861d217a877a36e985e18fba6256f 100644
 --- a/src/main/java/org/bukkit/ChatColor.java
 +++ b/src/main/java/org/bukkit/ChatColor.java
-@@ -413,4 +413,30 @@ public enum ChatColor {
+@@ -2,6 +2,7 @@ package org.bukkit;
+ 
+ import com.google.common.collect.Maps;
+ import java.util.Map;
++import java.util.regex.Matcher;
+ import java.util.regex.Pattern;
+ import org.apache.commons.lang.Validate;
+ import org.jetbrains.annotations.Contract;
+@@ -413,4 +414,72 @@ public enum ChatColor {
              BY_CHAR.put(color.code, color);
          }
      }
 +
 +    // Purpur start
++    /**
++     * Convert legacy string into a string ready to be parsed by MiniMessage
++     *
++     * @param str Legacy string
++     * @return MiniMessage ready string
++     */
++    @NotNull
++    public static String toMM(@NotNull String str) {
++        StringBuilder sb = new StringBuilder(str);
++        Matcher m = STRIP_COLOR_PATTERN.matcher(sb);
++        while (m.find()) {
++            sb.replace(m.start(), m.end(), sb.substring(m.start(), m.end()).toLowerCase());
++        }
++        return sb.toString()
++                .replace("&0", "<black>")
++                .replace("&1", "<dark_blue>")
++                .replace("&2", "<dark_green>")
++                .replace("&3", "<dark_aqua>")
++                .replace("&4", "<dark_red>")
++                .replace("&5", "<dark_purple>")
++                .replace("&6", "<gold>")
++                .replace("&7", "<grey>")
++                .replace("&8", "<dark_grey>")
++                .replace("&9", "<blue>")
++                .replace("&a", "<green>")
++                .replace("&b", "<aqua>")
++                .replace("&c", "<red>")
++                .replace("&d", "<light_purple>")
++                .replace("&e", "<yellow>")
++                .replace("&f", "<white>")
++                .replace("&k", "<obf>")
++                .replace("&l", "<b>")
++                .replace("&m", "<st>")
++                .replace("&n", "<u>")
++                .replace("&o", "<i>")
++                .replace("&r", "<r>");
++    }
++
++    @Deprecated
 +    public static final Pattern HEX_PATTERN = Pattern.compile("(#[A-Fa-f0-9]{6})");
 +
++    @Deprecated
 +    @Nullable
 +    public static String replaceHex(@Nullable String str) {
 +        if (str != null) {
@@ -1617,11 +1665,13 @@ index 4594701d77c5d0f744bece871b98d9f6f73eb5a7..499b222dee1f11d497a29a9a263a5596
 +        return str;
 +    }
 +
++    @Deprecated
 +    @Nullable
 +    public static String color(@Nullable String str) {
 +        return color(str, true);
 +    }
 +
++    @Deprecated
 +    @Nullable
 +    public static String color(@Nullable String str, boolean parseHex) {
 +        return str != null ? net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', parseHex ? replaceHex(str) : str) : str;
