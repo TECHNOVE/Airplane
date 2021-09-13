@@ -53,7 +53,7 @@ index 7d44abcb4fff9717a1af55879deb7eb9c2d9e7e9..da6a5b1b2f5203a0fab8e4fccd727951
  
          new TimingsExport(listeners, parent, history).start();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-index 092833afb57d96a8e935c42bf52d318fd9f51d13..0f0b0bbcc0e47b8fe3e1e5d4a4ef0eed389d020b 100644
+index 1ae4df2b61a10a9bbb4629d59d07766a7aad0a92..3cb9e223c90f97aa106ee1e9512d33897a6bac1a 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
 @@ -217,10 +217,11 @@ public class PaperConfig {
@@ -334,12 +334,12 @@ index 0000000000000000000000000000000000000000..807cf274619b8f7be839e249cb62b981
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 7b6c547e71230fbb3733f99a4597b3f5b51547b8..8242200f073aee40482b190c7c0aafd5320ac4fe 100644
+index 1bf19965d12514dee34545235bfbadc0b74ddc8b..2a569d05edf0f5337afbcd6803c0513d338ca55e 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -223,6 +223,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
-         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
          io.papermc.paper.util.ObfHelper.INSTANCE.getClass(); // load mappings for stacktrace deobf and etc.
+         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
          // Paper end
 +        gg.airplane.AirplaneConfig.load(); // Airplane - config
 +        gg.airplane.commands.AirplaneCommands.init(); // Airplane - command
