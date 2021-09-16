@@ -1837,7 +1837,7 @@ index 79e036d79dec2ec4404baf02c23ba5ccad20cdce..6706d8e6d43cc5f3058f08fdfde77bed
  
                  ((ServerPlayer) entityhuman).connection.send(new ClientboundSetHealthPacket(((ServerPlayer) entityhuman).getBukkitEntity().getScaledHealth(), entityhuman.getFoodData().foodLevel, entityhuman.getFoodData().saturationLevel));
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 732eb171f6a8fe1b02044a00fcf85217c41116ac..b0d333d1d776ebd8b98d7f5a7482875044ac76d7 100644
+index 29ddf0b12911fb46f260234e704f15f17d80d018..845af4b5fa083fddebe20cce0a3daeb592bbdf39 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -150,7 +150,7 @@ import org.bukkit.plugin.PluginManager;
@@ -2024,11 +2024,11 @@ index 732eb171f6a8fe1b02044a00fcf85217c41116ac..b0d333d1d776ebd8b98d7f5a74828750
              return false;
          } else {
 -            AABB axisalignedbb = this.getBoundingBox().deflate(0.001D);
-+            AABB axisalignedbb = getAxisForFluidCheck(); // Purpur
-             int i = Mth.floor(axisalignedbb.minX);
-             int j = Mth.ceil(axisalignedbb.maxX);
-             int k = Mth.floor(axisalignedbb.minY);
-@@ -4231,4 +4283,58 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
++            AABB axisalignedbb = this.getAxisForFluidCheck(); // Purpur
+             // Airplane start - rename
+             int minBlockX = Mth.floor(axisalignedbb.minX);
+             int maxBlockX = Mth.ceil(axisalignedbb.maxX);
+@@ -4283,4 +4335,58 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
          return ((ServerChunkCache) level.getChunkSource()).isPositionTicking(this);
      }
      // Paper end
