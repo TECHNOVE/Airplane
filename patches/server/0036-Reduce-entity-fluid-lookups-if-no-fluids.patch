@@ -5,7 +5,7 @@ Subject: [PATCH] Reduce entity fluid lookups if no fluids
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 732eb171f6a8fe1b02044a00fcf85217c41116ac..29ddf0b12911fb46f260234e704f15f17d80d018 100644
+index 732eb171f6a8fe1b02044a00fcf85217c41116ac..598575b540752e050a94ca703a2b135adbb2018c 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -3837,12 +3837,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -29,7 +29,7 @@ index 732eb171f6a8fe1b02044a00fcf85217c41116ac..29ddf0b12911fb46f260234e704f15f1
              double d1 = 0.0D;
              boolean flag = this.isPushedByFluid();
              boolean flag1 = false;
-@@ -3850,14 +3852,61 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -3850,14 +3852,62 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
              int k1 = 0;
              BlockPos.MutableBlockPos blockposition_mutableblockposition = new BlockPos.MutableBlockPos();
  
@@ -77,7 +77,7 @@ index 732eb171f6a8fe1b02044a00fcf85217c41116ac..29ddf0b12911fb46f260234e704f15f1
 +                    for (int currY = minYIterate; currY <= maxYIterate; ++currY) {
 +                        net.minecraft.world.level.chunk.LevelChunkSection section = sections[(currY >> 4) - minSection];
 +
-+                        if (section == null || section.isEmpty() || !section.isRandomlyTickingFluids()) { // if no ticking fluids, nothing in this section
++                        if (section == null || section.isEmpty() || section.fluidStateCount == 0) { // if no fluids, nothing in this section
 +                            // empty
 +                            // skip to next section
 +                            currY = (currY & ~(15)) + 15; // increment by 15: iterator loop increments by the extra one
@@ -93,11 +93,12 @@ index 732eb171f6a8fe1b02044a00fcf85217c41116ac..29ddf0b12911fb46f260234e704f15f1
  
                          if (fluid.is(tag)) {
 -                            double d2 = (double) ((float) i2 + fluid.getHeight(this.level, blockposition_mutableblockposition));
++                            blockposition_mutableblockposition.set((currChunkX << 4) + currX, currY, (currChunkZ << 4) + currZ);
 +                            double d2 = (double) ((float) currY + fluid.getHeight(this.level, blockposition_mutableblockposition));
  
                              if (d2 >= axisalignedbb.minY) {
                                  flag1 = true;
-@@ -3874,9 +3923,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -3874,9 +3924,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
                                  }
                              }
                          }
@@ -110,3 +111,41 @@ index 732eb171f6a8fe1b02044a00fcf85217c41116ac..29ddf0b12911fb46f260234e704f15f1
  
              if (vec3d.length() > 0.0D) {
                  if (k1 > 0) {
+diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunkSection.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunkSection.java
+index 72e3264dc74822f746fb84fec0be400047d2d9f5..831e2dbe530daf63ac9e681a92af2740fa18ac8c 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/LevelChunkSection.java
++++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunkSection.java
+@@ -18,6 +18,9 @@ public class LevelChunkSection {
+     short nonEmptyBlockCount; // Paper - package-private
+     private short tickingBlockCount;
+     private short tickingFluidCount;
++    // Airplane start
++    public short fluidStateCount;
++    // Airplane end
+     public final PalettedContainer<BlockState> states; // Paper - package-private // Paper - public
+     public final com.destroystokyo.paper.util.maplist.IBlockDataList tickingList = new com.destroystokyo.paper.util.maplist.IBlockDataList(); // Paper
+ 
+@@ -88,6 +91,7 @@ public class LevelChunkSection {
+ 
+         if (!fluidState.isEmpty()) {
+             --this.tickingFluidCount;
++            --this.fluidStateCount; // Airplane
+         }
+ 
+         if (!state.isAir()) {
+@@ -102,6 +106,7 @@ public class LevelChunkSection {
+ 
+         if (!fluidState2.isEmpty()) {
+             ++this.tickingFluidCount;
++            ++this.fluidStateCount; // Airplane
+         }
+ 
+         return blockState;
+@@ -155,6 +160,7 @@ public class LevelChunkSection {
+                 if (fluidState.isRandomlyTicking()) {
+                     this.tickingFluidCount = (short)(this.tickingFluidCount + 1); // Paper
+                 }
++                this.fluidStateCount++; // Airplane
+             }
+ 
+         });
