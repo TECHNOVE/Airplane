@@ -1837,7 +1837,7 @@ index 79e036d79dec2ec4404baf02c23ba5ccad20cdce..6706d8e6d43cc5f3058f08fdfde77bed
  
                  ((ServerPlayer) entityhuman).connection.send(new ClientboundSetHealthPacket(((ServerPlayer) entityhuman).getBukkitEntity().getScaledHealth(), entityhuman.getFoodData().foodLevel, entityhuman.getFoodData().saturationLevel));
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 29ddf0b12911fb46f260234e704f15f17d80d018..845af4b5fa083fddebe20cce0a3daeb592bbdf39 100644
+index 598575b540752e050a94ca703a2b135adbb2018c..c5353f90ff8efd9d2c0e991cb99e6114eac4103e 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -150,7 +150,7 @@ import org.bukkit.plugin.PluginManager;
@@ -2028,7 +2028,7 @@ index 29ddf0b12911fb46f260234e704f15f17d80d018..845af4b5fa083fddebe20cce0a3daeb5
              // Airplane start - rename
              int minBlockX = Mth.floor(axisalignedbb.minX);
              int maxBlockX = Mth.ceil(axisalignedbb.maxX);
-@@ -4283,4 +4335,58 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -4284,4 +4336,58 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
          return ((ServerChunkCache) level.getChunkSource()).isPositionTicking(this);
      }
      // Paper end
