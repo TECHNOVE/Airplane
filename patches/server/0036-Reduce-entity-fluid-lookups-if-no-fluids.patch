@@ -5,7 +5,7 @@ Subject: [PATCH] Reduce entity fluid lookups if no fluids
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 732eb171f6a8fe1b02044a00fcf85217c41116ac..598575b540752e050a94ca703a2b135adbb2018c 100644
+index 732eb171f6a8fe1b02044a00fcf85217c41116ac..a88ad1035573dd0b35d0140859261229a1df8cf0 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -3837,12 +3837,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -74,7 +74,7 @@ index 732eb171f6a8fe1b02044a00fcf85217c41116ac..598575b540752e050a94ca703a2b135a
 +
 +                    net.minecraft.world.level.chunk.LevelChunkSection[] sections = chunk.getSections();
 +
-+                    for (int currY = minYIterate; currY <= maxYIterate; ++currY) {
++                    for (int currY = minYIterate; currY < maxYIterate; ++currY) {
 +                        net.minecraft.world.level.chunk.LevelChunkSection section = sections[(currY >> 4) - minSection];
 +
 +                        if (section == null || section.isEmpty() || section.fluidStateCount == 0) { // if no fluids, nothing in this section
@@ -86,8 +86,8 @@ index 732eb171f6a8fe1b02044a00fcf85217c41116ac..598575b540752e050a94ca703a2b135a
 +
 +                        net.minecraft.world.level.chunk.PalettedContainer<BlockState> blocks = section.states;
 +
-+                        for (int currZ = minZ; currZ <= maxZ; ++currZ) {
-+                            for (int currX = minX; currX <= maxX; ++currX) {
++                        for (int currZ = minZ; currZ < maxZ; ++currZ) {
++                            for (int currX = minX; currX < maxX; ++currX) {
 +                                int localBlockIndex = (currX) | (currZ << 4) | ((currY & 15) << 8);
 +                                FluidState fluid = blocks.get(localBlockIndex).getFluidState();
  
