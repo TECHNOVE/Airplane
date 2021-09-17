@@ -5,7 +5,7 @@ Subject: [PATCH] Reduce entity fluid lookups if no fluids
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 732eb171f6a8fe1b02044a00fcf85217c41116ac..a88ad1035573dd0b35d0140859261229a1df8cf0 100644
+index 732eb171f6a8fe1b02044a00fcf85217c41116ac..5d455a662107182659abcbe83195ac5d6cf25813 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -3837,12 +3837,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -61,11 +61,11 @@ index 732eb171f6a8fe1b02044a00fcf85217c41116ac..a88ad1035573dd0b35d0140859261229
 +
 +            for (int currChunkZ = minChunkZ; currChunkZ <= maxChunkZ; ++currChunkZ) {
 +                int minZ = currChunkZ == minChunkZ ? minBlockZ & 15 : 0; // coordinate in chunk
-+                int maxZ = currChunkZ == maxChunkZ ? maxBlockZ & 15 : 15; // coordinate in chunk
++                int maxZ = currChunkZ == maxChunkZ ? maxBlockZ & 15 : 16; // coordinate in chunk
 +
 +                for (int currChunkX = minChunkX; currChunkX <= maxChunkX; ++currChunkX) {
 +                    int minX = currChunkX == minChunkX ? minBlockX & 15 : 0; // coordinate in chunk
-+                    int maxX = currChunkX == maxChunkX ? maxBlockX & 15 : 15; // coordinate in chunk
++                    int maxX = currChunkX == maxChunkX ? maxBlockX & 15 : 16; // coordinate in chunk
 +
 +                    net.minecraft.world.level.chunk.ChunkAccess chunk = this.level.getChunkIfLoadedImmediately(currChunkX, currChunkZ);
 +                    if (chunk == null) {
