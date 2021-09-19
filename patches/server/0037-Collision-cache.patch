@@ -6,10 +6,10 @@ Subject: [PATCH] Collision cache
 
 diff --git a/src/main/java/gg/airplane/entity/CollisionCache.java b/src/main/java/gg/airplane/entity/CollisionCache.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..cdf9bffa5bf4a58153c8c614232241864c980533
+index 0000000000000000000000000000000000000000..de61478f06057a9e3c23b0bfd039acc759cc078b
 --- /dev/null
 +++ b/src/main/java/gg/airplane/entity/CollisionCache.java
-@@ -0,0 +1,233 @@
+@@ -0,0 +1,251 @@
 +package gg.airplane.entity;
 +
 +import io.papermc.paper.util.CollisionUtil;
@@ -19,6 +19,7 @@ index 0000000000000000000000000000000000000000..cdf9bffa5bf4a58153c8c61423224186
 +import net.minecraft.server.level.ServerChunkCache;
 +import net.minecraft.util.Mth;
 +import net.minecraft.world.entity.Entity;
++import net.minecraft.world.level.CollisionGetter;
 +import net.minecraft.world.level.LevelReader;
 +import net.minecraft.world.level.block.Blocks;
 +import net.minecraft.world.level.block.state.BlockState;
@@ -31,10 +32,12 @@ index 0000000000000000000000000000000000000000..cdf9bffa5bf4a58153c8c61423224186
 +import org.bukkit.craftbukkit.util.UnsafeList;
 +import org.jetbrains.annotations.NotNull;
 +import org.jetbrains.annotations.Nullable;
++import org.simpleyaml.utils.Validate;
 +
 +import java.util.HashSet;
 +import java.util.List;
 +import java.util.Set;
++import java.util.function.BiPredicate;
 +
 +public class CollisionCache {
 +
@@ -80,7 +83,7 @@ index 0000000000000000000000000000000000000000..cdf9bffa5bf4a58153c8c61423224186
 +        this.dirty = false;
 +    }
 +
-+    public boolean getCollisions(AABB aabb, List<AABB> into) {
++    public boolean getCollisions(final CollisionGetter view, AABB aabb, List<AABB> into, boolean collidesWithUnloaded, boolean checkOnly, BiPredicate<BlockState, BlockPos> predicate) {
 +        boolean ret = false;
 +
 +        int minBlockX = Mth.floor(aabb.minX - CollisionUtil.COLLISION_EPSILON) - 1;
@@ -96,12 +99,25 @@ index 0000000000000000000000000000000000000000..cdf9bffa5bf4a58153c8c61423224186
 +        if (!this.dirty && minBlockX >= this.previousMinBlockX && maxBlockX <= this.previousMaxBlockX &&
 +                minBlockY >= this.previousMinBlockY && maxBlockY <= this.previousMaxBlockY &&
 +                minBlockZ >= this.previousMinBlockZ && maxBlockZ <= this.previousMaxBlockZ) {
-+            for (int i = 0, length = this.shapes.size(); i < length; i++) {
-+                ret |= CollisionUtil.addBoxesToIfIntersects(this.shapes.unsafeGet(i), aabb, into);
++            if (checkOnly) {
++                for (int i = 0, length = this.shapes.size(); i < length; i++) {
++                    if (this.shapes.unsafeGet(i).intersects(aabb)) {
++                        return true;
++                    }
++                }
++            } else {
++                for (int i = 0, length = this.shapes.size(); i < length; i++) {
++                    ret |= CollisionUtil.addBoxesToIfIntersects(this.shapes.unsafeGet(i), aabb, into);
++                }
 +            }
 +
 +            return ret;
++        } else if (checkOnly) {
++            // tl;dr this is only used by inWall right now, and we don't want to generate a cache for inWall because it'll always be smaller than a move cache anyways
++            return CollisionUtil.getCollisionsForBlocksOrWorldBorder(view, this.entity, aabb, into, false, collidesWithUnloaded, false, checkOnly, predicate);
 +        }
++
++        Validate.isTrue(predicate == null, "predicate cannot be used without checkOnly");
 +
 +        this.previousMinBlockX = minBlockX;
 +        this.previousMaxBlockX = maxBlockX;
@@ -166,8 +182,10 @@ index 0000000000000000000000000000000000000000..cdf9bffa5bf4a58153c8c61423224186
 +                LevelChunk chunk = chunkProvider.getChunkAtIfLoadedImmediately(currChunkX, currChunkZ);
 +
 +                if (chunk == null) {
-+                    into.add(CollisionUtil.getBoxForChunk(currChunkX, currChunkZ));
-+                    ret = true;
++                    if (collidesWithUnloaded) {
++                        into.add(CollisionUtil.getBoxForChunk(currChunkX, currChunkZ));
++                        ret = true;
++                    }
 +                    continue;
 +                }
 +
@@ -221,9 +239,9 @@ index 0000000000000000000000000000000000000000..cdf9bffa5bf4a58153c8c61423224186
 +                                if (voxelshape2 != Shapes.empty()) {
 +                                    VoxelShape voxelshape3 = voxelshape2.move((double) blockX, (double) blockY, (double) blockZ);
 +
-+                                    ret |= CollisionUtil.addBoxesToIfIntersects(voxelshape3, aabb, into);
-+
 +                                    this.shapes.add(voxelshape3);
++
++                                    ret |= CollisionUtil.addBoxesToIfIntersects(voxelshape3, aabb, into);
 +                                }
 +                            }
 +                        }
@@ -378,22 +396,25 @@ index 0000000000000000000000000000000000000000..017da9e1461250a0fd8baacdcca203d6
 +    }
 +}
 diff --git a/src/main/java/io/papermc/paper/util/CollisionUtil.java b/src/main/java/io/papermc/paper/util/CollisionUtil.java
-index 98ca1199a823cdf55b913396ce0a24554e85f116..47110e6fa30548596e8cc068f3539952a9028e55 100644
+index 98ca1199a823cdf55b913396ce0a24554e85f116..c20d97cdad5a245010162d71eacc6236b86b9ec6 100644
 --- a/src/main/java/io/papermc/paper/util/CollisionUtil.java
 +++ b/src/main/java/io/papermc/paper/util/CollisionUtil.java
-@@ -547,6 +547,10 @@ public final class CollisionUtil {
+@@ -547,6 +547,13 @@ public final class CollisionUtil {
          return ret;
      }
  
-+    public static boolean getEntityCollisionsWithCache(final net.minecraft.world.level.Level getter, Entity entity, AABB aabb, List<AABB> into) {
-+        return entity.collisionCache.getCollisions(aabb, into) || getEntityHardCollisions(getter, entity, aabb, into, false, null);
++    public static boolean getEntityCollisionsWithCache(final net.minecraft.world.level.Level getter, Entity entity, AABB aabb, List<AABB> into,
++                                                       final boolean loadChunks, final boolean collidesWithUnloaded,
++                                                       final boolean checkBorder, final boolean checkOnly, final BiPredicate<BlockState, BlockPos> predicate) {
++        return entity.collisionCache.getCollisions(getter, aabb, into, collidesWithUnloaded, checkOnly, predicate) ||
++                getEntityHardCollisions(getter, entity, aabb, into, false, null);
 +    }
 +
      public static boolean getEntityHardCollisions(final CollisionGetter getter, final Entity entity, AABB aabb,
                                                    final List<AABB> into, final boolean checkOnly, final Predicate<Entity> predicate) {
          if (isEmpty(aabb) || !(getter instanceof EntityGetter entityGetter)) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 5d455a662107182659abcbe83195ac5d6cf25813..1faf29548eef1c5f1bb4468c0ebc31b9ddb611fb 100644
+index 5d455a662107182659abcbe83195ac5d6cf25813..00c1974ec8021ed43e98a3faf2dd8704abeaaaf5 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -341,6 +341,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -404,16 +425,28 @@ index 5d455a662107182659abcbe83195ac5d6cf25813..1faf29548eef1c5f1bb4468c0ebc31b9
      // Airplane end
  
      public float getBukkitYaw() {
-@@ -1290,8 +1291,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -1290,8 +1291,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
                  }
              }
  
 -            io.papermc.paper.util.CollisionUtil.getCollisions(world, this, collisionBox, potentialCollisions, false, true,
 -                false, false, null, null);
-+            io.papermc.paper.util.CollisionUtil.getEntityCollisionsWithCache(world, this, collisionBox, potentialCollisions); // Airplane - use collision cache
++            // Airplane start - use collision cache
++            io.papermc.paper.util.CollisionUtil.getEntityCollisionsWithCache(world, this, collisionBox, potentialCollisions, false, true,
++                    false, false, null);
++            // Airplane end
  
              if (io.papermc.paper.util.CollisionUtil.isCollidingWithBorderEdge(world.getWorldBorder(), collisionBox)) {
                  io.papermc.paper.util.CollisionUtil.addBoxesToIfIntersects(world.getWorldBorder().getCollisionShape(), collisionBox, potentialCollisions);
+@@ -2464,7 +2467,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+             AABB axisalignedbb = AABB.ofSize(this.getEyePosition(), (double) f, 1.0E-6D, (double) f);
+ 
+             // Paper start
+-            return io.papermc.paper.util.CollisionUtil.getCollisionsForBlocksOrWorldBorder(this.level, this, axisalignedbb, null,
++            return io.papermc.paper.util.CollisionUtil.getEntityCollisionsWithCache(this.level, this, axisalignedbb, null, // Airplane - use cache
+                 false, false, false, true, this.level.isAlmostSuffocating); // Airplane - don't allocate lambda here
+             // Paper end
+         }
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 index e265980f07d95a7912bf8873819033e51ef04c98..67c04a3f33a64efdbf5824ebf9c18b1f04934de1 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
