@@ -6,10 +6,10 @@ Subject: [PATCH] Collision cache
 
 diff --git a/src/main/java/gg/airplane/entity/CollisionCache.java b/src/main/java/gg/airplane/entity/CollisionCache.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..e716548a8630086427ebc9878dd99db23be172e3
+index 0000000000000000000000000000000000000000..cdf9bffa5bf4a58153c8c614232241864c980533
 --- /dev/null
 +++ b/src/main/java/gg/airplane/entity/CollisionCache.java
-@@ -0,0 +1,240 @@
+@@ -0,0 +1,233 @@
 +package gg.airplane.entity;
 +
 +import io.papermc.paper.util.CollisionUtil;
@@ -103,31 +103,18 @@ index 0000000000000000000000000000000000000000..e716548a8630086427ebc9878dd99db2
 +            return ret;
 +        }
 +
++        this.previousMinBlockX = minBlockX;
++        this.previousMaxBlockX = maxBlockX;
++
++        this.previousMinBlockY = minBlockY;
++        this.previousMaxBlockY = maxBlockY;
++
++        this.previousMinBlockZ = minBlockZ;
++        this.previousMaxBlockZ = maxBlockZ;
++
 +        // remove old shapes, since we missed cache
 +        this.shapes.setSize(0);
 +        this.dirty = false;
-+        // todo can we maintain some of the cache?
-+
-+//        final int totalDistX = (int) box.getXsize() + 1 << 1;
-+//        final int totalDistY = (int) box.getYsize() + 1; // change in y is less common than change in x/y
-+//        final int totalDistZ = (int) box.getZsize() + 1 << 1;
-+
-+//        final int addRadiusX = totalDistX >> 1;
-+//        final int addRadiusY = totalDistY >> 1;
-+//        final int addRadiusZ = totalDistZ >> 1;
-+
-+        final int addRadiusX = 1;
-+        final int addRadiusY = 1;
-+        final int addRadiusZ = 1;
-+
-+        this.previousMinBlockX = minBlockX -= addRadiusX;
-+        this.previousMaxBlockX = maxBlockX += addRadiusX;
-+
-+        this.previousMinBlockY = minBlockY -= addRadiusY;
-+        this.previousMaxBlockY = maxBlockY += addRadiusY;
-+
-+        this.previousMinBlockZ = minBlockZ -= addRadiusZ;
-+        this.previousMaxBlockZ = maxBlockZ += addRadiusZ;
 +
 +        if (this.lastLevel != this.entity.level) {
 +            this.lastLevel = this.entity.level;
@@ -143,6 +130,12 @@ index 0000000000000000000000000000000000000000..e716548a8630086427ebc9878dd99db2
 +        // special cases:
 +        if (minBlockY > maxBlock || maxBlockY < minBlock) {
 +            // no point in checking
++            if (!this.chunkToList.isEmpty()) {
++                for (CollisionCacheList collisionCaches : this.chunkToList) {
++                    collisionCaches.remove(this);
++                }
++                this.chunkToList.clear();
++            }
 +            return ret;
 +        }
 +
