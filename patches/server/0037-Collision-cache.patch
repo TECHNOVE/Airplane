@@ -6,7 +6,7 @@ Subject: [PATCH] Collision cache
 
 diff --git a/src/main/java/gg/airplane/entity/CollisionCache.java b/src/main/java/gg/airplane/entity/CollisionCache.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..1127bb04c91b5066a4ddac9b6285a4e3dd8e75b1
+index 0000000000000000000000000000000000000000..1303b4215666ebca400d1f02454340ee90cb5312
 --- /dev/null
 +++ b/src/main/java/gg/airplane/entity/CollisionCache.java
 @@ -0,0 +1,240 @@
@@ -183,7 +183,7 @@ index 0000000000000000000000000000000000000000..1127bb04c91b5066a4ddac9b6285a4e3
 +                // bound y
 +
 +                for (int currY = minYIterate; currY <= maxYIterate; ++currY) {
-+                    int sectionIndex = SectionPos.blockToSectionCoord(currY) - this.minSection;
++                    int sectionIndex = SectionPos.blockToSectionCoord(currY) - minSection;
 +
 +                    CollisionCacheList cacheList = chunk.collisionCaches[sectionIndex];
 +                    if (cacheLists.add(cacheList)) {
