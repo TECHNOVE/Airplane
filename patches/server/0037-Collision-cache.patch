@@ -6,10 +6,10 @@ Subject: [PATCH] Collision cache
 
 diff --git a/src/main/java/gg/airplane/entity/CollisionCache.java b/src/main/java/gg/airplane/entity/CollisionCache.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..de61478f06057a9e3c23b0bfd039acc759cc078b
+index 0000000000000000000000000000000000000000..1127bb04c91b5066a4ddac9b6285a4e3dd8e75b1
 --- /dev/null
 +++ b/src/main/java/gg/airplane/entity/CollisionCache.java
-@@ -0,0 +1,251 @@
+@@ -0,0 +1,240 @@
 +package gg.airplane.entity;
 +
 +import io.papermc.paper.util.CollisionUtil;
@@ -20,7 +20,6 @@ index 0000000000000000000000000000000000000000..de61478f06057a9e3c23b0bfd039acc7
 +import net.minecraft.util.Mth;
 +import net.minecraft.world.entity.Entity;
 +import net.minecraft.world.level.CollisionGetter;
-+import net.minecraft.world.level.LevelReader;
 +import net.minecraft.world.level.block.Blocks;
 +import net.minecraft.world.level.block.state.BlockState;
 +import net.minecraft.world.level.chunk.LevelChunk;
@@ -31,7 +30,6 @@ index 0000000000000000000000000000000000000000..de61478f06057a9e3c23b0bfd039acc7
 +import net.minecraft.world.phys.shapes.VoxelShape;
 +import org.bukkit.craftbukkit.util.UnsafeList;
 +import org.jetbrains.annotations.NotNull;
-+import org.jetbrains.annotations.Nullable;
 +import org.simpleyaml.utils.Validate;
 +
 +import java.util.HashSet;
@@ -47,12 +45,6 @@ index 0000000000000000000000000000000000000000..de61478f06057a9e3c23b0bfd039acc7
 +    private Set<CollisionCacheList> chunkToList = new HashSet<>();
 +
 +    private boolean dirty = true;
-+
-+    // cache locality
-+    @Nullable
-+    private LevelReader lastLevel;
-+    private int maxSection;
-+    private int minSection;
 +
 +    private int previousMinBlockX;
 +    private int previousMaxBlockX;
@@ -132,13 +124,10 @@ index 0000000000000000000000000000000000000000..de61478f06057a9e3c23b0bfd039acc7
 +        this.shapes.setSize(0);
 +        this.dirty = false;
 +
-+        if (this.lastLevel != this.entity.level) {
-+            this.lastLevel = this.entity.level;
-+            this.minSection = WorldUtil.getMinSection(this.entity.level);
-+            this.maxSection = WorldUtil.getMaxSection(this.entity.level);
-+        }
-+        final int minBlock = this.minSection << 4;
-+        final int maxBlock = (this.maxSection << 4) | 15;
++        final int minSection = WorldUtil.getMinSection(this.entity.level);
++        final int maxSection = WorldUtil.getMaxSection(this.entity.level);
++        final int minBlock = minSection << 4;
++        final int maxBlock = (maxSection << 4) | 15;
 +
 +        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 +        CollisionContext collisionShape = null;
@@ -414,7 +403,7 @@ index 98ca1199a823cdf55b913396ce0a24554e85f116..c20d97cdad5a245010162d71eacc6236
                                                    final List<AABB> into, final boolean checkOnly, final Predicate<Entity> predicate) {
          if (isEmpty(aabb) || !(getter instanceof EntityGetter entityGetter)) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 5d455a662107182659abcbe83195ac5d6cf25813..00c1974ec8021ed43e98a3faf2dd8704abeaaaf5 100644
+index 4fad7b1334a122a0b8e7a8ec7029313bc2ed9002..7e65ed2a6a4dfa4f22bef5a01a079b8b7cb9e212 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -341,6 +341,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -448,7 +437,7 @@ index 5d455a662107182659abcbe83195ac5d6cf25813..00c1974ec8021ed43e98a3faf2dd8704
              // Paper end
          }
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index e265980f07d95a7912bf8873819033e51ef04c98..67c04a3f33a64efdbf5824ebf9c18b1f04934de1 100644
+index ff0fab668801d0b32abffbfedc7eb24abf71fed0..db7904b1bb402a36684b97c443336630762aeaf9 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 @@ -184,6 +184,8 @@ public class LevelChunk implements ChunkAccess {
@@ -457,10 +446,10 @@ index e265980f07d95a7912bf8873819033e51ef04c98..67c04a3f33a64efdbf5824ebf9c18b1f
  
 +    public final gg.airplane.entity.CollisionCacheList[] collisionCaches; // Airplane
 +
-     private final int levelHeight; private final int minBuildHeight; // Airplane
      public LevelChunk(Level world, ChunkPos pos, ChunkBiomeContainer biomes) {
          this(world, pos, biomes, UpgradeData.EMPTY, EmptyTickList.empty(), EmptyTickList.empty(), 0L, (LevelChunkSection[]) null, (Consumer) null);
-@@ -223,6 +225,12 @@ public class LevelChunk implements ChunkAccess {
+     }
+@@ -221,6 +223,12 @@ public class LevelChunk implements ChunkAccess {
          this.inhabitedTime = inhabitedTime;
          this.postLoad = loadToWorldConsumer;
          this.sections = new LevelChunkSection[world.getSectionsCount()];
@@ -473,7 +462,7 @@ index e265980f07d95a7912bf8873819033e51ef04c98..67c04a3f33a64efdbf5824ebf9c18b1f
          if (sections != null) {
              if (this.sections.length == sections.length) {
                  System.arraycopy(sections, 0, this.sections, 0, this.sections.length);
-@@ -670,6 +678,17 @@ public class LevelChunk implements ChunkAccess {
+@@ -668,6 +676,17 @@ public class LevelChunk implements ChunkAccess {
          int i1 = blockposition.getZ() & 15;
          BlockState iblockdata1 = chunksection.setBlockState(k, l, i1, iblockdata);
  
