@@ -6,10 +6,10 @@ Subject: [PATCH] Collision cache
 
 diff --git a/src/main/java/gg/airplane/entity/CollisionCache.java b/src/main/java/gg/airplane/entity/CollisionCache.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..1303b4215666ebca400d1f02454340ee90cb5312
+index 0000000000000000000000000000000000000000..3822fc6b78419e681ff838bc2050c4f8fb3e90eb
 --- /dev/null
 +++ b/src/main/java/gg/airplane/entity/CollisionCache.java
-@@ -0,0 +1,240 @@
+@@ -0,0 +1,244 @@
 +package gg.airplane.entity;
 +
 +import io.papermc.paper.util.CollisionUtil;
@@ -39,9 +39,11 @@ index 0000000000000000000000000000000000000000..1303b4215666ebca400d1f02454340ee
 +
 +public class CollisionCache {
 +
++    private static record BlockEntry(int x, int y, int z, BlockState state, VoxelShape shape){}
++
 +    @NotNull
 +    private final Entity entity;
-+    private final UnsafeList<VoxelShape> shapes = new UnsafeList<>();
++    private final UnsafeList<BlockEntry> blocks = new UnsafeList<>();
 +    private Set<CollisionCacheList> chunkToList = new HashSet<>();
 +
 +    private boolean dirty = true;
@@ -66,7 +68,7 @@ index 0000000000000000000000000000000000000000..1303b4215666ebca400d1f02454340ee
 +    }
 +
 +    public void onRemove() {
-+        this.shapes.setSize(0);
++        this.blocks.setSize(0);
 +
 +        for (CollisionCacheList collisionCaches : this.chunkToList) {
 +            collisionCaches.remove(this);
@@ -92,14 +94,16 @@ index 0000000000000000000000000000000000000000..1303b4215666ebca400d1f02454340ee
 +                minBlockY >= this.previousMinBlockY && maxBlockY <= this.previousMaxBlockY &&
 +                minBlockZ >= this.previousMinBlockZ && maxBlockZ <= this.previousMaxBlockZ) {
 +            if (checkOnly) {
-+                for (int i = 0, length = this.shapes.size(); i < length; i++) {
-+                    if (this.shapes.unsafeGet(i).intersects(aabb)) {
++                BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
++                for (int i = 0, length = this.blocks.size(); i < length; i++) {
++                    BlockEntry entry = this.blocks.unsafeGet(i);
++                    if (entry.shape.intersects(aabb) && predicate.test(entry.state, pos.set(entry.x, entry.y, entry.z))) {
 +                        return true;
 +                    }
 +                }
 +            } else {
-+                for (int i = 0, length = this.shapes.size(); i < length; i++) {
-+                    ret |= CollisionUtil.addBoxesToIfIntersects(this.shapes.unsafeGet(i), aabb, into);
++                for (int i = 0, length = this.blocks.size(); i < length; i++) {
++                    ret |= CollisionUtil.addBoxesToIfIntersects(this.blocks.unsafeGet(i).shape, aabb, into);
 +                }
 +            }
 +
@@ -121,7 +125,7 @@ index 0000000000000000000000000000000000000000..1303b4215666ebca400d1f02454340ee
 +        this.previousMaxBlockZ = maxBlockZ;
 +
 +        // remove old shapes, since we missed cache
-+        this.shapes.setSize(0);
++        this.blocks.setSize(0);
 +        this.dirty = false;
 +
 +        final int minSection = WorldUtil.getMinSection(this.entity.level);
@@ -155,7 +159,7 @@ index 0000000000000000000000000000000000000000..1303b4215666ebca400d1f02454340ee
 +
 +        ServerChunkCache chunkProvider = (ServerChunkCache) this.entity.level.getChunkSource();
 +
-+        Set<CollisionCacheList> cacheLists = new HashSet<>(this.shapes.size());
++        Set<CollisionCacheList> cacheLists = new HashSet<>(this.blocks.size());
 +
 +        for (int currChunkZ = minChunkZ; currChunkZ <= maxChunkZ; ++currChunkZ) {
 +            int minZ = currChunkZ == minChunkZ ? minBlockZ & 15 : 0; // coordinate in chunk
@@ -228,7 +232,7 @@ index 0000000000000000000000000000000000000000..1303b4215666ebca400d1f02454340ee
 +                                if (voxelshape2 != Shapes.empty()) {
 +                                    VoxelShape voxelshape3 = voxelshape2.move((double) blockX, (double) blockY, (double) blockZ);
 +
-+                                    this.shapes.add(voxelshape3);
++                                    this.blocks.add(new BlockEntry(blockX, blockY, blockZ, blockData, voxelshape3));
 +
 +                                    ret |= CollisionUtil.addBoxesToIfIntersects(voxelshape3, aabb, into);
 +                                }
