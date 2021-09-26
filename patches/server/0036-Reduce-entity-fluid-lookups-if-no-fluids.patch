@@ -5,10 +5,15 @@ Subject: [PATCH] Reduce entity fluid lookups if no fluids
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 732eb171f6a8fe1b02044a00fcf85217c41116ac..5d455a662107182659abcbe83195ac5d6cf25813 100644
+index 732eb171f6a8fe1b02044a00fcf85217c41116ac..4fad7b1334a122a0b8e7a8ec7029313bc2ed9002 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -3837,12 +3837,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -3833,16 +3833,18 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+     }
+ 
+     public boolean updateFluidHeightAndDoFluidPushing(Tag<Fluid> tag, double d0) {
+-        if (this.touchingUnloadedChunk()) {
++        if (false && this.touchingUnloadedChunk()) { // Airplane - cost of a lookup here is the same cost as below, so skip
              return false;
          } else {
              AABB axisalignedbb = this.getBoundingBox().deflate(0.001D);
@@ -69,7 +74,7 @@ index 732eb171f6a8fe1b02044a00fcf85217c41116ac..5d455a662107182659abcbe83195ac5d
 +
 +                    net.minecraft.world.level.chunk.ChunkAccess chunk = this.level.getChunkIfLoadedImmediately(currChunkX, currChunkZ);
 +                    if (chunk == null) {
-+                        continue;
++                        return false; // if we're touching an unloaded chunk then it's false
 +                    }
 +
 +                    net.minecraft.world.level.chunk.LevelChunkSection[] sections = chunk.getSections();
