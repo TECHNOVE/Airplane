@@ -5,7 +5,7 @@ Subject: [PATCH] Purpur API (MIT)
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 689d470ebe2c7e25e4c87f6127978d1d283e55b5..9f50b301e8ec5b914e5f9bb0229549078bcbf257 100644
+index 02f80c9a34a23c2285a1e05b41f53b4bafc28c5a..5e18958e87b10911bc815f8b8e8e7c79c90dbb7d 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -39,6 +39,7 @@ dependencies {
@@ -2361,7 +2361,7 @@ index 70274f2e2a1d6f27c4febd9d5d5fa3ee1b49f100..3b98e6e3e6dea0df5fb9462c78e8c142
  
      /**
 diff --git a/src/main/java/org/bukkit/command/CommandSender.java b/src/main/java/org/bukkit/command/CommandSender.java
-index 096dca3b733688dcc17669d78efbc5115f9b6e4a..63fbe3197918aaeab49d0397d2873dc91e3204e7 100644
+index 39ce012fcf2b22471a2ace9218f4f696ec93f466..4c6b35c9d8c046b3b3e0cea5063e0e3d9f2fa946 100644
 --- a/src/main/java/org/bukkit/command/CommandSender.java
 +++ b/src/main/java/org/bukkit/command/CommandSender.java
 @@ -62,6 +62,9 @@ public interface CommandSender extends net.kyori.adventure.audience.Audience, Pe
@@ -2647,7 +2647,7 @@ index 2e17b2d4f759531fbe9ee8e9b00c839186af09ca..9382234722792b5920a2456187e07958
  
      /**
 diff --git a/src/main/java/org/bukkit/entity/ArmorStand.java b/src/main/java/org/bukkit/entity/ArmorStand.java
-index 21c8ec6d8b795799b5b110be57ffd27fc8dcabe3..d3eb843fb6a7257152120371c4f317133f63de4d 100644
+index 707639096657f995cc812c7b50108eeed48e8181..433590c94c54e40abec2b447bf54ab0b188352d4 100644
 --- a/src/main/java/org/bukkit/entity/ArmorStand.java
 +++ b/src/main/java/org/bukkit/entity/ArmorStand.java
 @@ -7,6 +7,9 @@ import org.bukkit.util.EulerAngle;
@@ -2735,7 +2735,7 @@ index 9e7f42caab1204036f4203354c115fd40c6def92..d71afdfa9f7eb66dffd9943d6e51314b
      void setPlayerSpawned(boolean playerSpawned);
  }
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
-index a9e455c5b3bbe4edbdb71f86f5c6eebc2f605547..c9d64da90a05f252d91dd10d2d5f62ba66afb944 100644
+index b02704b0535522c5535b560105eec2885fdd3e77..a365998c2c359fb6cd535ebf0f2d893943b87b75 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
 +++ b/src/main/java/org/bukkit/entity/Entity.java
 @@ -668,6 +668,9 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
@@ -2748,7 +2748,7 @@ index a9e455c5b3bbe4edbdb71f86f5c6eebc2f605547..c9d64da90a05f252d91dd10d2d5f62ba
      public class Spigot extends CommandSender.Spigot {
  
      }
-@@ -720,37 +723,108 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+@@ -728,37 +731,108 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
  
      /**
       * Check if entity is in rain
@@ -3129,10 +3129,10 @@ index d23226ccb0f6c25028f000ce31346cd0a8898e6a..1ef9479c962b3f4f6fed46671a1209c3
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/entity/Mob.java b/src/main/java/org/bukkit/entity/Mob.java
-index 7d4ce660adb21e579e564796568945ee20f0ca59..4205dc5746dafd966f95103cdd2a1a55e79642f8 100644
+index 07bedbc15ba2463d3c629ae68d229286d4033f79..3e03e97daa8959430cf45ed30c0e21a5943bcfed 100644
 --- a/src/main/java/org/bukkit/entity/Mob.java
 +++ b/src/main/java/org/bukkit/entity/Mob.java
-@@ -146,4 +146,20 @@ public interface Mob extends LivingEntity, Lootable {
+@@ -148,4 +148,20 @@ public interface Mob extends LivingEntity, Lootable {
       * @return whether the mob is aware
       */
      public boolean isAware();
@@ -3168,7 +3168,7 @@ index a6a7429ed2e1eefb2b12b7480ed74fcc3963a864..e8027e1d505dda6effbb1698550016e8
  
          NORMAL(false),
 diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
-index afa245018192a63e5db8bc568ddea2790bf5b8a2..daf7265bc1776087cc91a3ccbb1c9fb3e2059af9 100644
+index 3e8cd3971ac8256a40d9b85cd7514998c965512c..033cf450dcfb02e57d0875d0117086e6fe615c32 100644
 --- a/src/main/java/org/bukkit/entity/Player.java
 +++ b/src/main/java/org/bukkit/entity/Player.java
 @@ -75,7 +75,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
@@ -3368,7 +3368,7 @@ index afa245018192a63e5db8bc568ddea2790bf5b8a2..daf7265bc1776087cc91a3ccbb1c9fb3
      /**
       * Gets the Scoreboard displayed to this player
       *
-@@ -1865,7 +1947,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -1867,7 +1949,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
       * @deprecated in favour of {@link #locale()}
       */
      @NotNull
@@ -3377,7 +3377,7 @@ index afa245018192a63e5db8bc568ddea2790bf5b8a2..daf7265bc1776087cc91a3ccbb1c9fb3
      public String getLocale();
  
      // Paper start
-@@ -2115,6 +2197,8 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -2117,6 +2199,8 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      void resetCooldown();
  
      /**
@@ -3386,7 +3386,7 @@ index afa245018192a63e5db8bc568ddea2790bf5b8a2..daf7265bc1776087cc91a3ccbb1c9fb3
       * @return the client option value of the player
       */
      @NotNull
-@@ -2154,6 +2238,9 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -2156,6 +2240,9 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      // Paper end
  
      // Spigot start
@@ -3396,7 +3396,7 @@ index afa245018192a63e5db8bc568ddea2790bf5b8a2..daf7265bc1776087cc91a3ccbb1c9fb3
      public class Spigot extends Entity.Spigot {
  
          /**
-@@ -2293,4 +2380,67 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -2295,4 +2382,67 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      @Override
      Spigot spigot();
      // Spigot end
@@ -3574,7 +3574,7 @@ index ceb3e2c5117740ce284e893fff8e41a002d78649..fab5c3c90f55c113cae2bca2354a94e8
  
      /**
 diff --git a/src/main/java/org/bukkit/entity/Villager.java b/src/main/java/org/bukkit/entity/Villager.java
-index 511b96841f7342d0a6b38d7cff56252ea8ef9bfe..0e2615b6e2be21abfb0116e6f1e02416bac97f74 100644
+index 02ecc87a90bbd81e7d21279fac701ba41c74fd9f..b96d4e9d416f917d6dcba315555391f2f04ac1d9 100644
 --- a/src/main/java/org/bukkit/entity/Villager.java
 +++ b/src/main/java/org/bukkit/entity/Villager.java
 @@ -113,6 +113,13 @@ public interface Villager extends AbstractVillager {
@@ -4426,7 +4426,7 @@ index 0a4466c6ca519c3a5da76ff870fb2a4e3a06effd..e7dd844f2359fdaf903632bb3761382e
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/inventory/ItemStack.java b/src/main/java/org/bukkit/inventory/ItemStack.java
-index 59a026d80b0a0a4890becf98efdbe5325b2c622a..ff9815e10cef89e98fb6d0181ac1eee0cc24d296 100644
+index 240728d1d4376cb3aa83613085fbc69fa8b5f0df..880eb42c16d2405195c9bfaec4e3a17c946887a8 100644
 --- a/src/main/java/org/bukkit/inventory/ItemStack.java
 +++ b/src/main/java/org/bukkit/inventory/ItemStack.java
 @@ -17,6 +17,18 @@ import org.bukkit.inventory.meta.ItemMeta;
