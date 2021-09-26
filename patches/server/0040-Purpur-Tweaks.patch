@@ -4,6 +4,21 @@ Date: Mon, 6 Sep 2021 12:56:49 -0500
 Subject: [PATCH] Purpur Tweaks
 
 
+diff --git a/src/main/java/gg/airplane/AirplaneVersionFetcher.java b/src/main/java/gg/airplane/AirplaneVersionFetcher.java
+index e79ec7919e6cf160fec1cb981d85f0f33c316b41..f6982d8b0a552d13674be4ff9d65ea872e1a8e08 100644
+--- a/src/main/java/gg/airplane/AirplaneVersionFetcher.java
++++ b/src/main/java/gg/airplane/AirplaneVersionFetcher.java
+@@ -31,8 +31,8 @@ public class AirplaneVersionFetcher implements VersionFetcher {
+     private static final Logger LOGGER = Logger.getLogger("AirplaneVersionFetcher");
+     private static final HttpClient client = HttpClient.newHttpClient();
+ 
+-    private static final URI JENKINS_URI = URI.create("https://ci.tivy.ca/job/Airplane-1.17/lastSuccessfulBuild/buildNumber");
+-    private static final String GITHUB_FORMAT = "https://api.github.com/repos/TECHNOVE/Airplane/compare/ver/1.17...%s";
++    private static final URI JENKINS_URI = URI.create("https://ci.tivy.ca/job/Airplane-Purpur-1.17/lastSuccessfulBuild/buildNumber");
++    private static final String GITHUB_FORMAT = "https://api.github.com/repos/TECHNOVE/Airplane/compare/purpur/1.17...%s";
+ 
+     private static final HttpResponse.BodyHandler<JsonObject> JSON_OBJECT_BODY_HANDLER = responseInfo -> HttpResponse.BodySubscribers.mapping(
+             HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
 diff --git a/src/main/java/gg/airplane/compat/ServerConfigurations.java b/src/main/java/gg/airplane/compat/ServerConfigurations.java
 index f9a71ff3edd7e7b6cda680e5a156373b5aa813c2..da9880b0e5e1e8aed5c50d27e878787bb15affb3 100644
 --- a/src/main/java/gg/airplane/compat/ServerConfigurations.java
