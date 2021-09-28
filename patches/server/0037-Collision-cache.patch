@@ -389,7 +389,7 @@ index 0000000000000000000000000000000000000000..017da9e1461250a0fd8baacdcca203d6
 +    }
 +}
 diff --git a/src/main/java/io/papermc/paper/util/CollisionUtil.java b/src/main/java/io/papermc/paper/util/CollisionUtil.java
-index 98ca1199a823cdf55b913396ce0a24554e85f116..c20d97cdad5a245010162d71eacc6236b86b9ec6 100644
+index 98ca1199a823cdf55b913396ce0a24554e85f116..840142d340d4569772552b961f829ca921b15dc4 100644
 --- a/src/main/java/io/papermc/paper/util/CollisionUtil.java
 +++ b/src/main/java/io/papermc/paper/util/CollisionUtil.java
 @@ -547,6 +547,13 @@ public final class CollisionUtil {
@@ -400,7 +400,7 @@ index 98ca1199a823cdf55b913396ce0a24554e85f116..c20d97cdad5a245010162d71eacc6236
 +                                                       final boolean loadChunks, final boolean collidesWithUnloaded,
 +                                                       final boolean checkBorder, final boolean checkOnly, final BiPredicate<BlockState, BlockPos> predicate) {
 +        return entity.collisionCache.getCollisions(getter, aabb, into, collidesWithUnloaded, checkOnly, predicate) ||
-+                getEntityHardCollisions(getter, entity, aabb, into, false, null);
++                getEntityHardCollisions(getter, entity, aabb, into, checkOnly, null);
 +    }
 +
      public static boolean getEntityHardCollisions(final CollisionGetter getter, final Entity entity, AABB aabb,
