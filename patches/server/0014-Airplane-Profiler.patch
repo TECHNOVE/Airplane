@@ -20,10 +20,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 76f699dd7837cad32b89344ca5c8a5d7ea319052..c1e70d5f127804deabcf626b725390863e896d38 100644
+index 19a056974ed068d7963902a5800db2919a95e636..fdc3f2390d8d0124102cbff386e8a981c6f92c22 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -73,6 +73,7 @@ dependencies {
+@@ -72,6 +72,7 @@ dependencies {
      implementation ("me.carleslc.Simple-YAML:Simple-Yaml:1.7.2") { // Airplane - more config
          exclude(group="org.yaml", module="snakeyaml") // exclude snakeyaml dependency because its old (1.26)
      } // Airplane - more config

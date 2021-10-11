@@ -5,7 +5,7 @@ Subject: [PATCH] Reduce entity allocations
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index c76c25d3fa6b0d07271d534edf12b1c32ca5c0bf..732eb171f6a8fe1b02044a00fcf85217c41116ac 100644
+index e4f1e8a1fa7de56a1d621f04bfffd0a3f1dcebb2..3dd0b38ea3983cdc9038fdb147f952cd481584c7 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -340,6 +340,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -16,7 +16,7 @@ index c76c25d3fa6b0d07271d534edf12b1c32ca5c0bf..732eb171f6a8fe1b02044a00fcf85217
      // Airplane end
  
      public float getBukkitYaw() {
-@@ -2464,9 +2465,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -2466,9 +2467,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
  
              // Paper start
              return io.papermc.paper.util.CollisionUtil.getCollisionsForBlocksOrWorldBorder(this.level, this, axisalignedbb, null,
@@ -58,10 +58,10 @@ index 9cbfda029782385d1a7987f5be46d450bd8a758e..d3e97858dacc850012e5585ac44a1aea
  
      public boolean hasAttribute(Attribute attribute) {
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index f4ca7aa01d65cc0c7cf16cb2b1a7c48c0aff917f..e49c8adfbb95dc1b23f1213de6aadddac12b12cb 100644
+index 36a25a1e7b5aa6c605100febcf5acccf6e5a3c3c..ed4e80895d21c266df7ff83243b4c3bc76c760ab 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
-@@ -175,6 +175,8 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+@@ -176,6 +176,8 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
      public final Map<Explosion.CacheKey, Float> explosionDensityCache = new HashMap<>(); // Paper - Optimize explosions
      public java.util.ArrayDeque<net.minecraft.world.level.block.RedstoneTorchBlock.Toggle> redstoneUpdateInfos; // Paper - Move from Map in BlockRedstoneTorch to here
  
