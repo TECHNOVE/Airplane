@@ -6,13 +6,12 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven("https://papermc.io/repo/repository/maven-public/") {
-        content { onlyForConfigurations("paperclip") }
-    }
+    maven("https://papermc.io/repo/repository/maven-public/")
 }
 
 dependencies {
-    remapper("org.quiltmc:tiny-remapper:0.4.3:fat")
+    remapper("net.fabricmc:tiny-remapper:0.6.0:fat")
+    decompiler("net.minecraftforge:forgeflower:1.5.498.12")
     paperclip("io.papermc:paperclip:2.0.1")
 }
 
