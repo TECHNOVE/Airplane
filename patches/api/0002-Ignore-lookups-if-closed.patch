@@ -5,7 +5,7 @@ Subject: [PATCH] Ignore lookups if closed
 
 
 diff --git a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
-index aebb784f84ba6b29a1f2941cf252a0d62b95456e..9101e0f454f0b4de18e24f7c32baa586bd4a8827 100644
+index 379b49f13a8c676125e17ad9207884a5d6cb5b7b..4c84e3a5c983b7f8fe5515fff6fcfa64106150d2 100644
 --- a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
 +++ b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
 @@ -46,6 +46,8 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
@@ -17,7 +17,7 @@ index aebb784f84ba6b29a1f2941cf252a0d62b95456e..9101e0f454f0b4de18e24f7c32baa586
      static {
          ClassLoader.registerAsParallelCapable();
      }
-@@ -154,7 +156,7 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
+@@ -159,7 +161,7 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
          }
          Class<?> result = classes.get(name);
  
@@ -26,7 +26,7 @@ index aebb784f84ba6b29a1f2941cf252a0d62b95456e..9101e0f454f0b4de18e24f7c32baa586
              String path = name.replace('.', '/').concat(".class");
              JarEntry entry = jar.getJarEntry(path);
  
-@@ -209,6 +211,7 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
+@@ -214,6 +216,7 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
          try {
              super.close();
          } finally {
