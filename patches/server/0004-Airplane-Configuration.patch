@@ -22,10 +22,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 078c0d0d3b14afc556c319691f61685e0500f865..19a056974ed068d7963902a5800db2919a95e636 100644
+index 6d1c47c8d6bbf1bebb593f8d0c25fa3a6e716147..ef1129199297a51959f3e8051e0c8abc695fb5fe 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -67,6 +67,12 @@ dependencies {
+@@ -61,6 +61,12 @@ dependencies {
      implementation("org.quiltmc:tiny-mappings-parser:0.3.0") // Paper - needed to read mappings for stacktrace deobfuscation
      implementation("com.velocitypowered:velocity-native:1.1.0-SNAPSHOT") // Paper
  
@@ -53,7 +53,7 @@ index e29b0a90019b12bd6586ad0f7b5314f307e527ba..6e8001c7ff6497c9e5c274a5fe85cc20
  
          new TimingsExport(listeners, parent, history).start();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-index 56fbcfa1184ff62d81a3ce8862206d13a217c570..361b05c3211704edbbe921a042d4daae8dbd5d45 100644
+index 97bb32f7ded7bb115ab06a51297dd412d7297baa..6a30338648214c98b05feb5a628dbdc6b2683ff9 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
 @@ -217,10 +217,11 @@ public class PaperConfig {
