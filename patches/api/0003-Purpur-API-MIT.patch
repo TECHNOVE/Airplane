@@ -5,7 +5,7 @@ Subject: [PATCH] Purpur API (MIT)
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 19ad999625bb85c72fe2eac482c49c0b1689a64e..b59aff60208c2334e320473547901cb7616f12d7 100644
+index 5f823837c749e98dece7af6a3d2a18cb1ba2aced..39dacd6b507c4afc997a7ed7b75ea83155f94708 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -39,6 +39,7 @@ dependencies {
@@ -1483,7 +1483,7 @@ index 0000000000000000000000000000000000000000..e77f45f761368da9b230c425d975a717
 +  }
 +}
 diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
-index a4fd6f6e51c478efa9b125d3878c246b5f762999..6197605519abf3c59108f1dff34105cc2bca10c2 100644
+index c551010f84ac5d3ebc626c253a8f8282924152c4..2e86aa13913553306512232a72497ec6b003260c 100644
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
 @@ -347,7 +347,7 @@ public final class Bukkit {
@@ -1549,7 +1549,7 @@ index a4fd6f6e51c478efa9b125d3878c246b5f762999..6197605519abf3c59108f1dff34105cc
      public static String getShutdownMessage() {
          return server.getShutdownMessage();
      }
-@@ -2104,4 +2104,43 @@ public final class Bukkit {
+@@ -2118,4 +2118,43 @@ public final class Bukkit {
      public static Server.Spigot spigot() {
          return server.spigot();
      }
@@ -1881,7 +1881,7 @@ index 3afd5f5c0208a4ee93b5dbfc2aab2b9d2e8a7544..8ea59406ddb2293af66719a893e6f13d
 +    // Purpur end - OfflinePlayer API
  }
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 1db87711dd9b67bcba42e731c8c1a81502abf56c..c44212baa2cc167a1a818c158441e5ff749f29eb 100644
+index c34cfba8f9ed7e9dbd0b6b8ffef9fba46abff046..ccfb8a8dcd51bf998c79298a22e38cebb2be6d39 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
 @@ -271,7 +271,7 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
@@ -1976,7 +1976,7 @@ index 1db87711dd9b67bcba42e731c8c1a81502abf56c..c44212baa2cc167a1a818c158441e5ff
          /**
           * Sends the component to the player
           *
-@@ -1825,4 +1840,35 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+@@ -1837,4 +1852,35 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
      @NotNull
      io.papermc.paper.datapack.DatapackManager getDatapackManager();
      // Paper end
@@ -2013,7 +2013,7 @@ index 1db87711dd9b67bcba42e731c8c1a81502abf56c..c44212baa2cc167a1a818c158441e5ff
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index 379acee1b5f2d06e6a96f3444783f4a29ca24095..b2502aaab690b1414a1adffdf64e5a5456feb99c 100644
+index 0b15fe8b5da29bf691c394098f0203a49504242e..df8469f5a8e4262652e04bdd2eddf5fabe5277f2 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
 @@ -87,6 +87,8 @@ public interface UnsafeValues {
@@ -2061,9 +2061,9 @@ index 379acee1b5f2d06e6a96f3444783f4a29ca24095..b2502aaab690b1414a1adffdf64e5a54
       */
      public int nextEntityId();
  
-@@ -184,4 +194,28 @@ public interface UnsafeValues {
+@@ -201,4 +211,28 @@ public interface UnsafeValues {
       */
-     int getProtocolVersion();
+     @org.jetbrains.annotations.NotNull org.bukkit.attribute.Attributable getDefaultEntityAttributes(@org.jetbrains.annotations.NotNull NamespacedKey entityKey);
      // Paper end
 +
 +    // Purpur start
@@ -2127,7 +2127,7 @@ index 14986911b4d0099ea2c91ab2196a771b7dee4c50..d1eed20ea3b27f0800a08b42b62aac40
      @NotNull
      public static WorldCreator ofKey(@NotNull NamespacedKey worldKey) {
 diff --git a/src/main/java/org/bukkit/advancement/Advancement.java b/src/main/java/org/bukkit/advancement/Advancement.java
-index 7c5009974ac8d64d0e738e60cec45acb0d4ca89a..432caadba1b08bb94cdb4ccf552e42400e0db338 100644
+index 3bbc7dffc36fa31099a8794ceeec77aeae0c49cb..f219fc3396d89b8c10704a408f2de6eec668e56e 100644
 --- a/src/main/java/org/bukkit/advancement/Advancement.java
 +++ b/src/main/java/org/bukkit/advancement/Advancement.java
 @@ -3,6 +3,7 @@ package org.bukkit.advancement;
@@ -2138,19 +2138,6 @@ index 7c5009974ac8d64d0e738e60cec45acb0d4ca89a..432caadba1b08bb94cdb4ccf552e4240
  
  /**
   * Represents an advancement that may be awarded to a player. This class is not
-@@ -17,4 +18,12 @@ public interface Advancement extends Keyed {
-      */
-     @NotNull
-     Collection<String> getCriteria();
-+
-+    /**
-+     * Gets the display properties of this advancement
-+     *
-+     * @return The display properties
-+     */
-+    @Nullable
-+    AdvancementDisplay getDisplay();
- }
 diff --git a/src/main/java/org/bukkit/advancement/AdvancementDisplay.java b/src/main/java/org/bukkit/advancement/AdvancementDisplay.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..2bb3b525a3974b6ccd223b2ba272933c1617ceac
@@ -2858,7 +2845,7 @@ index b02704b0535522c5535b560105eec2885fdd3e77..a365998c2c359fb6cd535ebf0f2d8939
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/entity/EntityType.java b/src/main/java/org/bukkit/entity/EntityType.java
-index d36d314383713bac3b11f18d95b0809dce3cd6e0..6a340d660d75968a52005502e6b410e2408140af 100644
+index 48aa290dbcf93715ce58d56d6cf3216948f2f3f2..cf5e2f8cfe425172f5c194689e2d923b109c6929 100644
 --- a/src/main/java/org/bukkit/entity/EntityType.java
 +++ b/src/main/java/org/bukkit/entity/EntityType.java
 @@ -20,6 +20,9 @@ import org.jetbrains.annotations.Contract;
@@ -3126,31 +3113,6 @@ index d23226ccb0f6c25028f000ce31346cd0a8898e6a..1ef9479c962b3f4f6fed46671a1209c3
 +     */
 +    @Nullable
 +    Llama getCaravanTail();
-+    // Purpur end
- }
-diff --git a/src/main/java/org/bukkit/entity/Mob.java b/src/main/java/org/bukkit/entity/Mob.java
-index 07bedbc15ba2463d3c629ae68d229286d4033f79..3e03e97daa8959430cf45ed30c0e21a5943bcfed 100644
---- a/src/main/java/org/bukkit/entity/Mob.java
-+++ b/src/main/java/org/bukkit/entity/Mob.java
-@@ -148,4 +148,20 @@ public interface Mob extends LivingEntity, Lootable {
-      * @return whether the mob is aware
-      */
-     public boolean isAware();
-+
-+    // Purpur start
-+    /**
-+     * Check if Mob is left-handed
-+     *
-+     * @return True if left-handed
-+     */
-+    public boolean isLeftHanded();
-+
-+    /**
-+     * Set if Mob is left-handed
-+     *
-+     * @param leftHanded True if left-handed
-+     */
-+    public void setLeftHanded(boolean leftHanded);
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/entity/Panda.java b/src/main/java/org/bukkit/entity/Panda.java
@@ -3773,15 +3735,12 @@ index 1f79f704abf339150df08900b8ea7da4cefef258..004106913655446774f875015cb79863
          adventure$lines.set(index, line != null ? org.bukkit.Bukkit.getUnsafe().legacyComponentSerializer().deserialize(line) : null); // Paper
      }
 diff --git a/src/main/java/org/bukkit/event/entity/EntityDamageByEntityEvent.java b/src/main/java/org/bukkit/event/entity/EntityDamageByEntityEvent.java
-index 869bad7405ec7fa67728e90d8b9f2e11b542611f..05fde759bbdf6068f140b4428bbcb355e22d6b28 100644
+index 7ce8f1a26c1b33dd0eb6e6435952fd73abf49879..6d4d1bc62fd44a7214ae2d0c17262fba07818531 100644
 --- a/src/main/java/org/bukkit/event/entity/EntityDamageByEntityEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/EntityDamageByEntityEvent.java
-@@ -10,15 +10,28 @@ import org.jetbrains.annotations.NotNull;
-  */
- public class EntityDamageByEntityEvent extends EntityDamageEvent {
-     private final Entity damager;
-+    private final boolean isCritical; // Purpur
+@@ -13,6 +13,11 @@ public class EntityDamageByEntityEvent extends EntityDamageEvent {
  
+     @Deprecated // Paper - add critical damage API
      public EntityDamageByEntityEvent(@NotNull final Entity damager, @NotNull final Entity damagee, @NotNull final DamageCause cause, final double damage) {
 +        // Purpur start
 +        this(damager, damagee, cause, damage, false);
@@ -3790,37 +3749,12 @@ index 869bad7405ec7fa67728e90d8b9f2e11b542611f..05fde759bbdf6068f140b4428bbcb355
 +        // Purpur end
          super(damagee, cause, damage);
          this.damager = damager;
-+        this.isCritical = isCritical; // Purpur
-     }
- 
-     public EntityDamageByEntityEvent(@NotNull final Entity damager, @NotNull final Entity damagee, @NotNull final DamageCause cause, @NotNull final Map<DamageModifier, Double> modifiers, @NotNull final Map<DamageModifier, ? extends Function<? super Double, Double>> modifierFunctions) {
-+        // Purpur start
-+        this(damager, damagee, cause, modifiers, modifierFunctions, false);
-+    }
-+    public EntityDamageByEntityEvent(@NotNull final Entity damager, @NotNull final Entity damagee, @NotNull final DamageCause cause, @NotNull final Map<DamageModifier, Double> modifiers, @NotNull final Map<DamageModifier, ? extends Function<? super Double, Double>> modifierFunctions, boolean isCritical) {
-+        // Purpur end
-         super(damagee, cause, modifiers, modifierFunctions);
-         this.damager = damager;
-+        this.isCritical = isCritical; // Purpur
-     }
- 
-     /**
-@@ -30,4 +43,16 @@ public class EntityDamageByEntityEvent extends EntityDamageEvent {
+         this.critical = false; // Paper - add critical damage API
+@@ -55,4 +60,5 @@ public class EntityDamageByEntityEvent extends EntityDamageEvent {
      public Entity getDamager() {
          return damager;
      }
 +
-+    // Purpur start
-+
-+    /**
-+     * Whether this damage was done by a critical hit
-+     *
-+     * @return True if critical hit
-+     */
-+    public boolean isCritical() {
-+        return this.isCritical;
-+    }
-+    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/event/entity/EntityPotionEffectEvent.java b/src/main/java/org/bukkit/event/entity/EntityPotionEffectEvent.java
 index b915c3cab168a2bbdca740e662baaa708d425e41..476b33dd26af55f787f64c37d9a8cd2d0dc2a7f7 100644
@@ -4389,7 +4323,7 @@ index b06995aa57aa9cba0bb59f1d26d81015619a08e6..5e33fe46ab9bb034acc6a38a3c00c33c
      public abstract String getTitle();
  }
 diff --git a/src/main/java/org/bukkit/inventory/ItemFactory.java b/src/main/java/org/bukkit/inventory/ItemFactory.java
-index 0a4466c6ca519c3a5da76ff870fb2a4e3a06effd..e7dd844f2359fdaf903632bb3761382ee9dc38b5 100644
+index 8677e273641a46aae7107361f23f6ded59a50dc0..bbabc11f5a6166f2866414ee6eb2195b2b69ae53 100644
 --- a/src/main/java/org/bukkit/inventory/ItemFactory.java
 +++ b/src/main/java/org/bukkit/inventory/ItemFactory.java
 @@ -148,6 +148,7 @@ public interface ItemFactory {
@@ -4409,9 +4343,9 @@ index 0a4466c6ca519c3a5da76ff870fb2a4e3a06effd..e7dd844f2359fdaf903632bb3761382e
       * @return the {@link net.md_5.bungee.api.chat.hover.content.Content} of that ItemStack
       */
      @NotNull
-@@ -242,4 +243,15 @@ public interface ItemFactory {
-     @Deprecated
-     net.md_5.bungee.api.chat.hover.content.Content hoverContentOf(@NotNull org.bukkit.entity.Entity entity, @NotNull net.md_5.bungee.api.chat.BaseComponent[] customName);
+@@ -251,4 +252,15 @@ public interface ItemFactory {
+     @Nullable
+     ItemStack getSpawnEgg(@Nullable org.bukkit.entity.EntityType type);
      // Paper end
 +
 +    // Purpur start
