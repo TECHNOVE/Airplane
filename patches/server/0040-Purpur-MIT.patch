@@ -740,7 +740,7 @@ index c71bc00973899feec0ec5530bf3d237928810cf4..8994ce2c8c0855b9037326fdf1235c3f
          this.entity.stopSeenByPlayer(player);
          player.connection.send(new ClientboundRemoveEntitiesPacket(new int[]{this.entity.getId()}));
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index ce146c771b8e38eb24e9372058f238920ec88882..87875413ba3781d3e100bd735afaa16ccf686027 100644
+index 1ae7a10df7460f223413c38ac6bd85dba15fb347..5787558d17d8fbb912b317f90e1a45f3c75678f5 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -83,6 +83,7 @@ import net.minecraft.world.entity.MobCategory;
@@ -19423,7 +19423,7 @@ index 04976616da8c85b1278dad33ff05554aa74a6b33..046e0e174119e65686e74eaf11853e68
      }
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 2712aa554383a3b2b742c945e2f0be7ee96eea69..b75661886bafcfa340c5ac388401aa3c1cda78a9 100644
+index 986f045a2e6a040c6e2aab7420c8cb2d4ac3a726..fc9fe81176a779d8961e17f2059cf745583d49ae 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 @@ -562,6 +562,10 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
