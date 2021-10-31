@@ -1826,7 +1826,7 @@ index 79e036d79dec2ec4404baf02c23ba5ccad20cdce..6706d8e6d43cc5f3058f08fdfde77bed
  
                  ((ServerPlayer) entityhuman).connection.send(new ClientboundSetHealthPacket(((ServerPlayer) entityhuman).getBukkitEntity().getScaledHealth(), entityhuman.getFoodData().foodLevel, entityhuman.getFoodData().saturationLevel));
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index d35cdcf2ee7568ad5caf52588db54e9c6f607d4b..5262874f97024858ede1f4960f88ee70ab429c2a 100644
+index e4e9d7286a91155b55915b9046704b0848962b2f..d41f445f8faa71dd3c2a6ca2060ac272ad7ac949 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -150,7 +150,7 @@ import org.bukkit.plugin.PluginManager;
@@ -4831,7 +4831,7 @@ index ae21d260b2d4673eb4aa56a82e1043d20507adb2..001c103f1519133382e66343469b7982
  
      @Override
 diff --git a/src/main/java/net/minecraft/world/entity/animal/Pig.java b/src/main/java/net/minecraft/world/entity/animal/Pig.java
-index 53eaafad559cd6413bb1e10d07374da0ab907ec6..284c355784f4714ab098b986c323e25f827a544e 100644
+index e4d811025a000f6d12ab8587de293e929c8fd970..ff768992544bc9c7661c698ba8fad6b49a08e437 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/Pig.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/Pig.java
 @@ -65,9 +65,32 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
@@ -12373,7 +12373,7 @@ index d439e8ce87bf7da03683a336941c7673b8b166e4..955e482e4bc83f2b777cd2e4254c40be
          Entry<EquipmentSlot, ItemStack> entry = getRandomItemWith(enchantment, entityliving);
          return entry != null ? entry.getValue() : ItemStack.EMPTY;
 diff --git a/src/main/java/net/minecraft/world/level/BaseSpawner.java b/src/main/java/net/minecraft/world/level/BaseSpawner.java
-index c601b8b12756682a4cb300be8ebed4319902c5b5..eec88d3947d435559d8ce175f72c5efb02d25826 100644
+index 56d3867f748d92a55976820215d9b8316989677b..1427c7daef2f814b26a7c29bdc0553b1d95aaceb 100644
 --- a/src/main/java/net/minecraft/world/level/BaseSpawner.java
 +++ b/src/main/java/net/minecraft/world/level/BaseSpawner.java
 @@ -78,6 +78,7 @@ public abstract class BaseSpawner {
@@ -20009,10 +20009,10 @@ index 3ff03e3e8c723d0f2a7c115d4dba01f1b3c2c46e..4dc71c761371400fb92e6943ba44bf40
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftItemFactory.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftItemFactory.java
-index a30bb0a1dde5b5a7980331914a5f852e6bcd19dc..ce32c06ca4566345418022abfc275829ba2f474a 100644
+index 51174b318ccdd3c339f0d2dd49aff9a52d888a7e..34113a05b8d9e16978914677a9325f6e887115dd 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftItemFactory.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftItemFactory.java
-@@ -422,4 +422,18 @@ public final class CraftItemFactory implements ItemFactory {
+@@ -419,4 +419,18 @@ public final class CraftItemFactory implements ItemFactory {
          return eggItem == null ? null : new net.minecraft.world.item.ItemStack(eggItem).asBukkitMirror();
      }
      // Paper end
