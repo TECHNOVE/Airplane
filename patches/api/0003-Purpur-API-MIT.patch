@@ -5,7 +5,7 @@ Subject: [PATCH] Purpur API (MIT)
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 5f823837c749e98dece7af6a3d2a18cb1ba2aced..39dacd6b507c4afc997a7ed7b75ea83155f94708 100644
+index 92b612126a6bac0b89198a92bbb73b742ec9d064..849126adc8e75324b3dae2d946092bc325064e29 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -39,6 +39,7 @@ dependencies {
@@ -1693,10 +1693,10 @@ index 525ede42137cc27cf20cf713478e85292455676e..a0279fcbfc76ad97a61fc191424e876d
  
      WATER,
 diff --git a/src/main/java/org/bukkit/Material.java b/src/main/java/org/bukkit/Material.java
-index ed6dfb28f8f434680fc8eacbe49a9d0b6cf9be83..a128b647367487f6ba597d9a34378085a18bd8d1 100644
+index f1ff88a5db58eed6087c3e9e6c211a95e00f35b4..bc243e68c5965b62594cc5e1e7e8050731f88765 100644
 --- a/src/main/java/org/bukkit/Material.java
 +++ b/src/main/java/org/bukkit/Material.java
-@@ -9826,4 +9826,40 @@ public enum Material implements Keyed, net.kyori.adventure.translation.Translata
+@@ -9836,4 +9836,40 @@ public enum Material implements Keyed, net.kyori.adventure.translation.Translata
              // </editor-fold>
          }
      }
@@ -2013,7 +2013,7 @@ index c34cfba8f9ed7e9dbd0b6b8ffef9fba46abff046..ccfb8a8dcd51bf998c79298a22e38ceb
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index 0b15fe8b5da29bf691c394098f0203a49504242e..df8469f5a8e4262652e04bdd2eddf5fabe5277f2 100644
+index c8c2e5bc2ec1d8d7ea445a1203c9d5a904dfc666..1abbc402185a9af3ce4628bb285715c310996e34 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
 @@ -87,6 +87,8 @@ public interface UnsafeValues {
@@ -2061,9 +2061,9 @@ index 0b15fe8b5da29bf691c394098f0203a49504242e..df8469f5a8e4262652e04bdd2eddf5fa
       */
      public int nextEntityId();
  
-@@ -201,4 +211,28 @@ public interface UnsafeValues {
+@@ -210,4 +220,28 @@ public interface UnsafeValues {
       */
-     @org.jetbrains.annotations.NotNull org.bukkit.attribute.Attributable getDefaultEntityAttributes(@org.jetbrains.annotations.NotNull NamespacedKey entityKey);
+     boolean isCollidable(@org.jetbrains.annotations.NotNull Material material);
      // Paper end
 +
 +    // Purpur start
@@ -2237,7 +2237,7 @@ index 0000000000000000000000000000000000000000..a5db52386e11e4b5511ae417a0e7ac92
 +    }
 +}
 diff --git a/src/main/java/org/bukkit/block/Block.java b/src/main/java/org/bukkit/block/Block.java
-index 0006a5a53dfa9fc81c608423e8740a9c820659a3..1eac84f8abf71029e9e0626a9fa93446f9d0df02 100644
+index 70caaf05be813ba390412714ba0a39981edc2475..c4729769893fd3243ad60f4ad1bb3d7563ff775f 100644
 --- a/src/main/java/org/bukkit/block/Block.java
 +++ b/src/main/java/org/bukkit/block/Block.java
 @@ -184,6 +184,9 @@ public interface Block extends Metadatable, net.kyori.adventure.translation.Tran
@@ -2978,7 +2978,7 @@ index 0ee072645ecf1bf5feb74de6960947ef76db366e..5b9a20e0695218f1239d2bf1d0368291
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/entity/LightningStrike.java b/src/main/java/org/bukkit/entity/LightningStrike.java
-index 2c81a3f685588431a3c7675c84b35a28975232af..efb308c82580722e5106d5d1c7512d99c38e536a 100644
+index 6f5b6901032eb03606c4566b24459a03baac0c73..9dc1f27d3b36e112d2e79d93b3e49c3999c1bd97 100644
 --- a/src/main/java/org/bukkit/entity/LightningStrike.java
 +++ b/src/main/java/org/bukkit/entity/LightningStrike.java
 @@ -15,6 +15,9 @@ public interface LightningStrike extends Entity {
@@ -3130,7 +3130,7 @@ index a6a7429ed2e1eefb2b12b7480ed74fcc3963a864..e8027e1d505dda6effbb1698550016e8
  
          NORMAL(false),
 diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
-index 3e8cd3971ac8256a40d9b85cd7514998c965512c..033cf450dcfb02e57d0875d0117086e6fe615c32 100644
+index 6fe68b7f71d4e323c590c515ee2f9a3ac5f044c3..18fef3648386853bb216c71305189716ddf0ea8d 100644
 --- a/src/main/java/org/bukkit/entity/Player.java
 +++ b/src/main/java/org/bukkit/entity/Player.java
 @@ -75,7 +75,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
@@ -3223,7 +3223,7 @@ index 3e8cd3971ac8256a40d9b85cd7514998c965512c..033cf450dcfb02e57d0875d0117086e6
      public void kickPlayer(@Nullable String message);
  
      // Paper start
-@@ -673,7 +673,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -678,7 +678,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
       * @throws IllegalArgumentException if lines is non-null and has a length less than 4
       * @deprecated in favour of {@link #sendSignChange(org.bukkit.Location, java.util.List)}
       */
@@ -3232,7 +3232,7 @@ index 3e8cd3971ac8256a40d9b85cd7514998c965512c..033cf450dcfb02e57d0875d0117086e6
      public void sendSignChange(@NotNull Location loc, @Nullable String[] lines) throws IllegalArgumentException;
  
      /**
-@@ -694,7 +694,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -699,7 +699,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
       * @throws IllegalArgumentException if lines is non-null and has a length less than 4
       * @deprecated in favour of {@link #sendSignChange(org.bukkit.Location, java.util.List, org.bukkit.DyeColor)}
       */
@@ -3241,7 +3241,7 @@ index 3e8cd3971ac8256a40d9b85cd7514998c965512c..033cf450dcfb02e57d0875d0117086e6
      public void sendSignChange(@NotNull Location loc, @Nullable String[] lines, @NotNull DyeColor dyeColor) throws IllegalArgumentException;
  
      /**
-@@ -1490,6 +1490,88 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -1495,6 +1495,88 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
       */
      public void setResourcePack(@NotNull String url, @NotNull byte[] hash);
  
@@ -3330,7 +3330,7 @@ index 3e8cd3971ac8256a40d9b85cd7514998c965512c..033cf450dcfb02e57d0875d0117086e6
      /**
       * Gets the Scoreboard displayed to this player
       *
-@@ -1867,7 +1949,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -1872,7 +1954,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
       * @deprecated in favour of {@link #locale()}
       */
      @NotNull
@@ -3339,7 +3339,7 @@ index 3e8cd3971ac8256a40d9b85cd7514998c965512c..033cf450dcfb02e57d0875d0117086e6
      public String getLocale();
  
      // Paper start
-@@ -2117,6 +2199,8 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -2122,6 +2204,8 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      void resetCooldown();
  
      /**
@@ -3348,7 +3348,7 @@ index 3e8cd3971ac8256a40d9b85cd7514998c965512c..033cf450dcfb02e57d0875d0117086e6
       * @return the client option value of the player
       */
      @NotNull
-@@ -2156,6 +2240,9 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -2161,6 +2245,9 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      // Paper end
  
      // Spigot start
@@ -3358,7 +3358,7 @@ index 3e8cd3971ac8256a40d9b85cd7514998c965512c..033cf450dcfb02e57d0875d0117086e6
      public class Spigot extends Entity.Spigot {
  
          /**
-@@ -2295,4 +2382,67 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -2300,4 +2387,67 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      @Override
      Spigot spigot();
      // Spigot end
@@ -3816,10 +3816,10 @@ index e378cc29b47238fe12ae9aff5171edcff6b456f5..f5b9fd0b6f9512e425e1cc6103f80ba1
  
      private static final HandlerList handlers = new HandlerList();
 diff --git a/src/main/java/org/bukkit/event/entity/PlayerDeathEvent.java b/src/main/java/org/bukkit/event/entity/PlayerDeathEvent.java
-index 3d45d2e41aad6992b40a22030f2a63baeec78757..3cecfe9f7c253ab474829c612cca2dc05fd5d111 100644
+index 8175e5329f7fb6da4c7faf695162b51492114dc3..839fea07e3b3fe486cd8f7f8fa5d2593ed54594e 100644
 --- a/src/main/java/org/bukkit/event/entity/PlayerDeathEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/PlayerDeathEvent.java
-@@ -151,7 +151,7 @@ public class PlayerDeathEvent extends EntityDeathEvent {
+@@ -162,7 +162,7 @@ public class PlayerDeathEvent extends EntityDeathEvent {
       * @param deathMessage Message to appear to other players on the server.
       * @deprecated in favour of {@link #deathMessage(net.kyori.adventure.text.Component)}
       */
@@ -3828,7 +3828,7 @@ index 3d45d2e41aad6992b40a22030f2a63baeec78757..3cecfe9f7c253ab474829c612cca2dc0
      public void setDeathMessage(@Nullable String deathMessage) {
          this.deathMessage = deathMessage;
          this.adventure$deathMessage = deathMessage != null ? org.bukkit.Bukkit.getUnsafe().legacyComponentSerializer().deserialize(deathMessage) : net.kyori.adventure.text.Component.empty(); // Paper
-@@ -164,7 +164,7 @@ public class PlayerDeathEvent extends EntityDeathEvent {
+@@ -175,7 +175,7 @@ public class PlayerDeathEvent extends EntityDeathEvent {
       * @deprecated in favour of {@link #deathMessage()}
       */
      @Nullable
