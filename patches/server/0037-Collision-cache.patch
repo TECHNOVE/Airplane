@@ -6,10 +6,10 @@ Subject: [PATCH] Collision cache
 
 diff --git a/src/main/java/gg/airplane/entity/CollisionCache.java b/src/main/java/gg/airplane/entity/CollisionCache.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..87e162cc30da9346190c7daeb19cc74049b5377e
+index 0000000000000000000000000000000000000000..f67e19ad737a7a6b29e58aad59b1367574609efe
 --- /dev/null
 +++ b/src/main/java/gg/airplane/entity/CollisionCache.java
-@@ -0,0 +1,258 @@
+@@ -0,0 +1,263 @@
 +package gg.airplane.entity;
 +
 +import io.papermc.paper.util.CollisionUtil;
@@ -26,7 +26,6 @@ index 0000000000000000000000000000000000000000..87e162cc30da9346190c7daeb19cc740
 +import net.minecraft.world.level.chunk.LevelChunkSection;
 +import net.minecraft.world.phys.AABB;
 +import net.minecraft.world.phys.shapes.CollisionContext;
-+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 +import net.minecraft.world.phys.shapes.Shapes;
 +import net.minecraft.world.phys.shapes.VoxelShape;
 +import org.bukkit.craftbukkit.util.UnsafeList;
@@ -40,7 +39,8 @@ index 0000000000000000000000000000000000000000..87e162cc30da9346190c7daeb19cc740
 +
 +public class CollisionCache {
 +
-+    private static record BlockEntry(int x, int y, int z, BlockState state){}
++    private static record BlockEntry(int x, int y, int z, BlockState state) {
++    }
 +
 +    @NotNull
 +    private final Entity entity;
@@ -99,11 +99,12 @@ index 0000000000000000000000000000000000000000..87e162cc30da9346190c7daeb19cc740
 +            if (checkOnly) {
 +                for (int i = 0, length = this.blocks.size(); i < length; i++) {
 +                    BlockEntry blockEntry = this.blocks.unsafeGet(i);
++                    mutablePos.set(blockEntry.x, blockEntry.y, blockEntry.z);
 +                    VoxelShape voxelshape2 = blockEntry.state.getCollisionShape(this.entity.level, mutablePos, collisionShape);
 +                    if (voxelshape2 != Shapes.empty()) {
 +                        VoxelShape voxelshape3 = voxelshape2.move((double) blockEntry.x, (double) blockEntry.y, (double) blockEntry.z);
 +
-+                        if (voxelshape3.intersects(aabb) && predicate.test(blockEntry.state, mutablePos.set(blockEntry.x, blockEntry.y, blockEntry.z))) {
++                        if (voxelshape3.intersects(aabb) && predicate.test(blockEntry.state, mutablePos)) {
 +                            return true;
 +                        }
 +                    }
@@ -111,6 +112,7 @@ index 0000000000000000000000000000000000000000..87e162cc30da9346190c7daeb19cc740
 +            } else {
 +                for (int i = 0, length = this.blocks.size(); i < length; i++) {
 +                    BlockEntry blockEntry = this.blocks.unsafeGet(i);
++                    mutablePos.set(blockEntry.x, blockEntry.y, blockEntry.z);
 +                    VoxelShape voxelshape2 = blockEntry.state.getCollisionShape(this.entity.level, mutablePos, collisionShape);
 +
 +                    if (voxelshape2 != Shapes.empty()) {
@@ -243,10 +245,13 @@ index 0000000000000000000000000000000000000000..87e162cc30da9346190c7daeb19cc740
 +                                    collisionShape = CollisionContext.of(entity);
 +                                }
 +                                VoxelShape voxelshape2 = blockData.getCollisionShape(this.entity.level, mutablePos, collisionShape);
++
++                                if (voxelshape2 != Shapes.empty() || blockData.getBlock() == Blocks.MOVING_PISTON) {
++                                    this.blocks.add(new BlockEntry(blockX, blockY, blockZ, blockData));
++                                }
++
 +                                if (voxelshape2 != Shapes.empty()) {
 +                                    VoxelShape voxelshape3 = voxelshape2.move((double) blockX, (double) blockY, (double) blockZ);
-+
-+                                    this.blocks.add(new BlockEntry(blockX, blockY, blockZ, blockData));
 +
 +                                    ret |= CollisionUtil.addBoxesToIfIntersects(voxelshape3, aabb, into);
 +                                }
@@ -426,7 +431,7 @@ index 98ca1199a823cdf55b913396ce0a24554e85f116..b16e65fa8be40f6c938c8c183c9bca7c
                                                    final List<AABB> into, final boolean checkOnly, final Predicate<Entity> predicate) {
          if (isEmpty(aabb) || !(getter instanceof EntityGetter entityGetter)) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index a06e0c7bbc8c5945cac7c37f3a66ea9c1a28cde2..d35cdcf2ee7568ad5caf52588db54e9c6f607d4b 100644
+index 04b54ba8bab5e103db0add987dd0178848de48fa..e4e9d7286a91155b55915b9046704b0848962b2f 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -341,6 +341,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
