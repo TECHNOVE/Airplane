@@ -6,10 +6,10 @@ Subject: [PATCH] Collision cache
 
 diff --git a/src/main/java/gg/airplane/entity/CollisionCache.java b/src/main/java/gg/airplane/entity/CollisionCache.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..87e162cc30da9346190c7daeb19cc74049b5377e
+index 0000000000000000000000000000000000000000..f67e19ad737a7a6b29e58aad59b1367574609efe
 --- /dev/null
 +++ b/src/main/java/gg/airplane/entity/CollisionCache.java
-@@ -0,0 +1,258 @@
+@@ -0,0 +1,263 @@
 +package gg.airplane.entity;
 +
 +import io.papermc.paper.util.CollisionUtil;
@@ -26,7 +26,6 @@ index 0000000000000000000000000000000000000000..87e162cc30da9346190c7daeb19cc740
 +import net.minecraft.world.level.chunk.LevelChunkSection;
 +import net.minecraft.world.phys.AABB;
 +import net.minecraft.world.phys.shapes.CollisionContext;
-+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 +import net.minecraft.world.phys.shapes.Shapes;
 +import net.minecraft.world.phys.shapes.VoxelShape;
 +import org.bukkit.craftbukkit.util.UnsafeList;
@@ -40,7 +39,8 @@ index 0000000000000000000000000000000000000000..87e162cc30da9346190c7daeb19cc740
 +
 +public class CollisionCache {
 +
-+    private static record BlockEntry(int x, int y, int z, BlockState state){}
++    private static record BlockEntry(int x, int y, int z, BlockState state) {
++    }
 +
 +    @NotNull
 +    private final Entity entity;
@@ -99,11 +99,12 @@ index 0000000000000000000000000000000000000000..87e162cc30da9346190c7daeb19cc740
 +            if (checkOnly) {
 +                for (int i = 0, length = this.blocks.size(); i < length; i++) {
 +                    BlockEntry blockEntry = this.blocks.unsafeGet(i);
++                    mutablePos.set(blockEntry.x, blockEntry.y, blockEntry.z);
 +                    VoxelShape voxelshape2 = blockEntry.state.getCollisionShape(this.entity.level, mutablePos, collisionShape);
 +                    if (voxelshape2 != Shapes.empty()) {
 +                        VoxelShape voxelshape3 = voxelshape2.move((double) blockEntry.x, (double) blockEntry.y, (double) blockEntry.z);
 +
-+                        if (voxelshape3.intersects(aabb) && predicate.test(blockEntry.state, mutablePos.set(blockEntry.x, blockEntry.y, blockEntry.z))) {
++                        if (voxelshape3.intersects(aabb) && predicate.test(blockEntry.state, mutablePos)) {
 +                            return true;
 +                        }
 +                    }
@@ -111,6 +112,7 @@ index 0000000000000000000000000000000000000000..87e162cc30da9346190c7daeb19cc740
 +            } else {
 +                for (int i = 0, length = this.blocks.size(); i < length; i++) {
 +                    BlockEntry blockEntry = this.blocks.unsafeGet(i);
++                    mutablePos.set(blockEntry.x, blockEntry.y, blockEntry.z);
 +                    VoxelShape voxelshape2 = blockEntry.state.getCollisionShape(this.entity.level, mutablePos, collisionShape);
 +
 +                    if (voxelshape2 != Shapes.empty()) {
@@ -243,10 +245,13 @@ index 0000000000000000000000000000000000000000..87e162cc30da9346190c7daeb19cc740
 +                                    collisionShape = CollisionContext.of(entity);
 +                                }
 +                                VoxelShape voxelshape2 = blockData.getCollisionShape(this.entity.level, mutablePos, collisionShape);
++
++                                if (voxelshape2 != Shapes.empty() || blockData.getBlock() == Blocks.MOVING_PISTON) {
++                                    this.blocks.add(new BlockEntry(blockX, blockY, blockZ, blockData));
++                                }
++
 +                                if (voxelshape2 != Shapes.empty()) {
 +                                    VoxelShape voxelshape3 = voxelshape2.move((double) blockX, (double) blockY, (double) blockZ);
-+
-+                                    this.blocks.add(new BlockEntry(blockX, blockY, blockZ, blockData));
 +
 +                                    ret |= CollisionUtil.addBoxesToIfIntersects(voxelshape3, aabb, into);
 +                                }
@@ -426,7 +431,7 @@ index 98ca1199a823cdf55b913396ce0a24554e85f116..b16e65fa8be40f6c938c8c183c9bca7c
                                                    final List<AABB> into, final boolean checkOnly, final Predicate<Entity> predicate) {
          if (isEmpty(aabb) || !(getter instanceof EntityGetter entityGetter)) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index a06e0c7bbc8c5945cac7c37f3a66ea9c1a28cde2..d35cdcf2ee7568ad5caf52588db54e9c6f607d4b 100644
+index f8b264ed10071f385868654c8596335b187e2798..aac9dd19237d0708990960d03328e7530cd7bc8e 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -341,6 +341,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -504,10 +509,10 @@ index ff0fab668801d0b32abffbfedc7eb24abf71fed0..db7904b1bb402a36684b97c443336630
              return null;
          } else {
 diff --git a/src/main/java/net/minecraft/world/level/entity/PersistentEntitySectionManager.java b/src/main/java/net/minecraft/world/level/entity/PersistentEntitySectionManager.java
-index 9681e397588a8abc4150b991e546fa79b5635c87..646385d0bef31f43a7273fa78ec696dfc761093c 100644
+index 8cb246863e06c5b95ba1442e2ec47095026c4f39..5a72ce41cc57578498c4a072a1eb04ac28958afe 100644
 --- a/src/main/java/net/minecraft/world/level/entity/PersistentEntitySectionManager.java
 +++ b/src/main/java/net/minecraft/world/level/entity/PersistentEntitySectionManager.java
-@@ -606,6 +606,12 @@ public class PersistentEntitySectionManager<T extends EntityAccess> implements A
+@@ -627,6 +627,12 @@ public class PersistentEntitySectionManager<T extends EntityAccess> implements A
              PersistentEntitySectionManager.this.knownUuids.remove(this.entity.getUUID());
              this.entity.setLevelCallback(PersistentEntitySectionManager.Callback.NULL);
              PersistentEntitySectionManager.this.removeSectionIfEmpty(this.currentSectionKey, this.currentSection);

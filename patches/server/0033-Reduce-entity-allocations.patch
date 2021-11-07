@@ -5,7 +5,7 @@ Subject: [PATCH] Reduce entity allocations
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index e4f1e8a1fa7de56a1d621f04bfffd0a3f1dcebb2..3dd0b38ea3983cdc9038fdb147f952cd481584c7 100644
+index 83c026a699ad0dfe95f1a370667eb9e9040207dc..bb50f5593b90652563460f0d15a06616c689c7f0 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -340,6 +340,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n

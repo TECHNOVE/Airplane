@@ -5,7 +5,7 @@ Subject: [PATCH] Reduce entity fluid lookups if no fluids
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 3dd0b38ea3983cdc9038fdb147f952cd481584c7..a06e0c7bbc8c5945cac7c37f3a66ea9c1a28cde2 100644
+index bb50f5593b90652563460f0d15a06616c689c7f0..f8b264ed10071f385868654c8596335b187e2798 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -3854,16 +3854,18 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n

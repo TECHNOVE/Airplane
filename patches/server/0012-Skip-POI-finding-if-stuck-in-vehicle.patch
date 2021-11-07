@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java b/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
-index efe66264ad5717bf3aac0fbda07275fb5571acc1..68188f3322a9af8eac423afc5f87bc4f88f4a5bb 100644
+index afbb2acd27416c801af3d718850b82a170734cd3..0b206a3f964f5143e0720890d78d682b8b558c15 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
 @@ -68,6 +68,7 @@ public class AcquirePoi extends Behavior<PathfinderMob> {
