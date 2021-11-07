@@ -5,7 +5,7 @@ Subject: [PATCH] Remove streams and iterators from range check
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
-index 65090afbb510231c05db3132ba416502d188f1c0..4249f24f4c43c55eb13ca85be6e0b8871a1cace9 100644
+index 4e4ef1646ed40480f58ae3cd1c41dd3b28f56e4a..a9f247ba1d889dffdbac51fa70cc887f4987e717 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
 @@ -2413,8 +2413,28 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
