@@ -34,10 +34,10 @@ index f9a71ff3edd7e7b6cda680e5a156373b5aa813c2..da9880b0e5e1e8aed5c50d27e878787b
  
      public static Map<String, String> getCleanCopies() throws IOException {
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 642439159028c1e0aed996f546d49caeb522b4bf..3cb77c2255bd1e836c17175531a870e1fe810e78 100644
+index fb3dcf1c1c25888edeed1f79290585986ee93d96..b69c7ba7fd9fa1f008ae7a282de5aa4ebc6c6a47 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1742,7 +1742,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1745,7 +1745,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @DontObfuscate
      public String getServerModName() {
