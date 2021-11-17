@@ -2013,7 +2013,7 @@ index c34cfba8f9ed7e9dbd0b6b8ffef9fba46abff046..ccfb8a8dcd51bf998c79298a22e38ceb
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index 014c9984018ad5e51a26228a137e1ba4eb3e80c8..05d6b5a3419a15a7974b4d79bf2bdeadd931620f 100644
+index 014c9984018ad5e51a26228a137e1ba4eb3e80c8..151665cc39fb8e775ff2a71e4bf1160143ee3faa 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
 @@ -87,6 +87,8 @@ public interface UnsafeValues {
@@ -2061,34 +2061,11 @@ index 014c9984018ad5e51a26228a137e1ba4eb3e80c8..05d6b5a3419a15a7974b4d79bf2bdead
       */
      public int nextEntityId();
  
-@@ -218,4 +228,28 @@ public interface UnsafeValues {
+@@ -218,4 +228,5 @@ public interface UnsafeValues {
       */
      boolean isCollidable(@org.jetbrains.annotations.NotNull Material material);
      // Paper end
 +
-+    // Purpur start
-+
-+    /**
-+     * Serialize entity to byte array
-+     *
-+     * @param entity entity to serialize
-+     * @return serialized entity
-+     */
-+    byte[] serializeEntity(org.bukkit.entity.Entity entity);
-+
-+    /**
-+     * Deserialize an entity from byte array
-+     * <p>
-+     * The entity is not automatically spawned in the world. You will have to spawn
-+     * the entity yourself with {@link org.bukkit.entity.Entity#spawnAt(Location)} or
-+     * {@link org.bukkit.entity.Entity#spawnAt(Location, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason)}
-+     *
-+     * @param data serialized entity
-+     * @param world world entity belongs in
-+     * @return deserialized entity
-+     */
-+    org.bukkit.entity.Entity deserializeEntity(byte[] data, org.bukkit.World world);
-+    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/WorldBorder.java b/src/main/java/org/bukkit/WorldBorder.java
 index afb7b136b461202026290624836446cff9f9e45d..087579fdff09237409c9f80446e7a15a78f9040c 100644
@@ -2722,7 +2699,7 @@ index 9e7f42caab1204036f4203354c115fd40c6def92..d71afdfa9f7eb66dffd9943d6e51314b
      void setPlayerSpawned(boolean playerSpawned);
  }
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
-index bafad5764cc3933fcd9602d37bd2e68424cbd575..8e33f911068bc50aedff8cdf909ddc85406bb653 100644
+index bafad5764cc3933fcd9602d37bd2e68424cbd575..52b3ba61bd58bdee339ecabeb047564aeaa46bdc 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
 +++ b/src/main/java/org/bukkit/entity/Entity.java
 @@ -668,6 +668,9 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
@@ -2786,7 +2763,7 @@ index bafad5764cc3933fcd9602d37bd2e68424cbd575..8e33f911068bc50aedff8cdf909ddc85
       */
      public boolean isTicking();
  
-@@ -795,4 +812,61 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+@@ -795,4 +812,42 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
       */
      public boolean spawnAt(@NotNull Location location, @NotNull org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason reason);
      // Paper end
@@ -2820,25 +2797,6 @@ index bafad5764cc3933fcd9602d37bd2e68424cbd575..8e33f911068bc50aedff8cdf909ddc85
 +     * @return True if ridable in water
 +     */
 +    boolean isRidableInWater();
-+
-+    /**
-+     * Spawn this entity in the world at the given {@link Location} with the default spawn reason.
-+     *
-+     * @param location The location at which to spawn the entity.
-+     * @return Whether the entity was successfully spawned.
-+     */
-+    default boolean spawnAt(@NotNull Location location) {
-+        return spawnAt(location, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT);
-+    }
-+
-+    /**
-+     * Spawn this entity in the world at the given {@link Location} with the reason given.
-+     *
-+     * @param location The location at which to spawn the entity.
-+     * @param spawnReason The reason for which the entity was spawned.
-+     * @return Whether the entity was successfully spawned.
-+     */
-+    boolean spawnAt(@NotNull Location location, @NotNull org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason spawnReason);
 +
 +    /**
 +     * Checks if the entity is in daylight
