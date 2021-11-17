@@ -5,7 +5,7 @@ Subject: [PATCH] Reduce entity allocations
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 83c026a699ad0dfe95f1a370667eb9e9040207dc..bb50f5593b90652563460f0d15a06616c689c7f0 100644
+index 60092c71e4a1486bbe370cce3ff211e281abda3b..37076744e1a82520c7afa83f9ed6399a58c4056f 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -340,6 +340,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -16,7 +16,7 @@ index 83c026a699ad0dfe95f1a370667eb9e9040207dc..bb50f5593b90652563460f0d15a06616
      // Airplane end
  
      public float getBukkitYaw() {
-@@ -2466,9 +2467,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -2475,9 +2476,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
  
              // Paper start
              return io.papermc.paper.util.CollisionUtil.getCollisionsForBlocksOrWorldBorder(this.level, this, axisalignedbb, null,
@@ -58,7 +58,7 @@ index 9cbfda029782385d1a7987f5be46d450bd8a758e..d3e97858dacc850012e5585ac44a1aea
  
      public boolean hasAttribute(Attribute attribute) {
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 36a25a1e7b5aa6c605100febcf5acccf6e5a3c3c..ed4e80895d21c266df7ff83243b4c3bc76c760ab 100644
+index 4fe7f1e83ed0e48b6a579ddca691e704e805f5da..f2132f79322cb3966c0d8089e77185064f66add1 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -176,6 +176,8 @@ public abstract class Level implements LevelAccessor, AutoCloseable {

@@ -53,10 +53,10 @@ index e29b0a90019b12bd6586ad0f7b5314f307e527ba..6e8001c7ff6497c9e5c274a5fe85cc20
  
          new TimingsExport(listeners, parent, history).start();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-index 97bb32f7ded7bb115ab06a51297dd412d7297baa..6a30338648214c98b05feb5a628dbdc6b2683ff9 100644
+index def26111f1461a54209d34f5063e65c5eb3b48e5..6cda37d340bfc6f76cbb3bdaa3ffb6d3cf90da9f 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-@@ -217,10 +217,11 @@ public class PaperConfig {
+@@ -220,10 +220,11 @@ public class PaperConfig {
              TimingsManager.url += "/";
          }
          TimingsManager.privacy = getBoolean("timings.server-name-privacy", false);
