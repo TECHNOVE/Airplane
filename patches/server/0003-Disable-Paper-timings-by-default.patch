@@ -5,10 +5,10 @@ Subject: [PATCH] Disable Paper timings by default
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-index 95d8cf449bf0439fddaf319246fef51e1570b68e..f83d1825aa6df6841d35d8e03e5895c6b0bab051 100644
+index 2509a170b8ddd812ad5be49e5345ec5a3c0cf2b8..def26111f1461a54209d34f5063e65c5eb3b48e5 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-@@ -202,6 +202,15 @@ public class PaperConfig {
+@@ -205,6 +205,15 @@ public class PaperConfig {
      public static String timingsServerName;
      private static void timings() {
          boolean timings = getBoolean("timings.enabled", true);

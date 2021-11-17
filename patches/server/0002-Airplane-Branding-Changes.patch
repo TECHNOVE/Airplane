@@ -231,10 +231,10 @@ index 0000000000000000000000000000000000000000..e79ec7919e6cf160fec1cb981d85f0f3
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index d981d83add398d1f46d80ae9a983a526afd71ab2..62e8a8842c2f28490890ac060636a65b0c728d1c 100644
+index 5a4172faaf960d48939d6a485719041987df9242..159b9073a7f8da7993f228643a5a35bb6f66d05e 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1726,7 +1726,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1729,7 +1729,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @DontObfuscate
      public String getServerModName() {
@@ -257,7 +257,7 @@ index 99a94898316b0601f55b333c15a9926eae24f8a2..7979d74732f71ad3033b5854e5975e56
      private final String bukkitVersion = Versioning.getBukkitVersion();
      private final Logger logger = Logger.getLogger("Minecraft");
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-index c6bd1c1f973157c1d8a56e8297729cb896785dd6..bb4ce5c8451a90efd1fa5c301ac4a09c8941529a 100644
+index 424f3a9a645d57ad43c52932f5b388b5f146b9f0..d68872771c5d29afc19bf7cd74e970c714267b87 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
 @@ -394,7 +394,7 @@ public final class CraftMagicNumbers implements UnsafeValues {

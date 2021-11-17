@@ -34,10 +34,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-index 7470f3ba66c2e894b5a5b0ba392ecabf8b04aff9..35f27e9a7c82eaec5b4a1a71696dac8485b2cd6d 100644
+index 4a3dbcfdacb809d162663c379c4e8151be522432..5116b1f90c0f27ce1d3cee6632563f32356a1eb6 100644
 --- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 +++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-@@ -983,6 +983,7 @@ public class ServerChunkCache extends ChunkSource {
+@@ -984,6 +984,7 @@ public class ServerChunkCache extends ChunkSource {
              }
              // Paper end - optimize isOutisdeRange
              this.level.getProfiler().push("pollingChunks");
@@ -46,7 +46,7 @@ index 7470f3ba66c2e894b5a5b0ba392ecabf8b04aff9..35f27e9a7c82eaec5b4a1a71696dac84
              boolean flag2 = level.ticksPerAnimalSpawns != 0L && worlddata.getGameTime() % level.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index d572a0883938cd117d11a2bb0ee4e0d5b5e65361..adec6b5a9217d13739cec2a83abd5eed0f7d6d9e 100644
+index d40a367670ccea01978cabf7d45f3c1a690662fc..f59bc9207d5e565b5e71997cbf90ca50141dd58c 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -833,6 +833,8 @@ public class ServerLevel extends Level implements WorldGenLevel {

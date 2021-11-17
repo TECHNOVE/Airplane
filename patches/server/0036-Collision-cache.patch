@@ -431,7 +431,7 @@ index 98ca1199a823cdf55b913396ce0a24554e85f116..b16e65fa8be40f6c938c8c183c9bca7c
                                                    final List<AABB> into, final boolean checkOnly, final Predicate<Entity> predicate) {
          if (isEmpty(aabb) || !(getter instanceof EntityGetter entityGetter)) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index f8b264ed10071f385868654c8596335b187e2798..aac9dd19237d0708990960d03328e7530cd7bc8e 100644
+index 24c40651f798a02d8ea86132f9df31fc5b3a2a89..2cad495e834300cdd3ee65cdf43d28ae602c9625 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -341,6 +341,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -455,7 +455,7 @@ index f8b264ed10071f385868654c8596335b187e2798..aac9dd19237d0708990960d03328e753
  
              if (io.papermc.paper.util.CollisionUtil.isCollidingWithBorderEdge(world.getWorldBorder(), collisionBox)) {
                  io.papermc.paper.util.CollisionUtil.addBoxesToIfIntersects(world.getWorldBorder().getCollisionShape(), collisionBox, potentialCollisions);
-@@ -2466,7 +2469,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -2475,7 +2478,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
              AABB axisalignedbb = AABB.ofSize(this.getEyePosition(), (double) f, 1.0E-6D, (double) f);
  
              // Paper start
