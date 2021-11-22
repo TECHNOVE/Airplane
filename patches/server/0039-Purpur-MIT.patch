@@ -11381,7 +11381,7 @@ index 37878812892ea5cdfdd2d76d87bd14e035eab908..a2e1aaed795823d4054414d704404ceb
                  } else if (this.isFuel(itemstack1)) {
                      if (!this.moveItemStackTo(itemstack1, 1, 2, false)) {
 diff --git a/src/main/java/net/minecraft/world/inventory/AnvilMenu.java b/src/main/java/net/minecraft/world/inventory/AnvilMenu.java
-index 593e23c10f2b1616db7256158dfe564b2d289df1..9dd5dfc95049de84916bbbd63acb6125ec9ee0a0 100644
+index b62c6b56867b645520cb3c3e382ec96d421e7e97..10c8dbf09c110bb42704fe6638cde010275b133a 100644
 --- a/src/main/java/net/minecraft/world/inventory/AnvilMenu.java
 +++ b/src/main/java/net/minecraft/world/inventory/AnvilMenu.java
 @@ -2,8 +2,15 @@ package net.minecraft.world.inventory;
@@ -11413,8 +11413,8 @@ index 593e23c10f2b1616db7256158dfe564b2d289df1..9dd5dfc95049de84916bbbd63acb6125
  
      @Override
      protected boolean mayPickup(Player player, boolean present) {
--        return (player.getAbilities().instabuild || player.experienceLevel >= this.cost.get()) && this.cost.get() > 0;
-+        return (player.getAbilities().instabuild || player.experienceLevel >= this.cost.get()) && (bypassCost || this.cost.get() > 0); // Purpur
+-        return (player.getAbilities().instabuild || player.experienceLevel >= this.cost.get()) && this.cost.get() >= 0; // Paper - fix anvil prepare event not working with 0 xp
++        return (player.getAbilities().instabuild || player.experienceLevel >= this.cost.get()) && (bypassCost || this.cost.get() >= 0); // Paper - fix anvil prepare event not working with 0 xp // Purpur
      }
  
      @Override
