@@ -42,7 +42,7 @@ paperweight {
 
     usePaperUpstream(providers.gradleProperty("paperRef")) {
         withPaperPatcher {
-            remapRepo.set("https://maven.quiltmc.org/repository/release/")
+            remapRepo.set("https://maven.fabricmc.net/")
             decompileRepo.set("https://files.minecraftforge.net/maven/")
 
             apiPatchDir.set(layout.projectDirectory.dir("patches/api"))
