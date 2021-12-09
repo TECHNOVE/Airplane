@@ -280,7 +280,7 @@ index 71e29d29ed5c2d61832e2f124967bb223708406f..3c668bb739ee92b6d1130889cc42f73a
          if (this.source.acceptsSuccess() && !this.silent) {
              this.source.sendMessage(message, Util.NIL_UUID);
 diff --git a/src/main/java/net/minecraft/commands/Commands.java b/src/main/java/net/minecraft/commands/Commands.java
-index b7c24a7ff4dc50d03f74b21a0b353d0ce559b4d4..0dde919a6e48664f687181967b8f180f8646b662 100644
+index 0766f272068248175bc929a145bafaf9efc8978d..c04566dd882460628cb63f0e7dee5b4e05a08262 100644
 --- a/src/main/java/net/minecraft/commands/Commands.java
 +++ b/src/main/java/net/minecraft/commands/Commands.java
 @@ -198,6 +198,12 @@ public class Commands {
@@ -296,7 +296,7 @@ index b7c24a7ff4dc50d03f74b21a0b353d0ce559b4d4..0dde919a6e48664f687181967b8f180f
          }
  
          if (environment.includeIntegrated) {
-@@ -382,6 +388,7 @@ public class Commands {
+@@ -380,6 +386,7 @@ public class Commands {
      }
  
      private void runSync(ServerPlayer player, Collection<String> bukkit, RootCommandNode<SharedSuggestionProvider> rootcommandnode) {
@@ -304,7 +304,7 @@ index b7c24a7ff4dc50d03f74b21a0b353d0ce559b4d4..0dde919a6e48664f687181967b8f180f
          // Paper end - Async command map building
          new com.destroystokyo.paper.event.brigadier.AsyncPlayerSendCommandsEvent<CommandSourceStack>(player.getBukkitEntity(), (RootCommandNode) rootcommandnode, false).callEvent(); // Paper
          PlayerCommandSendEvent event = new PlayerCommandSendEvent(player.getBukkitEntity(), new LinkedHashSet<>(bukkit));
-@@ -394,6 +401,7 @@ public class Commands {
+@@ -392,6 +399,7 @@ public class Commands {
              }
          }
          // CraftBukkit end
@@ -10209,7 +10209,7 @@ index ea0040a3494709efb4819c7530dbcc37aa62e86a..f6734f2eb44af7b2389de5079831e0e4
          this.level.getProfiler().pop();
          PiglinBruteAi.updateActivity(this);
 diff --git a/src/main/java/net/minecraft/world/entity/npc/AbstractVillager.java b/src/main/java/net/minecraft/world/entity/npc/AbstractVillager.java
-index c75fa3274dedfafa11b94704695a2313f11c22cc..f22ec35a7960bbc2f205d972dbe78d87eb9a7e25 100644
+index a44c30370989c8a5ac5ad8e9f0062e76d8c33675..96ec9fda1e13e092986ec2199e7839aed42959fe 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/AbstractVillager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/AbstractVillager.java
 @@ -43,6 +43,7 @@ import org.bukkit.event.entity.VillagerAcquireTradeEvent;
