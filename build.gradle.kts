@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    remapper("net.fabricmc:tiny-remapper:0.6.0:fat")
+    remapper("net.fabricmc:tiny-remapper:0.7.0:fat")
     decompiler("net.minecraftforge:forgeflower:1.5.498.12")
     paperclip("io.papermc:paperclip:2.0.1")
 }
@@ -42,7 +42,7 @@ paperweight {
 
     usePaperUpstream(providers.gradleProperty("paperRef")) {
         withPaperPatcher {
-            remapRepo.set("https://maven.quiltmc.org/repository/release/")
+            remapRepo.set("https://maven.fabricmc.net/")
             decompileRepo.set("https://files.minecraftforge.net/maven/")
 
             apiPatchDir.set(layout.projectDirectory.dir("patches/api"))
