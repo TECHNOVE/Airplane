@@ -12,7 +12,7 @@ index 505546d32eea4682452dbac02311433157f6a30e..5c7b9ad379f3c272e15648dd16f4df92
      }
  
      public static <V> CompletableFuture<List<V>> sequence(List<? extends CompletableFuture<? extends V>> futures) {
-+        // Airplane start - faster sequencing without all of.. _that_
++        // Aeroplane start - faster sequencing without all of.. _that_
 +        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]))
 +                .thenApply(unused -> futures.stream().map(CompletableFuture::join).collect(Collectors.toList()));
 +        /*
@@ -24,7 +24,7 @@ index 505546d32eea4682452dbac02311433157f6a30e..5c7b9ad379f3c272e15648dd16f4df92
              });
          });
 +         */
-+        // Airplane end
++        // Aeroplane end
      }
  
      public static <V> CompletableFuture<List<V>> sequenceFailFast(List<? extends CompletableFuture<? extends V>> futures) {

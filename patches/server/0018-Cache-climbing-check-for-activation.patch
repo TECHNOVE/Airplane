@@ -21,7 +21,7 @@ index 0b787ae1fd72507560589d27ac901111e46814b0..df12ba04df24e1c70c43e00283ea2a78
      }
  
 +
-+    // Airplane start
++    // Aeroplane start
 +    private boolean cachedOnClimable = false;
 +    private BlockPos lastClimbingPosition = null;
 +
@@ -32,7 +32,7 @@ index 0b787ae1fd72507560589d27ac901111e46814b0..df12ba04df24e1c70c43e00283ea2a78
 +        }
 +        return this.cachedOnClimable;
 +    }
-+    // Airplane end
++    // Aeroplane end
 +
      public boolean onClimbable() {
          if (this.isSpectator()) {
@@ -46,7 +46,7 @@ index 305b06fe0ce9a4d031ff37cb50042385162b462c..3cc2cf10efbe05cf91876f760c786ab4
          {
              LivingEntity living = (LivingEntity) entity;
 -            if ( living.onClimbable() || living.jumping || living.hurtTime > 0 || living.activeEffects.size() > 0 ) // Paper
-+            if ( living.onClimableCached() || living.jumping || living.hurtTime > 0 || living.activeEffects.size() > 0 ) // Paper // Airplane - use cached
++            if ( living.onClimableCached() || living.jumping || living.hurtTime > 0 || living.activeEffects.size() > 0 ) // Paper // Aeroplane - use cached
              {
                  return 1; // Paper
              }

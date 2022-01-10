@@ -3,7 +3,7 @@ From: Paul Sauve <paul@technove.co>
 Date: Sun, 13 Dec 2020 17:52:35 -0600
 Subject: [PATCH] Reduce projectile chunk loading
 
-Airplane
+Aeroplane
 Copyright (C) 2020 Technove LLC
 
 This program is free software: you can redistribute it and/or modify
@@ -19,11 +19,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
+diff --git a/src/main/java/gg/aeroplane/AeroplaneConfig.java b/src/main/java/gg/aeroplane/AeroplaneConfig.java
 index 8e714f112c6fa37eb92398a9d7d7f7b8b48c3832..8d5d5f2cc52227d4302160094d8c93ca59505c19 100644
---- a/src/main/java/gg/airplane/AirplaneConfig.java
-+++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -167,5 +167,16 @@ public class AirplaneConfig {
+--- a/src/main/java/gg/aeroplane/AeroplaneConfig.java
++++ b/src/main/java/gg/aeroplane/AeroplaneConfig.java
+@@ -167,5 +167,16 @@ public class AeroplaneConfig {
          return config.getStringList(key);
      }
  
@@ -48,7 +48,7 @@ index 37356b36f0ae12d55150f399318581fa77c30cee..008e3b769011df76697ad0abcdde5727
          super(type, world);
      }
  
-+    // Airplane start
++    // Aeroplane start
 +    private static int loadedThisTick = 0;
 +    private static int loadedTick;
 +
@@ -65,8 +65,8 @@ index 37356b36f0ae12d55150f399318581fa77c30cee..008e3b769011df76697ad0abcdde5727
 +        if (previousX != newX || previousZ != newZ) {
 +            boolean isLoaded = ((net.minecraft.server.level.ServerChunkCache) this.level.getChunkSource()).getChunkAtIfLoadedMainThread(newX, newZ) != null;
 +            if (!isLoaded) {
-+                if (Projectile.loadedThisTick > gg.airplane.AirplaneConfig.maxProjectileLoadsPerTick) {
-+                    if (++this.loadedLifetime > gg.airplane.AirplaneConfig.maxProjectileLoadsPerProjectile) {
++                if (Projectile.loadedThisTick > gg.aeroplane.AeroplaneConfig.maxProjectileLoadsPerTick) {
++                    if (++this.loadedLifetime > gg.aeroplane.AeroplaneConfig.maxProjectileLoadsPerProjectile) {
 +                        this.discard();
 +                    }
 +                    return;
@@ -76,7 +76,7 @@ index 37356b36f0ae12d55150f399318581fa77c30cee..008e3b769011df76697ad0abcdde5727
 +        }
 +        super.setPos(x, y, z);
 +    }
-+    // Airplane start
++    // Aeroplane start
 +
      public void setOwner(@Nullable Entity entity) {
          if (entity != null) {

@@ -21,18 +21,18 @@ index e7ca5d6fb8922e7e8065864f736b06056be080a0..833ad6fbedfc275b3fde640b0e873f23
  
      public GameRules() {
 -        this.rules = (Map) GameRules.GAME_RULE_TYPES.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, (entry) -> {
-+        // Airplane start - use this to ensure gameruleArray is initialized
++        // Aeroplane start - use this to ensure gameruleArray is initialized
 +        this((Map) GameRules.GAME_RULE_TYPES.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, (entry) -> {
              return ((GameRules.Type) entry.getValue()).createRule();
 -        }));
 +        })));
-+        // Airplane end
++        // Aeroplane end
      }
  
      private GameRules(Map<GameRules.Key<?>, GameRules.Value<?>> rules) {
          this.rules = rules;
 +
-+        // Airplane start
++        // Aeroplane start
 +        int arraySize = rules.keySet().stream().mapToInt(key -> key.gameRuleIndex).max().orElse(-1) + 1;
 +        GameRules.Value<?>[] values = new GameRules.Value[arraySize];
 +
@@ -41,15 +41,15 @@ index e7ca5d6fb8922e7e8065864f736b06056be080a0..833ad6fbedfc275b3fde640b0e873f23
 +        }
 +
 +        this.gameruleArray = values;
-+        // Airplane end
++        // Aeroplane end
      }
  
      public <T extends GameRules.Value<T>> T getRule(GameRules.Key<T> key) {
 -        return (T) this.rules.get(key); // CraftBukkit - decompile error
-+        // Airplane start
++        // Aeroplane start
 +        return key == null ? null : (T) this.gameruleArray[key.gameRuleIndex];
 +        //return (T) this.rules.get(key); // CraftBukkit - decompile error
-+        // Airplane end
++        // Aeroplane end
      }
  
      public CompoundTag createTag() {
@@ -57,10 +57,10 @@ index e7ca5d6fb8922e7e8065864f736b06056be080a0..833ad6fbedfc275b3fde640b0e873f23
      }
  
      public static final class Key<T extends GameRules.Value<T>> {
-+        // Airplane start
++        // Aeroplane start
 +        private static int lastGameRuleIndex = 0;
 +        public final int gameRuleIndex = lastGameRuleIndex++;
-+        // Airplane end
++        // Aeroplane end
  
          final String id;
          private final GameRules.Category category;

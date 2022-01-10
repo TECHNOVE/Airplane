@@ -5,6 +5,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Airplane"
+rootProject.name = "Aeroplane"
 
-include("Airplane-API", "Airplane-Server")
+include("Aeroplane-API", "Aeroplane-Server")

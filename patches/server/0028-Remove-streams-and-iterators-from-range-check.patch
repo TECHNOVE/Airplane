@@ -32,7 +32,7 @@ index 4e4ef1646ed40480f58ae3cd1c41dd3b28f56e4a..a9f247ba1d889dffdbac51fa70cc887f
 +
          private int getEffectiveRange() {
              int i = this.range;
-+            // Airplane start - remove iterators and streams
++            // Aeroplane start - remove iterators and streams
 +            /*
              Iterator iterator = this.entity.getIndirectPassengers().iterator();
  
@@ -43,7 +43,7 @@ index 4e4ef1646ed40480f58ae3cd1c41dd3b28f56e4a..a9f247ba1d889dffdbac51fa70cc887f
              }
 +             */
 +            i = getHighestRange(this.entity, i);
-+            // Airplane end
++            // Aeroplane end
  
              return this.scaledRange(i);
          }

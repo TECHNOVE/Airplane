@@ -38,7 +38,7 @@ subprojects {
 }
 
 paperweight {
-    serverProject.set(project(":Airplane-Server"))
+    serverProject.set(project(":Aeroplane-Server"))
 
     usePaperUpstream(providers.gradleProperty("paperRef")) {
         withPaperPatcher {
@@ -48,8 +48,8 @@ paperweight {
             apiPatchDir.set(layout.projectDirectory.dir("patches/api"))
             serverPatchDir.set(layout.projectDirectory.dir("patches/server"))
 
-            apiOutputDir.set(layout.projectDirectory.dir("Airplane-API"))
-            serverOutputDir.set(layout.projectDirectory.dir("Airplane-Server"))
+            apiOutputDir.set(layout.projectDirectory.dir("Aeroplane-API"))
+            serverOutputDir.set(layout.projectDirectory.dir("Aeroplane-Server"))
         }
     }
 }

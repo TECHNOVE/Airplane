@@ -18,10 +18,10 @@ index 05b64f2730bfe836bd1d72dcfccd9f536908a099..39e941a6a315e2a9fc0f47eb39ef9d2b
          this.conditions = conditionGetter;
 -        this.params = ImmutableMap.copyOf(parameters);
 -        this.dynamicDrops = ImmutableMap.copyOf(drops);
-+        // Airplane start - use unmodifiable maps instead of immutable ones to skip the copy
++        // Aeroplane start - use unmodifiable maps instead of immutable ones to skip the copy
 +        this.params = java.util.Collections.unmodifiableMap(parameters);
 +        this.dynamicDrops = java.util.Collections.unmodifiableMap(drops);
-+        // Airplane end
++        // Aeroplane end
      }
  
      public boolean hasParam(LootContextParam<?> parameter) {

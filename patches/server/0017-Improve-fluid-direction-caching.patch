@@ -7,13 +7,13 @@ Implements a custom cache that better fits the needs of fluids
 calculating whether a direction can be moved in or something. There's a
 big javadoc on the FluidDirectionCache with some more information.
 
-diff --git a/src/main/java/gg/airplane/structs/FluidDirectionCache.java b/src/main/java/gg/airplane/structs/FluidDirectionCache.java
+diff --git a/src/main/java/gg/aeroplane/structs/FluidDirectionCache.java b/src/main/java/gg/aeroplane/structs/FluidDirectionCache.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..aa8467b9dda1f7707e41f50ac7b3e9d7343723ec
 --- /dev/null
-+++ b/src/main/java/gg/airplane/structs/FluidDirectionCache.java
++++ b/src/main/java/gg/aeroplane/structs/FluidDirectionCache.java
 @@ -0,0 +1,136 @@
-+package gg.airplane.structs;
++package gg.aeroplane.structs;
 +
 +import it.unimi.dsi.fastutil.HashCommon;
 +
@@ -157,7 +157,7 @@ index 7fda7da544b2d0bbd3803d88ee34c92350a8b8ef..adf91f3006a2d224c957f08520f93f76
      public static final BooleanProperty FALLING = BlockStateProperties.FALLING;
      public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL_FLOWING;
      private static final int CACHE_SIZE = 200;
-+    // Airplane start - use our own cache
++    // Aeroplane start - use our own cache
 +    /*
      private static final ThreadLocal<Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>> OCCLUSION_CACHE = ThreadLocal.withInitial(() -> {
          Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> object2bytelinkedopenhashmap = new Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>(200) {
@@ -168,12 +168,12 @@ index 7fda7da544b2d0bbd3803d88ee34c92350a8b8ef..adf91f3006a2d224c957f08520f93f76
      });
 +     */
 +
-+    private static final ThreadLocal<gg.airplane.structs.FluidDirectionCache<Block.BlockStatePairKey>> localFluidDirectionCache = ThreadLocal.withInitial(() -> {
-+        // Airplane todo - mess with this number for performance
++    private static final ThreadLocal<gg.aeroplane.structs.FluidDirectionCache<Block.BlockStatePairKey>> localFluidDirectionCache = ThreadLocal.withInitial(() -> {
++        // Aeroplane todo - mess with this number for performance
 +        //  with 2048 it seems very infrequent on a small world that it has to remove old entries
-+        return new gg.airplane.structs.FluidDirectionCache<>(2048);
++        return new gg.aeroplane.structs.FluidDirectionCache<>(2048);
 +    });
-+    // Airplane end
++    // Aeroplane end
      private final Map<FluidState, VoxelShape> shapes = Maps.newIdentityHashMap();
  
      public FlowingFluid() {}
@@ -181,7 +181,7 @@ index 7fda7da544b2d0bbd3803d88ee34c92350a8b8ef..adf91f3006a2d224c957f08520f93f76
      }
  
      private boolean canPassThroughWall(Direction face, BlockGetter world, BlockPos pos, BlockState state, BlockPos fromPos, BlockState fromState) {
-+        // Airplane start - modify to use our cache
++        // Aeroplane start - modify to use our cache
 +        /*
          Object2ByteLinkedOpenHashMap object2bytelinkedopenhashmap;
  
@@ -191,7 +191,7 @@ index 7fda7da544b2d0bbd3803d88ee34c92350a8b8ef..adf91f3006a2d224c957f08520f93f76
              object2bytelinkedopenhashmap = null;
          }
 +         */
-+        gg.airplane.structs.FluidDirectionCache<Block.BlockStatePairKey> cache = null;
++        gg.aeroplane.structs.FluidDirectionCache<Block.BlockStatePairKey> cache = null;
 +
 +        if (!state.getBlock().hasDynamicShape() && !fromState.getBlock().hasDynamicShape()) {
 +            cache = localFluidDirectionCache.get();
@@ -234,7 +234,7 @@ index 7fda7da544b2d0bbd3803d88ee34c92350a8b8ef..adf91f3006a2d224c957f08520f93f76
 +        if (cache != null) {
 +            cache.putValue(block_a, flag);
 +        }
-+        // Airplane end
++        // Aeroplane end
  
          return flag;
      }

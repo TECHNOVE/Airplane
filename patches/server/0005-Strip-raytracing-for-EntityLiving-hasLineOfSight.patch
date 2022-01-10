@@ -10,7 +10,7 @@ a lot of dynamic checks for both of these, which result in extra work.
 As well, since the fluid collision option is set to NONE, the entire
 fluid collision system is completely unneeded, yet used anyways.
 
-Airplane
+Aeroplane
 Copyright (C) 2020 Technove LLC
 
 This program is free software: you can redistribute it and/or modify
@@ -35,10 +35,10 @@ index 465dab588e770bf4d1e645e1f451a066f388014a..0b787ae1fd72507560589d27ac901111
  
              // Paper - diff on change - used in CraftLivingEntity#hasLineOfSight(Location) and CraftWorld#lineOfSightExists
 -            return vec3d1.distanceToSqr(vec3d) > 128D * 128D ? false : this.level.clip(new ClipContext(vec3d, vec3d1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS; // Paper - use distanceToSqr
-+            // Airplane start
++            // Aeroplane start
 +            //return vec3d1.distanceToSqr(vec3d) > 128D * 128D ? false : this.level.clip(new ClipContext(vec3d, vec3d1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS; // Paper - use distanceToSqr
 +            return vec3d1.distanceToSqr(vec3d) > 128D * 128D ? false : this.level.rayTraceDirect(vec3d, vec3d1, net.minecraft.world.phys.shapes.CollisionContext.of(this)) == net.minecraft.world.phys.BlockHitResult.Type.MISS;
-+            // Airplane end
++            // Aeroplane end
          }
      }
  
@@ -50,7 +50,7 @@ index 6200a8ab4f7b2c40e7139cfb90a62f42c5828de2..f6a8e10347b9a374e2da9d28734b7244
          });
      }
  
-+    // Airplane start - broken down variant of below rayTraceBlock, used by World#rayTraceDirect
++    // Aeroplane start - broken down variant of below rayTraceBlock, used by World#rayTraceDirect
 +    default net.minecraft.world.phys.BlockHitResult.Type rayTraceBlockDirect(Vec3 vec3d, Vec3 vec3d1, BlockPos blockposition, BlockState iblockdata, net.minecraft.world.phys.shapes.CollisionContext voxelshapecoll) {
 +        if (iblockdata.isAir()) return null; // Tuinity - optimise air cases
 +        VoxelShape voxelshape = ClipContext.Block.COLLIDER.get(iblockdata, this, blockposition, voxelshapecoll);
@@ -58,7 +58,7 @@ index 6200a8ab4f7b2c40e7139cfb90a62f42c5828de2..f6a8e10347b9a374e2da9d28734b7244
 +
 +        return movingobjectpositionblock == null ? null : movingobjectpositionblock.getType();
 +    }
-+    // Airplane end
++    // Aeroplane end
 +
      // CraftBukkit start - moved block handling into separate method for use by Block#rayTrace
      default BlockHitResult rayTraceBlock(ClipContext raytrace1, BlockPos blockposition) {
@@ -71,7 +71,7 @@ index 9cafd000b3533ed9fd35df2ec880f55e262084fb..d685b0ffd818eaab5b07f84f294d5965
          return null;
      }
  
-+    // Airplane start - broken down method of raytracing for EntityLiving#hasLineOfSight, replaces IBlockAccess#rayTrace(RayTrace)
++    // Aeroplane start - broken down method of raytracing for EntityLiving#hasLineOfSight, replaces IBlockAccess#rayTrace(RayTrace)
 +    public net.minecraft.world.phys.BlockHitResult.Type rayTraceDirect(net.minecraft.world.phys.Vec3 vec3d, net.minecraft.world.phys.Vec3 vec3d1, net.minecraft.world.phys.shapes.CollisionContext voxelshapecoll) {
 +        // most of this code comes from IBlockAccess#a(RayTrace, BiFunction, Function), but removes the needless functions
 +        if (vec3d.equals(vec3d1)) {
@@ -154,7 +154,7 @@ index 9cafd000b3533ed9fd35df2ec880f55e262084fb..d685b0ffd818eaab5b07f84f294d5965
 +
 +        return result;
 +    }
-+    // Airplane end
++    // Aeroplane end
 +
      public boolean isInWorldBounds(BlockPos pos) {
          return pos.isValidLocation(this); // Paper - use better/optimized check

@@ -7,7 +7,7 @@ Paper added a fancy sorting comparison due to Bukkit recipes breaking
 the vanilla one, however this is far more advanced than what you need
 for all the vanilla recipes.
 
-Airplane
+Aeroplane
 Copyright (C) 2020 Technove LLC
 
 This program is free software: you can redistribute it and/or modify
@@ -31,13 +31,13 @@ index 6b960f0a31175bcfd8d477ee5b3c4d783303cdd5..3a81d3a58b937c9800cd0be738439cff
      final String group;
      final ItemStack result;
      final NonNullList<Ingredient> ingredients;
-+    private final boolean isBukkit; // Airplane
++    private final boolean isBukkit; // Aeroplane
  
-+    // Airplane start
++    // Aeroplane start
      public ShapelessRecipe(ResourceLocation id, String group, ItemStack output, NonNullList<Ingredient> input) {
 +        this(id, group, output, input, false);
 +    }
-+    public ShapelessRecipe(ResourceLocation id, String group, ItemStack output, NonNullList<Ingredient> input, boolean isBukkit) { this.isBukkit = isBukkit; // Airplane end
++    public ShapelessRecipe(ResourceLocation id, String group, ItemStack output, NonNullList<Ingredient> input, boolean isBukkit) { this.isBukkit = isBukkit; // Aeroplane end
          this.id = id;
          this.group = group;
          this.result = output;
@@ -45,7 +45,7 @@ index 6b960f0a31175bcfd8d477ee5b3c4d783303cdd5..3a81d3a58b937c9800cd0be738439cff
      }
  
      public boolean matches(CraftingContainer inventory, Level world) {
-+        // Airplane start
++        // Aeroplane start
 +        if (!this.isBukkit) {
 +            java.util.List<Ingredient> ingredients = com.google.common.collect.Lists.newArrayList(this.ingredients.toArray(new Ingredient[0]));
 +
@@ -65,7 +65,7 @@ index 6b960f0a31175bcfd8d477ee5b3c4d783303cdd5..3a81d3a58b937c9800cd0be738439cff
 +
 +            return ingredients.isEmpty();
 +        }
-+        // Airplane end
++        // Aeroplane end
 +
          StackedContents autorecipestackmanager = new StackedContents();
          int i = 0;

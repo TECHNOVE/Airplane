@@ -13,7 +13,7 @@ index 37076744e1a82520c7afa83f9ed6399a58c4056f..24c40651f798a02d8ea86132f9df31fc
  
      public boolean updateFluidHeightAndDoFluidPushing(Tag<Fluid> tag, double d0) {
 -        if (this.touchingUnloadedChunk()) {
-+        if (false && this.touchingUnloadedChunk()) { // Airplane - cost of a lookup here is the same cost as below, so skip
++        if (false && this.touchingUnloadedChunk()) { // Aeroplane - cost of a lookup here is the same cost as below, so skip
              return false;
          } else {
              AABB axisalignedbb = this.getBoundingBox().deflate(0.001D);
@@ -23,14 +23,14 @@ index 37076744e1a82520c7afa83f9ed6399a58c4056f..24c40651f798a02d8ea86132f9df31fc
 -            int l = Mth.ceil(axisalignedbb.maxY);
 -            int i1 = Mth.floor(axisalignedbb.minZ);
 -            int j1 = Mth.ceil(axisalignedbb.maxZ);
-+            // Airplane start - rename
++            // Aeroplane start - rename
 +            int minBlockX = Mth.floor(axisalignedbb.minX);
 +            int maxBlockX = Mth.ceil(axisalignedbb.maxX);
 +            int minBlockY = Mth.floor(axisalignedbb.minY);
 +            int maxBlockY = Mth.ceil(axisalignedbb.maxY);
 +            int minBlockZ = Mth.floor(axisalignedbb.minZ);
 +            int maxBlockZ = Mth.ceil(axisalignedbb.maxZ);
-+            // Airplane end
++            // Aeroplane end
              double d1 = 0.0D;
              boolean flag = this.isPushedByFluid();
              boolean flag1 = false;
@@ -43,7 +43,7 @@ index 37076744e1a82520c7afa83f9ed6399a58c4056f..24c40651f798a02d8ea86132f9df31fc
 -                    for (int j2 = i1; j2 < j1; ++j2) {
 -                        blockposition_mutableblockposition.set(l1, i2, j2);
 -                        FluidState fluid = this.level.getFluidState(blockposition_mutableblockposition);
-+            // Airplane start - based off CollisionUtil.getCollisionsForBlocksOrWorldBorder
++            // Aeroplane start - based off CollisionUtil.getCollisionsForBlocksOrWorldBorder
 +            final int minSection = io.papermc.paper.util.WorldUtil.getMinSection(this.level);
 +            final int maxSection = io.papermc.paper.util.WorldUtil.getMaxSection(this.level);
 +            final int minBlock = minSection << 4;
@@ -112,7 +112,7 @@ index 37076744e1a82520c7afa83f9ed6399a58c4056f..24c40651f798a02d8ea86132f9df31fc
                      }
                  }
              }
-+            // Airplane end
++            // Aeroplane end
  
              if (vec3d.length() > 0.0D) {
                  if (k1 > 0) {
@@ -124,9 +124,9 @@ index 72e3264dc74822f746fb84fec0be400047d2d9f5..831e2dbe530daf63ac9e681a92af2740
      short nonEmptyBlockCount; // Paper - package-private
      private short tickingBlockCount;
      private short tickingFluidCount;
-+    // Airplane start
++    // Aeroplane start
 +    public short fluidStateCount;
-+    // Airplane end
++    // Aeroplane end
      public final PalettedContainer<BlockState> states; // Paper - package-private // Paper - public
      public final com.destroystokyo.paper.util.maplist.IBlockDataList tickingList = new com.destroystokyo.paper.util.maplist.IBlockDataList(); // Paper
  
@@ -134,7 +134,7 @@ index 72e3264dc74822f746fb84fec0be400047d2d9f5..831e2dbe530daf63ac9e681a92af2740
  
          if (!fluidState.isEmpty()) {
              --this.tickingFluidCount;
-+            --this.fluidStateCount; // Airplane
++            --this.fluidStateCount; // Aeroplane
          }
  
          if (!state.isAir()) {
@@ -142,7 +142,7 @@ index 72e3264dc74822f746fb84fec0be400047d2d9f5..831e2dbe530daf63ac9e681a92af2740
  
          if (!fluidState2.isEmpty()) {
              ++this.tickingFluidCount;
-+            ++this.fluidStateCount; // Airplane
++            ++this.fluidStateCount; // Aeroplane
          }
  
          return blockState;
@@ -150,7 +150,7 @@ index 72e3264dc74822f746fb84fec0be400047d2d9f5..831e2dbe530daf63ac9e681a92af2740
                  if (fluidState.isRandomlyTicking()) {
                      this.tickingFluidCount = (short)(this.tickingFluidCount + 1); // Paper
                  }
-+                this.fluidStateCount++; // Airplane
++                this.fluidStateCount++; // Aeroplane
              }
  
          });

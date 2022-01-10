@@ -3,7 +3,7 @@ From: Paul Sauve <paul@technove.co>
 Date: Thu, 18 Feb 2021 13:13:27 -0600
 Subject: [PATCH] Skip POI finding if stuck in vehicle
 
-Airplane
+Aeroplane
 Copyright (C) 2020 Technove LLC
 
 This program is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@ index afbb2acd27416c801af3d718850b82a170734cd3..0b206a3f964f5143e0720890d78d682b
      @Override
      protected void start(ServerLevel world, PathfinderMob entity, long time) {
          this.nextScheduledStart = time + 20L + (long)world.getRandom().nextInt(20);
-+        if (entity.getNavigation().isStuck()) this.nextScheduledStart += 200L; // Airplane - wait an additional 10s to check again if they're stuck
++        if (entity.getNavigation().isStuck()) this.nextScheduledStart += 200L; // Aeroplane - wait an additional 10s to check again if they're stuck
          PoiManager poiManager = world.getPoiManager();
          this.batchCache.long2ObjectEntrySet().removeIf((entry) -> {
              return !entry.getValue().isStillValid(time);

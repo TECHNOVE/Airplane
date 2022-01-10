@@ -10,7 +10,7 @@ ticked every tick. If it's within 45 blocks, it gets ticked every other
 tick. If it's within 55 blocks, it gets ticked once every three ticks.
 (these numbers have since been changed, but the idea is the same.)
 
-Airplane
+Aeroplane
 Copyright (C) 2020 Technove LLC
 
 This program is free software: you can redistribute it and/or modify
@@ -26,11 +26,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
+diff --git a/src/main/java/gg/aeroplane/AeroplaneConfig.java b/src/main/java/gg/aeroplane/AeroplaneConfig.java
 index 8d5d5f2cc52227d4302160094d8c93ca59505c19..2ac3e88cf166a3e944f0a02fb8a379234ea3e643 100644
---- a/src/main/java/gg/airplane/AirplaneConfig.java
-+++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -2,7 +2,9 @@ package gg.airplane;
+--- a/src/main/java/gg/aeroplane/AeroplaneConfig.java
++++ b/src/main/java/gg/aeroplane/AeroplaneConfig.java
+@@ -2,7 +2,9 @@ package gg.aeroplane;
  
  import co.technove.air.AIR;
  import co.technove.air.ValueType;
@@ -46,9 +46,9 @@ index 8d5d5f2cc52227d4302160094d8c93ca59505c19..2ac3e88cf166a3e944f0a02fb8a37923
  import java.util.List;
 +import java.util.Collections;
  
- public class AirplaneConfig {
+ public class AeroplaneConfig {
  
-@@ -179,4 +182,37 @@ public class AirplaneConfig {
+@@ -179,4 +182,37 @@ public class AeroplaneConfig {
      }
  
  
@@ -94,9 +94,9 @@ index 94857a736d2a16e8ade286c6f2ddf8bd798008eb..4022fd8e60480aa4e3fea914c53c4096
      protected int numCollisions = 0; // Paper
      public void inactiveTick() { }
      // Spigot end
-+    // Airplane start
-+    public int activatedPriority = gg.airplane.AirplaneConfig.maximumActivationPrio; // golf score
-+    // Airplane end
++    // Aeroplane start
++    public int activatedPriority = gg.aeroplane.AeroplaneConfig.maximumActivationPrio; // golf score
++    // Aeroplane end
  
      public float getBukkitYaw() {
          return this.yRot;
@@ -108,7 +108,7 @@ index 1c446dba5de89698397041ee38a2e1a00bec8a56..03371c99c34ba4b2ffde3f6da36f171b
          return Registry.ENTITY_TYPE.getOptional(ResourceLocation.tryParse(id));
      }
  
-+    public boolean dabEnabled = false; // Airplane
++    public boolean dabEnabled = false; // Aeroplane
      // Paper start - add id
      public final String id;
  
@@ -121,11 +121,11 @@ index 8a864238e154e2131834d013652746b7e7a78c97..b8e512e1c4b00b468b2d22add5653b98
      public void inactiveTick() {
          super.inactiveTick();
 -        if (this.goalSelector.inactiveTick()) {
-+        if (this.goalSelector.inactiveTick(this.activatedPriority, true)) { // Airplane - pass activated priroity
++        if (this.goalSelector.inactiveTick(this.activatedPriority, true)) { // Aeroplane - pass activated priroity
              this.goalSelector.tick();
          }
 -        if (this.targetSelector.inactiveTick()) {
-+        if (this.targetSelector.inactiveTick(this.activatedPriority, true)) { // Airplane - pass activated priority
++        if (this.targetSelector.inactiveTick(this.activatedPriority, true)) { // Aeroplane - pass activated priority
              this.targetSelector.tick();
          }
      }
@@ -133,11 +133,11 @@ index 8a864238e154e2131834d013652746b7e7a78c97..b8e512e1c4b00b468b2d22add5653b98
          this.sensing.tick();
          this.level.getProfiler().pop();
          this.level.getProfiler().push("targetSelector");
-+        if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Airplane - use this to alternate ticking
++        if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Aeroplane - use this to alternate ticking
          this.targetSelector.tick();
          this.level.getProfiler().pop();
          this.level.getProfiler().push("goalSelector");
-+        if (this.goalSelector.inactiveTick(this.activatedPriority, false)) // Airplane - use this to alternate ticking
++        if (this.goalSelector.inactiveTick(this.activatedPriority, false)) // Aeroplane - use this to alternate ticking
          this.goalSelector.tick();
          this.level.getProfiler().pop();
          this.level.getProfiler().push("navigation");
@@ -150,11 +150,11 @@ index 42d466f7f162943886078eba3db18f2dfc2d7bee..32da2d3f87758bee359522769ebbee73
      @Override
      protected void tick(ServerLevel serverLevel, Villager villager, long l) {
 -        if (l % 100L == 0L) {
-+        // Airplane start
++        // Aeroplane start
 +        if (villager.nextGolemPanic < 0) villager.nextGolemPanic = l + 100;
 +        if (--villager.nextGolemPanic < l) {
 +            villager.nextGolemPanic = -1;
-+            // Airplane end
++            // Aeroplane end
              villager.spawnGolemIfNeeded(serverLevel, l, 3);
          }
  
@@ -167,13 +167,13 @@ index f779f202985d34cb7e379b0f3d5690dd20f091ba..36b5d504cd864ab30cc239201d6a4a52
  
      // Paper start
 -    public boolean inactiveTick() {
-+    public boolean inactiveTick(int tickRate, boolean inactive) { // Airplane start
-+        if (inactive && !gg.airplane.AirplaneConfig.dearEnabled) tickRate = 4; // reset to Paper's
++    public boolean inactiveTick(int tickRate, boolean inactive) { // Aeroplane start
++        if (inactive && !gg.aeroplane.AeroplaneConfig.dearEnabled) tickRate = 4; // reset to Paper's
 +        tickRate = Math.min(tickRate, this.newGoalRate);
          this.curRate++;
 -        return this.curRate % this.newGoalRate == 0;
 +        return this.curRate % tickRate == 0;
-+        // Airplane end
++        // Aeroplane end
      }
      public boolean hasTasks() {
          for (WrappedGoal task : this.availableGoals) {
@@ -185,11 +185,11 @@ index fa365420a4593bc7d652b0d92f4750602fcb334b..9c4bf9b66e97d06e17e008784feda1a1
          return true;
      }
  
-+    private int behaviorTick = 0; // Airplane
++    private int behaviorTick = 0; // Aeroplane
      @Override
      protected void customServerAiStep() {
          this.level.getProfiler().push("axolotlBrain");
-+        if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
++        if (this.behaviorTick++ % this.activatedPriority == 0) // Aeroplane
          this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error
          this.level.getProfiler().pop();
          this.level.getProfiler().push("axolotlActivityUpdate");
@@ -201,11 +201,11 @@ index 15787afad42f9299638a1c9e57d26678805f18ee..0d220ea2d2651c46ba60c68bdd8dad31
          return (Brain<Goat>) super.getBrain(); // CraftBukkit - decompile error
      }
  
-+    private int behaviorTick = 0; // Airplane
++    private int behaviorTick = 0; // Aeroplane
      @Override
      protected void customServerAiStep() {
          this.level.getProfiler().push("goatBrain");
-+        if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
++        if (this.behaviorTick++ % this.activatedPriority == 0) // Aeroplane
          this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error
          this.level.getProfiler().pop();
          this.level.getProfiler().push("goatActivityUpdate");
@@ -214,14 +214,14 @@ index d86b2b5bdb6b7446cee5edda40c7ea316b74a200..3f6697d21cf32b83d3dcd74d810effc2
 --- a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
 @@ -126,9 +126,11 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
-         return (Brain<Hoglin>) super.getBrain(); // Airplane - decompile fix
+         return (Brain<Hoglin>) super.getBrain(); // Aeroplane - decompile fix
      }
  
-+    private int behaviorTick; // Airplane
++    private int behaviorTick; // Aeroplane
      @Override
      protected void customServerAiStep() {
          this.level.getProfiler().push("hoglinBrain");
-+        if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
++        if (this.behaviorTick++ % this.activatedPriority == 0) // Aeroplane
          this.getBrain().tick((ServerLevel)this.level, this);
          this.level.getProfiler().pop();
          HoglinAi.updateActivity(this);
@@ -233,11 +233,11 @@ index c7ad0e317c0c74e5ad3e08278c5e7b31c894413e..06c6ed64488bb3685b9de3e05d8a1e74
          return !this.cannotHunt;
      }
  
-+    private int behaviorTick; // Airplane
++    private int behaviorTick; // Aeroplane
      @Override
      protected void customServerAiStep() {
          this.level.getProfiler().push("piglinBrain");
-+        if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
++        if (this.behaviorTick++ % this.activatedPriority == 0) // Aeroplane
          this.getBrain().tick((ServerLevel) this.level, (Piglin) this); // CraftBukkit - decompile error
          this.level.getProfiler().pop();
          PiglinAi.updateActivity(this);
@@ -249,7 +249,7 @@ index eaefa4f5f86f1c836aa29dd64ea786baced4b34d..0f7f7aef78a1f34fe113eeb00a88fd26
          return villageplacetype == PoiType.MEETING;
      });
  
-+    public long nextGolemPanic = -1; // Airplane
++    public long nextGolemPanic = -1; // Aeroplane
 +
      public Villager(EntityType<? extends Villager> entityType, Level world) {
          this(entityType, world, VillagerType.PLAINS);
@@ -258,18 +258,18 @@ index eaefa4f5f86f1c836aa29dd64ea786baced4b34d..0f7f7aef78a1f34fe113eeb00a88fd26
      }
      // Spigot End
  
-+    private int behaviorTick = 0; // Airplane
++    private int behaviorTick = 0; // Aeroplane
      @Override
      protected void customServerAiStep() { mobTick(false); }
      protected void mobTick(boolean inactive) {
          this.level.getProfiler().push("villagerBrain");
 -        if (!inactive) this.getBrain().tick((ServerLevel) this.level, this); // CraftBukkit - decompile error // Paper
-+        // Airplane start
++        // Aeroplane start
 +        if (!inactive) {
-+            if (this.behaviorTick++ % this.activatedPriority == 0) // Airplane
++            if (this.behaviorTick++ % this.activatedPriority == 0) // Aeroplane
 +            this.getBrain().tick((ServerLevel) this.level, this);
 +         }
-+        // Airplane end
++        // Aeroplane end
          this.level.getProfiler().pop();
          if (this.assignProfessionWhenSpawned) {
              this.assignProfessionWhenSpawned = false;
@@ -281,10 +281,10 @@ index b5da2f39ff6e2e7cb519c5d22be6ae4d77dc60ab..bd0cc767ae978eeb332f86971cc9bea5
  import net.minecraft.world.entity.schedule.Activity;
  import net.minecraft.world.level.Level;
  import net.minecraft.world.phys.AABB;
-+// Airplane start
++// Aeroplane start
 +import net.minecraft.world.phys.Vec3;
 +import java.util.List;
-+// Airplane end
++// Aeroplane end
  
  public class ActivationRange
  {
@@ -293,19 +293,19 @@ index b5da2f39ff6e2e7cb519c5d22be6ae4d77dc60ab..bd0cc767ae978eeb332f86971cc9bea5
                  Entity entity = entities.get(i);
                  ActivationRange.activateEntity(entity);
 +
-+                // Airplane start
-+                if (gg.airplane.AirplaneConfig.dearEnabled && entity.getType().dabEnabled) {
++                // Aeroplane start
++                if (gg.aeroplane.AeroplaneConfig.dearEnabled && entity.getType().dabEnabled) {
 +                    Vec3 playerVec = player.position();
 +                    Vec3 entityVec = entity.position();
 +                    double diffX = playerVec.x - entityVec.x, diffY = playerVec.y - entityVec.y, diffZ = playerVec.z - entityVec.z;
 +                    int squaredDistance = (int) (diffX * diffX + diffY * diffY + diffZ * diffZ);
-+                    entity.activatedPriority = squaredDistance > gg.airplane.AirplaneConfig.startDistanceSquared ?
-+                      Math.max(1, Math.min(squaredDistance >> gg.airplane.AirplaneConfig.activationDistanceMod, gg.airplane.AirplaneConfig.maximumActivationPrio)) :
++                    entity.activatedPriority = squaredDistance > gg.aeroplane.AeroplaneConfig.startDistanceSquared ?
++                      Math.max(1, Math.min(squaredDistance >> gg.aeroplane.AeroplaneConfig.activationDistanceMod, gg.aeroplane.AeroplaneConfig.maximumActivationPrio)) :
 +                      1;
 +                } else {
 +                    entity.activatedPriority = 1;
 +                }
-+                // Airplane end
++                // Aeroplane end
 +
              }
              // Paper end
@@ -315,13 +315,13 @@ index b5da2f39ff6e2e7cb519c5d22be6ae4d77dc60ab..bd0cc767ae978eeb332f86971cc9bea5
          {
              if ( entity.defaultActivationState )
 -            {
-+            { // Airplane - diff on change
++            { // Aeroplane - diff on change
                  entity.activatedTick = MinecraftServer.currentTick;
                  return;
              }
              if ( entity.activationType.boundingBox.intersects( entity.getBoundingBox() ) )
 -            {
-+            {  // Airplane - diff on change
++            {  // Aeroplane - diff on change
                  entity.activatedTick = MinecraftServer.currentTick;
              }
          }

@@ -38,12 +38,12 @@ index e223225f3a084e46963358a4bad132184a81ecb4..83c026a699ad0dfe95f1a370667eb9e9
                  .getObjectsInRange(MCUtil.getCoordinateKey(this));
          }
 -        Iterable<Entity> passengers = this.getIndirectPassengers();
-+        //Iterable<Entity> passengers = this.getIndirectPassengers(); // Airplane
++        //Iterable<Entity> passengers = this.getIndirectPassengers(); // Aeroplane
          net.minecraft.server.level.ChunkMap chunkMap = ((ServerLevel)this.level).getChunkSource().chunkMap;
          org.spigotmc.TrackingRange.TrackingRangeType type = this.trackingRangeType;
          int range = chunkMap.getEntityTrackerRange(type.ordinal());
  
-+        // Airplane start - use getFurthestEntity to skip getIndirectPassengers
++        // Aeroplane start - use getFurthestEntity to skip getIndirectPassengers
 +        /*
          for (Entity passenger : passengers) {
              org.spigotmc.TrackingRange.TrackingRangeType passengerType = passenger.trackingRangeType;
@@ -54,7 +54,7 @@ index e223225f3a084e46963358a4bad132184a81ecb4..83c026a699ad0dfe95f1a370667eb9e9
          }
 +         */
 +        type = this.getFurthestEntity(this, chunkMap, type, range);
-+        // Airplane end
++        // Aeroplane end
  
          return chunkMap.playerEntityTrackerTrackMaps[type.ordinal()].getObjectsInRange(MCUtil.getCoordinateKey(this));
      }

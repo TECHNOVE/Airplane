@@ -12,7 +12,7 @@ index c7e16e96633e17b951f0681599c5b3efc3ce1e6c..8d329bca0818033df41fbd781028919c
      }
  
      public boolean contains(ItemStack stack) {
-+        // Airplane start - don't allocate iterators
++        // Aeroplane start - don't allocate iterators
 +        /*
          Iterator iterator = this.compartments.iterator();
  
@@ -32,7 +32,7 @@ index c7e16e96633e17b951f0681599c5b3efc3ce1e6c..8d329bca0818033df41fbd781028919c
 +                }
 +            }
 +        }
-+        // Airplane end
++        // Aeroplane end
  
          return false;
      }

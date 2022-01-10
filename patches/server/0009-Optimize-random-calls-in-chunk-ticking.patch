@@ -17,7 +17,7 @@ it, while checking if it's 0 for the current chunk.
 Depending on configuration for things that tick in a chunk, this is a
 5-10% improvement.
 
-Airplane
+Aeroplane
 Copyright (C) 2020 Technove LLC
 
 This program is free software: you can redistribute it and/or modify
@@ -41,7 +41,7 @@ index 4a3dbcfdacb809d162663c379c4e8151be522432..5116b1f90c0f27ce1d3cee6632563f32
              }
              // Paper end - optimize isOutisdeRange
              this.level.getProfiler().push("pollingChunks");
-+            this.level.resetIceAndSnowTick(); // Airplane - reset ice & snow tick random
++            this.level.resetIceAndSnowTick(); // Aeroplane - reset ice & snow tick random
              int k = this.level.getGameRules().getInt(GameRules.RULE_RANDOMTICKING);
              boolean flag2 = level.ticksPerAnimalSpawns != 0L && worlddata.getGameTime() % level.ticksPerAnimalSpawns == 0L; // CraftBukkit
  
@@ -53,7 +53,7 @@ index d40a367670ccea01978cabf7d45f3c1a690662fc..f59bc9207d5e565b5e71997cbf90ca50
      private final io.papermc.paper.util.math.ThreadUnsafeRandom randomTickRandom = new io.papermc.paper.util.math.ThreadUnsafeRandom();
      // Paper end
  
-+    private int currentIceAndSnowTick = 0; protected void resetIceAndSnowTick() { this.currentIceAndSnowTick = this.randomTickRandom.nextInt(16); } // Airplane
++    private int currentIceAndSnowTick = 0; protected void resetIceAndSnowTick() { this.currentIceAndSnowTick = this.randomTickRandom.nextInt(16); } // Aeroplane
 +
      public void tickChunk(LevelChunk chunk, int randomTickSpeed) {
          ChunkPos chunkcoordintpair = chunk.getPos();
@@ -63,7 +63,7 @@ index d40a367670ccea01978cabf7d45f3c1a690662fc..f59bc9207d5e565b5e71997cbf90ca50
          final BlockPos.MutableBlockPos blockposition = this.chunkTickMutablePosition; // Paper - use mutable to reduce allocation rate, final to force compile fail on change
  
 -        if (!this.paperConfig.disableThunder && flag && this.isThundering() && this.spigotConfig.thunderChance > 0 && this.random.nextInt(this.spigotConfig.thunderChance) == 0) { // Spigot // Paper - disable thunder
-+        if (!this.paperConfig.disableThunder && flag && this.isThundering() && this.spigotConfig.thunderChance > 0 && this.random.nextInt(this.spigotConfig.thunderChance) == 0 && chunk.shouldDoLightning(this.random)) { // Spigot // Paper - disable thunder // Airplane - replace random with shouldDoLightning
++        if (!this.paperConfig.disableThunder && flag && this.isThundering() && this.spigotConfig.thunderChance > 0 && this.random.nextInt(this.spigotConfig.thunderChance) == 0 && chunk.shouldDoLightning(this.random)) { // Spigot // Paper - disable thunder // Aeroplane - replace random with shouldDoLightning
              blockposition.set(this.findLightningTargetAround(this.getBlockRandomPos(j, 0, k, 15))); // Paper
              if (this.isRainingAt(blockposition)) {
                  DifficultyInstance difficultydamagescaler = this.getCurrentDifficultyAt(blockposition);
@@ -72,7 +72,7 @@ index d40a367670ccea01978cabf7d45f3c1a690662fc..f59bc9207d5e565b5e71997cbf90ca50
  
          gameprofilerfiller.popPush("iceandsnow");
 -         if (!this.paperConfig.disableIceAndSnow && this.randomTickRandom.nextInt(16) == 0) { // Paper - Disable ice and snow // Paper - optimise random ticking
-+         if (!this.paperConfig.disableIceAndSnow && (this.currentIceAndSnowTick++ & 15) == 0) { // Paper - Disable ice and snow // Paper - optimise random ticking  // Airplane - optimize further random ticking
++         if (!this.paperConfig.disableIceAndSnow && (this.currentIceAndSnowTick++ & 15) == 0) { // Paper - Disable ice and snow // Paper - optimise random ticking  // Aeroplane - optimize further random ticking
              // Paper start - optimise chunk ticking
              this.getRandomBlockPosition(j, 0, k, 15, blockposition);
              int normalY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockposition.getX() & 15, blockposition.getZ() & 15) + 1;
@@ -84,7 +84,7 @@ index 86686c24b0b7de4b4bfadbc77419a8872a8e86ee..ff0fab668801d0b32abffbfedc7eb24a
      }
      // Paper end - rewrite light engine
  
-+    // Airplane start - instead of using a random every time the chunk is ticked, define when lightning strikes preemptively
++    // Aeroplane start - instead of using a random every time the chunk is ticked, define when lightning strikes preemptively
 +    private int lightningTick;
 +   // shouldDoLightning compiles down to 29 bytes, which with the default of 35 byte inlining should guarantee an inline
 +    public final boolean shouldDoLightning(java.util.Random random) {
@@ -94,7 +94,7 @@ index 86686c24b0b7de4b4bfadbc77419a8872a8e86ee..ff0fab668801d0b32abffbfedc7eb24a
 +        }
 +        return false;
 +    }
-+    // Airplane end
++    // Aeroplane end
 +
      public LevelChunk(Level world, ChunkPos pos, ChunkBiomeContainer biomes) {
          this(world, pos, biomes, UpgradeData.EMPTY, EmptyTickList.empty(), EmptyTickList.empty(), 0L, (LevelChunkSection[]) null, (Consumer) null);
@@ -103,7 +103,7 @@ index 86686c24b0b7de4b4bfadbc77419a8872a8e86ee..ff0fab668801d0b32abffbfedc7eb24a
          this.postProcessing = new ShortList[world.getSectionsCount()];
          // CraftBukkit start
          this.bukkitChunk = new org.bukkit.craftbukkit.CraftChunk(this);
-+        this.lightningTick = this.level.random.nextInt(100000) << 1; // Airplane - initialize lightning tick
++        this.lightningTick = this.level.random.nextInt(100000) << 1; // Aeroplane - initialize lightning tick
      }
  
      public org.bukkit.Chunk bukkitChunk;

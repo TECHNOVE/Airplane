@@ -4,13 +4,13 @@ Date: Tue, 22 Jun 2021 14:49:50 -0500
 Subject: [PATCH] Use aging cache for biome temperatures
 
 
-diff --git a/src/main/java/gg/airplane/structs/Long2FloatAgingCache.java b/src/main/java/gg/airplane/structs/Long2FloatAgingCache.java
+diff --git a/src/main/java/gg/aeroplane/structs/Long2FloatAgingCache.java b/src/main/java/gg/aeroplane/structs/Long2FloatAgingCache.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..a7f297ebb569f7c1f205e967ca485be70013a714
 --- /dev/null
-+++ b/src/main/java/gg/airplane/structs/Long2FloatAgingCache.java
++++ b/src/main/java/gg/aeroplane/structs/Long2FloatAgingCache.java
 @@ -0,0 +1,119 @@
-+package gg.airplane.structs;
++package gg.aeroplane.structs;
 +
 +import it.unimi.dsi.fastutil.HashCommon;
 +
@@ -138,8 +138,8 @@ index 2b814006fa30dd233dcb345d1d20ce3bf6469053..b5c6b0bc307aef2835761cfa50413ceb
      private final Biome.BiomeCategory biomeCategory;
      private final BiomeSpecialEffects specialEffects;
 -    private final ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache = ThreadLocal.withInitial(() -> {
-+    // Airplane start - use our cache
-+    private final ThreadLocal<gg.airplane.structs.Long2FloatAgingCache> temperatureCache = ThreadLocal.withInitial(() -> {
++    // Aeroplane start - use our cache
++    private final ThreadLocal<gg.aeroplane.structs.Long2FloatAgingCache> temperatureCache = ThreadLocal.withInitial(() -> {
          return Util.make(() -> {
 +            /*
              Long2FloatLinkedOpenHashMap long2FloatLinkedOpenHashMap = new Long2FloatLinkedOpenHashMap(1024, 0.25F) {
@@ -151,8 +151,8 @@ index 2b814006fa30dd233dcb345d1d20ce3bf6469053..b5c6b0bc307aef2835761cfa50413ceb
              return long2FloatLinkedOpenHashMap;
 +
 +             */
-+            return new gg.airplane.structs.Long2FloatAgingCache(TEMPERATURE_CACHE_SIZE);
-+            // Airplane end
++            return new gg.aeroplane.structs.Long2FloatAgingCache(TEMPERATURE_CACHE_SIZE);
++            // Aeroplane end
          });
      });
  
@@ -162,8 +162,8 @@ index 2b814006fa30dd233dcb345d1d20ce3bf6469053..b5c6b0bc307aef2835761cfa50413ceb
          long l = blockPos.asLong();
 -        Long2FloatLinkedOpenHashMap long2FloatLinkedOpenHashMap = this.temperatureCache.get();
 -        float f = long2FloatLinkedOpenHashMap.get(l);
-+        // Airplane start
-+        gg.airplane.structs.Long2FloatAgingCache cache = this.temperatureCache.get();
++        // Aeroplane start
++        gg.aeroplane.structs.Long2FloatAgingCache cache = this.temperatureCache.get();
 +        float f = cache.getValue(l);
          if (!Float.isNaN(f)) {
              return f;
@@ -175,7 +175,7 @@ index 2b814006fa30dd233dcb345d1d20ce3bf6469053..b5c6b0bc307aef2835761cfa50413ceb
 -
 -            long2FloatLinkedOpenHashMap.put(l, g);
 +            cache.putValue(l, g);
-+            // Airplane end
++            // Aeroplane end
              return g;
          }
      }

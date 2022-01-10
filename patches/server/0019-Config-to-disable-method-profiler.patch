@@ -4,11 +4,11 @@ Date: Mon, 26 Apr 2021 11:34:29 -0500
 Subject: [PATCH] Config to disable method profiler
 
 
-diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
+diff --git a/src/main/java/gg/aeroplane/AeroplaneConfig.java b/src/main/java/gg/aeroplane/AeroplaneConfig.java
 index 8513d935cc77bff2cd312ce943774eb3f04fd2a1..2b654e6adfe331a5fa68c1aea7d6d6cea1f3567d 100644
---- a/src/main/java/gg/airplane/AirplaneConfig.java
-+++ b/src/main/java/gg/airplane/AirplaneConfig.java
-@@ -245,4 +245,13 @@ public class AirplaneConfig {
+--- a/src/main/java/gg/aeroplane/AeroplaneConfig.java
++++ b/src/main/java/gg/aeroplane/AeroplaneConfig.java
+@@ -245,4 +245,13 @@ public class AeroplaneConfig {
      }
  
  
@@ -30,7 +30,7 @@ index 159b9073a7f8da7993f228643a5a35bb6f66d05e..7120a77ec93009faf1f18fd6c9bc020d
      }
  
      public ProfilerFiller getProfiler() {
-+        if (gg.airplane.AirplaneConfig.disableMethodProfiler) return net.minecraft.util.profiling.InactiveProfiler.INSTANCE;
++        if (gg.aeroplane.AeroplaneConfig.disableMethodProfiler) return net.minecraft.util.profiling.InactiveProfiler.INSTANCE;
          return this.profiler;
      }
  
@@ -42,7 +42,7 @@ index d685b0ffd818eaab5b07f84f294d59654a7fc190..63b2266d894e1e218ee4365ac39a4f7f
      }
  
      public ProfilerFiller getProfiler() {
-+        if (gg.airplane.AirplaneConfig.disableMethodProfiler) return net.minecraft.util.profiling.InactiveProfiler.INSTANCE; // Airplane
++        if (gg.aeroplane.AeroplaneConfig.disableMethodProfiler) return net.minecraft.util.profiling.InactiveProfiler.INSTANCE; // Aeroplane
          return (ProfilerFiller) this.profiler.get();
      }
  

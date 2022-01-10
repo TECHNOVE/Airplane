@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Paul Sauve <paul@technove.co>
 Date: Wed, 20 Jan 2021 13:08:53 -0600
-Subject: [PATCH] Airplane Configuration
+Subject: [PATCH] Aeroplane Configuration
 
 Co-developed-by: Ben Kerllenevich <me@notom3ga.me>
 
-Airplane
+Aeroplane
 Copyright (C) 2020 Technove LLC
 
 This program is free software: you can redistribute it and/or modify
@@ -29,11 +29,11 @@ index 7eb93902e22374644aa615f49cfbb01b052b5b40..5a7947cf5ab437eb5d62f8c73796e837
      implementation("net.fabricmc:mapping-io:0.3.0") // Paper - needed to read mappings for stacktrace deobfuscation
      implementation("com.velocitypowered:velocity-native:1.1.0-SNAPSHOT") // Paper
  
-+    implementation("com.github.technove:AIR:fe3dbb4420") // Airplane - config
++    implementation("com.github.technove:AIR:fe3dbb4420") // Aeroplane - config
 +    implementation("org.yaml:snakeyaml:1.28")
-+    implementation ("me.carleslc.Simple-YAML:Simple-Yaml:1.7.2") { // Airplane - more config
++    implementation ("me.carleslc.Simple-YAML:Simple-Yaml:1.7.2") { // Aeroplane - more config
 +        exclude(group="org.yaml", module="snakeyaml") // exclude snakeyaml dependency because its old (1.26)
-+    } // Airplane - more config
++    } // Aeroplane - more config
 +
      testImplementation("io.github.classgraph:classgraph:4.8.47") // Paper - mob goal test
      testImplementation("junit:junit:4.13.1")
@@ -47,8 +47,8 @@ index e29b0a90019b12bd6586ad0f7b5314f307e527ba..6e8001c7ff6497c9e5c274a5fe85cc20
              pair("spigot", mapAsJSON(Bukkit.spigot().getSpigotConfig(), null)),
              pair("bukkit", mapAsJSON(Bukkit.spigot().getBukkitConfig(), null)),
 -            pair("paper", mapAsJSON(Bukkit.spigot().getPaperConfig(), null))
-+            pair("paper", mapAsJSON(Bukkit.spigot().getPaperConfig(), null)), // Airplane
-+            pair("airplane", mapAsJSON(gg.airplane.AirplaneConfig.getConfigCopy(), null)) // Airplane
++            pair("paper", mapAsJSON(Bukkit.spigot().getPaperConfig(), null)), // Aeroplane
++            pair("aeroplane", mapAsJSON(gg.aeroplane.AeroplaneConfig.getConfigCopy(), null)) // Aeroplane
          ));
  
          new TimingsExport(listeners, parent, history).start();
@@ -61,21 +61,21 @@ index def26111f1461a54209d34f5063e65c5eb3b48e5..6cda37d340bfc6f76cbb3bdaa3ffb6d3
          }
          TimingsManager.privacy = getBoolean("timings.server-name-privacy", false);
 -        TimingsManager.hiddenConfigs = getList("timings.hidden-config-entries", Lists.newArrayList("database", "settings.bungeecord-addresses", "settings.velocity-support.secret"));
-+        TimingsManager.hiddenConfigs = getList("timings.hidden-config-entries", Lists.newArrayList("database", "settings.bungeecord-addresses", "settings.velocity-support.secret", "web-services.token")); // Airplane
++        TimingsManager.hiddenConfigs = getList("timings.hidden-config-entries", Lists.newArrayList("database", "settings.bungeecord-addresses", "settings.velocity-support.secret", "web-services.token")); // Aeroplane
          if (!TimingsManager.hiddenConfigs.contains("settings.velocity-support.secret")) {
              TimingsManager.hiddenConfigs.add("settings.velocity-support.secret");
          }
-+        if (!TimingsManager.hiddenConfigs.contains("web-services.token")) TimingsManager.hiddenConfigs.add("web-services.token"); // Airplane
++        if (!TimingsManager.hiddenConfigs.contains("web-services.token")) TimingsManager.hiddenConfigs.add("web-services.token"); // Aeroplane
          int timingHistoryInterval = getInt("timings.history-interval", 300);
          int timingHistoryLength = getInt("timings.history-length", 3600);
          timingsServerName = getString("timings.server-name", "Unknown Server");
-diff --git a/src/main/java/gg/airplane/AirplaneCommand.java b/src/main/java/gg/airplane/AirplaneCommand.java
+diff --git a/src/main/java/gg/aeroplane/AeroplaneCommand.java b/src/main/java/gg/aeroplane/AeroplaneCommand.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..89c89e633f14b5820147e734b1b7ad8cadfdce80
 --- /dev/null
-+++ b/src/main/java/gg/airplane/AirplaneCommand.java
++++ b/src/main/java/gg/aeroplane/AeroplaneCommand.java
 @@ -0,0 +1,65 @@
-+package gg.airplane;
++package gg.aeroplane;
 +
 +import net.kyori.adventure.text.Component;
 +import net.kyori.adventure.text.format.NamedTextColor;
@@ -92,13 +92,13 @@ index 0000000000000000000000000000000000000000..89c89e633f14b5820147e734b1b7ad8c
 +import java.util.stream.Collectors;
 +import java.util.stream.Stream;
 +
-+public class AirplaneCommand extends Command {
++public class AeroplaneCommand extends Command {
 +
-+    public AirplaneCommand() {
-+        super("airplane");
-+        this.description = "Airplane related commands";
-+        this.usageMessage = "/airplane [reload | version]";
-+        this.setPermission("bukkit.command.airplane");
++    public AeroplaneCommand() {
++        super("aeroplane");
++        this.description = "Aeroplane related commands";
++        this.usageMessage = "/aeroplane [reload | version]";
++        this.setPermission("bukkit.command.aeroplane");
 +    }
 +
 +    @Override
@@ -114,7 +114,7 @@ index 0000000000000000000000000000000000000000..89c89e633f14b5820147e734b1b7ad8c
 +    @Override
 +    public boolean execute(CommandSender sender, String commandLabel, String[] args) {
 +        if (!testPermission(sender)) return true;
-+        String prefix = ChatColor.of("#6a7eda") + "" + ChatColor.BOLD + "Airplane ✈ " + ChatColor.of("#e8ebf9");
++        String prefix = ChatColor.of("#6a7eda") + "" + ChatColor.BOLD + "Aeroplane ✈ " + ChatColor.of("#e8ebf9");
 +
 +        if (args.length != 1) {
 +            sender.sendMessage(prefix + "Usage: " + usageMessage);
@@ -124,7 +124,7 @@ index 0000000000000000000000000000000000000000..89c89e633f14b5820147e734b1b7ad8c
 +        if (args[0].equalsIgnoreCase("reload")) {
 +            MinecraftServer console = MinecraftServer.getServer();
 +            try {
-+                AirplaneConfig.load();
++                AeroplaneConfig.load();
 +            } catch (IOException e) {
 +                sender.sendMessage(Component.text("Failed to reload.", NamedTextColor.RED));
 +                e.printStackTrace();
@@ -132,7 +132,7 @@ index 0000000000000000000000000000000000000000..89c89e633f14b5820147e734b1b7ad8c
 +            }
 +            console.server.reloadCount++;
 +
-+            Command.broadcastCommandMessage(sender, prefix + "Airplane configuration has been reloaded.");
++            Command.broadcastCommandMessage(sender, prefix + "Aeroplane configuration has been reloaded.");
 +        } else if (args[0].equalsIgnoreCase("version")) {
 +            Command.broadcastCommandMessage(sender, prefix + "This server is running " + Bukkit.getName() + " version " + Bukkit.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ")");
 +        }
@@ -140,13 +140,13 @@ index 0000000000000000000000000000000000000000..89c89e633f14b5820147e734b1b7ad8c
 +        return true;
 +    }
 +}
-diff --git a/src/main/java/gg/airplane/AirplaneConfig.java b/src/main/java/gg/airplane/AirplaneConfig.java
+diff --git a/src/main/java/gg/aeroplane/AeroplaneConfig.java b/src/main/java/gg/aeroplane/AeroplaneConfig.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..8e714f112c6fa37eb92398a9d7d7f7b8b48c3832
 --- /dev/null
-+++ b/src/main/java/gg/airplane/AirplaneConfig.java
++++ b/src/main/java/gg/aeroplane/AeroplaneConfig.java
 @@ -0,0 +1,171 @@
-+package gg.airplane;
++package gg.aeroplane;
 +
 +import co.technove.air.AIR;
 +import co.technove.air.ValueType;
@@ -168,7 +168,7 @@ index 0000000000000000000000000000000000000000..8e714f112c6fa37eb92398a9d7d7f7b8
 +import java.lang.reflect.Modifier;
 +import java.util.List;
 +
-+public class AirplaneConfig {
++public class AeroplaneConfig {
 +
 +    private static @Nullable AIR oldConfig;
 +    private static final YamlFile config = new YamlFile();
@@ -195,8 +195,8 @@ index 0000000000000000000000000000000000000000..8e714f112c6fa37eb92398a9d7d7f7b8
 +    }
 +
 +    public static void load() throws IOException {
-+        File oldConfigFile = new File("airplane.air");
-+        File configFile = new File("airplane.yml");
++        File oldConfigFile = new File("aeroplane.air");
++        File configFile = new File("aeroplane.yml");
 +        if (oldConfigFile.exists() && !configFile.exists()) {
 +            try (FileInputStream inputStream = new FileInputStream(oldConfigFile)) {
 +                oldConfig = new AIR(inputStream);
@@ -213,11 +213,11 @@ index 0000000000000000000000000000000000000000..8e714f112c6fa37eb92398a9d7d7f7b8
 +
 +        getString("info.version", "1.0");
 +        setComment("info",
-+                "Airplane Configuration",
-+                "Read https://blog.airplane.gg/ to find out more about Airplane",
++                "Aeroplane Configuration",
++                "Read https://blog.aeroplane.gg/ to find out more about Aeroplane",
 +                "Join our Discord to receive support & optimization help: https://discord.gg/3gtc45q");
 +
-+        for (Method method : AirplaneConfig.class.getDeclaredMethods()) {
++        for (Method method : AeroplaneConfig.class.getDeclaredMethods()) {
 +            if (Modifier.isStatic(method.getModifiers()) && Modifier.isPrivate(method.getModifiers()) && method.getParameterCount() == 0 &&
 +                    method.getReturnType() == Void.TYPE && !method.getName().startsWith("lambda")) {
 +                method.setAccessible(true);
@@ -235,7 +235,7 @@ index 0000000000000000000000000000000000000000..8e714f112c6fa37eb92398a9d7d7f7b8
 +        oldConfig = null;
 +
 +        if (oldConfigFile.exists()) {
-+            oldConfigFile.renameTo(new File("airplane.air.old"));
++            oldConfigFile.renameTo(new File("aeroplane.air.old"));
 +        }
 +    }
 +
@@ -317,20 +317,20 @@ index 0000000000000000000000000000000000000000..8e714f112c6fa37eb92398a9d7d7f7b8
 +
 +
 +}
-diff --git a/src/main/java/gg/airplane/commands/AirplaneCommands.java b/src/main/java/gg/airplane/commands/AirplaneCommands.java
+diff --git a/src/main/java/gg/aeroplane/commands/AeroplaneCommands.java b/src/main/java/gg/aeroplane/commands/AeroplaneCommands.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..807cf274619b8f7be839e249cb62b9817876ca04
 --- /dev/null
-+++ b/src/main/java/gg/airplane/commands/AirplaneCommands.java
++++ b/src/main/java/gg/aeroplane/commands/AeroplaneCommands.java
 @@ -0,0 +1,10 @@
-+package gg.airplane.commands;
++package gg.aeroplane.commands;
 +
-+import gg.airplane.AirplaneCommand;
++import gg.aeroplane.AeroplaneCommand;
 +import net.minecraft.server.MinecraftServer;
 +
-+public class AirplaneCommands {
++public class AeroplaneCommands {
 +    public static void init() {
-+        MinecraftServer.getServer().server.getCommandMap().register("airplane", "Airplane", new AirplaneCommand());
++        MinecraftServer.getServer().server.getCommandMap().register("aeroplane", "Aeroplane", new AeroplaneCommand());
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
@@ -341,8 +341,8 @@ index b6ee0e709b0f0529b99567bc9b8fb6bfd99bcd8e..e2901132b78126c0a4eb04363dfe6a0d
          io.papermc.paper.util.ObfHelper.INSTANCE.getClass(); // load mappings for stacktrace deobf and etc.
          io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
          // Paper end
-+        gg.airplane.AirplaneConfig.load(); // Airplane - config
-+        gg.airplane.commands.AirplaneCommands.init(); // Airplane - command
++        gg.aeroplane.AeroplaneConfig.load(); // Aeroplane - config
++        gg.aeroplane.commands.AeroplaneCommands.init(); // Aeroplane - command
  
          this.setPvpAllowed(dedicatedserverproperties.pvp);
          this.setFlightAllowed(dedicatedserverproperties.allowFlight);

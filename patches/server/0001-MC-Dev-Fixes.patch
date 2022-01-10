@@ -13,17 +13,17 @@ index 75022e5888de2730bb29d1e7535ddc63e2c5f713..a7c71fc4e49079d11b9a0537a4f6d20b
              @Override
              public <T> DataResult<Brain<E>> decode(DynamicOps<T> dynamicOps, MapLike<T> mapLike) {
 -                MutableObject<DataResult<Builder<Brain.MemoryValue<?>>>> mutableObject = new MutableObject<>(DataResult.success(ImmutableList.builder()));
-+                MutableObject<DataResult<Builder<Brain.MemoryValue<?>>>> mutableObject2 = new MutableObject<>(DataResult.success(ImmutableList.builder())); // Airplane - compile error due to decompiler
++                MutableObject<DataResult<Builder<Brain.MemoryValue<?>>>> mutableObject2 = new MutableObject<>(DataResult.success(ImmutableList.builder())); // Aeroplane - compile error due to decompiler
                  mapLike.entries().forEach((pair) -> {
                      DataResult<MemoryModuleType<?>> dataResult = Registry.MEMORY_MODULE_TYPE.parse(dynamicOps, pair.getFirst());
                      DataResult<? extends Brain.MemoryValue<?>> dataResult2 = dataResult.flatMap((memoryModuleType) -> {
                          return this.captureRead(memoryModuleType, dynamicOps, (T)pair.getSecond());
                      });
 -                    mutableObject.setValue(mutableObject.getValue().apply2(Builder::add, dataResult2));
-+                    mutableObject2.setValue(mutableObject2.getValue().apply2(Builder::add, dataResult2)); // Airplane - compile error due to decompiler
++                    mutableObject2.setValue(mutableObject2.getValue().apply2(Builder::add, dataResult2)); // Aeroplane - compile error due to decompiler
                  });
 -                ImmutableList<Brain.MemoryValue<?>> immutableList = mutableObject.getValue().resultOrPartial(Brain.LOGGER::error).map(Builder::build).orElseGet(ImmutableList::of);
-+                ImmutableList<Brain.MemoryValue<?>> immutableList = mutableObject2.getValue().resultOrPartial(Brain.LOGGER::error).map(Builder::build).orElseGet(ImmutableList::of); // Airplane - compile error due to decompiler
++                ImmutableList<Brain.MemoryValue<?>> immutableList = mutableObject2.getValue().resultOrPartial(Brain.LOGGER::error).map(Builder::build).orElseGet(ImmutableList::of); // Aeroplane - compile error due to decompiler
                  return DataResult.success(new Brain<>(memoryModules, sensors, immutableList, mutableObject::getValue));
              }
  
@@ -32,7 +32,7 @@ index 75022e5888de2730bb29d1e7535ddc63e2c5f713..a7c71fc4e49079d11b9a0537a4f6d20b
  
      public <U> Optional<U> getMemory(MemoryModuleType<U> type) {
 -        return this.memories.get(type).map(ExpirableValue::getValue);
-+        return (Optional<U>) this.memories.get(type).map(ExpirableValue::getValue); // Airplane - compile fix
++        return (Optional<U>) this.memories.get(type).map(ExpirableValue::getValue); // Aeroplane - compile fix
      }
  
      public <U> long getTimeUntilExpiry(MemoryModuleType<U> type) {
@@ -41,7 +41,7 @@ index 75022e5888de2730bb29d1e7535ddc63e2c5f713..a7c71fc4e49079d11b9a0537a4f6d20b
  
          static <U> Brain.MemoryValue<U> createUnchecked(MemoryModuleType<U> type, Optional<? extends ExpirableValue<?>> data) {
 -            return new Brain.MemoryValue<>(type, data);
-+            return new Brain.MemoryValue<>(type, (Optional) data); // Airplane - compile fix
++            return new Brain.MemoryValue<>(type, (Optional) data); // Aeroplane - compile fix
          }
  
          MemoryValue(MemoryModuleType<U> type, Optional<? extends ExpirableValue<U>> data) {
@@ -54,7 +54,7 @@ index c510da19883d1aa79b2fc25e2d9c8f5cd8dd7bfa..d86b2b5bdb6b7446cee5edda40c7ea31
      @Override
      public Brain<Hoglin> getBrain() {
 -        return super.getBrain();
-+        return (Brain<Hoglin>) super.getBrain(); // Airplane - decompile fix
++        return (Brain<Hoglin>) super.getBrain(); // Aeroplane - decompile fix
      }
  
      @Override

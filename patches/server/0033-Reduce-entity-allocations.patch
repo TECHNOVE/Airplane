@@ -10,10 +10,10 @@ index 60092c71e4a1486bbe370cce3ff211e281abda3b..37076744e1a82520c7afa83f9ed6399a
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -340,6 +340,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
      // Spigot end
-     // Airplane start
-     public int activatedPriority = gg.airplane.AirplaneConfig.maximumActivationPrio; // golf score
+     // Aeroplane start
+     public int activatedPriority = gg.aeroplane.AeroplaneConfig.maximumActivationPrio; // golf score
 +    public final BlockPos.MutableBlockPos cachedBlockPos = new BlockPos.MutableBlockPos(); // used where needed
-     // Airplane end
+     // Aeroplane end
  
      public float getBukkitYaw() {
 @@ -2475,9 +2476,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
@@ -23,7 +23,7 @@ index 60092c71e4a1486bbe370cce3ff211e281abda3b..37076744e1a82520c7afa83f9ed6399a
 -                false, false, false, true, (iblockdata, blockposition) -> {
 -                    return iblockdata.isSuffocating(this.level, blockposition);
 -            });
-+                false, false, false, true, this.level.isAlmostSuffocating); // Airplane - don't allocate lambda here
++                false, false, false, true, this.level.isAlmostSuffocating); // Aeroplane - don't allocate lambda here
              // Paper end
          }
      }
@@ -35,11 +35,11 @@ index 9cbfda029782385d1a7987f5be46d450bd8a758e..d3e97858dacc850012e5585ac44a1aea
      private final Map<Attribute, AttributeInstance> attributes = Maps.newHashMap();
      private final Set<AttributeInstance> dirtyAttributes = Sets.newHashSet();
      private final AttributeSupplier supplier;
-+    private final java.util.function.Function<Attribute, AttributeInstance> createInstance; // Airplane
++    private final java.util.function.Function<Attribute, AttributeInstance> createInstance; // Aeroplane
  
      public AttributeMap(AttributeSupplier defaultAttributes) {
          this.supplier = defaultAttributes;
-+        this.createInstance = attribute -> this.supplier.createInstance(this::onAttributeModified, attribute); // Airplane
++        this.createInstance = attribute -> this.supplier.createInstance(this::onAttributeModified, attribute); // Aeroplane
      }
  
      private void onAttributeModified(AttributeInstance instance) {
@@ -53,7 +53,7 @@ index 9cbfda029782385d1a7987f5be46d450bd8a758e..d3e97858dacc850012e5585ac44a1aea
 -        return this.attributes.computeIfAbsent(attribute, (attributex) -> {
 -            return this.supplier.createInstance(this::onAttributeModified, attributex);
 -        });
-+        return this.attributes.computeIfAbsent(attribute, this.createInstance); // Airplane - cache lambda, as for some reason java allocates it anyways
++        return this.attributes.computeIfAbsent(attribute, this.createInstance); // Aeroplane - cache lambda, as for some reason java allocates it anyways
      }
  
      public boolean hasAttribute(Attribute attribute) {
@@ -65,7 +65,7 @@ index 4fe7f1e83ed0e48b6a579ddca691e704e805f5da..f2132f79322cb3966c0d8089e7718506
      public final Map<Explosion.CacheKey, Float> explosionDensityCache = new HashMap<>(); // Paper - Optimize explosions
      public java.util.ArrayDeque<net.minecraft.world.level.block.RedstoneTorchBlock.Toggle> redstoneUpdateInfos; // Paper - Move from Map in BlockRedstoneTorch to here
  
-+    public final java.util.function.BiPredicate<BlockState, BlockPos> isAlmostSuffocating = (iblockdata, blockposition) -> iblockdata.isSuffocating(this, blockposition); // Airplane - move here, no allocs
++    public final java.util.function.BiPredicate<BlockState, BlockPos> isAlmostSuffocating = (iblockdata, blockposition) -> iblockdata.isSuffocating(this, blockposition); // Aeroplane - move here, no allocs
 +
      // Paper start - fix and optimise world upgrading
      // copied from below

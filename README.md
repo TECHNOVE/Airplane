@@ -1,18 +1,18 @@
 <!-- Variables -->
-[home]: https://airplane.gg
-[blog]: https://blog.airplane.gg
-[downloads]: https://dl.airplane.gg
-[about]: https://blog.airplane.gg/about/
+[home]: https://aeroplane.gg
+[blog]: https://blog.aeroplane.gg
+[downloads]: https://dl.aeroplane.gg
+[about]: https://blog.aeroplane.gg/about/
 [discord]: https://discord.gg/63dDSReB7j
 [purity]: https://www.purityvanilla.com
-[patreon]: https://www.patreon.com/airplane
-[fork]: https://github.com/TECHNOVE/MyAirplaneFork
-[wiki]: https://github.com/TECHNOVE/Airplane/wiki
+[patreon]: https://www.patreon.com/aeroplane
+[fork]: https://github.com/TECHNOVE/MyAeroplaneFork
+[wiki]: https://github.com/TECHNOVE/Aeroplane/wiki
 
-# Airplane
+# Aeroplane
 A stable, optimized, well supported 1.17 Paper fork.
 
-[Homepage][home] - [Downloads][downloads] - [Blog][blog] - [Discord][discord] - [airplane.yml][wiki]
+[Homepage][home] - [Downloads][downloads] - [Blog][blog] - [Discord][discord] - [aeroplane.yml][wiki]
 
 ## Features
 
@@ -28,7 +28,7 @@ A stable, optimized, well supported 1.17 Paper fork.
 ## Downloads
 The latest JAR file can be downloaded from [the downloads page][downloads]. You can also clone this repository and build it yourself.
 
-If you are interested in making a fork of Airplane, check out this template [here][fork]!
+If you are interested in making a fork of Aeroplane, check out this template [here][fork]!
 
 ## Patreon
 

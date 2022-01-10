@@ -12,15 +12,15 @@ index 2509a170b8ddd812ad5be49e5345ec5a3c0cf2b8..def26111f1461a54209d34f5063e65c5
      public static String timingsServerName;
      private static void timings() {
          boolean timings = getBoolean("timings.enabled", true);
-+        // Airplane start
++        // Aeroplane start
 +        boolean reallyEnableTimings = getBoolean("timings.really-enabled", false);
 +        if (timings && !reallyEnableTimings) {
-+            Bukkit.getLogger().log(Level.WARNING, "[Airplane] To improve performance, timings have been disabled by default");
-+            Bukkit.getLogger().log(Level.WARNING, "[Airplane] You can still use timings by using /timings on, but they will not start on server startup unless you set timings.really-enabled to true in paper.yml");
-+            Bukkit.getLogger().log(Level.WARNING, "[Airplane] If you would like to disable this message, either set timings.really-enabled to true or timings.enabled to false.");
++            Bukkit.getLogger().log(Level.WARNING, "[Aeroplane] To improve performance, timings have been disabled by default");
++            Bukkit.getLogger().log(Level.WARNING, "[Aeroplane] You can still use timings by using /timings on, but they will not start on server startup unless you set timings.really-enabled to true in paper.yml");
++            Bukkit.getLogger().log(Level.WARNING, "[Aeroplane] If you would like to disable this message, either set timings.really-enabled to true or timings.enabled to false.");
 +        }
 +        timings = reallyEnableTimings;
-+        // Airplane end
++        // Aeroplane end
          boolean verboseTimings = getBoolean("timings.verbose", true);
          TimingsManager.url = getString("timings.url", "https://timings.aikar.co/");
          if (!TimingsManager.url.endsWith("/")) {

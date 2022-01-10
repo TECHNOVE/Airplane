@@ -12,7 +12,7 @@ index 8a39c48fce819d72a94d5309db8dfc42930989af..379b49f13a8c676125e17ad9207884a5
          throw new ClassNotFoundException(name);
      }
  
-+    public boolean _airplane_hasClass(@NotNull String name) { return this.classes.containsKey(name); } // Airplane
++    public boolean _aeroplane_hasClass(@NotNull String name) { return this.classes.containsKey(name); } // Aeroplane
      @Override
      protected Class<?> findClass(String name) throws ClassNotFoundException {
          if (name.startsWith("org.bukkit.") || name.startsWith("net.minecraft.")) {

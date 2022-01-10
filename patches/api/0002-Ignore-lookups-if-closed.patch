@@ -12,7 +12,7 @@ index 379b49f13a8c676125e17ad9207884a5d6cb5b7b..4c84e3a5c983b7f8fe5515fff6fcfa64
      private final Set<String> seenIllegalAccess = Collections.newSetFromMap(new ConcurrentHashMap<>());
      private java.util.logging.Logger logger; // Paper - add field
  
-+    private boolean closed = false; // Airplane
++    private boolean closed = false; // Aeroplane
 +
      static {
          ClassLoader.registerAsParallelCapable();
@@ -22,7 +22,7 @@ index 379b49f13a8c676125e17ad9207884a5d6cb5b7b..4c84e3a5c983b7f8fe5515fff6fcfa64
          Class<?> result = classes.get(name);
  
 -        if (result == null) {
-+        if (result == null && !this.closed) { // Airplane
++        if (result == null && !this.closed) { // Aeroplane
              String path = name.replace('.', '/').concat(".class");
              JarEntry entry = jar.getJarEntry(path);
  
@@ -30,7 +30,7 @@ index 379b49f13a8c676125e17ad9207884a5d6cb5b7b..4c84e3a5c983b7f8fe5515fff6fcfa64
          try {
              super.close();
          } finally {
-+            this.closed = true; // Airplane
++            this.closed = true; // Aeroplane
              jar.close();
          }
      }

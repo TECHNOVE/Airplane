@@ -12,14 +12,14 @@ index 8d400de96e9d6049bc6d7e365a484afe132bd02d..36a25a1e7b5aa6c605100febcf5acccf
      }
      // Paper end - optimise checkDespawn
  
-+    // Airplane start - ensure these get inlined
++    // Aeroplane start - ensure these get inlined
 +    private final int minBuildHeight, minSection, height, maxBuildHeight, maxSection;
 +    @Override public final int getMaxBuildHeight() { return this.maxBuildHeight; }
 +    @Override public final int getMinSection() { return this.minSection; }
 +    @Override public final int getMaxSection() { return this.maxSection; }
 +    @Override public final int getMinBuildHeight() { return this.minBuildHeight; }
 +    @Override public final int getHeight() { return this.height; }
-+    // Airplane end
++    // Aeroplane end
 +
      protected Level(WritableLevelData worlddatamutable, ResourceKey<Level> resourcekey, final DimensionType dimensionmanager, Supplier<ProfilerFiller> supplier, boolean flag, boolean flag1, long i, org.bukkit.generator.ChunkGenerator gen, org.bukkit.generator.BiomeProvider biomeProvider, org.bukkit.World.Environment env, java.util.concurrent.Executor executor) { // Paper - Anti-Xray - Pass executor
          this.spigotConfig = new org.spigotmc.SpigotWorldConfig(((net.minecraft.world.level.storage.PrimaryLevelData) worlddatamutable).getLevelName()); // Spigot
@@ -28,13 +28,13 @@ index 8d400de96e9d6049bc6d7e365a484afe132bd02d..36a25a1e7b5aa6c605100febcf5acccf
          this.profiler = supplier;
          this.levelData = worlddatamutable;
          this.dimensionType = dimensionmanager;
-+        // Airplane start
++        // Aeroplane start
 +        this.minBuildHeight = dimensionmanager.minY();
 +        this.minSection = SectionPos.blockToSectionCoord(this.minBuildHeight);
 +        this.height = dimensionmanager.height();
 +        this.maxBuildHeight = this.minBuildHeight + this.height;
 +        this.maxSection = SectionPos.blockToSectionCoord(this.maxBuildHeight - 1) + 1;
-+        // Airplane end
++        // Aeroplane end
          this.dimension = resourcekey;
          this.isClientSide = flag;
          if (dimensionmanager.coordinateScale() != 1.0D) {

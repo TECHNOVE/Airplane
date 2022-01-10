@@ -13,10 +13,10 @@ index adec6b5a9217d13739cec2a83abd5eed0f7d6d9e..bc8471bce49de0aa35bfa74dd81249b1
      // Paper start - optimise random block ticking
      private final BlockPos.MutableBlockPos chunkTickMutablePosition = new BlockPos.MutableBlockPos();
 -    private final io.papermc.paper.util.math.ThreadUnsafeRandom randomTickRandom = new io.papermc.paper.util.math.ThreadUnsafeRandom();
-+    private final io.papermc.paper.util.math.ThreadUnsafeRandom randomTickRandom = new io.papermc.paper.util.math.ThreadUnsafeRandom(); public java.util.Random getThreadUnsafeRandom() { return this.randomTickRandom; } // Airplane - getter
++    private final io.papermc.paper.util.math.ThreadUnsafeRandom randomTickRandom = new io.papermc.paper.util.math.ThreadUnsafeRandom(); public java.util.Random getThreadUnsafeRandom() { return this.randomTickRandom; } // Aeroplane - getter
      // Paper end
  
-     private int currentIceAndSnowTick = 0; protected void resetIceAndSnowTick() { this.currentIceAndSnowTick = this.randomTickRandom.nextInt(16); } // Airplane
+     private int currentIceAndSnowTick = 0; protected void resetIceAndSnowTick() { this.currentIceAndSnowTick = this.randomTickRandom.nextInt(16); } // Aeroplane
 diff --git a/src/main/java/net/minecraft/world/level/NaturalSpawner.java b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 index bacd75f67f783f49208a74501cc7e6e7485010a4..dc613142603fca4cf5c8e47c084e1439d0450424 100644
 --- a/src/main/java/net/minecraft/world/level/NaturalSpawner.java
@@ -26,15 +26,15 @@ index bacd75f67f783f49208a74501cc7e6e7485010a4..dc613142603fca4cf5c8e47c084e1439
      }
  
 -    private static BlockPos getRandomPosWithin(Level world, LevelChunk chunk) {
-+    private static BlockPos getRandomPosWithin(ServerLevel world, LevelChunk chunk) { // Airplane - accept serverlevel
++    private static BlockPos getRandomPosWithin(ServerLevel world, LevelChunk chunk) { // Aeroplane - accept serverlevel
          ChunkPos chunkcoordintpair = chunk.getPos();
 -        int i = chunkcoordintpair.getMinBlockX() + world.random.nextInt(16);
 -        int j = chunkcoordintpair.getMinBlockZ() + world.random.nextInt(16);
-+        int i = chunkcoordintpair.getMinBlockX() + world.getThreadUnsafeRandom().nextInt(16); // Airplane - use thread unsafe random
-+        int j = chunkcoordintpair.getMinBlockZ() + world.getThreadUnsafeRandom().nextInt(16); // Airplane
++        int i = chunkcoordintpair.getMinBlockX() + world.getThreadUnsafeRandom().nextInt(16); // Aeroplane - use thread unsafe random
++        int j = chunkcoordintpair.getMinBlockZ() + world.getThreadUnsafeRandom().nextInt(16); // Aeroplane
          int k = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, i, j) + 1;
 -        int l = Mth.randomBetweenInclusive(world.random, world.getMinBuildHeight(), k);
-+        int l = Mth.randomBetweenInclusive(world.getThreadUnsafeRandom(), world.getMinBuildHeight(), k); // Airplane
++        int l = Mth.randomBetweenInclusive(world.getThreadUnsafeRandom(), world.getMinBuildHeight(), k); // Aeroplane
  
          return new BlockPos(i, l, j);
      }

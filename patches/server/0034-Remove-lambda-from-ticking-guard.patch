@@ -13,9 +13,9 @@ index d64ba412bf5c825972a9fed03c00cae8d86eacf9..7c8eaf0e23b24a484a21b6c4a732b488
  
                          gameprofilerfiller.push("tick");
 -                        this.guardEntityTick(this::tickNonPassenger, entity);
-+                        // Airplane start - copied from this.guardEntityTick
++                        // Aeroplane start - copied from this.guardEntityTick
 +                        try {
-+                            this.tickNonPassenger(entity); // Airplane - changed
++                            this.tickNonPassenger(entity); // Aeroplane - changed
 +                            MinecraftServer.getServer().executeMidTickTasks(); // Tuinity - execute chunk tasks mid tick
 +                        } catch (Throwable throwable) {
 +                            if (throwable instanceof ThreadDeath) throw throwable; // Paper
@@ -26,7 +26,7 @@ index d64ba412bf5c825972a9fed03c00cae8d86eacf9..7c8eaf0e23b24a484a21b6c4a732b488
 +                            entity.discard();
 +                            // Paper end
 +                        }
-+                        // Airplane end
++                        // Aeroplane end
                          gameprofilerfiller.pop();
                      }
                  }
@@ -39,14 +39,14 @@ index f2132f79322cb3966c0d8089e77185064f66add1..f66894df2902a1f1bba1dd69a3c3ee22
              tickConsumer.accept(entity);
              MinecraftServer.getServer().executeMidTickTasks(); // Paper - execute chunk tasks mid tick
 -        } catch (Throwable throwable) {
-+        } catch (Throwable throwable) { // Airplane - diff on change ServerLevel.tick
++        } catch (Throwable throwable) { // Aeroplane - diff on change ServerLevel.tick
              if (throwable instanceof ThreadDeath) throw throwable; // Paper
              // Paper start - Prevent tile entity and entity crashes
              final String msg = String.format("Entity threw exception at %s:%s,%s,%s", entity.level.getWorld().getName(), entity.getX(), entity.getY(), entity.getZ());
              MinecraftServer.LOGGER.error(msg, throwable);
              getCraftServer().getPluginManager().callEvent(new ServerExceptionEvent(new ServerInternalException(msg, throwable)));
 -            entity.discard();
-+            entity.discard(); // Airplane - diff on change ServerLevel.tick
++            entity.discard(); // Aeroplane - diff on change ServerLevel.tick
              // Paper end
          }
      }

@@ -1,9 +1,9 @@
-Airplane-API
-Airplane-Server
+Aeroplane-API
+Aeroplane-Server
 
 last-tuinity
 build/
 .gradle/
 run/
 
-launcher-airplane.jar
+launcher-aeroplane.jar

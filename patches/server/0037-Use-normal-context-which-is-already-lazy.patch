@@ -13,7 +13,7 @@ index b16e65fa8be40f6c938c8c183c9bca7c13acc9e2..b2e2d6ee25a88f9c8f6769c677464322
                                  mutablePos.set(blockX, blockY, blockZ);
                                  if (collisionShape == null) {
 -                                    collisionShape = new LazyEntityCollisionContext(entity);
-+                                    collisionShape = CollisionContext.of(entity); // Airplane - use normal context, we already tore it apart
++                                    collisionShape = CollisionContext.of(entity); // Aeroplane - use normal context, we already tore it apart
                                  }
                                  VoxelShape voxelshape2 = blockData.getCollisionShape(getter, mutablePos, collisionShape);
                                  if (voxelshape2 != Shapes.empty()) {
@@ -21,7 +21,7 @@ index b16e65fa8be40f6c938c8c183c9bca7c13acc9e2..b2e2d6ee25a88f9c8f6769c677464322
          }
      }
  
-+    // Airplane start - unneeded
++    // Aeroplane start - unneeded
 +    /*
      public static final class LazyEntityCollisionContext extends EntityCollisionContext {
  
@@ -31,7 +31,7 @@ index b16e65fa8be40f6c938c8c183c9bca7c13acc9e2..b2e2d6ee25a88f9c8f6769c677464322
          }
      }
 +     */
-+    // Airplane end
++    // Aeroplane end
  
      private CollisionUtil() {
          throw new RuntimeException();

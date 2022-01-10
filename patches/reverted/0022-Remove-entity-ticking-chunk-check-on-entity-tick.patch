@@ -12,7 +12,7 @@ index 86f156587a0939b28c5cf6f64907255c1c4f8b35..516b77edab4d737fa947e051c463bbd6
          return either == null ? null : either.left().orElse(null);
      }
  
-+    // Airplane start - update entity ticking on entities
++    // Aeroplane start - update entity ticking on entities
 +    private void setEntityTickingReady(boolean isEntityTickingReady) {
 +        this.isEntityTickingReady = isEntityTickingReady;
 +        Chunk chunk = this.getFullReadyChunk();
@@ -28,7 +28,7 @@ index 86f156587a0939b28c5cf6f64907255c1c4f8b35..516b77edab4d737fa947e051c463bbd6
 +            }
 +        }
 +    }
-+    // Airplane end
++    // Aeroplane end
      public final boolean isEntityTickingReady() {
          return this.isEntityTickingReady;
      }
@@ -37,10 +37,10 @@ index 86f156587a0939b28c5cf6f64907255c1c4f8b35..516b77edab4d737fa947e051c463bbd6
                      // note: Here is a very good place to add callbacks to logic waiting on this.
                      Chunk entityTickingChunk = either.left().get();
 -                    PlayerChunk.this.isEntityTickingReady = true;
-+                    // Airplane start
++                    // Aeroplane start
 +                    //PlayerChunk.this.isEntityTickingReady = true;
 +                    PlayerChunk.this.setEntityTickingReady(true);
-+                    // Airplane end
++                    // Aeroplane end
  
                      // Tuinity start - entity ticking chunk set
                      PlayerChunk.this.chunkMap.world.getChunkProvider().entityTickingChunks.add(entityTickingChunk);
@@ -49,7 +49,7 @@ index 86f156587a0939b28c5cf6f64907255c1c4f8b35..516b77edab4d737fa947e051c463bbd6
  
          if (flag6 && !flag7) {
 -            this.entityTickingFuture.complete(PlayerChunk.UNLOADED_CHUNK); this.isEntityTickingReady = false; // Paper - cache chunk ticking stage
-+            this.entityTickingFuture.complete(PlayerChunk.UNLOADED_CHUNK); this.setEntityTickingReady(false); /*this.isEntityTickingReady = false;*/ // Paper - cache chunk ticking stage // Airplane
++            this.entityTickingFuture.complete(PlayerChunk.UNLOADED_CHUNK); this.setEntityTickingReady(false); /*this.isEntityTickingReady = false;*/ // Paper - cache chunk ticking stage // Aeroplane
              this.entityTickingFuture = PlayerChunk.UNLOADED_CHUNK_FUTURE;
              // Tuinity start - entity ticking chunk set
              Chunk chunkIfCached = this.getFullChunkIfCached();
@@ -61,13 +61,13 @@ index ac65773acacd81bdd5875e0a1ad0f5e96ee45b44..3efb096f4d4ead97de39f8e2df93f197
                  // CraftBukkit end */
  
                  gameprofilerfiller.enter("checkDespawn");
-+                boolean entityTickingChunk = false; if (!entity.dead) entityTickingChunk = entity.inEntityTickingChunk; // Airplane
++                boolean entityTickingChunk = false; if (!entity.dead) entityTickingChunk = entity.inEntityTickingChunk; // Aeroplane
                  if (!entity.dead) {
                      entity.checkDespawn();
                      // Tuinity start - optimise notify()
                      if (entity.inChunk && entity.valid) {
 -                        if (this.getChunkProvider().isInEntityTickingChunk(entity)) {
-+                        if (entityTickingChunk) { // Airplane - reuse
++                        if (entityTickingChunk) { // Aeroplane - reuse
                              this.updateNavigatorsInRegion(entity);
                          }
                      } else {
@@ -76,7 +76,7 @@ index ac65773acacd81bdd5875e0a1ad0f5e96ee45b44..3efb096f4d4ead97de39f8e2df93f197
                      boolean doMidTick = false; // usually there's a returns in the catch, so treat it like that
                      try {
 -                        this.entityJoinedWorld(entity);
-+                        this.entityJoinedWorld(entity, entityTickingChunk); // Airplane - reuse
++                        this.entityJoinedWorld(entity, entityTickingChunk); // Aeroplane - reuse
                          doMidTick = true;
                      } catch (Throwable throwable) {
                          if (throwable instanceof ThreadDeath) throw throwable; // Paper
@@ -85,7 +85,7 @@ index ac65773acacd81bdd5875e0a1ad0f5e96ee45b44..3efb096f4d4ead97de39f8e2df93f197
                      this.unregisterEntity(entity);
                  } else if (entity.inChunk && entity.valid) { // Tuinity start - optimise notify()
 -                    if (this.getChunkProvider().isInEntityTickingChunk(entity)) {
-+                    if (entityTickingChunk) { // Airplane - reuse
++                    if (entityTickingChunk) { // Aeroplane - reuse
                          this.updateNavigatorsInRegion(entity);
                      }
                  } else {
@@ -94,9 +94,9 @@ index ac65773acacd81bdd5875e0a1ad0f5e96ee45b44..3efb096f4d4ead97de39f8e2df93f197
      // Tuinity end - log detailed entity tick information
  
 -    public void entityJoinedWorld(Entity entity) {
-+    // Airplane start - reuse check for in entity ticking chunk
++    // Aeroplane start - reuse check for in entity ticking chunk
 +    public void entityJoinedWorld(Entity entity) { entityJoinedWorld(entity, this.getChunkProvider().isInEntityTickingChunk(entity)); }
-+    public void entityJoinedWorld(Entity entity, boolean entityTickingChunk) { // Airplane end
++    public void entityJoinedWorld(Entity entity, boolean entityTickingChunk) { // Aeroplane end
          // Tuinity start - log detailed entity tick information
          com.tuinity.tuinity.util.TickThread.ensureTickThread("Cannot tick an entity off-main");
          try {
@@ -105,7 +105,7 @@ index ac65773acacd81bdd5875e0a1ad0f5e96ee45b44..3efb096f4d4ead97de39f8e2df93f197
              }
              // Tuinity end - log detailed entity tick information
 -        if (!(entity instanceof EntityHuman) && !this.getChunkProvider().a(entity)) {
-+        if (!(entity instanceof EntityHuman) && !entityTickingChunk) { // Airplane - reuse
++        if (!(entity instanceof EntityHuman) && !entityTickingChunk) { // Aeroplane - reuse
              this.chunkCheck(entity);
          } else {
              ++TimingHistory.entityTicks; // Paper - timings
@@ -115,11 +115,11 @@ index c6b4af810fe3bda7797ab94316b2357178c9cd49..52f177a8e4ccf3aa27725f2821af9926
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -291,6 +291,8 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
      public boolean shouldBeRemoved; // Paper
-     // Airplane start
-     public int activatedPriority = gg.airplane.AirplaneConfig.maximumActivationPrio; // golf score
+     // Aeroplane start
+     public int activatedPriority = gg.aeroplane.AeroplaneConfig.maximumActivationPrio; // golf score
 +    public boolean inEntityTickingChunk = false;
 +    public long lastEntityTickingChunkKey = Long.MIN_VALUE;
-     // Airplane end
+     // Aeroplane end
  
      public float getBukkitYaw() {
 diff --git a/src/main/java/net/minecraft/world/level/chunk/Chunk.java b/src/main/java/net/minecraft/world/level/chunk/Chunk.java
@@ -130,10 +130,10 @@ index 8f5809756b4fb358f1207c1d61c5cbe6df3fff00..9ba7c5080ce0cacf438bdd6e11f75cb3
          entity.chunkX = this.loc.x;
          entity.chunkY = k;
          entity.chunkZ = this.loc.z;
-+        // Airplane start
++        // Aeroplane start
 +        entity.inEntityTickingChunk = this.world.getChunkProvider().isInEntityTickingChunk(entity);
 +        entity.lastEntityTickingChunkKey = this.coordinateKey;
-+        // Airplane end
++        // Aeroplane end
          this.entities.add(entity); // Tuinity
          this.entitySlices[k].add(entity);  // Tuinity
          this.entitySlicesManager.addEntity(entity, k); // Tuinity

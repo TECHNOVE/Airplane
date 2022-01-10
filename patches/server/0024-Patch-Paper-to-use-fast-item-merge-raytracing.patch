@@ -12,7 +12,7 @@ index 063f3e4c67e6716c9a03dbe4b72eafd32e4f0d53..dae6f7a05426ea31d13c82458b33e20a
                  if (entityitem.isMergable()) {
                      // Paper Start - Fix items merging through walls
                          if (this.level.paperConfig.fixItemsMergingThroughWalls) {
-+                            // Airplane start - skip the allocations
++                            // Aeroplane start - skip the allocations
 +                            /*
                              net.minecraft.world.level.ClipContext rayTrace = new net.minecraft.world.level.ClipContext(this.position(), entityitem.position(),
                                  net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, this);
@@ -21,7 +21,7 @@ index 063f3e4c67e6716c9a03dbe4b72eafd32e4f0d53..dae6f7a05426ea31d13c82458b33e20a
 +                             */
 +                            if (level.rayTraceDirect(this.position(), entityitem.position(), net.minecraft.world.phys.shapes.CollisionContext.of(this)) ==
 +                                net.minecraft.world.phys.HitResult.Type.BLOCK) continue;
-+                            // Airplane end
++                            // Aeroplane end
                          }
                      // Paper End
                      this.tryToMerge(entityitem);
