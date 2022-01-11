@@ -71,7 +71,7 @@ index f5d01bce4d5547b4aeca96b7962b2090f47ea541..05f1b6d103ec20f196b60944f5bc0073
                  metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
                      Map<String, Map<String, Integer>> map = new HashMap<>();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-index 6cda37d340bfc6f76cbb3bdaa3ffb6d3cf90da9f..a98400fdc6fa10ae36fd5f9696ac0405ae66aaec 100644
+index 7c61ae257323c7f0a0b2e43f64fb540c22c47104..41f7d1527d4e9c711444cf244ebddd09edda7d5f 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
 @@ -117,10 +117,11 @@ public class PaperConfig {
@@ -1588,10 +1588,10 @@ index 621ec8e8a197323da6b423fee57c816ac9d7c875..7e013fa5ae8e5815213a4f251edda354
              try {
                  byte[] data = new byte[packet.data.readableBytes()];
 diff --git a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
-index 494ca8fa8c742d4eac9fb11878d3b3170d850265..fd25d3bdc28d713159265911fab1b3d2e9375dbd 100644
+index 3d7f0fc6ef611273f83562d8b92a5714fbd47121..bfe53f4cd11f60ed37612c48f24b743ad6aa3458 100644
 --- a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
-@@ -309,7 +309,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener
+@@ -337,7 +337,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener
                          ServerLoginPacketListenerImpl.this.gameProfile = ServerLoginPacketListenerImpl.this.createFakeProfile(gameprofile);
                          ServerLoginPacketListenerImpl.this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
                      } else {
@@ -1613,7 +1613,7 @@ index d65191a50349ec86fe35df4ac1070f94fbb77b4c..9c57dfd72ef559d8052aac4e073cd36e
              // Paper end
          }
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index eaa005c1c9b4386bcdbe1d6eb28c3eca7635066c..e3dadb8ad7d1f4154ae56fbc0129b64617aacf8a 100644
+index 46e6e68f78d07c04cd2f4d477dca7a06313c20e9..d2f2ddea8bcda5e85c20312fce80d922810d1875 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -483,6 +483,7 @@ public abstract class PlayerList {
