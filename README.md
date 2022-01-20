@@ -37,4 +37,4 @@ Upstream patches are licensed under GPL-3.0.
 All other files are licensed under an GNU  License.
 
 ## Credits
-The NFT Worlds Server builds on extensive, foundational server optimization work done by Jacob and his team from StellarDev. This work includes significant improvements over Airplane to stabilize TPS and handle more concurrent players in a reliable manner while still being fully compatible with the spigot ecosystem. These improvements act as the basis the NFT Worlds server is being built from to maximize player concurrency and give a clean slate for everything planned in our roadmap.
+The NFT Worlds Server builds on extensive, foundational server optimization work done by Jacob and his team from [StellarDev](https://nfts.stellardev.org/). This work includes significant improvements over Airplane to stabilize TPS and handle more concurrent players in a reliable manner while still being fully compatible with the spigot ecosystem. These improvements act as the basis the NFT Worlds server is being built from to maximize player concurrency and give a clean slate for everything planned in our roadmap.
