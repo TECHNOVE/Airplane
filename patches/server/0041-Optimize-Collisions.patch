@@ -1,0 +1,147 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 16:24:22 -0700
+Subject: [PATCH] Optimize Collisions
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index 393d10c490e61672a34b9075e1a17395b77b1930..e3a7a87949cc658d300f746c9cd333766b01636a 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -152,6 +152,18 @@ public class NFTWorldsConfig {
+         entityQueueMS = getInt("entity-queue.ms", 30);
+     }
+ 
++    public static int maxEntitiesForCollisions = 50;
++    private static void maxEntitiesForCollisions() {
++        maxEntitiesForCollisions = getInt("max-entities-for-collisions", 50);
++    }
++
++    public static int ticksBetweenCollisions;
++    private static void entityOptions() {
++        ticksBetweenCollisions = getInt("entity.ticks-between-collisions", 5);
++    }
++
++    public static boolean disableMobCollisions = true;
++    private static void disableMobCollisions() { disableMobCollisions = getBoolean("disable-mob-collisions", true); }
+ 
+ 
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index 37d4a01008f58ee8d3df6f38d3d0a7b87670ae61..b4515922b3ee62bab72b39b55346cd0b207c8db9 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -71,6 +71,15 @@ public class RecommendCommand extends Command {
+             if (NFTWorldsConfig.entityQueueMS > 30) {
+                 changes.add("entity-queue.ms §7|§f§o Change to §c§l30 or less");
+             }
++            if (NFTWorldsConfig.maxEntitiesForCollisions > 50) {
++                changes.add("max-entities-for-collisions §7|§f§o Change to §a§l50 or less");
++            }
++            if (NFTWorldsConfig.ticksBetweenCollisions < 5) {
++                changes.add("entity.ticks-between-collisions §7|§f§o Change to §a§l5 or more");
++            }
++            if (!NFTWorldsConfig.disableMobCollisions) {
++                changes.add("disable-mob-collisions §7|§f§o Change to §a§lTRUE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/io/papermc/paper/world/ChunkEntitySlices.java b/src/main/java/io/papermc/paper/world/ChunkEntitySlices.java
+index 47b5f75d9f27cf3ab947fd1f69cbd609fb9f2749..1c5f64714a2c3b5f9c296dd0628df5c8b4efe91c 100644
+--- a/src/main/java/io/papermc/paper/world/ChunkEntitySlices.java
++++ b/src/main/java/io/papermc/paper/world/ChunkEntitySlices.java
+@@ -67,6 +67,10 @@ public final class ChunkEntitySlices {
+     }
+     // Paper end - optimise CraftChunk#getEntities
+ 
++    public int getChunkEntitiesSize() {
++        return this.entities.getRawData().length;
++    }
++
+     public boolean isEmpty() {
+         return this.entities.size() == 0;
+     }
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 2cad495e834300cdd3ee65cdf43d28ae602c9625..db0105566db7ab5f3bd937a334acf224b15416ce 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
+ import com.google.common.collect.Lists;
+ import com.google.common.collect.Sets;
+ import com.google.common.collect.UnmodifiableIterator;
++import com.nftworlds.NFTWorldsConfig;
+ import it.unimi.dsi.fastutil.objects.Object2DoubleArrayMap;
+ import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
+ import java.util.Arrays;
+@@ -1880,6 +1881,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+                     d1 *= d3;
+                     d0 *= 0.05000000074505806D;
+                     d1 *= 0.05000000074505806D;
++
++                    if (NFTWorldsConfig.disableMobCollisions && !(entity instanceof Player)) {
++                        d0 *= 2;
++                        d1 *= 2;
++                    }
++
++                    d0 *= NFTWorldsConfig.ticksBetweenCollisions;
++                    d1 *= NFTWorldsConfig.ticksBetweenCollisions;
+                     if (!this.isVehicle()) {
+                         this.push(-d0, 0.0D, -d1);
+                     }
+diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+index f2007f21ddae5402ffef59d33cab1bc50c7b300f..060cc83d35fb047a4ce5d2f9554827ea917f313d 100644
+--- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
++++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+@@ -104,10 +104,7 @@ import net.minecraft.world.item.alchemy.PotionUtils;
+ import net.minecraft.world.item.enchantment.EnchantmentHelper;
+ import net.minecraft.world.item.enchantment.Enchantments;
+ import net.minecraft.world.item.enchantment.FrostWalkerEnchantment;
+-import net.minecraft.world.level.BlockGetter;
+-import net.minecraft.world.level.ClipContext;
+-import net.minecraft.world.level.GameRules;
+-import net.minecraft.world.level.Level;
++import net.minecraft.world.level.*;
+ import net.minecraft.world.level.block.AbstractSkullBlock;
+ import net.minecraft.world.level.block.BedBlock;
+ import net.minecraft.world.level.block.Blocks;
+@@ -3284,7 +3281,18 @@ public abstract class LivingEntity extends Entity {
+             this.checkAutoSpinAttack(axisalignedbb, this.getBoundingBox());
+         }
+ 
+-        this.pushEntities();
++        ChunkPos pos = this.chunkPosition();
++        if (this.level.getChunkEntityCount(pos.x, pos.z) < NFTWorldsConfig.maxEntitiesForCollisions) {
++            if (tickCount % NFTWorldsConfig.ticksBetweenCollisions == 0) {
++                if (NFTWorldsConfig.disableMobCollisions) {
++                    if (this instanceof net.minecraft.world.entity.player.Player) {
++                        this.pushEntities();
++                    }
++                } else {
++                    this.pushEntities();
++                }
++            }
++        }
+         this.level.getProfiler().pop();
+         // Paper start
+         if (((ServerLevel) this.level).hasEntityMoveEvent && !(this instanceof net.minecraft.world.entity.player.Player)) {
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index f66894df2902a1f1bba1dd69a3c3ee229fbe13f6..bfb910a511521f5ab16ea4e0000cb054f4bc6b73 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -219,6 +219,14 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+     }
+     // Paper end - optimise CraftChunk#getEntities
+ 
++    public int getChunkEntityCount(int chunkX, int chunkZ) {
++        io.papermc.paper.world.ChunkEntitySlices slices = this.entitySliceManager.getChunk(chunkX, chunkZ);
++        if (slices == null) {
++            return 0;
++        }
++        return slices.getChunkEntitiesSize();
++    }
++
+     @Override
+     public List<Entity> getHardCollidingEntities(Entity except, AABB box, Predicate<? super Entity> predicate) {
+         List<Entity> ret = new java.util.ArrayList<>();

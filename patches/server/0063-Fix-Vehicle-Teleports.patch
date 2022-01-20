@@ -1,0 +1,67 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 21:30:42 -0700
+Subject: [PATCH] Fix Vehicle Teleports
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index 8b3953d2941bfe25ce1189ba43f9746d0a907599..6bbfa710bbab078c4c3f0680dd8d38a87fdad36b 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -355,4 +355,7 @@ public class NFTWorldsConfig {
+     public static boolean checkLightForSnow = false;
+     private static void checkLightForSnow() { checkLightForSnow = getBoolean("check-light-for-snow", false); }
+ 
++    public static boolean fixVehicleTeleports = true;
++    private static void fixVehicleTeleports() { fixVehicleTeleports = getBoolean("fix-vehicle-teleports", true); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index 4ff4143f3a7cd89ef92f4b8882fa3e5addfe0f06..3bbbd905c8cb62e697256ceb2f3347c098d8a792 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
+ import com.google.common.collect.ImmutableSet;
+ import com.google.common.io.BaseEncoding;
+ import com.mojang.authlib.GameProfile;
++import com.nftworlds.NFTWorldsConfig;
+ import io.netty.buffer.Unpooled;
+ import java.io.ByteArrayOutputStream;
+ import java.io.IOException;
+@@ -1010,7 +1011,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+            return false;
+         }
+ 
+-        if (entity.isVehicle()) {
++        if (!NFTWorldsConfig.fixVehicleTeleports && entity.isVehicle()) {
+             return false;
+         }
+ 
+@@ -1027,6 +1028,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+             return false;
+         }
+ 
++        Entity passenger = null;
++        if (NFTWorldsConfig.fixVehicleTeleports) {
++            if (entity.isVehicle()) {
++                passenger = this.getHandle().passengers.get(0);
++                passenger.getBukkitEntity().teleport(location, cause);
++            }
++        }
+         // If this player is riding another entity, we must dismount before teleporting.
+         entity.stopRiding();
+ 
+@@ -1054,6 +1062,12 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+         } else {
+             server.getHandle().moveToWorld(entity, toWorld, true, to, !toWorld.paperConfig.disableTeleportationSuffocationCheck); // Paper
+         }
++
++        if (NFTWorldsConfig.fixVehicleTeleports) {
++            if (passenger != null) {
++                passenger.startRiding(this.entity, true);
++            }
++        }
+         return true;
+     }
+ 

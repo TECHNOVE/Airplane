@@ -1,0 +1,76 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 21:09:29 -0700
+Subject: [PATCH] Toggle Villager Related Goals
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index 22fa762b421ef7c657ef396700863107853b782a..e20b28ba60134822b6cab4d943fa5bb67c06aa14 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -334,4 +334,7 @@ public class NFTWorldsConfig {
+     public static boolean optimizeLiquid = true;
+     private static void optimizeLiquid() { optimizeLiquid = getBoolean("optimize-liquid", true); }
+ 
++    public static boolean disableVillageGoalsForSpawnerHostiles = true;
++    private static void disableVillageGoalsForSpawnerHostiles() { disableVillageGoalsForSpawnerHostiles = getBoolean("disable-village-goals-for-spawner-hostiles", true); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index 6d0b0c4c96082c55c6baf5f50d656d39a859af54..30ffe4965c0ea9859871b3810af08332c7b89377 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -218,6 +218,9 @@ public class RecommendCommand extends Command {
+             if (!NFTWorldsConfig.optimizeLiquid) {
+                 changes.add("optimize-liquid §7|§f§o Change to §a§lTRUE");
+             }
++            if (!NFTWorldsConfig.disableVillageGoalsForSpawnerHostiles) {
++                changes.add("disable-village-goals-for-spawner-hostiles §7|§f§o Change to §a§lTRUE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/world/entity/monster/Zombie.java b/src/main/java/net/minecraft/world/entity/monster/Zombie.java
+index 8da494792786fd80be50efc4cbb56caeae18d004..7b9120410b9fe99f375fd87eb9fcd586581116f8 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/Zombie.java
++++ b/src/main/java/net/minecraft/world/entity/monster/Zombie.java
+@@ -8,6 +8,8 @@ import java.util.Random;
+ import java.util.UUID;
+ import java.util.function.Predicate;
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.tags.FluidTags;
+ import net.minecraft.tags.Tag;
+ import net.minecraft.util.Mth;
+@@ -117,6 +119,7 @@ public class Zombie extends Monster {
+ 
+     protected void addBehaviourGoals() {
+         this.goalSelector.addGoal(2, new ZombieAttackGoal(this, 1.0D, false));
++        if (!this.spawnedViaMobSpawner || !NFTWorldsConfig.disableVillageGoalsForSpawnerHostiles) this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0D, true, 4, this::canBreakDoors));
+         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0D, true, 4, this::canBreakDoors));
+         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, new Class[0])).setAlertOthers(ZombifiedPiglin.class));
+diff --git a/src/main/java/net/minecraft/world/entity/raid/Raider.java b/src/main/java/net/minecraft/world/entity/raid/Raider.java
+index 54b5cfa35e5fe9138d39a73f2085f594f1987cda..df93d828a368916153cf0f653910ed593d0949cb 100644
+--- a/src/main/java/net/minecraft/world/entity/raid/Raider.java
++++ b/src/main/java/net/minecraft/world/entity/raid/Raider.java
+@@ -8,6 +8,8 @@ import java.util.Objects;
+ import java.util.Optional;
+ import java.util.function.Predicate;
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Position;
+ import net.minecraft.core.Vec3i;
+@@ -66,7 +68,7 @@ public abstract class Raider extends PatrollingMonster {
+         super.registerGoals();
+         this.goalSelector.addGoal(1, new Raider.ObtainRaidLeaderBannerGoal<>(this));
+         this.goalSelector.addGoal(3, new PathfindToRaidGoal<>(this));
+-        this.goalSelector.addGoal(4, new Raider.RaiderMoveThroughVillageGoal(this, 1.0499999523162842D, 1));
++        if (!this.spawnedViaMobSpawner || !NFTWorldsConfig.disableVillageGoalsForSpawnerHostiles) this.goalSelector.addGoal(4, new Raider.RaiderMoveThroughVillageGoal(this, 1.0499999523162842D, 1));
+         this.goalSelector.addGoal(5, new Raider.RaiderCelebration(this));
+     }
+ 

@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 23:50:24 -0700
+Subject: [PATCH] Proper Goal Searching
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java b/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
+index 441e2edd8357c4f11093b4dee2192780ac3f3579..f62d4c151a0dde1fba778fbefd297ad2769b86f3 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
++++ b/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
+@@ -27,6 +27,7 @@ public class GoalSelector {
+     };
+     private final Map<Goal.Flag, WrappedGoal> lockedFlags = new EnumMap<>(Goal.Flag.class);
+     public final Set<WrappedGoal> availableGoals = Sets.newLinkedHashSet();
++    private boolean searchForGoals = true;
+     private final Supplier<ProfilerFiller> profiler;
+     private final EnumSet<Goal.Flag> disabledFlags = EnumSet.noneOf(Goal.Flag.class); // Paper unused, but dummy to prevent plugins from crashing as hard. Theyll need to support paper in a special case if this is super important, but really doesn't seem like it would be.
+     private final com.destroystokyo.paper.util.set.OptimizedSmallEnumSet<net.minecraft.world.entity.ai.goal.Goal.Flag> goalTypes = new com.destroystokyo.paper.util.set.OptimizedSmallEnumSet<>(Goal.Flag.class); // Paper - remove streams from pathfindergoalselector
+@@ -46,6 +47,7 @@ public class GoalSelector {
+     @VisibleForTesting
+     public void removeAllGoals() {
+         this.availableGoals.clear();
++        this.searchForGoals = false;
+     }
+ 
+     // Paper start
+@@ -57,6 +59,7 @@ public class GoalSelector {
+         // Airplane end
+     }
+     public boolean hasTasks() {
++        if (!searchForGoals) return false;
+         for (WrappedGoal task : this.availableGoals) {
+             if (task.isRunning()) {
+                 return true;

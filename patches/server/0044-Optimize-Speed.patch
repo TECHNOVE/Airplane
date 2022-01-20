@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 16:55:38 -0700
+Subject: [PATCH] Optimize Speed
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index 789aa9f70e8b87afc80d93100a50a0939b99d870..c646d30c20cf75a827b238f08e447f38ca23f83c 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -191,4 +191,7 @@ public class NFTWorldsConfig {
+     public static int betterGolemFarmsItemTicks = 400;
+     private static void betterGolemFarmsItemTicks() { betterGolemFarmsItemTicks = getInt("better-golem-farms.ticks", 400); }
+ 
++    public static boolean optimizeSpeed = true;
++    private static void optimizeSpeed() { optimizeSpeed = getBoolean("optimize-speed", true); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 8a007935a9d080fcac687bcacb68a17f8d0e7e20..6b1723dbab7d00a3ead5578ae82d40d9b7c55ecc 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -1086,7 +1086,16 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+                 }
+ 
+                 this.tryCheckInsideBlocks();
+-                float f2 = this.getBlockSpeedFactor();
++                float f2;
++                if (NFTWorldsConfig.optimizeSpeed) {
++                    if (this.getDeltaMovement().x == 0 && this.getDeltaMovement().z == 0) {
++                        f2 = 1;
++                    } else {
++                        f2 = this.getBlockSpeedFactor();
++                    }
++                } else {
++                    f2 = this.getBlockSpeedFactor();
++                }
+ 
+                 this.setDeltaMovement(this.getDeltaMovement().multiply((double) f2, 1.0D, (double) f2));
+                 // Paper start - remove expensive streams from here

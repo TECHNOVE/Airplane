@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 16:54:09 -0700
+Subject: [PATCH] Iron Golems
+
+
+diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
+index bafad5764cc3933fcd9602d37bd2e68424cbd575..dab6e06b65a3c71c7d7914e304bac2263e9bf2b4 100644
+--- a/src/main/java/org/bukkit/entity/Entity.java
++++ b/src/main/java/org/bukkit/entity/Entity.java
+@@ -551,6 +551,16 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+      */
+     public void setInvulnerable(boolean flag);
+ 
++    /**
++     * Sets ticks an entity is invulnerable to fire for
++     * <p>
++     * When an entity is invulnerable it can only be damaged by players in
++     * creative mode.
++     *
++     * @param ticks ticks entity is invulnerable to fire for
++     */
++    public void setInvulnerableFireTicks(int ticks);
++
+     /**
+      * Gets whether the entity is invulnerable or not.
+      *

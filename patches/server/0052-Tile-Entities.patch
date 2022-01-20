@@ -1,0 +1,169 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 18:13:42 -0700
+Subject: [PATCH] Tile Entities
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index ebf66556ec3b9c65a2dbfff3a10252a9eb3a0035..9d9545aa44ddb2177b7ecf71313bcafe86dbbdd2 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -304,4 +304,9 @@ public class NFTWorldsConfig {
+     public static boolean optimizeSuffocationChecks = true;
+     private static void optimizeSuffocationChecks() { optimizeSuffocationChecks = getBoolean("optimize-suffocation-checks", true); }
+ 
++    public static boolean optimizeTileEntities; // doTileEntityTimings, "do-tile-entity-timings"
++    private static void optimizeTileEntities() {
++        optimizeTileEntities = getBoolean("optimize-tile-entities", true);
++    }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index 3e2cfb2fce5c2bf3eeee275fb617232582c61924..c0262b2a93865ffb09c732fb378ca7ff75bb0ba3 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -200,6 +200,9 @@ public class RecommendCommand extends Command {
+             if (!NFTWorldsConfig.optimizeSuffocationChecks) {
+                 changes.add("optimize-suffocation-checks §7|§f§o Change to §a§lTRUE");
+             }
++            if (!NFTWorldsConfig.optimizeTileEntities) {
++                changes.add("optimize-tile-entities §7|§f§o Change to §a§lTRUE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/BlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BlockEntity.java
+index 9b4a464fe820effa906af486cf71a74e283ccd4e..05f0d76e1a6d090b41f820cb00b5eeb15bc8eee3 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/BlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/BlockEntity.java
+@@ -1,6 +1,8 @@
+ package net.minecraft.world.level.block.entity;
+ 
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.CrashReportCategory;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Registry;
+@@ -24,7 +26,7 @@ import co.aikar.timings.Timing; // Paper
+ 
+ public abstract class BlockEntity implements net.minecraft.server.KeyedObject { // Paper
+ 
+-    public Timing tickTimer = MinecraftTimings.getTileEntityTimings(this); // Paper
++    public Timing tickTimer = !NFTWorldsConfig.optimizeTileEntities ? MinecraftTimings.getTileEntityTimings(this) : null; // Paper
+     // CraftBukkit start - data containers
+     private static final CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new CraftPersistentDataTypeRegistry();
+     public CraftPersistentDataContainer persistentDataContainer;
+diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
+index db7904b1bb402a36684b97c443336630762aeaf9..b7b4af02c78b9bec2f4a087dbd1c848c72102d61 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
++++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
+@@ -7,6 +7,7 @@ import com.destroystokyo.paper.exception.ServerInternalException;
+ import com.google.common.collect.Maps;
+ import com.google.common.collect.Sets;
+ import com.google.common.collect.UnmodifiableIterator;
++import com.nftworlds.NFTWorldsConfig;
+ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+@@ -1480,40 +1481,69 @@ public class LevelChunk implements ChunkAccess {
+                 BlockPos blockposition = this.blockEntity.getBlockPos();
+ 
+                 if (LevelChunk.this.isTicking(blockposition)) {
+-                    try {
+-                        ProfilerFiller gameprofilerfiller = LevelChunk.this.level.getProfiler();
+-
+-                        gameprofilerfiller.push(this::getType);
+-                        this.blockEntity.tickTimer.startTiming(); // Spigot
+-                        BlockState iblockdata = LevelChunk.this.getBlockState(blockposition);
+-
+-                        if (this.blockEntity.getType().isValid(iblockdata)) {
+-                            this.ticker.tick(LevelChunk.this.level, this.blockEntity.getBlockPos(), iblockdata, this.blockEntity);
+-                            this.loggedInvalidBlockState = false;
+-                        } else if (!this.loggedInvalidBlockState) {
+-                            this.loggedInvalidBlockState = true;
+-                            LevelChunk.LOGGER.warn("Block entity {} @ {} state {} invalid for ticking:", new org.apache.logging.log4j.util.Supplier[]{this::getType, this::getPos, () -> {
+-                                        return iblockdata;
+-                                    }}); // CraftBukkit - squelch checkstyle
++                    if (!NFTWorldsConfig.optimizeTileEntities) {
++                        try {
++                            ProfilerFiller gameprofilerfiller = LevelChunk.this.level.getProfiler();
++
++                            gameprofilerfiller.push(this::getType);
++                            this.blockEntity.tickTimer.startTiming(); // Spigot
++                            BlockState iblockdata = LevelChunk.this.getBlockState(blockposition);
++
++                            if (this.blockEntity.getType().isValid(iblockdata)) {
++                                this.ticker.tick(LevelChunk.this.level, this.blockEntity.getBlockPos(), iblockdata, this.blockEntity);
++                                this.loggedInvalidBlockState = false;
++                            } else if (!this.loggedInvalidBlockState) {
++                                this.loggedInvalidBlockState = true;
++                                LevelChunk.LOGGER.warn("Block entity {} @ {} state {} invalid for ticking:", new org.apache.logging.log4j.util.Supplier[]{this::getType, this::getPos, () -> {
++                                    return iblockdata;
++                                }}); // CraftBukkit - squelch checkstyle
++                            }
++
++                            gameprofilerfiller.pop();
++                        } catch (Throwable throwable) {
++                            if (throwable instanceof ThreadDeath) throw throwable; // Paper
++                            // Paper start - Prevent tile entity and entity crashes
++                            final String msg = String.format("BlockEntity threw exception at %s:%s,%s,%s", LevelChunk.this.getLevel().getWorld().getName(), this.getPos().getX(), this.getPos().getY(), this.getPos().getZ());
++                            net.minecraft.server.MinecraftServer.LOGGER.error(msg, throwable);
++                            net.minecraft.world.level.chunk.LevelChunk.this.level.getCraftServer().getPluginManager().callEvent(new com.destroystokyo.paper.event.server.ServerExceptionEvent(new ServerInternalException(msg, throwable)));
++                            LevelChunk.this.removeBlockEntity(this.getPos());
++                            // Paper end
++                            // Spigot start
++                        } finally {
++                            this.blockEntity.tickTimer.stopTiming();
++                            // Spigot end
++                        }
++                    } else {
++                        try {
++                            ProfilerFiller gameprofilerfiller = LevelChunk.this.level.getProfiler();
++
++                            gameprofilerfiller.push(this::getType);
++                            BlockState iblockdata = LevelChunk.this.getBlockState(blockposition);
++
++                            if (this.blockEntity.getType().isValid(iblockdata)) {
++                                this.ticker.tick(LevelChunk.this.level, this.blockEntity.getBlockPos(), iblockdata, this.blockEntity);
++                                this.loggedInvalidBlockState = false;
++                            } else if (!this.loggedInvalidBlockState) {
++                                this.loggedInvalidBlockState = true;
++                                LevelChunk.LOGGER.warn("Block entity {} @ {} state {} invalid for ticking:", new org.apache.logging.log4j.util.Supplier[]{this::getType, this::getPos, () -> {
++                                    return iblockdata;
++                                }}); // CraftBukkit - squelch checkstyle
++                            }
++
++                            gameprofilerfiller.pop();
++                        } catch (Throwable throwable) {
++                            if (throwable instanceof ThreadDeath) throw throwable; // Paper
++                            // Paper start - Prevent tile entity and entity crashes
++                            final String msg = String.format("BlockEntity threw exception at %s:%s,%s,%s", LevelChunk.this.getLevel().getWorld().getName(), this.getPos().getX(), this.getPos().getY(), this.getPos().getZ());
++                            net.minecraft.server.MinecraftServer.LOGGER.error(msg, throwable);
++                            net.minecraft.world.level.chunk.LevelChunk.this.level.getCraftServer().getPluginManager().callEvent(new com.destroystokyo.paper.event.server.ServerExceptionEvent(new ServerInternalException(msg, throwable)));
++                            LevelChunk.this.removeBlockEntity(this.getPos());
++                            // Paper end
++                            // Spigot start
+                         }
+-
+-                        gameprofilerfiller.pop();
+-                    } catch (Throwable throwable) {
+-                        if (throwable instanceof ThreadDeath) throw throwable; // Paper
+-                        // Paper start - Prevent tile entity and entity crashes
+-                        final String msg = String.format("BlockEntity threw exception at %s:%s,%s,%s", LevelChunk.this.getLevel().getWorld().getName(), this.getPos().getX(), this.getPos().getY(), this.getPos().getZ());
+-                        net.minecraft.server.MinecraftServer.LOGGER.error(msg, throwable);
+-                        net.minecraft.world.level.chunk.LevelChunk.this.level.getCraftServer().getPluginManager().callEvent(new com.destroystokyo.paper.event.server.ServerExceptionEvent(new ServerInternalException(msg, throwable)));
+-                        LevelChunk.this.removeBlockEntity(this.getPos());
+-                        // Paper end
+-                        // Spigot start
+-                    } finally {
+-                        this.blockEntity.tickTimer.stopTiming();
+-                        // Spigot end
+                     }
+                 }
+             }
+-
+         }
+ 
+         @Override

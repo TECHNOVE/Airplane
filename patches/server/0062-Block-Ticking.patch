@@ -1,0 +1,128 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 21:28:40 -0700
+Subject: [PATCH] Block Ticking
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index df364715670b9c3dc77a8468bca28a2dda7faae7..8b3953d2941bfe25ce1189ba43f9746d0a907599 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -346,4 +346,13 @@ public class NFTWorldsConfig {
+     public static boolean recursivelyTickMultiplePassengers = false;
+     private static void recursivelyTickMultiplePassengers() { recursivelyTickMultiplePassengers = getBoolean("recursively-tick-multiple-passengers", false); }
+ 
++    public static boolean checkLightforGrass = false;
++    private static void checkLightforGrass() { checkLightforGrass = getBoolean("check-light-for-grass", false); }
++
++    public static boolean lavaCatchesBlocksOnFire = false;
++    private static void lavaCatchesBlocksOnFire() { lavaCatchesBlocksOnFire =getBoolean("lava-catches-blocks-on-fire", false); }
++
++    public static boolean checkLightForSnow = false;
++    private static void checkLightForSnow() { checkLightForSnow = getBoolean("check-light-for-snow", false); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index 783eef832d64e6e0ee4c90adeb60eed88badefb4..fb8863f1c52aacfe6cd93aa401c2652ee04fd848 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -230,6 +230,15 @@ public class RecommendCommand extends Command {
+             if (NFTWorldsConfig.recursivelyTickMultiplePassengers) {
+                 changes.add("recursively-tick-multiple-passengers §7|§f§o Change to §c§lFALSE");
+             }
++            if (NFTWorldsConfig.checkLightforGrass) {
++                changes.add("check-light-for-grass §7|§f§o Change to §c§lFALSE");
++            }
++            if (NFTWorldsConfig.checkLightForSnow) {
++                changes.add("check-light-for-snow §7|§f§o Change to §c§lFALSE");
++            }
++            if (NFTWorldsConfig.lavaCatchesBlocksOnFire) {
++                changes.add("lava-catches-blocks-on-fire §7|§f§o Change to §c§lFALSE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/world/level/biome/Biome.java b/src/main/java/net/minecraft/world/level/biome/Biome.java
+index b5c6b0bc307aef2835761cfa50413cebfd624795..db5d3747a9f72a25d19faee7dee2b35c5023b021 100644
+--- a/src/main/java/net/minecraft/world/level/biome/Biome.java
++++ b/src/main/java/net/minecraft/world/level/biome/Biome.java
+@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
+ import com.mojang.serialization.Codec;
+ import com.mojang.serialization.MapCodec;
+ import com.mojang.serialization.codecs.RecordCodecBuilder;
++import com.nftworlds.NFTWorldsConfig;
+ import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
+ import java.util.Arrays;
+ import java.util.Collections;
+@@ -208,7 +209,7 @@ public final class Biome {
+         if (!this.isColdEnoughToSnow(blockPos)) {
+             return false;
+         } else {
+-            if (blockPos.getY() >= world.getMinBuildHeight() && blockPos.getY() < world.getMaxBuildHeight() && world.getBrightness(LightLayer.BLOCK, blockPos) < 10) {
++            if (blockPos.getY() >= world.getMinBuildHeight() && blockPos.getY() < world.getMaxBuildHeight() && (!NFTWorldsConfig.checkLightForSnow || world.getBrightness(LightLayer.BLOCK, blockPos) < 10)) {
+                 BlockState blockState = world.getBlockState(blockPos);
+                 if (blockState.isAir() && Blocks.SNOW.defaultBlockState().canSurvive(world, blockPos)) {
+                     return true;
+diff --git a/src/main/java/net/minecraft/world/level/block/SpreadingSnowyDirtBlock.java b/src/main/java/net/minecraft/world/level/block/SpreadingSnowyDirtBlock.java
+index d8c29bc282365b68951a39b4b2590b19957d578b..5b36de08c8a8ffe8933c6d82329d1154ca6e7828 100644
+--- a/src/main/java/net/minecraft/world/level/block/SpreadingSnowyDirtBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/SpreadingSnowyDirtBlock.java
+@@ -1,6 +1,8 @@
+ package net.minecraft.world.level.block;
+ 
+ import java.util.Random;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.server.MinecraftServer;
+@@ -51,7 +53,7 @@ public abstract class SpreadingSnowyDirtBlock extends SnowyDirtBlock {
+             // CraftBukkit end
+             world.setBlockAndUpdate(pos, Blocks.DIRT.defaultBlockState());
+         } else {
+-            if (world.getMaxLocalRawBrightness(pos.above()) >= 9) {
++            if (!NFTWorldsConfig.checkLightforGrass || world.getMaxLocalRawBrightness(pos.above()) >= 9) {
+                 BlockState iblockdata1 = this.defaultBlockState();
+ 
+                 for (int i = 0; i < 4; ++i) {
+diff --git a/src/main/java/net/minecraft/world/level/material/LavaFluid.java b/src/main/java/net/minecraft/world/level/material/LavaFluid.java
+index 695783e64564b1d2a178d57a89737d2a97ab9014..88e892c1cf320052e778b3371dd71aa0260026a5 100644
+--- a/src/main/java/net/minecraft/world/level/material/LavaFluid.java
++++ b/src/main/java/net/minecraft/world/level/material/LavaFluid.java
+@@ -3,6 +3,8 @@ package net.minecraft.world.level.material;
+ import java.util.Optional;
+ import java.util.Random;
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.core.particles.ParticleOptions;
+@@ -69,16 +71,24 @@ public abstract class LavaFluid extends FlowingFluid {
+ 
+     @Override
+     public void randomTick(Level world, BlockPos pos, FluidState state, Random random) {
++        if (!NFTWorldsConfig.lavaCatchesBlocksOnFire) {
++            return;
++        }
+         if (world.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
+             int i = random.nextInt(3);
+ 
+             if (i > 0) {
+                 BlockPos blockposition1 = pos;
+ 
++                int chunkX = blockposition1.getX() >> 4;
++                int chunkZ = blockposition1.getZ() >> 4;
++
+                 for (int j = 0; j < i; ++j) {
+                     blockposition1 = blockposition1.offset(random.nextInt(3) - 1, 1, random.nextInt(3) - 1);
+-                    if (!world.isLoaded(blockposition1)) {
+-                        return;
++                    if (chunkX != blockposition1.getX() >> 4 || chunkZ != blockposition1.getZ() >> 4) {
++                        if (!world.isLoaded(blockposition1)) {
++                            return;
++                        }
+                     }
+ 
+                     BlockState iblockdata = world.getBlockState(blockposition1);

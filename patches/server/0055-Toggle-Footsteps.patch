@@ -1,0 +1,55 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 20:51:33 -0700
+Subject: [PATCH] Toggle Footsteps
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index 4fb6368aee86bde3d70c0c9ff1db3ae4b29eb1d0..4d1adc064bcb4cc1c7af5dcde1f6436e1ac9700e 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -325,4 +325,7 @@ public class NFTWorldsConfig {
+     public static int tickSkippingSpawners = 1;
+     private static void tickSkippingSpawners() { tickSkippingSpawners = getInt("tick-skipping.spawners", 1); }
+ 
++    public static boolean disableFootSteps = true;
++    private static void disableFootSteps() { disableFootSteps = getBoolean("disable-footsteps", true); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index 5f243013d215da75c741b1ed1efd144386230650..d3201a9a64c5c234bb092d36857872b1e16d7343 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -209,6 +209,9 @@ public class RecommendCommand extends Command {
+             if (NFTWorldsConfig.randomTickSpeed != 3) {
+                 changes.add("tick-speed.random-tick.speed §7|§f§o Change to §c§l3");
+             }
++            if (!NFTWorldsConfig.disableFootSteps) {
++                changes.add("disable-footsteps §7|§f§o Change to §a§lTRUE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 8968be2d30fbdbdf27106f70a518b78eaa0588e3..94eb86fed9705665e436c0b699cd3ddf73658eb9 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -1547,11 +1547,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+     }
+ 
+     protected void playStepSound(BlockPos pos, BlockState state) {
+-        if (!state.getMaterial().isLiquid()) {
+-            BlockState iblockdata1 = this.level.getBlockState(pos.above());
+-            SoundType soundeffecttype = iblockdata1.is((Tag) BlockTags.INSIDE_STEP_SOUND_BLOCKS) ? iblockdata1.getSoundType() : state.getSoundType();
+-
+-            this.playSound(soundeffecttype.getStepSound(), soundeffecttype.getVolume() * 0.15F, soundeffecttype.getPitch());
++        if (!NFTWorldsConfig.disableFootSteps) {
++            if (!state.getMaterial().isLiquid()) {
++                BlockState iblockdata1 = this.level.getBlockState(pos.above());
++                SoundType soundeffecttype = iblockdata1.is((Tag) BlockTags.INSIDE_STEP_SOUND_BLOCKS) ? iblockdata1.getSoundType() : state.getSoundType();
++                this.playSound(soundeffecttype.getStepSound(), soundeffecttype.getVolume() * 0.15F, soundeffecttype.getPitch());
++            }
+         }
+     }
+ 

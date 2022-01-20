@@ -1,0 +1,84 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 00:51:18 -0700
+Subject: [PATCH] NFTWorlds General
+
+
+diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
+index c551010f84ac5d3ebc626c253a8f8282924152c4..dd2363465d0d18989581ea66e9b0f17ce34c92e0 100644
+--- a/src/main/java/org/bukkit/Bukkit.java
++++ b/src/main/java/org/bukkit/Bukkit.java
+@@ -25,6 +25,7 @@ import org.bukkit.command.CommandException;
+ import org.bukkit.command.CommandSender;
+ import org.bukkit.command.ConsoleCommandSender;
+ import org.bukkit.command.PluginCommand;
++import org.bukkit.configuration.file.YamlConfiguration;
+ import org.bukkit.entity.Entity;
+ import org.bukkit.entity.Player;
+ import org.bukkit.event.inventory.InventoryType;
+@@ -791,6 +792,13 @@ public final class Bukkit {
+         server.reload();
+     }
+ 
++    /**
++     * Reloads the server configs
++     */
++    public static void reloadConfigurations() {
++        server.reloadConfigurations();
++    }
++
+     /**
+      * Reload only the Minecraft data for the server. This includes custom
+      * advancements and loot tables.
+@@ -1487,6 +1495,15 @@ public final class Bukkit {
+         return server.getAmbientSpawnLimit();
+     }
+ 
++    /**
++     * Get Bukkit configuration
++     *
++     * @return the bukkit configuration
++     */
++    public static YamlConfiguration getBukkitConfig() {
++        return server.getBukkitConfig();
++    }
++
+     /**
+      * Checks the current thread against the expected primary thread for the
+      * server.
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index c34cfba8f9ed7e9dbd0b6b8ffef9fba46abff046..bcba26ae1f4e68b5a943966393b6db9293a8f5be 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -25,6 +25,7 @@ import org.bukkit.command.CommandException;
+ import org.bukkit.command.CommandSender;
+ import org.bukkit.command.ConsoleCommandSender;
+ import org.bukkit.command.PluginCommand;
++import org.bukkit.configuration.file.YamlConfiguration;
+ import org.bukkit.entity.Entity;
+ import org.bukkit.entity.Player;
+ import org.bukkit.event.inventory.InventoryType;
+@@ -657,6 +658,11 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+      */
+     public void reload();
+ 
++    /**
++     * Reloads the server configs
++     */
++    public void reloadConfigurations();
++
+     /**
+      * Reload only the Minecraft data for the server. This includes custom
+      * advancements and loot tables.
+@@ -1246,6 +1252,11 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+      */
+     int getAmbientSpawnLimit();
+ 
++    /**
++     * Get Bukkit configuration
++     */
++    YamlConfiguration getBukkitConfig();
++
+     /**
+      * Checks the current thread against the expected primary thread for the
+      * server.

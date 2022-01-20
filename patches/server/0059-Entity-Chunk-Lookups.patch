@@ -1,0 +1,163 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 21:15:58 -0700
+Subject: [PATCH] Entity Chunk Lookups
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index e20b28ba60134822b6cab4d943fa5bb67c06aa14..7845e496b79536b6ab4242ee2a8b91b9c597d3c3 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -337,4 +337,7 @@ public class NFTWorldsConfig {
+     public static boolean disableVillageGoalsForSpawnerHostiles = true;
+     private static void disableVillageGoalsForSpawnerHostiles() { disableVillageGoalsForSpawnerHostiles = getBoolean("disable-village-goals-for-spawner-hostiles", true); }
+ 
++    public static boolean optimizeEntityChunkLookups = true;
++    private static void optimizeEntityChunkLookups() { optimizeEntityChunkLookups = getBoolean("optimize-entity-chunk-lookups", true); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index 30ffe4965c0ea9859871b3810af08332c7b89377..9d6589b97a665f466a2af6082aa825fd1e49ceb7 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -221,6 +221,9 @@ public class RecommendCommand extends Command {
+             if (!NFTWorldsConfig.disableVillageGoalsForSpawnerHostiles) {
+                 changes.add("disable-village-goals-for-spawner-hostiles §7|§f§o Change to §a§lTRUE");
+             }
++            if (!NFTWorldsConfig.optimizeEntityChunkLookups) {
++                changes.add("optimize-entity-chunk-lookups §7|§f§o Change to §a§lTRUE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+index 045108de23e8db925a709e860e043d6d63b9a78c..d56d808feaef6e9e6904786c438c96d7434b0e52 100644
+--- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
++++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+@@ -715,6 +715,71 @@ public class ServerChunkCache extends ChunkSource {
+         }
+     }
+ 
++    @Nullable
++    public ChunkAccess getChunkEntity(Entity e, int x, int z, ChunkStatus leastStatus, boolean create) {
++        final int x1 = x;
++        final int z1 = z; // Paper - conflict on variable change
++        if (Thread.currentThread() != this.mainThread) {
++            return (ChunkAccess) CompletableFuture.supplyAsync(() -> {
++                return this.getChunk(x, z, leastStatus, create);
++            }, this.mainThreadProcessor).join();
++        } else {
++            // Paper start - optimise for loaded chunks
++            LevelChunk ifLoaded = this.getChunkAtIfLoadedMainThread(x, z);
++            if (ifLoaded != null) {
++                return ifLoaded;
++            }
++            // Paper end
++            ProfilerFiller gameprofilerfiller = this.level.getProfiler();
++
++            gameprofilerfiller.incrementCounter("getChunk");
++            long k = ChunkPos.asLong(x, z);
++
++            ChunkAccess ichunkaccess;
++
++            for (int l = 0; l < 4; ++l) {
++                if (k == this.lastChunkPos[l] && leastStatus == this.lastChunkStatus[l]) {
++                    ichunkaccess = this.lastChunk[l];
++                    if (ichunkaccess != null) { // CraftBukkit - the chunk can become accessible in the meantime TODO for non-null chunks it might also make sense to check that the chunk's state hasn't changed in the meantime
++                        return ichunkaccess;
++                    }
++                }
++            }
++
++            gameprofilerfiller.incrementCounter("getChunkCacheMiss");
++            CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> completablefuture = this.getChunkFutureMainThread(x, z, leastStatus, create, true); // Paper
++            ServerChunkCache.MainThreadExecutor chunkproviderserver_a = this.mainThreadProcessor;
++
++            Objects.requireNonNull(completablefuture);
++            if (!completablefuture.isDone()) { // Paper
++                // Paper start - async chunk io/loading
++                ChunkPos pair = new ChunkPos(x1, z1); // Paper - Chunk priority
++                this.distanceManager.markUrgent(pair); // Paper - Chunk priority
++                this.level.asyncChunkTaskManager.raisePriority(x1, z1, com.destroystokyo.paper.io.PrioritizedTaskQueue.HIGHEST_PRIORITY);
++                com.destroystokyo.paper.io.chunk.ChunkTaskManager.pushChunkWait(this.level, x1, z1);
++                // Paper end
++                com.destroystokyo.paper.io.SyncLoadFinder.logSyncLoad(this.level, x1, z1); // Paper - sync load info
++                this.level.timings.syncChunkLoad.startTiming(); // Paper
++                chunkproviderserver_a.managedBlock(completablefuture::isDone);
++                com.destroystokyo.paper.io.chunk.ChunkTaskManager.popChunkWait(); // Paper - async chunk debug
++                this.level.timings.syncChunkLoad.stopTiming(); // Paper
++                this.distanceManager.clearPriorityTickets(pair); // Paper - Chunk priority
++                this.distanceManager.clearUrgent(pair); // Paper - Chunk priority
++            } // Paper
++            ichunkaccess = (ChunkAccess) ((Either) completablefuture.join()).map((ichunkaccess1) -> {
++                return ichunkaccess1;
++            }, (playerchunk_failure) -> {
++                if (create) {
++                    throw (IllegalStateException) Util.pauseInIde((Throwable) (new IllegalStateException("Chunk not there when requested: " + playerchunk_failure)));
++                } else {
++                    return null;
++                }
++            });
++            this.storeInCache(k, ichunkaccess, leastStatus);
++            return ichunkaccess;
++        }
++    }
++
+     @Nullable
+     @Override
+     public LevelChunk getChunkNow(int chunkX, int chunkZ) {
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 1a107ca896b83d7102c0ed98851ea79269930a2f..0f60ab6583b6f0ff7da9135f622cf87c762de764 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -348,7 +348,6 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+     public final gg.airplane.entity.CollisionCache collisionCache = new gg.airplane.entity.CollisionCache(this);
+     // Airplane end
+ 
+-    //Solar start
+     public List<AABB> cachedCollisions = io.papermc.paper.util.CachedLists.getTempCollisionList();
+     public boolean hasChecked = false;
+     public boolean wasMoving = false;
+@@ -360,7 +359,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+     public boolean hasCheckedWall = false;
+ 
+     public long lastMovement;
+-    //Solar End
++
++    public ChunkAccess lastChunkLookup = null;
++    public int lastI = Integer.MAX_VALUE;
++    public int lastJ = Integer.MAX_VALUE;
+ 
+     public float getBukkitYaw() {
+         return this.yRot;
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index f2e6d457bf9d4450dc1e46fa51749ce90f483e57..4797edec2e1cfd479186d6dbca44b6790179d5d1 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -653,6 +653,25 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+         }
+     }
+ 
++    public final ChunkAccess getChunkEntity(Entity e, int chunkX, int chunkZ, ChunkStatus leastStatus, boolean create) { // Paper - final for inline
++        if (NFTWorldsConfig.optimizeEntityChunkLookups) {
++            if (e.lastI == chunkX && e.lastJ == chunkZ) return e.lastChunkLookup;
++            e.lastI /*= lastI*/ = chunkX;
++            e.lastJ /*= lastJ*/ = chunkZ;
++        }
++
++        ChunkAccess ichunkaccess = this.getChunkSource().getChunk(chunkX, chunkZ, leastStatus, create);
++
++        if (ichunkaccess == null && create) {
++            e.lastChunkLookup = null;
++            e.lastI = Integer.MAX_VALUE;
++            e.lastJ = Integer.MAX_VALUE;
++            throw new IllegalStateException("Should always be able to create a chunk!");
++        } else {
++            return e.lastChunkLookup = ichunkaccess;
++        }
++    }
++
+     @Override
+     public final boolean setBlock(BlockPos pos, BlockState state, int flags) { // Paper - final for inline
+         return this.setBlock(pos, state, flags, 512);

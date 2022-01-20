@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 21:21:38 -0700
+Subject: [PATCH] Optimize Passengers
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index ec464d7465a12f335d9469de3eecdc5cbcf0efc2..df364715670b9c3dc77a8468bca28a2dda7faae7 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -343,4 +343,7 @@ public class NFTWorldsConfig {
+     public static boolean optimizeCollisionChunkLookups = true;
+     private static void optimizeCollisionChunkLookups() { optimizeCollisionChunkLookups =getBoolean("optimize-collision-chunk-lookups", true); }
+ 
++    public static boolean recursivelyTickMultiplePassengers = false;
++    private static void recursivelyTickMultiplePassengers() { recursivelyTickMultiplePassengers = getBoolean("recursively-tick-multiple-passengers", false); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index 3d09b60150ea678e43a85e4edae978674f1af2a6..783eef832d64e6e0ee4c90adeb60eed88badefb4 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -227,6 +227,9 @@ public class RecommendCommand extends Command {
+             if (!NFTWorldsConfig.optimizeCollisionChunkLookups) {
+                 changes.add("optimize-collision-chunk-lookups §7|§f§o Change to §a§lTRUE");
+             }
++            if (NFTWorldsConfig.recursivelyTickMultiplePassengers) {
++                changes.add("recursively-tick-multiple-passengers §7|§f§o Change to §c§lFALSE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index f318f961e02d8dfc96be8311a33707997dbe58b7..347272fe3133a39fa70208a41c2a538c069ad2df 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -1187,12 +1187,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
+                 }
+                 // Paper end - EAR 2
+                 gameprofilerfiller.pop();
+-                Iterator iterator = passenger.getPassengers().iterator();
+-
+-                while (iterator.hasNext()) {
+-                    Entity entity2 = (Entity) iterator.next();
+-
+-                    this.tickPassenger(passenger, entity2);
++                if (NFTWorldsConfig.recursivelyTickMultiplePassengers) {
++                    Iterator iterator = passenger.getPassengers().iterator();
++                    while (iterator.hasNext()) {
++                        Entity entity2 = (Entity) iterator.next();
++                        this.tickPassenger(passenger, entity2);
++                    }
+                 }
+ 
+             } finally { timer.stopTiming(); }// Paper - EAR2 timings

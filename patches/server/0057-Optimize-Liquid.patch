@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 21:00:53 -0700
+Subject: [PATCH] Optimize Liquid
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index e37788b46b162ece97952ecbb514a7b02a91abd1..22fa762b421ef7c657ef396700863107853b782a 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -331,4 +331,7 @@ public class NFTWorldsConfig {
+     public static boolean optimizeChunkLookups = true;
+     private static void optimizeChunkLookups() { optimizeChunkLookups = getBoolean("optimize-chunk-lookups", true); }
+ 
++    public static boolean optimizeLiquid = true;
++    private static void optimizeLiquid() { optimizeLiquid = getBoolean("optimize-liquid", true); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index d2a2256697995f982480e1277133c25c18d95bbf..6d0b0c4c96082c55c6baf5f50d656d39a859af54 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -215,6 +215,9 @@ public class RecommendCommand extends Command {
+             if (!NFTWorldsConfig.optimizeChunkLookups) {
+                 changes.add("optimize-chunk-lookups §7|§f§o Change to §a§lTRUE");
+             }
++            if (!NFTWorldsConfig.optimizeLiquid) {
++                changes.add("optimize-liquid §7|§f§o Change to §a§lTRUE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 94eb86fed9705665e436c0b699cd3ddf73658eb9..1a107ca896b83d7102c0ed98851ea79269930a2f 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -1678,7 +1678,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+         if (this.isSwimming()) {
+             this.setSwimming(this.isSprinting() && this.isInWater() && !this.isPassenger());
+         } else {
+-            this.setSwimming(this.isSprinting() && this.isUnderWater() && !this.isPassenger() && this.level.getFluidState(this.blockPosition).is((Tag) FluidTags.WATER));
++            this.setSwimming(this.isSprinting() && this.isUnderWater() && !this.isPassenger() && (!NFTWorldsConfig.optimizeLiquid ? this.level.getFluidState(this.blockPosition).is((Tag) FluidTags.WATER) : true));
+         }
+ 
+     }

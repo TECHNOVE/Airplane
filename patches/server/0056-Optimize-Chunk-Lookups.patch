@@ -1,0 +1,71 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 20:53:27 -0700
+Subject: [PATCH] Optimize Chunk Lookups
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index 4d1adc064bcb4cc1c7af5dcde1f6436e1ac9700e..e37788b46b162ece97952ecbb514a7b02a91abd1 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -328,4 +328,7 @@ public class NFTWorldsConfig {
+     public static boolean disableFootSteps = true;
+     private static void disableFootSteps() { disableFootSteps = getBoolean("disable-footsteps", true); }
+ 
++    public static boolean optimizeChunkLookups = true;
++    private static void optimizeChunkLookups() { optimizeChunkLookups = getBoolean("optimize-chunk-lookups", true); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index d3201a9a64c5c234bb092d36857872b1e16d7343..d2a2256697995f982480e1277133c25c18d95bbf 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -212,6 +212,9 @@ public class RecommendCommand extends Command {
+             if (!NFTWorldsConfig.disableFootSteps) {
+                 changes.add("disable-footsteps §7|§f§o Change to §a§lTRUE");
+             }
++            if (!NFTWorldsConfig.optimizeChunkLookups) {
++                changes.add("optimize-chunk-lookups §7|§f§o Change to §a§lTRUE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+index 44c8a39e7726cdf90360a0ac1ee728c7c806d45f..045108de23e8db925a709e860e043d6d63b9a78c 100644
+--- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
++++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+@@ -116,12 +116,24 @@ public class ServerChunkCache extends ChunkSource {
+         }
+     }
+ 
++    public LevelChunk cachedChunk = null;
++
+     public final LevelChunk getChunkAtIfLoadedMainThread(int x, int z) {
++        if (NFTWorldsConfig.optimizeChunkLookups) {
++            LevelChunk chunk = cachedChunk;
++            if (chunk != null && chunk.locX == x && chunk.locZ == z && chunk.loaded) {
++                this.cachedChunk = chunk;
++                return chunk;
++            }
++        }
++
+         int cacheKey = getChunkCacheKey(x, z);
+ 
+         LevelChunk cachedChunk = this.lastLoadedChunks[cacheKey];
+         if (cachedChunk != null && cachedChunk.locX == x & cachedChunk.locZ == z) {
+-            return this.lastLoadedChunks[cacheKey];
++            LevelChunk levelChunk = this.lastLoadedChunks[cacheKey];
++            this.cachedChunk = levelChunk;
++            return levelChunk;
+         }
+ 
+         long chunkKey = ChunkPos.asLong(x, z);
+@@ -129,6 +141,7 @@ public class ServerChunkCache extends ChunkSource {
+         cachedChunk = this.loadedChunkMap.get(chunkKey);
+         // Skipping a null check to avoid extra instructions to improve inline capability
+         this.lastLoadedChunks[cacheKey] = cachedChunk;
++        this.cachedChunk = cachedChunk;
+         return cachedChunk;
+     }
+ 

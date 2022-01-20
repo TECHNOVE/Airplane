@@ -1,0 +1,55 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 21:33:03 -0700
+Subject: [PATCH] Optimize Spawner Range Checks
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index 6bbfa710bbab078c4c3f0680dd8d38a87fdad36b..1658d354cfa8b1503082dbbf15fa8fc9cc25d23a 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -358,4 +358,7 @@ public class NFTWorldsConfig {
+     public static boolean fixVehicleTeleports = true;
+     private static void fixVehicleTeleports() { fixVehicleTeleports = getBoolean("fix-vehicle-teleports", true); }
+ 
++    public static boolean optimizeSpawners = true;
++    private static void optimizeSpawners() { optimizeSpawners = getBoolean("optimize-spawners", true); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com/destroystokyo/paper/util/PlayerMobDistanceMap.java b/src/main/java/com/destroystokyo/paper/util/PlayerMobDistanceMap.java
+index ea6938d7332aa57f8055f7fbb684720cd66cb378..dd0c2604e3f821e32de1bff4795591f528a84a5d 100644
+--- a/src/main/java/com/destroystokyo/paper/util/PlayerMobDistanceMap.java
++++ b/src/main/java/com/destroystokyo/paper/util/PlayerMobDistanceMap.java
+@@ -1,5 +1,6 @@
+ package com.destroystokyo.paper.util;
+ 
++import com.nftworlds.NFTWorldsConfig;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+ import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+@@ -28,8 +29,23 @@ public final class PlayerMobDistanceMap {
+         return this.getPlayersInRange(chunkPos.x, chunkPos.z);
+     }
+ 
++    private long time = System.currentTimeMillis();
++    private int lastChunkX = Integer.MAX_VALUE;
++    private int lastChunkZ = Integer.MAX_VALUE;
++    private PooledHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer> lastPlayerRange = EMPTY_SET;
++
+     public PooledHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer> getPlayersInRange(final int chunkX, final int chunkZ) {
+-        return this.playerMap.getOrDefault(ChunkPos.asLong(chunkX, chunkZ), EMPTY_SET);
++        if (!NFTWorldsConfig.optimizeSpawners) {
++            return this.playerMap.getOrDefault(ChunkPos.asLong(chunkX, chunkZ), EMPTY_SET);
++        }
++        if (chunkX == lastChunkX && chunkZ == lastChunkZ && System.currentTimeMillis()-time <= 60000) {
++            return lastPlayerRange;
++        }
++        time = System.currentTimeMillis();
++        lastChunkX = chunkX;
++        lastChunkZ = chunkZ;
++        lastPlayerRange = this.playerMap.getOrDefault(ChunkPos.asLong(chunkX, chunkZ), EMPTY_SET);
++        return lastPlayerRange;
+     }
+ 
+     public void update(final List<ServerPlayer> currentPlayers, final int newViewDistance) {

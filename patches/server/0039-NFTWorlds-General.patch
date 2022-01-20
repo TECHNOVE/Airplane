@@ -1,0 +1,1354 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 00:50:25 -0700
+Subject: [PATCH] NFTWorlds General
+
+
+diff --git a/src/main/java/com.nftworlds/ConfigurationsCommand.java b/src/main/java/com.nftworlds/ConfigurationsCommand.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..dfb31f4ecda6c6af664323b492aa6399656e6dd2
+--- /dev/null
++++ b/src/main/java/com.nftworlds/ConfigurationsCommand.java
+@@ -0,0 +1,41 @@
++package com.nftworlds;
++
++import org.bukkit.Bukkit;
++import org.bukkit.ChatColor;
++import org.bukkit.command.Command;
++import org.bukkit.command.CommandSender;
++import org.bukkit.command.defaults.BukkitCommand;
++
++import java.util.Arrays;
++
++public class ConfigurationsCommand extends BukkitCommand {
++    public ConfigurationsCommand(String name) {
++        super(name);
++        this.description = "Reloads the server configurations";
++        this.usageMessage = "/configurations reload";
++        this.setPermission("nftworlds.admin.configreload");
++        this.setAliases(Arrays.asList("configuration", "configs", "config", "configreload"));
++    }
++
++    @Override
++    public boolean execute(CommandSender sender, String currentAlias, String[] args) {
++        if (!testPermission(sender)) {
++            return true;
++        }
++        if (args.length == 0 && !currentAlias.equalsIgnoreCase("configreload")) {
++            sender.sendMessage(ChatColor.RED + "/" + currentAlias + " reload");
++            return true;
++        }
++        Bukkit.reloadConfigurations();
++        Command.broadcastCommandMessage(sender, ChatColor.GREEN + "Reloaded configs.");
++
++        return true;
++    }
++
++    // Spigot Start
++    @Override
++    public java.util.List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
++        return java.util.Collections.emptyList();
++    }
++    // Spigot End
++}
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..6f5c676e98d56d8e717aa3c934f553f67b076146
+--- /dev/null
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -0,0 +1,143 @@
++package com.nftworlds;
++
++import com.google.common.base.Throwables;
++import net.minecraft.server.MinecraftServer;
++import org.bukkit.Bukkit;
++import org.bukkit.command.Command;
++import org.bukkit.configuration.InvalidConfigurationException;
++import org.bukkit.configuration.file.YamlConfiguration;
++
++import java.io.File;
++import java.io.IOException;
++import java.lang.reflect.InvocationTargetException;
++import java.lang.reflect.Method;
++import java.lang.reflect.Modifier;
++import java.util.*;
++import java.util.logging.Level;
++
++public class NFTWorldsConfig {
++
++    public static File CONFIG_FILE;
++    private static final String HEADER = "This is the main configuration file for NFTWorldsServer.\n"
++            + "If you need help with the configuration or have any questions related to NFTWorldsServer,\n"
++            + "open a ticket in the NFTWorldsServer discord. Some options, primarily those under the entity\n"
++            + "category, are for debugging purposes only.\n";
++    /*========================================================================*/
++    public static YamlConfiguration config;
++    static int version;
++    static Map<String, Command> commands;
++    /*========================================================================*/
++
++    public static void init(File configFile) {
++        CONFIG_FILE = configFile;
++        config = new YamlConfiguration();
++        try {
++            config.load(CONFIG_FILE);
++        } catch (IOException ex) {
++        } catch (InvalidConfigurationException ex) {
++            Bukkit.getLogger().log(Level.SEVERE, "Could not load nftworlds.yml, please correct your syntax errors", ex);
++            throw Throwables.propagate(ex);
++        }
++        config.options().header(HEADER);
++        config.options().copyDefaults(true);
++
++        commands = new HashMap<>();
++
++        version = getInt("config-version", 1);
++        set("config-version", 1);
++        readConfig(NFTWorldsConfig.class, null);
++    }
++
++    public static void registerCommands() {
++        for (Map.Entry<String, Command> entry : commands.entrySet()) {
++            MinecraftServer.getServer().server.getCommandMap().register(entry.getKey(), "NFTWorldsServer", entry.getValue());
++        }
++    }
++
++    static void readConfig(Class<?> clazz, Object instance) {
++        List<Method> methods = Arrays.asList(clazz.getDeclaredMethods());
++        methods.sort(Comparator.comparing(Method::getName));
++
++        for (Method method : methods) {
++            if (Modifier.isPrivate(method.getModifiers())) {
++                if (method.getParameterTypes().length == 0 && method.getReturnType() == Void.TYPE) {
++                    try {
++                        method.setAccessible(true);
++                        method.invoke(instance);
++                    } catch (InvocationTargetException ex) {
++                        throw Throwables.propagate(ex.getCause());
++                    } catch (Exception ex) {
++                        Bukkit.getLogger().log(Level.SEVERE, "Error invoking " + method, ex);
++                    }
++                }
++            }
++        }
++
++        try {
++            config.save(CONFIG_FILE);
++        } catch (IOException ex) {
++            Bukkit.getLogger().log(Level.SEVERE, "Could not save " + CONFIG_FILE, ex);
++        }
++    }
++
++    public static void save() {
++        try {
++            config.save(CONFIG_FILE);
++        } catch (IOException ex) {
++            Bukkit.getLogger().log(Level.SEVERE, "Could not save " + CONFIG_FILE, ex);
++        }
++    }
++
++    public static void set(String path, Object val) {
++        config.set(path, val);
++    }
++
++    private static boolean getBoolean(String path, boolean def) {
++        config.addDefault(path, def);
++        return config.getBoolean(path, config.getBoolean(path));
++    }
++
++    private static double getDouble(String path, double def) {
++        config.addDefault(path, def);
++        return config.getDouble(path, config.getDouble(path));
++    }
++
++    private static float getFloat(String path, float def) {
++        // TODO: Figure out why getFloat() always returns the default value.
++        return (float) getDouble(path, (double) def);
++    }
++
++    private static int getInt(String path, int def) {
++        config.addDefault(path, def);
++        return config.getInt(path, config.getInt(path));
++    }
++
++    private static List<String> getStringList(String path, List<String> def) {
++        config.addDefault(path, def);
++        return config.getStringList(path);
++    }
++
++    private static <T> List getList(String path, T def) {
++        config.addDefault(path, def);
++        return (List<T>) config.getList(path, config.getList(path));
++    }
++
++    private static String getString(String path, String def) {
++        config.addDefault(path, def);
++        return config.getString(path, config.getString(path));
++    }
++
++    private static void commands() {
++        commands.put("configurations", new ConfigurationsCommand("configurations"));
++        commands.put("recommend", new RecommendCommand("recommend"));
++        commands.put("settps", new SetTPSCommand("settps"));
++    }
++
++    public static boolean tpsGraph = true;
++    private static void tpsGraph() { tpsGraph = getBoolean("tps-graph", true); }
++
++
++
++
++
++}
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..d697aa2b18e13026a9377e990d966e7dcf924fb9
+--- /dev/null
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -0,0 +1,506 @@
++package com.nftworlds;
++
++import com.destroystokyo.paper.PaperConfig;
++import com.destroystokyo.paper.PaperWorldConfig;
++import gg.airplane.AirplaneConfig;
++import net.minecraft.world.entity.MobCategory;
++import org.apache.commons.lang.StringUtils;
++import org.bukkit.Bukkit;
++import org.bukkit.command.Command;
++import org.bukkit.command.CommandSender;
++import org.spigotmc.SpigotConfig;
++import org.spigotmc.SpigotWorldConfig;
++
++import java.util.ArrayList;
++import java.util.Arrays;
++
++public class RecommendCommand extends Command {
++
++    public RecommendCommand(String name) {
++        super(name);
++        this.description = "Show config recommendations";
++        this.usageMessage = "/recommend";
++        this.setPermission("nftworlds.admin.recommend");
++        this.setAliases(Arrays.asList("recommend", "recommendedconfig", "recommendedconfigs"));
++    }
++
++    public String[] configs = new String[] {"airplane","bukkit","paper","nftworlds","spigot"};
++    public String[] gamemodes = new String[] {"survival","skyblock","prison","towny"};
++
++    public boolean execute(CommandSender sender, String currentAlias, String[] args) {
++        if (testPermission(sender)) {
++            String gamemode = "Survival";
++            if (args.length > 0) {
++                gamemode = args[0];
++            }
++            if (Arrays.stream(gamemodes).anyMatch(gamemode::equals)) {
++                gamemode = StringUtils.capitalize(gamemode.toLowerCase());
++            } else {
++                gamemode = "Survival";
++            }
++            sender.sendMessage("§7§l§m---------------------------");
++            sender.sendMessage("§f§lRecommended Config Changes (Gamemode: "+gamemode+"):");
++            for (String conf : configs) {
++                ArrayList<String> recommendations = findRecommendations(conf,gamemode);
++                if (recommendations.isEmpty()) {
++                    sender.sendMessage("§a§o" + conf + (conf.equalsIgnoreCase("server.properties") ? "" : ".yml") + " requires no changes.");
++                } else {
++                    sender.sendMessage("§e§o"+conf+(conf.equalsIgnoreCase("server.properties") ? "" : ".yml:"));
++                    for (String change : recommendations) {
++                        sender.sendMessage("§7-§c " + change);
++                    }
++                }
++            }
++            sender.sendMessage("§7§l§m---------------------------");
++        } else {
++            sender.sendMessage(SpigotConfig.unknownCommandMessage);
++        }
++        return true;
++    }
++
++    public ArrayList<String> findRecommendations(String config, String gamemode) {
++        ArrayList<String> changes = new ArrayList<>();
++
++        if (config.equalsIgnoreCase("nftworlds")) { //NFTWorlds
++
++        } else if (config.equalsIgnoreCase("airplane")) { //Airplane
++            if (!AirplaneConfig.dearEnabled) {
++                changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
++            }
++            if (AirplaneConfig.startDistance > 8) {
++                changes.add("dab.start-distance §7|§f§o Change to §c§l8 or less");
++            }
++            if (AirplaneConfig.maximumActivationPrio < 20) {
++                changes.add("dab.max-tick-freq §7|§f§o Change to §c§l20 or more");
++            }
++            if (AirplaneConfig.activationDistanceMod > 7) {
++                changes.add("dab.activation-dist-mod §7|§f§o Change to §c§l7 or less");
++            }
++            if (AirplaneConfig.maxProjectileLoadsPerTick > 10) {
++                changes.add("projectile.max-loads-per-tick §7|§f§o Change to §c§l10 or less");
++            }
++            if (AirplaneConfig.maxProjectileLoadsPerProjectile > 10) {
++                changes.add("projectile.max-loads-per-projectile §7|§f§o Change to §c§l8 or less");
++            }
++
++        } else if (config.equalsIgnoreCase("bukkit")) { //Bukkit (Spawn limits could probably be really low too to like 3, 2, 1, 1, 1)
++            if (Bukkit.getMonsterSpawnLimit() > 20) {
++                changes.add("spawn-limits.monsters §7|§f§o Change to §c§l20 or less");
++            }
++            if (Bukkit.getAnimalSpawnLimit() > 20) {
++                changes.add("spawn-limits.animals §7|§f§o Change to §c§l20 or less");
++            }
++            if (Bukkit.getWaterAnimalSpawnLimit() > 4) {
++                changes.add("spawn-limits.water-animals §7|§f§o Change to §c§l4 or less");
++            }
++            if (Bukkit.getWaterAmbientSpawnLimit() > 5) {
++                changes.add("spawn-limits.water-ambient §7|§f§o Change to §c§l5 or less");
++            }
++            if (Bukkit.getAmbientSpawnLimit() > 1) {
++                changes.add("spawn-limits.ambient §7|§f§o Change to §c§l1 or less");
++            }
++            if (Bukkit.getServer().getBukkitConfig().getInt("chunk-gc.period-in-ticks") != 400) {
++                changes.add("chunk-gc.period-in-ticks §7|§f§o Change to §a§l400");
++            }
++            if (Bukkit.getTicksPerAnimalSpawns() < 400) {
++                changes.add("ticks-per.animal-spawns §7|§f§o Change to §c§l400 or more");
++            }
++            if (Bukkit.getTicksPerMonsterSpawns() < 60) {
++                changes.add("ticks-per.monster-spawns §7|§f§o Change to §c§l60 or more");
++            }
++            if (Bukkit.getTicksPerWaterSpawns() < 400) {
++                changes.add("ticks-per.water-spawns §7|§f§o Change to §c§l400 or more");
++            }
++            if (Bukkit.getTicksPerWaterAmbientSpawns() < 400) {
++                changes.add("ticks-per.water-ambient-spawns §7|§f§o Change to §c§l400 or more");
++            }
++            if (Bukkit.getTicksPerAmbientSpawns() < 80) {
++                changes.add("ticks-per.ambient-spawns §7|§f§o Change to §c§l80 or more");
++            }
++
++        } else if (config.equalsIgnoreCase("paper")) { //Paper
++
++            if (PaperConfig.enablePlayerCollisions) {
++                changes.add("enable-player-collisions §7|§f§o Change to §c§lFALSE");
++            }
++            if (PaperConfig.playerAutoSaveRate != -1) {
++                changes.add("player-auto-save-rate §7|§f§o Change to §c§l-1");
++            }
++            if (PaperConfig.maxPlayerAutoSavePerTick != -1) {
++                changes.add("max-player-auto-save-per-tick §7|§f§o Change to §c§l-1");
++            }
++            if (PaperConfig.maxJoinsPerTick > 3) {
++                changes.add("max-joins-per-tick §7|§f§o Change to §c§l3 or less");
++            }
++            if (PaperConfig.regionFileCacheSize != 256) {
++                changes.add("region-file-cache-size §7|§f§o Change to §c§l256");
++            }
++            if (PaperConfig.packetInSpamThreshold != 300) {
++                changes.add("incoming-packet-spam-threshold §7|§f§o Change to §c§l300");
++            }
++            if (!PaperConfig.lagCompensateBlockBreaking) {
++                changes.add("lag-compensate-block-breaking §7|§f§o Change to §a§lTRUE");
++            }
++            if (!PaperConfig.fixEntityPositionDesync) {
++                changes.add("fix-entity-position-desync §7|§f§o Change to §a§lTRUE");
++            }
++            if (!PaperConfig.sendFullPosForHardCollidingEntities) {
++                changes.add("send-full-pos-for-hard-colliding-entities §7|§f§o Change to §a§lTRUE");
++            }
++            if (PaperConfig.maxBookPageSize > 50) {
++                changes.add("book-size.page-max §7|§f§o Change to §c§l50 or less");
++            }
++            if (PaperConfig.playerMinChunkLoadRadius != 2) {
++                changes.add("min-load-radius §7|§f§o Change to §c§l2");
++            }
++            if (PaperConfig.playerMaxConcurrentChunkSends != 2) {
++                changes.add("max-concurrent-sends §7|§f§o Change to §c§l2");
++            }
++            if (!PaperConfig.playerAutoConfigureSendViewDistance) {
++                changes.add("autoconfig-send-distance §7|§f§o Change to §a§lTRUE");
++            }
++            if (PaperConfig.playerTargetChunkSendRate != 35) {
++                changes.add("target-player-chunk-send-rate §7|§f§o Change to §a§l35");
++            }
++            if (PaperConfig.globalMaxChunkSendRate != -1.0) {
++                changes.add("global-max-chunk-send-rate §7|§f§o Change to §a§l-1.0");
++            }
++            if (PaperConfig.playerFrustumPrioritisation) {
++                changes.add("enable-frustum-priority §7|§f§o Change to §c§lFALSE");
++            }
++            if (PaperConfig.globalMaxChunkLoadRate != 300.0) {
++                changes.add("global-max-chunk-load-rate §7|§f§o Change to §a§l300.0");
++            }
++            if (PaperConfig.playerMaxConcurrentChunkLoads != 4.0) {
++                changes.add("player-max-concurrent-loads §7|§f§o Change to §a§l4.0");
++            }
++            if (PaperConfig.globalMaxConcurrentChunkLoads != 500.0) {
++                changes.add("global-max-concurrent-loads §7|§f§o Change to §a§l500.0");
++            }
++            if (!PaperConfig.asyncChunks) {
++                changes.add("async-chunks.threads §7|§f§o Change to §a§l-1");
++            }
++            if (PaperConfig.timingsEnabled) {
++                changes.add("timings.enabled and timings.really-enabled §7|§f§o Change to §c§lFALSE");
++            }
++
++            String worldName = Bukkit.getWorlds().get(0).getName();
++            PaperWorldConfig worldConfig = new PaperWorldConfig(worldName, new SpigotWorldConfig(worldName));
++
++            if (worldConfig.armorStandEntityLookups) {
++                changes.add("armor-stands-do-collision-entity-lookups §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.armorStandTick) {
++                changes.add("armor-stands-tick §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.autoSavePeriod != 12000) {
++                changes.add("auto-save-interval §7|§f§o Change to §c§l12000");
++            }
++            if (worldConfig.creativeArrowDespawnRate < 200) {
++                changes.add("creative-arrow-despawn-rate §7|§f§o Change to §c§l200 or more");
++            }
++            if (worldConfig.nonPlayerArrowDespawnRate < 200) {
++                changes.add("non-player-arrow-despawn-rate §7|§f§o Change to §c§l200 or more");
++            }
++            if (!worldConfig.disableCreeperLingeringEffect) {
++                changes.add("disable-creeper-lingering-effect §7|§f§o Change to §a§lTRUE");
++            }
++            if (!worldConfig.fixClimbingBypassingCrammingRule) {
++                changes.add("fix-climbing-bypassing-cramming-rule §7|§f§o Change to §a§lTRUE");
++            }
++            if (!worldConfig.keepSpawnInMemory) {
++                changes.add("keep-spawn-loaded §7|§f§o Change to §a§lTRUE");
++            }
++            if (worldConfig.keepLoadedRange != 3) {
++                changes.add("keep-spawn-loaded-range §7|§f§o Change to §a§l3");
++            }
++            if (worldConfig.maxCollisionsPerEntity != 1) {
++                changes.add("max-entity-collisions §7|§f§o Change to §a§l1");
++            }
++            if (worldConfig.lightQueueSize != 20) {
++                changes.add("light-queue-size §7|§f§o Change to §a§l20");
++            }
++            if (worldConfig.seedBasedFeatureSearchLoadsChunks) {
++                changes.add("seed-based-feature-search-loads-chunks §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.portalSearchRadius > 64) {
++                changes.add("portal-search-radius §7|§f§o Change to §a§l64 or less");
++            }
++            if (worldConfig.portalCreateRadius > 16) {
++                changes.add("portal-create-radius §7|§f§o Change to §a§l16 or less");
++            }
++            if (worldConfig.nonPlayerEntitiesOnScoreboards) {
++                changes.add("allow-non-player-entities-on-scoreboards §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.containerUpdateTickRate < 3) {
++                changes.add("container-update-tick-rate §7|§f§o Change to §c§l3 or more");
++            }
++            if (worldConfig.fixItemsMergingThroughWalls) {
++                changes.add("fix-items-merging-through-walls §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.grassUpdateRate < 4) {
++                changes.add("grass-spread-tick-rate §7|§f§o Change to §c§l4 or more");
++            }
++            if (!worldConfig.useEigencraftRedstone) {
++                changes.add("use-faster-eigencraft-redstone §7|§f§o Change to §a§lTRUE");
++            }
++            if (worldConfig.delayChunkUnloadsBy != 200L) {
++                changes.add("delay-chunk-unloads-by §7|§f§o Change to §a§l10s");
++            }
++            if (worldConfig.mobSpawnerTickRate < 2) {
++                changes.add("mob-spawner-tick-rate §7|§f§o Change to §a§l2 or more");
++            }
++            if (worldConfig.maxAutoSaveChunksPerTick > 6) {
++                changes.add("max-auto-save-chunks-per-tick §7|§f§o Change to §a§l6 or less");
++            }
++            if (!worldConfig.preventMovingIntoUnloadedChunks) {
++                changes.add("prevent-moving-into-unloaded-chunks §7|§f§o Change to §a§lTRUE");
++            }
++            if (worldConfig.countAllMobsForSpawning) {
++                changes.add("count-all-mobs-for-spawning §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.allowPlayerCrammingDamage) {
++                changes.add("allow-player-cramming-damage §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.mapItemFrameCursorUpdateInterval < 10) {
++                changes.add("map-item-frame-cursor-update-interval §7|§f§o Change to §c§l10 or more");
++            }
++            if (worldConfig.updatePathfindingOnBlockUpdate) {
++                changes.add("update-pathfinding-on-block-update §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.nerfedMobsShouldJump) {
++                changes.add("spawner-nerfed-mobs-should-jump §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.entitiesTargetWithFollowRange) {
++                changes.add("entitiesTargetWithFollowRange §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.zombiesTargetTurtleEggs) {
++                changes.add("zombies-target-turtle-eggs §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.enableTreasureMaps) {
++                changes.add("enable-treasure-maps §7|§f§o Change to §c§lFALSE");
++            }
++            if (!worldConfig.treasureMapsAlreadyDiscovered) {
++                changes.add("treasure-maps-return-already-discovered §7|§f§o Change to §a§lTRUE");
++            }
++            if (worldConfig.expMergeMaxValue != -1) {
++                changes.add("experience-merge-max-value §7|§f§o Change to §a§l-1");
++            }
++            if (!worldConfig.removeCorruptTEs) {
++                changes.add("remove-corrupt-tile-entities §7|§f§o Change to §a§lTRUE");
++            }
++            if (!worldConfig.phantomIgnoreCreative) {
++                changes.add("phantoms-do-not-spawn-on-creative-players §7|§f§o Change to §a§lTRUE");
++            }
++            if (!worldConfig.fixWitherTargetingBug) {
++                changes.add("fix-wither-targeting-bug §7|§f§o Change to §a§lTRUE");
++            }
++            if (!worldConfig.disableChestCatDetection) {
++                changes.add("disable-chest-cat-detection §7|§f§o Change to §a§lTRUE");
++            }
++            if (!worldConfig.disableEnderpearlExploit) {
++                changes.add("disable-unloaded-chunk-enderpearl-exploit §7|§f§o Change to §a§lTRUE");
++            }
++            if (!worldConfig.fixCuringZombieVillagerDiscountExploit) {
++                changes.add("fix-curing-zombie-villager-discount-exploit §7|§f§o Change to §a§lTRUE");
++            }
++            if (worldConfig.patrolSpawnChance > 0.2) {
++                changes.add("pillager-patrols.spawn-chance §7|§f§o Change to §a§l0.2 or less");
++            }
++            if (worldConfig.antiXray) {
++                changes.add("anti-xray.enabled §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.noTickViewDistance > 6) {
++                changes.add("viewdistances.no-tick-view-distance §7|§f§o Change to §c§l6 or less");
++            }
++            if (worldConfig.zombiesAlwaysCanPickUpLoot) {
++                changes.add("mobs-can-always-pick-up-loot.zombies §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.skeletonsAlwaysCanPickUpLoot) {
++                changes.add("mobs-can-always-pick-up-loot.skeletons §7|§f§o Change to §c§lFALSE");
++            }
++            if (!worldConfig.cooldownHopperWhenFull) {
++                changes.add("hopper.cooldown-when-full §7|§f§o Change to §a§lTRUE");
++            }
++            if (!worldConfig.disableHopperMoveEvents) {
++                changes.add("hopper.disable-move-event §7|§f§o Change to §a§lTRUE");
++            }
++            if (worldConfig.perWorldSpawnLimits.get(MobCategory.MONSTER) != -1) {
++                changes.add("spawn-limits.monsters §7|§f§o Change to §c§l-1");
++            }
++            if (worldConfig.perWorldSpawnLimits.get(MobCategory.CREATURE) != -1) {
++                changes.add("spawn-limits.animals §7|§f§o Change to §c§l-1");
++            }
++            if (worldConfig.perWorldSpawnLimits.get(MobCategory.WATER_CREATURE) != -1) {
++                changes.add("spawn-limits.water-animals §7|§f§o Change to §c§l-1");
++            }
++            if (worldConfig.perWorldSpawnLimits.get(MobCategory.WATER_AMBIENT) != -1) {
++                changes.add("spawn-limits.water-ambient §7|§f§o Change to §c§l-1");
++            }
++            if (worldConfig.perWorldSpawnLimits.get(MobCategory.AMBIENT) != -1) {
++                changes.add("spawn-limits.ambient §7|§f§o Change to §c§l-1");
++            }
++            if (!worldConfig.fixInvulnerableEndCrystalExploit) {
++                changes.add("fix-invulnerable-end-crystal-exploit §7|§f§o Change to §a§lTRUE");
++            }
++            if (worldConfig.softDespawnDistances.get(MobCategory.values()[0]) > 28) {
++                changes.add("despawn-ranges.soft §7|§f§o Change to §a§l28 or less");
++            }
++            if (worldConfig.hardDespawnDistances.get(MobCategory.values()[0]) > 56) {
++                changes.add("despawn-ranges.hard §7|§f§o Change to §a§l56 or less");
++            }
++            if(worldConfig.maxLootableRefills == -1 || worldConfig.maxLootableRefills > 10) {
++                changes.add("lootables.max-refills §7|§f§o Change to §a§l10 or less");
++            }
++
++        } else if (config.equalsIgnoreCase("spigot")) { //Spigot
++
++            if (!SpigotConfig.saveUserCacheOnStopOnly) {
++                changes.add("save-user-cache-on-stop-only §7|§f§o Change to §a§lTRUE");
++            }
++            if (SpigotConfig.playerSample != 12) {
++                changes.add("sample-count §7|§f§o Change to §a§l12");
++            }
++            if (SpigotConfig.nettyThreads < 6) {
++                changes.add("netty-threads §7|§f§o Change to §a§l6 or more");
++            }
++            if (SpigotConfig.playerShuffle != 0) {
++                changes.add("player-shuffle §7|§f§o Change to §a§l0");
++            }
++            if (SpigotConfig.userCacheCap != 999999) {
++                changes.add("user-cache-size §7|§f§o Change to §a§l999999");
++            }
++            if (SpigotConfig.logVillagerDeaths) {
++                changes.add("log-villager-deaths §7|§f§o Change to §c§lFALSE");
++            }
++            if (SpigotConfig.logNamedDeaths) {
++                changes.add("log-named-deaths §7|§f§o Change to §c§lFALSE");
++            }
++            if (!SpigotConfig.disableAdvancementSaving) {
++                changes.add("advancements.disable-saving §7|§f§o Change to §a§lTRUE");
++            }
++
++            SpigotWorldConfig worldConfig = new SpigotWorldConfig(Bukkit.getWorlds().get(0).getName());
++
++            if (worldConfig.viewDistance > 3) {
++                changes.add("view-distance §7|§f§o Change to §c§l3 or less");
++                changes.add("&7 - Note: Players will still be able to see much further, don't worry.");
++            }
++            if (worldConfig.itemDespawnRate != 6000) {
++                changes.add("item-despawn-rate §7|§f§o Change to §c§l6000");
++            }
++            if (worldConfig.mobSpawnRange > 2) {
++                changes.add("mob-spawn-range §7|§f§o Change to §c§l2 or less");
++            }
++            if (worldConfig.hopperAmount < 64) {
++                changes.add("hopper-amount §7|§f§o Change to §c§l64 or more");
++            }
++            if (worldConfig.maxTntTicksPerTick > 100) {
++                changes.add("max-tnt-per-tick §7|§f§o Change to §c§l100 or less");
++            }
++            if (worldConfig.arrowDespawnRate < 600) {
++                changes.add("arrow-despawn-rate §7|§f§o Change to §c§l600 or more");
++            }
++            if (worldConfig.tridentDespawnRate < 2400) {
++                changes.add("trident-despawn-rate §7|§f§o Change to §c§l2400 or more");
++            }
++            if (!worldConfig.nerfSpawnerMobs) {
++                changes.add("nerf-spawner-mobs §7|§f§o Change to §a§lTRUE");
++            }
++            if (worldConfig.playerTrackingRange > 42) {
++                changes.add("entity-tracking-range.players §7|§f§o Change to §c§l42 or less");
++            }
++            if (worldConfig.animalTrackingRange > 24) {
++                changes.add("entity-tracking-range.animals §7|§f§o Change to §c§l24 or less");
++            }
++            if (worldConfig.monsterTrackingRange > 24) {
++                changes.add("entity-tracking-range.monsters §7|§f§o Change to §c§l24 or less");
++            }
++            if (worldConfig.miscTrackingRange > 15) {
++                changes.add("entity-tracking-range.misc §7|§f§o Change to §c§l15 or less");
++            }
++            if (worldConfig.otherTrackingRange > 32) {
++                changes.add("entity-tracking-range.other §7|§f§o Change to §c§l32 or less");
++            }
++            if (worldConfig.expMerge != 6.0) {
++                changes.add("merge-radius.exp §7|§f§o Change to §c§l6.0");
++            }
++            if (worldConfig.itemMerge != 4.0) {
++                changes.add("merge-radius.item §7|§f§o Change to §c§l4.0");
++            }
++            if (worldConfig.animalActivationRange > 8) {
++                changes.add("entity-activation-range.animals §7|§f§o Change to §c§l8 or less");
++            }
++            if (worldConfig.monsterActivationRange > 16) {
++                changes.add("entity-activation-range.monsters §7|§f§o Change to §c§l16 or less");
++            }
++            if (worldConfig.raiderActivationRange > 32) {
++                changes.add("entity-activation-range.raiders §7|§f§o Change to §c§l32 or less");
++            }
++            if (worldConfig.miscActivationRange > 6) {
++                changes.add("entity-activation-range.misc §7|§f§o Change to §c§l6 or less");
++            }
++            if (worldConfig.waterActivationRange > 6) {
++                changes.add("entity-activation-range.water §7|§f§o Change to §c§l6 or less");
++            }
++            if (worldConfig.villagerActivationRange > 16) {
++                changes.add("entity-activation-range.villagers §7|§f§o Change to §c§l16 or less");
++            }
++            if (worldConfig.flyingMonsterActivationRange > 16) {
++                changes.add("entity-activation-range.flying-monsters §7|§f§o Change to §c§l16 or less");
++            }
++            if (worldConfig.tickInactiveVillagers) {
++                changes.add("tick-inactive-villagers §7|§f§o Change to §c§lFALSE");
++            }
++            if (worldConfig.wakeUpInactiveAnimals > 2) {
++                changes.add("wake-up-inactive.animals-max-per-tick §7|§f§o Change to §c§l2 or less");
++            }
++            if (worldConfig.wakeUpInactiveAnimalsEvery < 1200) {
++                changes.add("wake-up-inactive.animals-every §7|§f§o Change to §c§l200 or more");
++            }
++            if (worldConfig.wakeUpInactiveAnimalsFor > 100) {
++                changes.add("wake-up-inactive.animals-for §7|§f§o Change to §c§l100 or less");
++            }
++            if (worldConfig.wakeUpInactiveMonsters > 4) {
++                changes.add("wake-up-inactive.monsters-max-per-tick §7|§f§o Change to §c§l4 or less");
++            }
++            if (worldConfig.wakeUpInactiveMonstersEvery < 400) {
++                changes.add("wake-up-inactive.monsters-every §7|§f§o Change to §c§l400 or more");
++            }
++            if (worldConfig.wakeUpInactiveMonstersFor > 60) {
++                changes.add("wake-up-inactive.monsters-for §7|§f§o Change to §c§l60 or less");
++            }
++            if (worldConfig.wakeUpInactiveVillagers > 1) {
++                changes.add("wake-up-inactive.villagers-max-per-tick §7|§f§o Change to §c§l1 or less");
++            }
++            if (worldConfig.wakeUpInactiveVillagersEvery < 600) {
++                changes.add("wake-up-inactive.villagers-every §7|§f§o Change to §c§l600 or more");
++            }
++            if (worldConfig.wakeUpInactiveVillagersFor > 20) {
++                changes.add("wake-up-inactive.villagers-for §7|§f§o Change to §c§l20 or less");
++            }
++            if (worldConfig.wakeUpInactiveFlying > 2) {
++                changes.add("wake-up-inactive.flying-monsters-max-per-tick §7|§f§o Change to §c§l2 or less");
++            }
++            if (worldConfig.wakeUpInactiveFlyingEvery < 200) {
++                changes.add("wake-up-inactive.flying-monsters-every §7|§f§o Change to §c§l200 or more");
++            }
++            if (worldConfig.wakeUpInactiveFlyingFor > 60) {
++                changes.add("wake-up-inactive.flying-monsters-for §7|§f§o Change to §c§l60 or less");
++            }
++            if (worldConfig.hopperCheck < 60) {
++                changes.add("ticks-per.hopper-check §7|§f§o Change to §c§l60 or more");
++            }
++            if (worldConfig.hopperTransfer < 24) {
++                changes.add("ticks-per.hopper-transfer §7|§f§o Change to §c§l24 or more");
++            }
++            if (worldConfig.entityMaxTickTime != 25) {
++                changes.add("max-tick-time.entity §7|§f§o Change to §c§l25");
++            }
++            if (worldConfig.tileMaxTickTime != 20) {
++                changes.add("max-tick-time.tile §7|§f§o Change to §c§l20");
++            }
++        }
++        return changes;
++    }
++}
+diff --git a/src/main/java/com.nftworlds/SetTPSCommand.java b/src/main/java/com.nftworlds/SetTPSCommand.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..bc0133259d36db96e64386a93920d795f7519384
+--- /dev/null
++++ b/src/main/java/com.nftworlds/SetTPSCommand.java
+@@ -0,0 +1,57 @@
++package com.nftworlds;
++
++import net.minecraft.server.MinecraftServer;
++import org.bukkit.command.Command;
++import org.bukkit.command.CommandSender;
++
++public class SetTPSCommand extends Command {
++
++    public SetTPSCommand(String name) {
++        super(name);
++        this.description = "Set the server tps";
++        setPermission("nftworlds.admin.settps");
++    }
++
++    public boolean execute(CommandSender sender, String currentAlias, String[] args) {
++        if (testPermission(sender)) {
++            if (args.length != 0) {
++                if (args.length == 1) {
++                    int tps = 20;
++                    try {
++                        tps = Integer.valueOf(args[0]);
++                    } catch(NumberFormatException ex) {
++                        sender.sendMessage("§cYou need to provide a proper number.");
++                        return true;
++                    }
++                    if (tps<1) {
++                        sender.sendMessage("§cTPS has to be more than 0.");
++                        return true;
++                    }
++                    int oldTPS = MinecraftServer.TPS;
++                    MinecraftServer.TPS = tps;
++                    MinecraftServer.TICK_TIME = (int)(MinecraftServer.SEC_IN_NANO / MinecraftServer.TPS);
++                    MinecraftServer.MAX_CATCHUP_BUFFER = MinecraftServer.TICK_TIME * MinecraftServer.TPS * 60L;
++                    sender.sendMessage("§aChanged server TPS from " + oldTPS + " to " + tps + ".");
++                    return true;
++                } else {
++                    helpMessage(sender);
++                    return true;
++                }
++            } else {
++                helpMessage(sender);
++                return true;
++            }
++        } else {
++            return true;
++        }
++    }
++
++    public void helpMessage(CommandSender sender) {
++        sender.sendMessage("§8§l§m----------------------");
++        sender.sendMessage("§a§oSet TPS Command Syntax:");
++        sender.sendMessage("§c/settps <tps>");
++        sender.sendMessage("§7§oTPS must be a positive integer.");
++        sender.sendMessage("§8§l§m----------------------");
++    }
++
++}
+diff --git a/src/main/java/com.nftworlds/TPSTracker.java b/src/main/java/com.nftworlds/TPSTracker.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c0cf1fb4bb7a0984618eb7b52b23884a0d2e70ac
+--- /dev/null
++++ b/src/main/java/com.nftworlds/TPSTracker.java
+@@ -0,0 +1,128 @@
++package com.nftworlds;
++
++import net.minecraft.server.dedicated.DedicatedServer;
++
++import java.util.ArrayList;
++import java.util.Timer;
++import java.util.TimerTask;
++
++public class TPSTracker {
++
++    public static ArrayList<Double> tpsValues = new ArrayList<>();
++    public static ArrayList<String> lines = new ArrayList<>(7);
++    private final Timer t = new Timer();
++
++    //Make display in reverse order
++    public void trackTPS() {
++        new Thread(schedule(() -> {
++            if (tpsValues.isEmpty()) {
++                for (int i = 1; i < 48; i++) {
++                    tpsValues.add(20.0);
++                }
++            }
++            tpsValues.remove(0);
++            tpsValues.add(Math.ceil(DedicatedServer.currentTps.doubleValue()));
++            lines.clear();
++            for (int i = 0; i < 7; i++) {
++                lines.add(new String());
++                for (double tpsValue : TPSTracker.tpsValues) {
++                    if (i == 0) {
++                        if (tpsValue >= 18) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else {
++                            lines.set(i, "§0|||" + lines.get(i));
++                        }
++                    } else if (i == 1) {
++                        if (tpsValue >= 18) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else if (tpsValue >= 15) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else {
++                            lines.set(i, "§0|||" + lines.get(i));
++                        }
++                    } else if (i == 2) {
++                        if (tpsValue >= 18) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else if (tpsValue >= 15) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else if (tpsValue >= 12) {
++                            lines.set(i, "§e|||" + lines.get(i));
++                        } else {
++                            lines.set(i, "§0|||" + lines.get(i));
++                        }
++                    } else if (i == 3) {
++                        if (tpsValue >= 18) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else if (tpsValue >= 15) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else if (tpsValue >= 12) {
++                            lines.set(i, "§e|||" + lines.get(i));
++                        } else if (tpsValue >= 9) {
++                            lines.set(i, "§c|||" + lines.get(i));
++                        } else {
++                            lines.set(i, "§0|||" + lines.get(i));
++                        }
++                    } else if (i == 4) {
++                        if (tpsValue >= 18) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else if (tpsValue >= 15) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else if (tpsValue >= 12) {
++                            lines.set(i, "§e|||" + lines.get(i));
++                        } else if (tpsValue >= 9) {
++                            lines.set(i, "§c|||" + lines.get(i));
++                        } else if (tpsValue >= 6) {
++                            lines.set(i, "§4|||" + lines.get(i));
++                        } else {
++                            lines.set(i, "§0|||" + lines.get(i));
++                        }
++                    } else if (i == 5) {
++                        if (tpsValue >= 18) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else if (tpsValue >= 15) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else if (tpsValue >= 12) {
++                            lines.set(i, "§e|||" + lines.get(i));
++                        } else if (tpsValue >= 9) {
++                            lines.set(i, "§c|||" + lines.get(i));
++                        } else if (tpsValue >= 6) {
++                            lines.set(i, "§4|||" + lines.get(i));
++                        } else if (tpsValue >= 3) {
++                            lines.set(i, "§8|||" + lines.get(i));
++                        } else {
++                            lines.set(i, "§0|||" + lines.get(i));
++                        }
++                    } else if (i == 6) {
++                        if (tpsValue >= 18) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else if (tpsValue >= 15) {
++                            lines.set(i, "§a|||" + lines.get(i));
++                        } else if (tpsValue >= 12) {
++                            lines.set(i, "§e|||" + lines.get(i));
++                        } else if (tpsValue >= 9) {
++                            lines.set(i, "§c|||" + lines.get(i));
++                        } else if (tpsValue >= 6) {
++                            lines.set(i, "§4|||" + lines.get(i));
++                        } else if (tpsValue >= 3) {
++                            lines.set(i, "§8|||" + lines.get(i));
++                        } else if (tpsValue >= 2) {
++                            lines.set(i, "§0|||" + lines.get(i));
++                        } else {
++                            lines.set(i, "§0|||" + lines.get(i));
++                        }
++                    }
++                }
++            }
++        }, 1000L)).start();
++    }
++
++    private TimerTask schedule(Runnable r, long delay) {
++        TimerTask task = new TimerTask() {
++            public void run() {
++                r.run();
++            }
++        };
++        t.scheduleAtFixedRate(task, delay, delay);
++        return task;
++    }
++}
+diff --git a/src/main/java/com.nftworlds/objects/ConcurrentPlayerMap.java b/src/main/java/com.nftworlds/objects/ConcurrentPlayerMap.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..ccef712d7b2873173c05163da850f86e5d31aa4c
+--- /dev/null
++++ b/src/main/java/com.nftworlds/objects/ConcurrentPlayerMap.java
+@@ -0,0 +1,41 @@
++package com.nftworlds.objects;
++
++import net.minecraft.server.level.ServerPlayer;
++
++import java.util.concurrent.ConcurrentHashMap;
++import java.util.stream.Stream;
++
++public final class ConcurrentPlayerMap {
++    public final ConcurrentHashMap<ServerPlayer, Boolean> players = new ConcurrentHashMap<ServerPlayer, Boolean>();
++
++    public Stream<ServerPlayer> getPlayers(long l) {
++        return this.players.keySet().stream();
++    }
++
++    public void addPlayer(long l, ServerPlayer player, boolean watchDisabled) {
++        this.players.put(player, watchDisabled);
++    }
++
++    public void removePlayer(long l, ServerPlayer player) {
++        this.players.remove(player);
++    }
++
++    public void ignorePlayer(ServerPlayer player) {
++        this.players.replace(player, true);
++    }
++
++    public void unIgnorePlayer(ServerPlayer player) {
++        this.players.replace(player, false);
++    }
++
++    public boolean ignoredOrUnknown(ServerPlayer player) {
++        return this.players.getOrDefault(player, true);
++    }
++
++    public boolean ignored(ServerPlayer player) {
++        return this.players.getOrDefault(player, true);
++    }
++
++    public void updatePlayer(long prevPos, long currentPos, ServerPlayer player) {
++    }
++}
+diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
+index 7c61ae257323c7f0a0b2e43f64fb540c22c47104..8b2ccd6e5bae059f668283acc47813ceefd193b2 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
++++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
+@@ -202,9 +202,11 @@ public class PaperConfig {
+         return config.getString(path, config.getString(path));
+     }
+ 
++    public static boolean timingsEnabled;
+     public static String timingsServerName;
+     private static void timings() {
+         boolean timings = getBoolean("timings.enabled", true);
++        timingsEnabled = timings;
+         // Airplane start
+         boolean reallyEnableTimings = getBoolean("timings.really-enabled", false);
+         if (timings && !reallyEnableTimings) {
+diff --git a/src/main/java/gg/airplane/compat/ServerConfigurations.java b/src/main/java/gg/airplane/compat/ServerConfigurations.java
+index f9a71ff3edd7e7b6cda680e5a156373b5aa813c2..a463feb65a2f3be3b105c356f7e3c89fb0c02498 100644
+--- a/src/main/java/gg/airplane/compat/ServerConfigurations.java
++++ b/src/main/java/gg/airplane/compat/ServerConfigurations.java
+@@ -24,7 +24,8 @@ public class ServerConfigurations {
+       "bukkit.yml",
+       "spigot.yml",
+       "paper.yml",
+-      "airplane.yml"
++      "airplane.yml",
++      "nftworlds.yml"
+     };
+ 
+     public static Map<String, String> getCleanCopies() throws IOException {
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 7120a77ec93009faf1f18fd6c9bc020de66a5f73..ab42a69bdf3adb1bef9165e2eec0fee6c3ca46d9 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
+ import java.lang.management.ManagementFactory;
+ import java.lang.management.ThreadInfo;
+ import java.lang.management.ThreadMXBean;
++import java.math.BigDecimal;
+ import java.net.Proxy;
+ import java.net.URLEncoder;
+ import java.nio.charset.StandardCharsets;
+@@ -295,6 +296,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     public org.bukkit.command.RemoteConsoleCommandSender remoteConsole;
+     //public ConsoleReader reader; // Paper
+     public static int currentTick = 0; // Paper - Further improve tick loop
++    public static java.math.BigDecimal currentTps = BigDecimal.valueOf(20.0);
+     public java.util.Queue<Runnable> processQueue = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();
+     public int autosavePeriod;
+     public boolean serverAutoSave = false; // Paper
+@@ -302,10 +304,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     public boolean forceTicks; // Paper
+     // CraftBukkit end
+     // Spigot start
+-    public static final int TPS = 20;
+-    public static final int TICK_TIME = 1000000000 / MinecraftServer.TPS;
+-    private static final int SAMPLE_INTERVAL = 20; // Paper
+-    public final double[] recentTps = new double[ 3 ];
++    public static int TPS = 20;
++    public static int TICK_TIME = 1000000000 / MinecraftServer.TPS;
++    private static int SAMPLE_INTERVAL = 20; // Paper
++    public final double[] recentTps = new double[ 7 ];
+     public final SlackActivityAccountant slackActivityAccountant = new SlackActivityAccountant();
+     // Spigot end
+     public static long currentTickLong = 0L; // Paper
+@@ -1163,10 +1165,14 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     }
+ 
+     // Paper start - Further improve server tick loop
+-    private static final long SEC_IN_NANO = 1000000000;
+-    private static final long MAX_CATCHUP_BUFFER = TICK_TIME * TPS * 60L;
++    public static long SEC_IN_NANO = 1000000000;
++    public static long MAX_CATCHUP_BUFFER = TICK_TIME * TPS * 60L;
+     private long lastTick = 0;
+     private long catchupTime = 0;
++    public final RollingAverage tps1sec = new RollingAverage(1);
++    public final RollingAverage tps5sec = new RollingAverage(5);
++    public final RollingAverage tps15sec = new RollingAverage(15);
++    public final RollingAverage tps30sec = new RollingAverage(30);
+     public final RollingAverage tps1 = new RollingAverage(60);
+     public final RollingAverage tps5 = new RollingAverage(60 * 5);
+     public final RollingAverage tps15 = new RollingAverage(60 * 15);
+@@ -1256,14 +1262,22 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                     if ( ++MinecraftServer.currentTick % MinecraftServer.SAMPLE_INTERVAL == 0 )
+                     {
+                         final long diff = curTime - tickSection;
+-                        java.math.BigDecimal currentTps = TPS_BASE.divide(new java.math.BigDecimal(diff), 30, java.math.RoundingMode.HALF_UP);
++                        currentTps = TPS_BASE.divide(new java.math.BigDecimal(diff), 30, java.math.RoundingMode.HALF_UP);
++                        tps1sec.add(currentTps, diff);
++                        tps5sec.add(currentTps, diff);
++                        tps15sec.add(currentTps, diff);
++                        tps30sec.add(currentTps, diff);
+                         tps1.add(currentTps, diff);
+                         tps5.add(currentTps, diff);
+                         tps15.add(currentTps, diff);
+                         // Backwards compat with bad plugins
+-                        this.recentTps[0] = tps1.getAverage();
+-                        this.recentTps[1] = tps5.getAverage();
+-                        this.recentTps[2] = tps15.getAverage();
++                        recentTps[0] = tps1sec.getAverage();
++                        recentTps[1] = tps5sec.getAverage();
++                        recentTps[2] = tps15sec.getAverage();
++                        recentTps[3] = tps30sec.getAverage();
++                        recentTps[4] = tps1.getAverage();
++                        recentTps[5] = tps5.getAverage();
++                        recentTps[6] = tps15.getAverage();
+                         // Paper end
+                         tickSection = curTime;
+                     }
+diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+index e2901132b78126c0a4eb04363dfe6a0dccd1313f..cc08e4ffac4d35045f941bef486462497b9ea3a7 100644
+--- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -23,6 +23,9 @@ import java.util.concurrent.Executor;
+ import java.util.function.BooleanSupplier;
+ import java.util.regex.Pattern;
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
++import com.nftworlds.TPSTracker;
+ import net.minecraft.DefaultUncaughtExceptionHandler;
+ import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
+ import net.minecraft.SharedConstants;
+@@ -66,6 +69,7 @@ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+ import org.apache.logging.log4j.Level;
+ import org.apache.logging.log4j.io.IoBuilder;
++import org.bukkit.Bukkit;
+ import org.bukkit.command.CommandSender;
+ import co.aikar.timings.MinecraftTimings; // Paper
+ import org.bukkit.event.server.ServerCommandEvent;
+@@ -234,6 +238,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         io.papermc.paper.util.ObfHelper.INSTANCE.getClass(); // load mappings for stacktrace deobf and etc.
+         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
+         // Paper end
++        NFTWorldsConfig.init((java.io.File) options.valueOf("nftworlds-settings")); // NFTWorldsServer - Server Config
++        NFTWorldsConfig.registerCommands();
+         gg.airplane.AirplaneConfig.load(); // Airplane - config
+         gg.airplane.commands.AirplaneCommands.init(); // Airplane - command
+ 
+@@ -272,6 +278,9 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         }
+         // Paper end
+ 
++        new TPSTracker().trackTPS();
++        Bukkit.getLogger().info("Started NFTWorldsServer TPS Tracker");
++
+         this.initializeKeyPair();
+         DedicatedServer.LOGGER.info("Starting Minecraft server on {}:{}", this.getLocalIp().isEmpty() ? "*" : this.getLocalIp(), this.getPort());
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index c3a256d0ccb9fb44a5a1f9ffa2d48542ef4e857b..b9099f20e3633a7618f1287c328ba6e53fc976ba 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -15,6 +15,7 @@ import com.mojang.brigadier.tree.CommandNode;
+ import com.mojang.brigadier.tree.LiteralCommandNode;
+ import com.mojang.serialization.DynamicOps;
+ import com.mojang.serialization.Lifecycle;
++import com.nftworlds.NFTWorldsConfig;
+ import io.netty.buffer.ByteBuf;
+ import io.netty.buffer.ByteBufOutputStream;
+ import io.netty.buffer.Unpooled;
+@@ -251,7 +252,7 @@ import javax.annotation.Nullable; // Paper
+ import javax.annotation.Nonnull; // Paper
+ 
+ public final class CraftServer implements Server {
+-    private final String serverName = "Airplane"; // Paper // Airplane
++    private final String serverName = "NFTWorldsServer"; // Paper // Airplane //NFTWorlds
+     private final String serverVersion;
+     private final String bukkitVersion = Versioning.getBukkitVersion();
+     private final Logger logger = Logger.getLogger("Minecraft");
+@@ -924,6 +925,8 @@ public final class CraftServer implements Server {
+ 
+         org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
+         com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings")); // Paper
++        NFTWorldsConfig.init((File) console.options.valueOf("nftworlds-settings")); // NFTWorldsServer - Server Config
++        NFTWorldsConfig.registerCommands();
+         for (ServerLevel world : this.console.getAllLevels()) {
+             // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
+             world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
+@@ -1010,6 +1013,82 @@ public final class CraftServer implements Server {
+         org.spigotmc.WatchdogThread.hasStarted = true; // Paper - Disable watchdog early timeout on reload
+     }
+ 
++    @Override
++    public void reloadConfigurations() {
++        this.configuration = YamlConfiguration.loadConfiguration(this.getConfigFile());
++        this.commandsConfiguration = YamlConfiguration.loadConfiguration(this.getCommandsConfigFile());
++
++        console.settings = new DedicatedServerSettings(console.options);
++        DedicatedServerProperties config = console.settings.getProperties();
++
++        this.console.setPvpAllowed(config.pvp);
++        this.console.setFlightAllowed(config.allowFlight);
++        this.console.setMotd(config.motd);
++        this.monsterSpawn = this.configuration.getInt("spawn-limits.monsters");
++        this.animalSpawn = this.configuration.getInt("spawn-limits.animals");
++        this.waterAnimalSpawn = this.configuration.getInt("spawn-limits.water-animals");
++        this.waterAmbientSpawn = this.configuration.getInt("spawn-limits.water-ambient");
++        this.ambientSpawn = this.configuration.getInt("spawn-limits.ambient");
++        this.warningState = WarningState.value(this.configuration.getString("settings.deprecated-verbose"));
++        TicketType.PLUGIN.timeout = Math.min(20, configuration.getInt("chunk-gc.period-in-ticks")); // Paper - cap plugin loads to 1 second
++        this.minimumAPI = this.configuration.getString("settings.minimum-api");
++        this.printSaveWarning = false;
++        console.autosavePeriod = this.configuration.getInt("ticks-per.autosave");
++        this.loadIcon();
++
++        try {
++            this.playerList.getIpBans().load();
++        } catch (IOException ex) {
++            this.logger.log(Level.WARNING, "Failed to load banned-ips.json, " + ex.getMessage());
++        }
++        try {
++            this.playerList.getBans().load();
++        } catch (IOException ex) {
++            this.logger.log(Level.WARNING, "Failed to load banned-players.json, " + ex.getMessage());
++        }
++
++        org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
++        com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings")); // Paper
++        NFTWorldsConfig.init((File) console.options.valueOf("nftworlds-settings")); // NFTWorldsServer - Server Config
++        for (ServerLevel world : this.console.getAllLevels()) {
++            world.serverLevelData.setDifficulty(config.difficulty);
++            world.setSpawnSettings(config.spawnMonsters, config.spawnAnimals);
++            if (this.getTicksPerAnimalSpawns() < 0) {
++                world.ticksPerAnimalSpawns = 400;
++            } else {
++                world.ticksPerAnimalSpawns = this.getTicksPerAnimalSpawns();
++            }
++
++            if (this.getTicksPerMonsterSpawns() < 0) {
++                world.ticksPerMonsterSpawns = 1;
++            } else {
++                world.ticksPerMonsterSpawns = this.getTicksPerMonsterSpawns();
++            }
++
++            if (this.getTicksPerWaterSpawns() < 0) {
++                world.ticksPerWaterSpawns = 1;
++            } else {
++                world.ticksPerWaterSpawns = this.getTicksPerWaterSpawns();
++            }
++
++            if (this.getTicksPerWaterAmbientSpawns() < 0) {
++                world.ticksPerWaterAmbientSpawns = 1;
++            } else {
++                world.ticksPerWaterAmbientSpawns = this.getTicksPerWaterAmbientSpawns();
++            }
++
++            if (this.getTicksPerAmbientSpawns() < 0) {
++                world.ticksPerAmbientSpawns = 1;
++            } else {
++                world.ticksPerAmbientSpawns = this.getTicksPerAmbientSpawns();
++            }
++            world.spigotConfig.init(); // Spigot
++            world.paperConfig.init(); // Paper
++        }
++        this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
++        this.ignoreVanillaPermissions = this.commandsConfiguration.getBoolean("ignore-vanilla-permissions");
++    }
++
+     // Paper start
+     public void waitForAsyncTasksShutdown() {
+         int pollCount = 0;
+@@ -2121,6 +2200,11 @@ public final class CraftServer implements Server {
+         return this.ambientSpawn;
+     }
+ 
++    @Override
++    public YamlConfiguration getBukkitConfig() {
++        return this.configuration;
++    }
++
+     @Override
+     public boolean isPrimaryThread() {
+         return Thread.currentThread().equals(console.serverThread) || Thread.currentThread().equals(net.minecraft.server.MinecraftServer.getServer().shutdownThread); // Paper - Fix issues with detecting main thread properly, the only time Watchdog will be used is during a crash shutdown which is a "try our best" scenario
+@@ -2525,6 +2609,10 @@ public final class CraftServer implements Server {
+     @Override
+     public double[] getTPS() {
+         return new double[] {
++                net.minecraft.server.MinecraftServer.getServer().tps1sec.getAverage(),
++                net.minecraft.server.MinecraftServer.getServer().tps5sec.getAverage(),
++                net.minecraft.server.MinecraftServer.getServer().tps15sec.getAverage(),
++                net.minecraft.server.MinecraftServer.getServer().tps30sec.getAverage(),
+                 net.minecraft.server.MinecraftServer.getServer().tps1.getAverage(),
+                 net.minecraft.server.MinecraftServer.getServer().tps5.getAverage(),
+                 net.minecraft.server.MinecraftServer.getServer().tps15.getAverage()
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index 22e9dd17f62103c5061435099ce96a3d70d54808..afac97a7a0e3a5fe735243d5636861b3106ea788 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -29,6 +29,9 @@ public class Main {
+         // Paper end
+         // Todo: Installation script
+         if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) System.setProperty("jdk.nio.maxCachedBufferSize", "262144"); // Paper - cap per-thread NIO cache size
++
++        System.out.println("Currently running NFTWorldsServer");
++
+         OptionParser parser = new OptionParser() {
+             {
+                 acceptsAll(Main.asList("?", "help"), "Show the help");
+@@ -147,6 +150,14 @@ public class Main {
+                         .describedAs("Yml file");
+                 // Paper end
+ 
++                // NFTWorldsServer start - Server Config
++                acceptsAll(asList("nftworlds", "nftworlds-settings"), "File for nftworlds settings")
++                        .withRequiredArg()
++                        .ofType(File.class)
++                        .defaultsTo(new File("nftworlds.yml"))
++                        .describedAs("Yml file");
++                // NFTWorldsServer end - Server Config
++
+                 // Paper start
+                 acceptsAll(asList("server-name"), "Name of the server")
+                         .withRequiredArg()
+diff --git a/src/main/java/org/spigotmc/SpigotConfig.java b/src/main/java/org/spigotmc/SpigotConfig.java
+index ec7938202e3890bccb809a8092362458d0f4ca75..6a3cdc2672f4c8c8efb6c55b2c1de3d1275c10c2 100644
+--- a/src/main/java/org/spigotmc/SpigotConfig.java
++++ b/src/main/java/org/spigotmc/SpigotConfig.java
+@@ -242,9 +242,11 @@ public class SpigotConfig
+         SpigotConfig.bungee = SpigotConfig.getBoolean( "settings.bungeecord", false );
+     }
+ 
++    public static int nettyThreads;
+     private static void nettyThreads()
+     {
+         int count = SpigotConfig.getInt( "settings.netty-threads", 4 );
++        nettyThreads = count;
+         System.setProperty( "io.netty.eventLoopThreads", Integer.toString( count ) );
+         Bukkit.getLogger().log( Level.INFO, "Using {0} threads for Netty based IO", count );
+     }
+diff --git a/src/main/java/org/spigotmc/TicksPerSecondCommand.java b/src/main/java/org/spigotmc/TicksPerSecondCommand.java
+index 9bede6a26c08ede063c7a38f1149c811df14b258..416f6c7a29cd8ed4969ad17a6f9390975f47a524 100644
+--- a/src/main/java/org/spigotmc/TicksPerSecondCommand.java
++++ b/src/main/java/org/spigotmc/TicksPerSecondCommand.java
+@@ -1,10 +1,14 @@
+ package org.spigotmc;
+ 
+-import net.minecraft.server.MinecraftServer;
++import com.nftworlds.NFTWorldsConfig;
++import com.nftworlds.TPSTracker;
++import net.minecraft.server.dedicated.DedicatedServer;
+ import org.bukkit.ChatColor;
+ import org.bukkit.command.Command;
+ import org.bukkit.command.CommandSender;
+ 
++import java.util.Iterator;
++
+ public class TicksPerSecondCommand extends Command
+ {
+ 
+@@ -31,7 +35,42 @@ public class TicksPerSecondCommand extends Command
+         for ( int i = 0; i < tps.length; i++) {
+             tpsAvg[i] = TicksPerSecondCommand.format( tps[i] );
+         }
+-        sender.sendMessage(ChatColor.GOLD + "TPS from last 1m, 5m, 15m: " + org.apache.commons.lang.StringUtils.join(tpsAvg, ", "));
++        sender.sendMessage(ChatColor.GOLD + "TPS Stats [Now], [1s], [5s], [15s], [30s], [1m], [5m], [15m]: " + org.apache.commons.lang.StringUtils.join(tpsAvg, ", "));
++        //Tps Graph
++        if (!NFTWorldsConfig.tpsGraph) {
++            return true;
++        }
++        sender.sendMessage("§7§l§m-----------§8§l§m<§a§o TPS Graph (48 Seconds) §8§l§m>§7§l§m-----------");
++        if (!TPSTracker.lines.isEmpty()) {
++            /*
++            for (String line : TPSTracker.lines) {
++               sender.sendMessage(line);
++            }
++            */
++            Iterator<String> lines = TPSTracker.lines.iterator();
++            while (lines.hasNext()) {
++                sender.sendMessage(lines.next());
++            }
++        }
++
++        String status = "§7Unknown";
++        try {
++            double currentTPS = DedicatedServer.currentTps.doubleValue();
++            if (currentTPS >= 17) {
++                status = "§aSTABLE";
++            } else if (currentTPS >= 15) {
++                status = "§eSOME STABILITY ISSUES";
++            } else if (currentTPS >= 10) {
++                status = "§cLAGGING. CHECK TIMINGS.";
++            } else if (currentTPS < 10) {
++                status = "§4UNSTABLE";
++            } else if (currentTPS < 3) {
++                status = "§cSEND HELP!!!!!";
++            }
++        } catch (Exception ex) {
++            ex.printStackTrace();
++        }
++        sender.sendMessage("§f§lServer Status: " + status);
+         if (args.length > 0 && args[0].equals("mem") && sender.hasPermission("bukkit.command.tpsmemory")) {
+             sender.sendMessage(ChatColor.GOLD + "Current Memory Usage: " + ChatColor.GREEN + ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024)) + "/" + (Runtime.getRuntime().totalMemory() / (1024 * 1024)) + " mb (Max: " + (Runtime.getRuntime().maxMemory() / (1024 * 1024)) + " mb)");
+             if (!hasShownMemoryWarning) {

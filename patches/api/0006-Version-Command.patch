@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Thu, 20 Jan 2022 00:33:31 -0700
+Subject: [PATCH] Version Command
+
+
+diff --git a/src/main/java/org/bukkit/command/defaults/VersionCommand.java b/src/main/java/org/bukkit/command/defaults/VersionCommand.java
+index 57a21495843f3a144cd73473cdc8781d6129b7ca..206bf029c1f2774f099c2cf3f37777432d401bd5 100644
+--- a/src/main/java/org/bukkit/command/defaults/VersionCommand.java
++++ b/src/main/java/org/bukkit/command/defaults/VersionCommand.java
+@@ -46,13 +46,25 @@ public class VersionCommand extends BukkitCommand {
+         this.setAliases(Arrays.asList("ver", "about"));
+     }
+ 
++    private static final String LINE = ChatColor.RED + "" + ChatColor.STRIKETHROUGH + "----------------------------------------";
++
++    private void showVersion(final CommandSender sender) {
++        sender.sendMessage(VersionCommand.LINE);
++        sender.sendMessage(ChatColor.GRAY + "This server is running " + ChatColor.RED + "NFTWorldsServer");
++        sender.sendMessage(VersionCommand.LINE);
++    }
++
+     @Override
+     public boolean execute(@NotNull CommandSender sender, @NotNull String currentAlias, @NotNull String[] args) {
+-        if (!testPermission(sender)) return true;
++        if (!testPermission(sender)) {
++            this.showVersion(sender);
++            return true;
++        }
+ 
+         if (args.length == 0) {
+             //sender.sendMessage("This server is running " + Bukkit.getName() + " version " + Bukkit.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ")"); // Paper - moved to setVersionMessage
+-            sendVersion(sender);
++            // sendVersion(sender);
++            this.showVersion(sender);
+         } else {
+             StringBuilder name = new StringBuilder();
+ 

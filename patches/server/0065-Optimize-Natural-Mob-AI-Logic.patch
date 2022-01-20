@@ -1,0 +1,120 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 21:40:16 -0700
+Subject: [PATCH] Optimize Natural Mob AI Logic
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index 1658d354cfa8b1503082dbbf15fa8fc9cc25d23a..d213492944c13a0f87e63ec873cba040325bf34a 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -361,4 +361,19 @@ public class NFTWorldsConfig {
+     public static boolean optimizeSpawners = true;
+     private static void optimizeSpawners() { optimizeSpawners = getBoolean("optimize-spawners", true); }
+ 
++    public static boolean optimizeNaturalMobs = true;
++    private static void optimizeNaturalMobs() { optimizeNaturalMobs = getBoolean("optimize-natural.mob-processing", true); }
++
++    public static int optimizeNaturalTolerance = 5;
++    private static void optimizeNaturalTolerance() { optimizeNaturalTolerance = getInt("optimize-natural.y-tolerance", 5); }
++
++    public static boolean optimizeNaturalMobAI = true;
++    private static void optimizeNaturalMobAI() { optimizeNaturalMobAI = getBoolean("optimize-natural.mob-ai", true); }
++
++    public static boolean onlyUnderground = false;
++    private static void onlyUnderground() { onlyUnderground = getBoolean("optimize-natural.only-underground", false); }
++
++    public static boolean accountForAFK = true;
++    private static void accountForAFK() { accountForAFK = getBoolean("optimize-natural.account-for-afk", true); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
+index 340c604a27810e30364275364c5687140ca6a6c9..273c43f45f28254a5868383caba762ce87aae396 100644
+--- a/src/main/java/net/minecraft/world/entity/Mob.java
++++ b/src/main/java/net/minecraft/world/entity/Mob.java
+@@ -847,6 +847,27 @@ public abstract class Mob extends LivingEntity {
+             return;
+         }
+ 
++        if (NFTWorldsConfig.optimizeNaturalMobAI) {
++            boolean execute = false;
++            if (!this.spawnedViaMobSpawner && (NFTWorldsConfig.onlyUnderground ? this.getY() <= 55 : true)) {
++                if (this instanceof Villager || (this instanceof TamableAnimal && ((TamableAnimal)this).isTame())) execute = true;
++                if (!execute && this.tracker != null) {
++                    for (ServerPlayerConnection player : this.tracker.seenBy) {
++                        ServerPlayer p = player.getPlayer();
++                        if (NFTWorldsConfig.accountForAFK && System.currentTimeMillis() - p.lastMovement > 30000) continue;
++                        double posY = p.position().y;
++                        if (this.getY() >= posY - NFTWorldsConfig.optimizeNaturalTolerance && this.getY() <= posY + NFTWorldsConfig.optimizeNaturalTolerance) {
++                            execute = true;
++                            break;
++                        }
++                    }
++                }
++            }
++            if (!execute) {
++                return;
++            }
++        }
++
+         // Paper end
+         this.level.getProfiler().push("sensing");
+         this.sensing.tick();
+diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
+index db3f65a0a37515a84e9e43957a16fc39cda0cadb..4b6992e652cd402b06153669dabb723a36165127 100644
+--- a/src/main/java/org/spigotmc/ActivationRange.java
++++ b/src/main/java/org/spigotmc/ActivationRange.java
+@@ -4,12 +4,9 @@ import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.ServerChunkCache;
+-import net.minecraft.world.entity.Entity;
+-import net.minecraft.world.entity.FlyingMob;
+-import net.minecraft.world.entity.LightningBolt;
+-import net.minecraft.world.entity.LivingEntity;
+-import net.minecraft.world.entity.Mob;
+-import net.minecraft.world.entity.PathfinderMob;
++import net.minecraft.server.level.ServerPlayer;
++import net.minecraft.server.network.ServerPlayerConnection;
++import net.minecraft.world.entity.*;
+ import net.minecraft.world.entity.ai.Brain;
+ import net.minecraft.world.entity.ambient.AmbientCreature;
+ import net.minecraft.world.entity.animal.Animal;
+@@ -356,8 +353,34 @@ public class ActivationRange
+                 return 20; // Paper
+             }
+             // Paper start
+-            if (entity instanceof Mob && ((Mob) entity).targetSelector.hasTasks() ) {
+-                return 0;
++            if (!NFTWorldsConfig.optimizeNaturalMobs) {
++                if (entity instanceof Mob && ((Mob) entity).targetSelector.hasTasks()) {
++                    return 0;
++                }
++            } else {
++                if (entity instanceof Mob) {
++                    boolean execute = true;
++                    if (!entity.spawnedViaMobSpawner && (NFTWorldsConfig.onlyUnderground ? entity.getY() <= 55 : true)) { //Natural entity that is underground
++                        if (entity instanceof Villager || (entity instanceof TamableAnimal && ((TamableAnimal)entity).isTame())) return 0;
++                        if (entity.tracker != null) {
++                            for (ServerPlayerConnection player : entity.tracker.seenBy) { //Get all the players tracking it
++                                ServerPlayer p = player.getPlayer();
++                                if (NFTWorldsConfig.accountForAFK && System.currentTimeMillis() - p.lastMovement > 30000)
++                                    continue; //Skip AFK players, they shouldn't be making mobs process. If player hasn't moved in 30 seconds.
++                                double posY = p.position().y;
++                                if (entity.getY() >= posY - NFTWorldsConfig.optimizeNaturalTolerance && entity.getY() <= posY + NFTWorldsConfig.optimizeNaturalTolerance) { //Entity is within a visible range of the player
++                                    return 0;
++                                }
++                            }
++                        }
++                        execute = false; //At this point we can confirm there are no players
++                    }
++                    if (execute) {
++                        if (((Mob) entity).targetSelector.hasTasks()) {
++                            return 0;
++                        }
++                    }
++                }
+             }
+             if (entity instanceof Pillager) {
+                 Pillager pillager = (Pillager) entity;

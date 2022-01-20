@@ -1,0 +1,123 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 17:25:41 -0700
+Subject: [PATCH] Entity Damage Ticks
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index dcd2398d880c2c0afb0896df7dab1f66d9155d57..2c6fed325245c89e58327a9e4d764566ea4f71ec 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -253,4 +253,18 @@ public class NFTWorldsConfig {
+     public static boolean stripSpawnerMobAI = true;
+     private static void stripSpawnerMobAI() { stripSpawnerMobAI = getBoolean("strip-spawner-mob-ai", true); }
+ 
++    //Extra mob stuff
++    public static int mobMaxNoDamageTicks;
++    public static int playerMaxNoDamageTicks;
++    public static int fireLavaMaxNoDamageTicks;
++    public static int rodMaxNoDamageTicks;
++    public static boolean showDeathParticles;
++    private static void mobOptions() {
++        mobMaxNoDamageTicks = getInt("mob.mob-max-no-damage-ticks", 20);
++        playerMaxNoDamageTicks = getInt("mob.player-max-no-damage-ticks", 20);
++        fireLavaMaxNoDamageTicks = getInt("mob.fire-and-lava-max-no-damage-ticks", 20);
++        rodMaxNoDamageTicks = getInt("mob.rod-max-no-damage-ticks", 20);
++        showDeathParticles = getBoolean("mob.show-death-particles", false);
++    }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index 7d77829b46d4d6c44b2cf980b93b3ae867102615..930291428fcf0d72c6a5371eab031edb34b37c73 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -134,6 +134,21 @@ public class RecommendCommand extends Command {
+             if (!NFTWorldsConfig.stripSpawnerMobAI) {
+                 changes.add("strip-spawner-mob-ai §7|§f§o Change to §a§lTRUE");
+             }
++            if (NFTWorldsConfig.mobMaxNoDamageTicks != 20) {
++                changes.add("mob.mob-max-no-damage-ticks §7|§f§o Change to §c§l20");
++            }
++            if (NFTWorldsConfig.playerMaxNoDamageTicks != 20) {
++                changes.add("mob.player-max-no-damage-ticks §7|§f§o Change to §c§l20");
++            }
++            if (NFTWorldsConfig.fireLavaMaxNoDamageTicks != 20) {
++                changes.add("mob.fire-and-lava-max-no-damage-ticks §7|§f§o Change to §c§l20");
++            }
++            if (NFTWorldsConfig.rodMaxNoDamageTicks != 20) {
++                changes.add("mob.rod-max-no-damage-ticks §7|§f§o Change to §c§l20");
++            }
++            if (NFTWorldsConfig.showDeathParticles) {
++                changes.add("mob.show-death-particles §7|§f§o Change to §c§lFALSE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+index 13916dc638ce830c8f0573ab8326584b8401cc75..4a94a02c43fd04cf302bce94a3bf06561cd6457c 100644
+--- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
++++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+@@ -92,6 +92,7 @@ import net.minecraft.world.entity.monster.Monster;
+ import net.minecraft.world.entity.monster.Phantom;
+ import net.minecraft.world.entity.npc.Villager;
+ import net.minecraft.world.entity.projectile.AbstractArrow;
++import net.minecraft.world.entity.projectile.FishingHook;
+ import net.minecraft.world.food.FoodProperties;
+ import net.minecraft.world.item.ArmorItem;
+ import net.minecraft.world.item.BlockItem;
+@@ -1339,7 +1340,22 @@ public abstract class LivingEntity extends Entity {
+             this.animationSpeed = 1.5F;
+             boolean flag1 = true;
+ 
+-            if ((float) this.invulnerableTime > (float) this.invulnerableDuration / 2.0F) { // CraftBukkit - restore use of maxNoDamageTicks
++            boolean fire = source == DamageSource.ON_FIRE || source == DamageSource.IN_FIRE || source == DamageSource.LAVA;
++
++            int maxNoDamage;
++            if (fire) {
++                maxNoDamage = NFTWorldsConfig.fireLavaMaxNoDamageTicks;
++            } else if (source.getEntity() != null && source.getEntity() instanceof FishingHook) {
++                maxNoDamage = NFTWorldsConfig.rodMaxNoDamageTicks;
++            } else if (this instanceof Mob) {
++                maxNoDamage = NFTWorldsConfig.mobMaxNoDamageTicks;
++            } else if (this instanceof net.minecraft.world.entity.player.Player) {
++                maxNoDamage = NFTWorldsConfig.playerMaxNoDamageTicks;
++            } else {
++                maxNoDamage = this.invulnerableDuration;
++            }
++
++            if ((float) this.invulnerableTime > maxNoDamage / 2.0F) { // CraftBukkit - restore use of maxNoDamageTicks
+                 if (amount <= this.lastHurt) {
+                     this.forceExplosionKnockback = true; // CraftBukkit - SPIGOT-949 - for vanilla consistency, cooldown does not prevent explosion knockback
+                     return false;
+@@ -1358,7 +1374,7 @@ public abstract class LivingEntity extends Entity {
+                     return false;
+                 }
+                 this.lastHurt = amount;
+-                this.invulnerableTime = this.invulnerableDuration; // CraftBukkit - restore use of maxNoDamageTicks
++                this.invulnerableTime = fire ? 20 : maxNoDamage; // CraftBukkit - restore use of maxNoDamageTicks
+                 // this.damageEntity0(damagesource, f);
+                 // CraftBukkit end
+                 this.hurtDuration = 10;
+@@ -2385,14 +2401,15 @@ public abstract class LivingEntity extends Entity {
+     }
+ 
+     private void makePoofParticles() {
+-        for (int i = 0; i < 20; ++i) {
+-            double d0 = this.random.nextGaussian() * 0.02D;
+-            double d1 = this.random.nextGaussian() * 0.02D;
+-            double d2 = this.random.nextGaussian() * 0.02D;
++        if (NFTWorldsConfig.showDeathParticles) {
++            for (int i = 0; i < 20; ++i) {
++                double d0 = this.random.nextGaussian() * 0.02D;
++                double d1 = this.random.nextGaussian() * 0.02D;
++                double d2 = this.random.nextGaussian() * 0.02D;
+ 
+-            this.level.addParticle(ParticleTypes.POOF, this.getRandomX(1.0D), this.getRandomY(), this.getRandomZ(1.0D), d0, d1, d2);
++                this.level.addParticle(ParticleTypes.POOF, this.getRandomX(1.0D), this.getRandomY(), this.getRandomZ(1.0D), d0, d1, d2);
++            }
+         }
+-
+     }
+ 
+     private void swapHandItems() {

@@ -1,0 +1,188 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 16:54:32 -0700
+Subject: [PATCH] Iron Golems
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index f95b6e5a45e4ff5d5933324bbd7fde7783ad999d..789aa9f70e8b87afc80d93100a50a0939b99d870 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -180,4 +180,15 @@ public class NFTWorldsConfig {
+         entityTrackingThreads = getInt("optimized-entity-tracking.threads", 5);
+     }
+ 
++    public static boolean disableIronGolemStages = true;
++    private static void disableIronGolemStages() {
++        disableIronGolemStages = getBoolean("iron-golem.disable-stages", true);
++    }
++
++    public static boolean betterGolemFarms = true;
++    private static void betterGolemFarms() { betterGolemFarms = getBoolean("better-golem-farms.enabled", true); }
++
++    public static int betterGolemFarmsItemTicks = 400;
++    private static void betterGolemFarmsItemTicks() { betterGolemFarmsItemTicks = getInt("better-golem-farms.ticks", 400); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index 2e177a2c1e2786a3bd424836b9a936281682928d..3a973dfbe1a119ffe8470a71b6dbc25b01c17878 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -86,6 +86,9 @@ public class RecommendCommand extends Command {
+             if (NFTWorldsConfig.entityTrackingThreads < 5) {
+                 changes.add("optimized-entity-tracking.threads §7|§f§o Change to §a§l5 or more");
+             }
++            if (!NFTWorldsConfig.disableIronGolemStages) {
++                changes.add("iron-golem.disable-stages §7|§f§o Change to §a§lTRUE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index db0105566db7ab5f3bd937a334acf224b15416ce..8a007935a9d080fcac687bcacb68a17f8d0e7e20 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -286,6 +286,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+     protected int portalTime;
+     protected BlockPos portalEntrancePos;
+     private boolean invulnerable;
++    public int invulnerableFireTicks;
+     protected UUID uuid;
+     protected String stringUUID;
+     private boolean hasGlowingTag;
+@@ -3182,6 +3183,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+         this.invulnerable = invulnerable;
+     }
+ 
++    public void setInvulnerableFireTicks(int ticks) {
++        this.invulnerableFireTicks = ticks;
++    }
++
+     public void copyPosition(Entity entity) {
+         this.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
+     }
+diff --git a/src/main/java/net/minecraft/world/entity/animal/IronGolem.java b/src/main/java/net/minecraft/world/entity/animal/IronGolem.java
+index bf731a227944875320857e5838d50f15af13b0c1..c68ba60a7b890fa83ae6c7f80650aaa842614b71 100644
+--- a/src/main/java/net/minecraft/world/entity/animal/IronGolem.java
++++ b/src/main/java/net/minecraft/world/entity/animal/IronGolem.java
+@@ -7,6 +7,8 @@ import java.util.List;
+ import java.util.UUID;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.particles.BlockParticleOption;
+ import net.minecraft.core.particles.ParticleTypes;
+@@ -207,14 +209,21 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
+ 
+     @Override
+     public boolean hurt(DamageSource source, float amount) {
+-        IronGolem.Crackiness entityirongolem_cracklevel = this.getCrackiness();
+-        boolean flag = super.hurt(source, amount);
+-
+-        if (flag && this.getCrackiness() != entityirongolem_cracklevel) {
+-            this.playSound(SoundEvents.IRON_GOLEM_DAMAGE, 1.0F, 1.0F);
++        if (NFTWorldsConfig.betterGolemFarms && this.spawnedViaMobSpawner && (source == DamageSource.IN_FIRE || source == DamageSource.LAVA)) {
++            amount = 200F; //Guarantee instant kill
++        }
++        if (NFTWorldsConfig.disableIronGolemStages) {
++            boolean flag = super.hurt(source, amount);
++            //this.playSound(SoundEvents.IRON_GOLEM_DAMAGE, 1.0F, 1.0F);
++            return flag;
++        } else {
++            IronGolem.Crackiness entityirongolem_cracklevel = this.getCrackiness();
++            boolean flag = super.hurt(source, amount);
++            if (flag && this.getCrackiness() != entityirongolem_cracklevel) {
++                this.playSound(SoundEvents.IRON_GOLEM_DAMAGE, 1.0F, 1.0F);
++            }
++            return flag;
+         }
+-
+-        return flag;
+     }
+ 
+     public IronGolem.Crackiness getCrackiness() {
+diff --git a/src/main/java/net/minecraft/world/entity/item/ItemEntity.java b/src/main/java/net/minecraft/world/entity/item/ItemEntity.java
+index dae6f7a05426ea31d13c82458b33e20abc2571b6..d9cb47e469e1e6b8835f146c9a66907546a56e04 100644
+--- a/src/main/java/net/minecraft/world/entity/item/ItemEntity.java
++++ b/src/main/java/net/minecraft/world/entity/item/ItemEntity.java
+@@ -5,6 +5,8 @@ import java.util.List;
+ import java.util.Objects;
+ import java.util.UUID;
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.network.chat.Component;
+@@ -322,6 +324,9 @@ public class ItemEntity extends Entity {
+ 
+     @Override
+     public boolean hurt(DamageSource source, float amount) {
++        if (NFTWorldsConfig.betterGolemFarms && this.invulnerableFireTicks > this.tickCount && (source == DamageSource.LAVA || source == DamageSource.IN_FIRE ||  source == DamageSource.ON_FIRE)) {
++            return false;
++        }
+         if (this.isInvulnerableTo(source)) {
+             return false;
+         } else if (!this.getItem().isEmpty() && this.getItem().is(Items.NETHER_STAR) && source.isExplosion()) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+index 0bd800e1aeda87689a6c56ee6fadda381c74a4ff..99ce2332f88e08e894018a11e97380d08b9b6b98 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+@@ -1052,6 +1052,11 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+         this.getHandle().setInvulnerable(flag);
+     }
+ 
++    @Override
++    public void setInvulnerableFireTicks(int ticks) {
++        this.getHandle().setInvulnerableFireTicks(ticks);
++    }
++
+     @Override
+     public boolean isInvulnerable() {
+         return this.getHandle().isInvulnerableTo(DamageSource.GENERIC);
+diff --git a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
+index aaf47d3f58819ead3553973c159c5c6eec4abe43..78d4d7108e1ac32a4e0e9420979c67699450c411 100644
+--- a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
++++ b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
+@@ -12,6 +12,8 @@ import java.util.List;
+ import java.util.Map;
+ import java.util.stream.Collectors;
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
+@@ -27,10 +29,7 @@ import net.minecraft.world.damagesource.IndirectEntityDamageSource;
+ import net.minecraft.world.effect.MobEffectInstance;
+ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.Mob;
+-import net.minecraft.world.entity.animal.AbstractFish;
+-import net.minecraft.world.entity.animal.AbstractGolem;
+-import net.minecraft.world.entity.animal.Animal;
+-import net.minecraft.world.entity.animal.WaterAnimal;
++import net.minecraft.world.entity.animal.*;
+ import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+ import net.minecraft.world.entity.item.ItemEntity;
+ import net.minecraft.world.entity.monster.Ghast;
+@@ -870,10 +869,15 @@ public class CraftEventFactory {
+         // Paper end
+         victim.expToDrop = event.getDroppedExp();
+ 
++        boolean golem = NFTWorldsConfig.betterGolemFarms && victim instanceof IronGolem;
++
+         for (org.bukkit.inventory.ItemStack stack : event.getDrops()) {
+             if (stack == null || stack.getType() == Material.AIR || stack.getAmount() == 0) continue;
+-
+-            world.dropItem(entity.getLocation(), stack); // Paper - note: dropItem already clones due to this being bukkit -> NMS
++            if (golem) {
++                world.dropItem(entity.getLocation(), stack).setInvulnerableFireTicks(NFTWorldsConfig.betterGolemFarmsItemTicks);
++            } else {
++                world.dropItem(entity.getLocation(), stack); // Paper - note: dropItem already clones due to this being bukkit -> NMS
++            }
+             if (stack instanceof CraftItemStack) stack.setAmount(0); // Paper - destroy this item - if this ever leaks due to game bugs, ensure it doesn't dupe, but don't nuke bukkit stacks of manually added items
+         }
+ 

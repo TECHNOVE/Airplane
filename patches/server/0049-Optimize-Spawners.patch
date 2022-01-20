@@ -1,0 +1,431 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 17:22:49 -0700
+Subject: [PATCH] Optimize Spawners
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index 1952678b47a6ca4d68fe1b9c52e34854e656f300..dcd2398d880c2c0afb0896df7dab1f66d9155d57 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -206,4 +206,51 @@ public class NFTWorldsConfig {
+     public static boolean tickItemFrameMaps = false;
+     private static void tickItemFrameMaps() { tickItemFrameMaps = getBoolean("tick-item-frame-maps", false); }
+ 
++    //Spawners
++    public static boolean useLessRandomSpawnPosition;
++    public static boolean spawnerParticles;
++
++    public static int minSpawnDelay;
++    public static int maxSpawnDelay;
++    public static int spawnCount;
++    public static int maxNearbyEntities;
++    public static int requiredPlayerRange;
++    public static int spawnRange;
++
++    public static boolean ignoreSpawnRules;
++    public static boolean lightLevelCheck;
++    public static boolean spawnerMaxNearbyCheck;
++    public static boolean checkForNearbyPlayers;
++    public static boolean spawnerBlockChecks;
++    public static boolean waterPreventSpawnCheck;
++
++    public static double initialYVelocityBySpawner;
++
++    private static void spawnerOptions() {
++        useLessRandomSpawnPosition = getBoolean("spawner.use-less-random-spawn-position", false);
++        spawnerParticles = getBoolean("spawner.spawner-particles", false);
++
++        minSpawnDelay = getInt("spawner.min-spawn-delay", 200);
++        maxSpawnDelay = getInt("spawner.max-spawn-delay", 800);
++        spawnCount = getInt("spawner.spawn-count", 4);
++        maxNearbyEntities = getInt("spawner.max-nearby-entities", 6);
++        requiredPlayerRange = getInt("spawner.required-player-range", 16);
++        spawnRange = getInt("spawner.spawn-range", 4);
++
++        ignoreSpawnRules = getBoolean("spawner.ignore-spawn-rules", true);
++        lightLevelCheck = getBoolean("spawner.checks.light-level-check", false);
++        spawnerMaxNearbyCheck = getBoolean("spawner.checks.spawner-max-nearby-check", true);
++        checkForNearbyPlayers = getBoolean("spawner.checks.check-for-nearby-players", true);
++        spawnerBlockChecks = getBoolean("spawner.checks.spawner-block-checks", false);
++        waterPreventSpawnCheck = getBoolean("spawner.checks.water-prevent-spawn-check", false);
++
++        initialYVelocityBySpawner = getDouble("spawner.initial-vertical-velocity", -1);
++    }
++
++    public static boolean disableAIForNaturallyOccuringSpawners = true;
++    private static void disableAIForNaturallyOccuringSpawners() { disableAIForNaturallyOccuringSpawners =getBoolean("disable-ai-for-naturally-occurring-spawners", true); }
++
++    public static boolean stripSpawnerMobAI = true;
++    private static void stripSpawnerMobAI() { stripSpawnerMobAI = getBoolean("strip-spawner-mob-ai", true); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index 3a973dfbe1a119ffe8470a71b6dbc25b01c17878..7d77829b46d4d6c44b2cf980b93b3ae867102615 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -89,6 +89,51 @@ public class RecommendCommand extends Command {
+             if (!NFTWorldsConfig.disableIronGolemStages) {
+                 changes.add("iron-golem.disable-stages §7|§f§o Change to §a§lTRUE");
+             }
++            if (!NFTWorldsConfig.useLessRandomSpawnPosition) {
++                changes.add("spawner.use-less-random-spawn-position §7|§f§o Change to §a§lTRUE");
++            }
++            if (NFTWorldsConfig.spawnerParticles) {
++                changes.add("spawner.spawner-particles §7|§f§o Change to §c§lFALSE");
++            }
++            if (NFTWorldsConfig.minSpawnDelay < 200) {
++                changes.add("spawner.min-spawn-delay §7|§f§o Change to §a§l200 or more");
++            }
++            if (NFTWorldsConfig.maxSpawnDelay < 800) {
++                changes.add("spawner.max-spawn-delay §7|§f§o Change to §a§l800 or more");
++            }
++            if (NFTWorldsConfig.spawnCount > 4) {
++                changes.add("spawner.spawn-count §7|§f§o Change to §a§l4 or less");
++            }
++            if (NFTWorldsConfig.maxNearbyEntities > 6) {
++                changes.add("spawner.max-nearby-entities §7|§f§o Change to §a§l6 or less");
++            }
++            if (NFTWorldsConfig.requiredPlayerRange > 16) {
++                changes.add("spawner.required-player-range §7|§f§o Change to §a§l16 or less");
++            }
++            if (NFTWorldsConfig.spawnRange > 4) {
++                changes.add("spawner.spawn-range §7|§f§o Change to §a§l4 or less");
++            }
++            if (NFTWorldsConfig.initialYVelocityBySpawner > -1) {
++                changes.add("spawner.initial-vertical-velocity §7|§f§o Change to §a§l-1 or less");
++            }
++            if (!NFTWorldsConfig.ignoreSpawnRules) {
++                changes.add("spawner.ignore-spawn-rules §7|§f§o Change to §a§lTRUE");
++            }
++            if (NFTWorldsConfig.lightLevelCheck) {
++                changes.add("spawner.checks.light-level-check §7|§f§o Change to §c§lFALSE");
++            }
++            if (!NFTWorldsConfig.checkForNearbyPlayers) {
++                changes.add("spawner.checks.check-for-nearby-players §7|§f§o Change to §a§lTRUE");
++            }
++            if (NFTWorldsConfig.spawnerBlockChecks) {
++                changes.add("spawner.checks.spawner-block-checks §7|§f§o Change to §c§lFALSE");
++            }
++            if (NFTWorldsConfig.waterPreventSpawnCheck) {
++                changes.add("spawner.checks.water-prevent-spawn-check §7|§f§o Change to §c§lFALSE");
++            }
++            if (!NFTWorldsConfig.stripSpawnerMobAI) {
++                changes.add("strip-spawner-mob-ai §7|§f§o Change to §a§lTRUE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
+index a326b96e53a7f06ecfe63f0bdc6e3d27e02573e0..5bda57e44c0ba27ec1623b593cc80d760cdb1637 100644
+--- a/src/main/java/net/minecraft/world/entity/Mob.java
++++ b/src/main/java/net/minecraft/world/entity/Mob.java
+@@ -25,6 +25,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
+ import net.minecraft.resources.ResourceLocation;
+ import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.server.level.ServerPlayer;
++import net.minecraft.server.network.ServerPlayerConnection;
+ import net.minecraft.sounds.SoundEvent;
+ import net.minecraft.tags.Tag;
+ import net.minecraft.util.Mth;
+@@ -49,6 +50,7 @@ import net.minecraft.world.entity.decoration.HangingEntity;
+ import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
+ import net.minecraft.world.entity.item.ItemEntity;
+ import net.minecraft.world.entity.monster.Enemy;
++import net.minecraft.world.entity.npc.Villager;
+ import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.entity.vehicle.Boat;
+ import net.minecraft.world.item.ArmorItem;
+@@ -835,6 +837,11 @@ public abstract class Mob extends LivingEntity {
+             }
+             return;
+         }
++
++        if (NFTWorldsConfig.stripSpawnerMobAI && spawnedViaMobSpawner) {
++            return;
++        }
++
+         // Paper end
+         this.level.getProfiler().push("sensing");
+         this.sensing.tick();
+@@ -929,7 +936,7 @@ public abstract class Mob extends LivingEntity {
+     }
+ 
+     public boolean checkSpawnObstruction(LevelReader world) {
+-        return !world.containsAnyLiquid(this.getBoundingBox()) && world.isUnobstructed((Entity) this);
++        return (!NFTWorldsConfig.waterPreventSpawnCheck || !world.containsAnyLiquid(this.getBoundingBox())) && (!NFTWorldsConfig.spawnerBlockChecks || world.isUnobstructed((Entity) this));
+     }
+ 
+     public int getMaxSpawnClusterSize() {
+diff --git a/src/main/java/net/minecraft/world/entity/monster/Monster.java b/src/main/java/net/minecraft/world/entity/monster/Monster.java
+index 229490d3857ce9f5bba4e6bb4aedcff50b510ed9..2fe3e0356ad04ab4e8921212e3930694ac55cbc2 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/Monster.java
++++ b/src/main/java/net/minecraft/world/entity/monster/Monster.java
+@@ -2,6 +2,8 @@ package net.minecraft.world.entity.monster;
+ 
+ import java.util.Random;
+ import java.util.function.Predicate;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.sounds.SoundEvent;
+ import net.minecraft.sounds.SoundEvents;
+@@ -96,7 +98,7 @@ public abstract class Monster extends PathfinderMob implements Enemy {
+     }
+ 
+     public static boolean checkMonsterSpawnRules(EntityType<? extends Monster> type, ServerLevelAccessor world, MobSpawnType spawnReason, BlockPos pos, Random random) {
+-        return world.getDifficulty() != Difficulty.PEACEFUL && isDarkEnoughToSpawn(world, pos, random) && checkMobSpawnRules(type, world, spawnReason, pos, random);
++        return world.getDifficulty() != Difficulty.PEACEFUL && ((NFTWorldsConfig.lightLevelCheck || spawnReason != MobSpawnType.SPAWNER) ? isDarkEnoughToSpawn(world, pos, random) : true) && checkMobSpawnRules(type, world, spawnReason, pos, random);
+     }
+ 
+     public static boolean checkAnyLightMonsterSpawnRules(EntityType<? extends Monster> type, LevelAccessor world, MobSpawnType spawnReason, BlockPos pos, Random random) {
+diff --git a/src/main/java/net/minecraft/world/item/SpawnEggItem.java b/src/main/java/net/minecraft/world/item/SpawnEggItem.java
+index 6cb0be998757d3ec89cc1064480c3a3ddc3cc381..a40421d8535e3eb73e1e344bfc1ee1fd15c251cc 100644
+--- a/src/main/java/net/minecraft/world/item/SpawnEggItem.java
++++ b/src/main/java/net/minecraft/world/item/SpawnEggItem.java
+@@ -68,7 +68,7 @@ public class SpawnEggItem extends Item {
+                     BaseSpawner mobspawnerabstract = ((SpawnerBlockEntity) tileentity).getSpawner();
+                     EntityType<?> entitytypes = this.getType(itemstack.getTag());
+ 
+-                    mobspawnerabstract.setEntityId(entitytypes);
++                    mobspawnerabstract.setEntityIdNotNatural(entitytypes);
+                     tileentity.setChanged();
+                     world.sendBlockUpdated(blockposition, iblockdata, iblockdata, 3);
+                     itemstack.shrink(1);
+diff --git a/src/main/java/net/minecraft/world/level/BaseSpawner.java b/src/main/java/net/minecraft/world/level/BaseSpawner.java
+index 569cef8fcb1e3e1e8b66dad4fa9b956b44542bf1..8bb151bfed80e246aed3c6ca17db603000bb9cda 100644
+--- a/src/main/java/net/minecraft/world/level/BaseSpawner.java
++++ b/src/main/java/net/minecraft/world/level/BaseSpawner.java
+@@ -7,6 +7,8 @@ import java.util.Optional;
+ import java.util.Random;
+ import java.util.function.Function;
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.ResourceLocationException;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Registry;
+@@ -51,15 +53,20 @@ public abstract class BaseSpawner {
+     public BaseSpawner() {
+         this.spawnPotentials = BaseSpawner.EMPTY_POTENTIALS;
+         this.nextSpawnData = new SpawnData();
+-        this.minSpawnDelay = 200;
+-        this.maxSpawnDelay = 800;
+-        this.spawnCount = 4;
+-        this.maxNearbyEntities = 6;
+-        this.requiredPlayerRange = 16;
+-        this.spawnRange = 4;
++        this.minSpawnDelay = NFTWorldsConfig.minSpawnDelay;
++        this.maxSpawnDelay = NFTWorldsConfig.maxSpawnDelay;
++        this.spawnCount = NFTWorldsConfig.spawnCount;
++        this.maxNearbyEntities = NFTWorldsConfig.maxNearbyEntities;
++        this.requiredPlayerRange = NFTWorldsConfig.requiredPlayerRange;
++        this.spawnRange = NFTWorldsConfig.spawnRange;
+         this.random = new Random();
+     }
+ 
++    @Nullable
++    public boolean isNatural() {
++        return this.nextSpawnData.getTag().contains("natural");
++    }
++
+     @Nullable
+     public ResourceLocation getEntityId(@Nullable Level world, BlockPos pos) {
+         String s = this.nextSpawnData.getTag().getString("id");
+@@ -73,6 +80,12 @@ public abstract class BaseSpawner {
+     }
+ 
+     public void setEntityId(EntityType<?> type) {
++        this.nextSpawnData.getTag().putBoolean("natural", true);
++        this.nextSpawnData.getTag().putString("id", Registry.ENTITY_TYPE.getKey(type).toString());
++        this.spawnPotentials = BaseSpawner.EMPTY_POTENTIALS; // CraftBukkit - SPIGOT-3496, MC-92282
++    }
++
++    public void setEntityIdNotNatural(EntityType<?> type) {
+         this.nextSpawnData.getTag().putString("id", Registry.ENTITY_TYPE.getKey(type).toString());
+         this.spawnPotentials = BaseSpawner.EMPTY_POTENTIALS; // CraftBukkit - SPIGOT-3496, MC-92282
+     }
+@@ -85,12 +98,23 @@ public abstract class BaseSpawner {
+         if (!this.isNearPlayer(world, pos)) {
+             this.oSpin = this.spin;
+         } else {
+-            double d0 = (double) pos.getX() + world.random.nextDouble();
+-            double d1 = (double) pos.getY() + world.random.nextDouble();
+-            double d2 = (double) pos.getZ() + world.random.nextDouble();
+-
+-            world.addParticle(ParticleTypes.SMOKE, d0, d1, d2, 0.0D, 0.0D, 0.0D);
+-            world.addParticle(ParticleTypes.FLAME, d0, d1, d2, 0.0D, 0.0D, 0.0D);
++            if (NFTWorldsConfig.spawnerParticles) {
++                double d0;
++                double d1;
++                double d2;
++                if (NFTWorldsConfig.useLessRandomSpawnPosition) {
++                    double randomDouble = world.random.nextDouble();
++                    d0 = (double) pos.getX() + randomDouble;
++                    d1 = (double) pos.getY() + randomDouble;
++                    d2 = (double) pos.getZ() + randomDouble;
++                } else {
++                    d0 = (double) pos.getX() + world.random.nextDouble();
++                    d1 = (double) pos.getY() + world.random.nextDouble();
++                    d2 = (double) pos.getZ() + world.random.nextDouble();
++                }
++                world.addParticle(ParticleTypes.SMOKE, d0, d1, d2, 0.0D, 0.0D, 0.0D);
++                world.addParticle(ParticleTypes.FLAME, d0, d1, d2, 0.0D, 0.0D, 0.0D);
++            }
+             if (this.spawnDelay > 0) {
+                 --this.spawnDelay;
+             }
+@@ -105,9 +129,8 @@ public abstract class BaseSpawner {
+         // Paper start - Configurable mob spawner tick rate
+         if (spawnDelay > 0 && --tickDelay > 0) return;
+         tickDelay = world.paperConfig.mobSpawnerTickRate;
+-        if (tickDelay == -1) { return; } // If disabled
+         // Paper end
+-        if (this.isNearPlayer(world, pos)) {
++        if (!NFTWorldsConfig.checkForNearbyPlayers || this.isNearPlayer(world, pos)) {
+             if (this.spawnDelay < -tickDelay) {
+                 this.delay(world, pos);
+             }
+@@ -128,11 +151,21 @@ public abstract class BaseSpawner {
+ 
+                     ListTag nbttaglist = nbttagcompound.getList("Pos", 6);
+                     int j = nbttaglist.size();
+-                    double d0 = j >= 1 ? nbttaglist.getDouble(0) : (double) pos.getX() + (world.random.nextDouble() - world.random.nextDouble()) * (double) this.spawnRange + 0.5D;
+-                    double d1 = j >= 2 ? nbttaglist.getDouble(1) : (double) (pos.getY() + world.random.nextInt(3) - 1);
+-                    double d2 = j >= 3 ? nbttaglist.getDouble(2) : (double) pos.getZ() + (world.random.nextDouble() - world.random.nextDouble()) * (double) this.spawnRange + 0.5D;
+-
+-                    if (world.noCollision(((EntityType) optional.get()).getAABB(d0, d1, d2)) && SpawnPlacements.checkSpawnRules((EntityType) optional.get(), world, MobSpawnType.SPAWNER, new BlockPos(d0, d1, d2), world.getRandom())) {
++                    double d0;
++                    double d1;
++                    double d2;
++                    if (NFTWorldsConfig.useLessRandomSpawnPosition) {
++                        double newSpawnRange = (double) spawnRange + 0.5D;
++                        double randomDouble = world.random.nextDouble() - world.random.nextDouble();
++                        d0 = j >= 1 ? nbttaglist.getDouble(0) : pos.getX() + randomDouble * newSpawnRange;
++                        d1 = j >= 2 ? nbttaglist.getDouble(1) : (pos.getY() + world.random.nextInt(3) - 1);
++                        d2 = j >= 3 ? nbttaglist.getDouble(2) : pos.getZ() + randomDouble * newSpawnRange;
++                    } else {
++                        d0 = j >= 1 ? nbttaglist.getDouble(0) : (double) pos.getX() + (world.random.nextDouble() - world.random.nextDouble()) * (double) this.spawnRange + 0.5D;
++                        d1 = j >= 2 ? nbttaglist.getDouble(1) : (double) (pos.getY() + world.random.nextInt(3) - 1);
++                        d2 = j >= 3 ? nbttaglist.getDouble(2) : (double) pos.getZ() + (world.random.nextDouble() - world.random.nextDouble()) * (double) this.spawnRange + 0.5D;
++                    }
++                    if (world.noCollision(((EntityType) optional.get()).getAABB(d0, d1, d2)) && (NFTWorldsConfig.ignoreSpawnRules ? true : SpawnPlacements.checkSpawnRules((EntityType) optional.get(), world, MobSpawnType.SPAWNER, new BlockPos(d0, d1, d2), world.getRandom()))) {
+                         // Paper start
+                         EntityType<?> entityType = optional.get();
+                         String key = EntityType.getKey(entityType).getPath();
+@@ -141,9 +174,9 @@ public abstract class BaseSpawner {
+                         if (type != null) {
+                             com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent event;
+                             event = new com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent(
+-                                net.minecraft.server.MCUtil.toLocation(world, d0, d1, d2),
+-                                type,
+-                                net.minecraft.server.MCUtil.toLocation(world, pos)
++                                    net.minecraft.server.MCUtil.toLocation(world, d0, d1, d2),
++                                    type,
++                                    net.minecraft.server.MCUtil.toLocation(world, pos)
+                             );
+                             if (!event.callEvent()) {
+                                 flag = true;
+@@ -164,32 +197,53 @@ public abstract class BaseSpawner {
+                             return;
+                         }
+ 
+-                        int k = world.getEntitiesOfClass(entity.getClass(), (new AABB((double) pos.getX(), (double) pos.getY(), (double) pos.getZ(), (double) (pos.getX() + 1), (double) (pos.getY() + 1), (double) (pos.getZ() + 1))).inflate((double) this.spawnRange)).size();
++                        entity.getDeltaMovement().add(0, NFTWorldsConfig.initialYVelocityBySpawner, 0);
+ 
+-                        if (k >= this.maxNearbyEntities) {
+-                            this.delay(world, pos);
+-                            return;
++                        if (NFTWorldsConfig.spawnerMaxNearbyCheck) {
++                            int k = world.getEntitiesOfClass(entity.getClass(), (new AABB((double) pos.getX(), (double) pos.getY(), (double) pos.getZ(), (double) (pos.getX() + 1), (double) (pos.getY() + 1), (double) (pos.getZ() + 1))).inflate((double) this.spawnRange)).size();
++
++                            if (k >= this.maxNearbyEntities) {
++                                this.delay(world, pos);
++                                return;
++                            }
+                         }
+ 
+                         entity.preserveMotion = true; // Paper - preserve entity motion from tag
+                         entity.moveTo(entity.getX(), entity.getY(), entity.getZ(), world.random.nextFloat() * 360.0F, 0.0F);
++                        boolean isMob = false;
++                        Mob entityinsentient = null;
++                        boolean natural = false;
+                         if (entity instanceof Mob) {
+-                            Mob entityinsentient = (Mob) entity;
++                            isMob = true;
++                            entityinsentient = (Mob) entity;
+ 
+                             if (!entityinsentient.checkSpawnRules((LevelAccessor) world, MobSpawnType.SPAWNER) || !entityinsentient.checkSpawnObstruction((LevelReader) world)) {
+                                 continue;
+                             }
+ 
+-                            if (this.nextSpawnData.getTag().size() == 1 && this.nextSpawnData.getTag().contains("id", 8)) {
++                            if (this.nextSpawnData.getTag().size() >= 1 && this.nextSpawnData.getTag().contains("id", 8)) {
+                                 ((Mob) entity).finalizeSpawn(world, world.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.SPAWNER, (SpawnGroupData) null, (CompoundTag) null);
+                             }
++
++                            if (!NFTWorldsConfig.disableAIForNaturallyOccuringSpawners) {
++                                natural = this.nextSpawnData.getTag().contains("natural");
++                            }
++
+                             // Spigot Start
+                             if (entityinsentient.level.spigotConfig.nerfSpawnerMobs) {
+-                                entityinsentient.aware = false;
++                                if (!natural || NFTWorldsConfig.disableAIForNaturallyOccuringSpawners) {
++                                    entityinsentient.aware = false;
++                                }
+                             }
+                             // Spigot End
+                         }
+-                        entity.spawnedViaMobSpawner = true; // Paper
++                        if (!natural || NFTWorldsConfig.disableAIForNaturallyOccuringSpawners) {
++                            entity.spawnedViaMobSpawner = true; // Paper
++                            if (NFTWorldsConfig.stripSpawnerMobAI && isMob) { //Strip all goals and behavior. Default spigot doesn't do this properly.
++                                entityinsentient.goalSelector.removeAllGoals();
++                                entityinsentient.getBrain().removeAllBehaviors();
++                            }
++                        }
+                         entity.spawnReason = org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.SPAWNER; // Paper
+                         flag = true; // Paper
+                         // Spigot Start
+@@ -210,9 +264,12 @@ public abstract class BaseSpawner {
+                             return;
+                         }
+ 
+-                        world.levelEvent(2004, pos, 0);
+-                        if (entity instanceof Mob) {
+-                            ((Mob) entity).spawnAnim();
++                        if (NFTWorldsConfig.spawnerParticles) {
++                            world.levelEvent(2004, pos, 0);
++
++                            if (entity instanceof Mob) {
++                                ((Mob) entity).spawnAnim();
++                            }
+                         }
+ 
+                         //flag = true; // Paper - moved up above cancellable event
+@@ -237,7 +294,9 @@ public abstract class BaseSpawner {
+         this.spawnPotentials.getRandom(this.random).ifPresent((mobspawnerdata) -> {
+             this.setNextSpawnData(world, pos, mobspawnerdata);
+         });
+-        this.broadcastEvent(world, pos, 1);
++        if (NFTWorldsConfig.spawnerParticles) {
++            this.broadcastEvent(world, pos, 1);
++        }
+     }
+ 
+     public void load(@Nullable Level world, BlockPos pos, CompoundTag nbt) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftCreatureSpawner.java b/src/main/java/org/bukkit/craftbukkit/block/CraftCreatureSpawner.java
+index b6c1460e342685c9c3c418be786d9b19c006184b..dc4f4957d305b32f0734cb14072c164a324adc55 100644
+--- a/src/main/java/org/bukkit/craftbukkit/block/CraftCreatureSpawner.java
++++ b/src/main/java/org/bukkit/craftbukkit/block/CraftCreatureSpawner.java
+@@ -26,7 +26,7 @@ public class CraftCreatureSpawner extends CraftBlockEntityState<SpawnerBlockEnti
+             throw new IllegalArgumentException("Can't spawn EntityType " + entityType + " from mobspawners!");
+         }
+ 
+-        this.getSnapshot().getSpawner().setEntityId(net.minecraft.world.entity.EntityType.byString(entityType.getName()).get());
++        this.getSnapshot().getSpawner().setEntityIdNotNatural(net.minecraft.world.entity.EntityType.byString(entityType.getName()).get());
+     }
+ 
+     @Override

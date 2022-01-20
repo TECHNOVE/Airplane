@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 17:11:20 -0700
+Subject: [PATCH] Toggle Tick Item Frame Maps
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index bf3511978652f00a93be2bbb159a74f0baf9b50b..1952678b47a6ca4d68fe1b9c52e34854e656f300 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -203,4 +203,7 @@ public class NFTWorldsConfig {
+     public static boolean tickInactiveGoals = false;
+     private static void tickInactiveGoals() { tickInactiveGoals = getBoolean("tick-inactive-goals", false); }
+ 
++    public static boolean tickItemFrameMaps = false;
++    private static void tickItemFrameMaps() { tickItemFrameMaps = getBoolean("tick-item-frame-maps", false); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/net/minecraft/server/level/ServerEntity.java b/src/main/java/net/minecraft/server/level/ServerEntity.java
+index 546cedd234bb6b3e093ef4ea6d06c0c6258708d3..1a807683051fedaa0bdd37e1478b878e57e43bc7 100644
+--- a/src/main/java/net/minecraft/server/level/ServerEntity.java
++++ b/src/main/java/net/minecraft/server/level/ServerEntity.java
+@@ -97,31 +97,33 @@ public class ServerEntity {
+             this.broadcastAndSend(new ClientboundSetPassengersPacket(this.entity)); // CraftBukkit
+         }
+ 
+-        if (this.entity instanceof ItemFrame /*&& this.tickCounter % 10 == 0*/) { // CraftBukkit - Moved below, should always enter this block
+-            ItemFrame entityitemframe = (ItemFrame) this.entity;
+-            ItemStack itemstack = entityitemframe.getItem();
++        if (NFTWorldsConfig.tickItemFrameMaps) {
++            if (this.entity instanceof ItemFrame /*&& this.tickCounter % 10 == 0*/) { // CraftBukkit - Moved below, should always enter this block
++                ItemFrame entityitemframe = (ItemFrame) this.entity;
++                ItemStack itemstack = entityitemframe.getItem();
+ 
+-            if (this.level.paperConfig.mapItemFrameCursorUpdateInterval > 0 && this.tickCount % this.level.paperConfig.mapItemFrameCursorUpdateInterval == 0 && itemstack.getItem() instanceof MapItem) { // CraftBukkit - Moved this.tickCounter % 10 logic here so item frames do not enter the other blocks // Paper - Make item frame map cursor update interval configurable
+-                Integer integer = MapItem.getMapId(itemstack);
+-                MapItemSavedData worldmap = MapItem.getSavedData(integer, (Level) this.level);
++                if (this.level.paperConfig.mapItemFrameCursorUpdateInterval > 0 && this.tickCount % this.level.paperConfig.mapItemFrameCursorUpdateInterval == 0 && itemstack.getItem() instanceof MapItem) { // CraftBukkit - Moved this.tickCounter % 10 logic here so item frames do not enter the other blocks // Paper - Make item frame map cursor update interval configurable
++                    Integer integer = MapItem.getMapId(itemstack);
++                    MapItemSavedData worldmap = MapItem.getSavedData(integer, (Level) this.level);
+ 
+-                if (worldmap != null) {
+-                    Iterator<ServerPlayerConnection> iterator = this.trackedPlayers.iterator(); // CraftBukkit
++                    if (worldmap != null) {
++                        Iterator<ServerPlayerConnection> iterator = this.trackedPlayers.iterator(); // CraftBukkit
+ 
+-                    while (iterator.hasNext()) {
+-                        ServerPlayer entityplayer = iterator.next().getPlayer(); // CraftBukkit
++                        while (iterator.hasNext()) {
++                            ServerPlayer entityplayer = iterator.next().getPlayer(); // CraftBukkit
+ 
+-                        worldmap.tickCarriedBy((net.minecraft.world.entity.player.Player) entityplayer, itemstack);
+-                        Packet<?> packet = worldmap.getUpdatePacket(integer, entityplayer);
++                            worldmap.tickCarriedBy((net.minecraft.world.entity.player.Player) entityplayer, itemstack);
++                            Packet<?> packet = worldmap.getUpdatePacket(integer, entityplayer);
+ 
+-                        if (packet != null) {
+-                            entityplayer.connection.send(packet);
++                            if (packet != null) {
++                                entityplayer.connection.send(packet);
++                            }
+                         }
+                     }
+                 }
+-            }
+ 
+-            this.sendDirtyEntityData();
++                this.sendDirtyEntityData();
++            }
+         }
+ 
+         if (this.tickCount % this.updateInterval == 0 || this.entity.hasImpulse || this.entity.getEntityData().isDirty()) {

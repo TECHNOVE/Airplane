@@ -1,0 +1,87 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 21:21:05 -0700
+Subject: [PATCH] Optimize Collision Chunk Lookups
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index 7845e496b79536b6ab4242ee2a8b91b9c597d3c3..ec464d7465a12f335d9469de3eecdc5cbcf0efc2 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -340,4 +340,7 @@ public class NFTWorldsConfig {
+     public static boolean optimizeEntityChunkLookups = true;
+     private static void optimizeEntityChunkLookups() { optimizeEntityChunkLookups = getBoolean("optimize-entity-chunk-lookups", true); }
+ 
++    public static boolean optimizeCollisionChunkLookups = true;
++    private static void optimizeCollisionChunkLookups() { optimizeCollisionChunkLookups =getBoolean("optimize-collision-chunk-lookups", true); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index 9d6589b97a665f466a2af6082aa825fd1e49ceb7..3d09b60150ea678e43a85e4edae978674f1af2a6 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -224,6 +224,9 @@ public class RecommendCommand extends Command {
+             if (!NFTWorldsConfig.optimizeEntityChunkLookups) {
+                 changes.add("optimize-entity-chunk-lookups §7|§f§o Change to §a§lTRUE");
+             }
++            if (!NFTWorldsConfig.optimizeCollisionChunkLookups) {
++                changes.add("optimize-collision-chunk-lookups §7|§f§o Change to §a§lTRUE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 0f60ab6583b6f0ff7da9135f622cf87c762de764..bc11cdb166dca74097e0a4d17bfea4f3cca6aba1 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -1511,7 +1511,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+                 for (int j = blockposition.getY(); j <= blockposition1.getY(); ++j) {
+                     for (int k = blockposition.getZ(); k <= blockposition1.getZ(); ++k) {
+                         blockposition_mutableblockposition.set(i, j, k);
+-                        BlockState iblockdata = this.level.getBlockState(blockposition_mutableblockposition);
++                        BlockState iblockdata = this.level.getBlockState(this, blockposition_mutableblockposition);
+ 
+                         try {
+                             iblockdata.entityInside(this.level, blockposition_mutableblockposition, this);
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index 4797edec2e1cfd479186d6dbca44b6790179d5d1..2995ea7189c5a8f98474aa5a65cfa48febd9584a 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -1008,6 +1008,10 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+         }
+     }
+ 
++    public ChunkAccess lastCollisionChunk = null;
++    public int lastCollisionChunkX = Integer.MAX_VALUE;
++    public int lastCollisionChunkZ = Integer.MAX_VALUE;
++
+     public BlockState getBlockState(Entity e, BlockPos pos) {
+         // CraftBukkit start - tree generation
+         if (this.captureTreeGeneration) {
+@@ -1020,8 +1024,23 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+         if (this.isOutsideBuildHeight(pos)) {
+             return Blocks.VOID_AIR.defaultBlockState();
+         } else {
+-            ChunkAccess chunk = this.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, true); // Paper - manually inline to reduce hops and avoid unnecessary null check to reduce total byte code size, this should never return null and if it does we will see it the next line but the real stack trace will matter in the chunk engine
+-            return chunk.getBlockState(pos);
++            if (NFTWorldsConfig.optimizeCollisionChunkLookups) {
++                ChunkAccess chunk;
++                int x = pos.getX() >> 4;
++                int z = pos.getZ() >> 4;
++                if (x == lastCollisionChunkX && z == lastCollisionChunkZ) {
++                    chunk = lastCollisionChunk;
++                } else {
++                    chunk = this.getChunkEntity(e, pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, true); // Paper - manually inline to reduce hops and avoid unnecessary null check to reduce total byte code size, this should never return null and if it does we will see it the next line but the real stack trace will matter in the chunk engine
++                    lastCollisionChunkX = x;
++                    lastCollisionChunkZ = z;
++                    lastCollisionChunk = chunk;
++                }
++                return chunk.getBlockState(pos);
++            } else {
++                ChunkAccess chunk = this.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, true); // Paper - manually inline to reduce hops and avoid unnecessary null check to reduce total byte code size, this should never return null and if it does we will see it the next line but the real stack trace will matter in the chunk engine
++                return chunk.getBlockState(pos);
++            }
+         }
+     }
+ 

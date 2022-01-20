@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 16:45:29 -0700
+Subject: [PATCH] Entity Tracking
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/event/player/PlayerArmorChangeEvent.java b/src/main/java/com/destroystokyo/paper/event/player/PlayerArmorChangeEvent.java
+index e406ce639a2e88b78f82f25e71678a669d0a958b..49a71bce860298a82c9c21972b3068b22134e14a 100644
+--- a/src/main/java/com/destroystokyo/paper/event/player/PlayerArmorChangeEvent.java
++++ b/src/main/java/com/destroystokyo/paper/event/player/PlayerArmorChangeEvent.java
+@@ -27,8 +27,8 @@ public class PlayerArmorChangeEvent extends PlayerEvent {
+     @Nullable private final ItemStack oldItem;
+     @Nullable private final ItemStack newItem;
+ 
+-    public PlayerArmorChangeEvent(@NotNull Player player, @NotNull SlotType slotType, @Nullable ItemStack oldItem, @Nullable ItemStack newItem) {
+-        super(player);
++    public PlayerArmorChangeEvent(@NotNull Player player, @NotNull SlotType slotType, @Nullable ItemStack oldItem, @Nullable ItemStack newItem, @NotNull final boolean async) {
++        super(player, async);
+         this.slotType = slotType;
+         this.oldItem = oldItem;
+         this.newItem = newItem;
+diff --git a/src/main/java/org/bukkit/event/player/PlayerVelocityEvent.java b/src/main/java/org/bukkit/event/player/PlayerVelocityEvent.java
+index 61e098d94af9261de1755e743a49657f79427995..8dcadcde97885869c1768b197e3a34dd4b1541e1 100644
+--- a/src/main/java/org/bukkit/event/player/PlayerVelocityEvent.java
++++ b/src/main/java/org/bukkit/event/player/PlayerVelocityEvent.java
+@@ -14,8 +14,8 @@ public class PlayerVelocityEvent extends PlayerEvent implements Cancellable {
+     private boolean cancel = false;
+     private Vector velocity;
+ 
+-    public PlayerVelocityEvent(@NotNull final Player player, @NotNull final Vector velocity) {
+-        super(player);
++    public PlayerVelocityEvent(@NotNull final Player player, @NotNull final Vector velocity, @NotNull final boolean async) {
++        super(player, async);
+         this.velocity = velocity;
+     }
+ 

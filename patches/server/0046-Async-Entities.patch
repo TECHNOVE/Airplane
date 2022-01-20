@@ -1,0 +1,323 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 17:07:49 -0700
+Subject: [PATCH] Async Entities
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index cf8ff0f330cec4d9ea9d4b5b475bfeebdbe1868a..2796c77d6f8e91b8a62c4a57de33d38dce4c449d 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -197,4 +197,7 @@ public class NFTWorldsConfig {
+     public static boolean villagerNoPickup = false;
+     private static void villagerNoPickup() { villagerNoPickup = getBoolean("improve-villager-farms", false); }
+ 
++    public static boolean asyncEntities = true;
++    private static void asyncEntities() { asyncEntities = getBoolean("async-entities.enabled", true); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 95d1295775bd25517e9f823d7460b58af9f81208..332bce0eeb8d5723631106c85b822c1de50013a5 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1,13 +1,10 @@
+ package net.minecraft.server;
+ 
+ import com.google.common.base.Splitter;
+-import com.google.common.collect.ImmutableList;
++import com.google.common.collect.*;
+ import co.aikar.timings.Timings;
+ import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+ import com.google.common.base.Stopwatch;
+-import com.google.common.collect.Lists;
+-import com.google.common.collect.Maps;
+-import com.google.common.collect.Sets;
+ import com.mojang.authlib.GameProfile;
+ import com.mojang.authlib.GameProfileRepository;
+ import com.mojang.authlib.minecraft.MinecraftSessionService;
+@@ -32,25 +29,13 @@ import java.nio.file.Files;
+ import java.nio.file.Path;
+ import java.security.KeyPair;
+ import java.text.SimpleDateFormat;
+-import java.util.Arrays;
+-import java.util.Base64;
+-import java.util.Collection;
+-import java.util.Collections;
+-import java.util.Comparator;
+-import java.util.Date;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.Map;
++import java.util.*;
+ import java.util.Map.Entry;
+-import java.util.Objects;
+-import java.util.Optional;
+-import java.util.Random;
+-import java.util.Set;
+-import java.util.UUID;
+ import java.util.concurrent.CompletableFuture;
+ import java.util.concurrent.ConcurrentMap;
+ import java.util.concurrent.Executor;
+ import java.util.concurrent.atomic.AtomicReference;
++import java.util.concurrent.locks.LockSupport;
+ import java.util.function.BooleanSupplier;
+ import java.util.function.Consumer;
+ import java.util.function.Function;
+@@ -174,7 +159,6 @@ import org.apache.logging.log4j.Logger;
+ // CraftBukkit start
+ import com.mojang.serialization.DynamicOps;
+ import com.mojang.serialization.Lifecycle;
+-import com.google.common.collect.ImmutableSet;
+ // import jline.console.ConsoleReader; // Paper
+ import joptsimple.OptionSet;
+ import net.minecraft.resources.RegistryReadOps;
+@@ -293,6 +277,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     public static boolean foundEnd = false; // Whether there was an abrupt ending or not
+     public static boolean bypassAIThisTick = false;
+ 
++    public AsyncExecutor mobSpawnExecutor = new AsyncExecutor("MobSpawning", () -> true);
++
+     // CraftBukkit start
+     public DataPackConfig datapackconfiguration;
+     public org.bukkit.craftbukkit.CraftServer server;
+@@ -2694,4 +2680,45 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         }
+     }
+     // Paper end
++
++    public class AsyncExecutor implements Runnable {
++        private Queue<Runnable> jobs = Queues.newConcurrentLinkedQueue();
++        private final Thread thread;
++        private final BooleanSupplier shouldRun;
++        private volatile boolean killswitch = false;
++
++        public AsyncExecutor(String threadName, BooleanSupplier shouldRun) {
++            this.thread = new Thread(this, threadName);
++            this.shouldRun = shouldRun;
++        }
++
++        public void start() {
++            thread.start();
++        }
++
++        public void kill() {
++            killswitch = true;
++        }
++
++        public void submit(Runnable runnable) {
++            jobs.offer(runnable);
++        }
++
++        @Override
++        public void run() {
++            while (!killswitch) {
++                if (shouldRun.getAsBoolean()) {
++                    try {
++                        Runnable runnable;
++                        while ((runnable = jobs.poll()) != null) {
++                            runnable.run();
++                        }
++                    } catch (Exception e) {
++                        Bukkit.getLogger().log(java.util.logging.Level.SEVERE, e, () -> "Failed to execute async job for thread " + thread.getName());
++                    }
++                }
++                LockSupport.parkNanos("executing tasks", 1000L);
++            }
++        }
++    }
+ }
+diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+index cc08e4ffac4d35045f941bef486462497b9ea3a7..7ddf05788577bf9f3f1d04dd8839b25d5a9271e4 100644
+--- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -360,6 +360,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+                 DedicatedServer.LOGGER.info("JMX monitoring enabled");
+             }
+ 
++            if (NFTWorldsConfig.asyncEntities) mobSpawnExecutor.start();
+             return true;
+         }
+     }
+diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+index 5116b1f90c0f27ce1d3cee6632563f32356a1eb6..1db2a449bf528be9b39a0d1c4f4056a351085fd9 100644
+--- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
++++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+@@ -6,22 +6,23 @@ import com.mojang.datafixers.DataFixer;
+ import com.mojang.datafixers.util.Either;
+ import java.io.File;
+ import java.io.IOException;
+-import java.util.Arrays;
+-import java.util.Collections;
+-import java.util.List;
+-import java.util.Objects;
+-import java.util.Optional;
++import java.util.*;
+ import java.util.concurrent.CompletableFuture;
+ import java.util.concurrent.Executor;
++import java.util.concurrent.atomic.AtomicBoolean;
+ import java.util.function.BooleanSupplier;
+ import java.util.function.Consumer;
+ import java.util.function.Function;
+ import java.util.function.Supplier;
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
++import io.papermc.paper.util.maplist.IteratorSafeOrderedReferenceSet;
+ import net.minecraft.Util;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.SectionPos;
+ import net.minecraft.network.protocol.Packet;
++import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.progress.ChunkProgressListener;
+ import net.minecraft.util.VisibleForDebug;
+ import net.minecraft.util.profiling.ProfilerFiller;
+@@ -45,6 +46,7 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
+ import net.minecraft.world.level.storage.LevelData;
+ import net.minecraft.world.level.storage.LevelStorageSource;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap; // Paper
++import org.jetbrains.annotations.NotNull;
+ 
+ public class ServerChunkCache extends ChunkSource {
+     public static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager.getLogger(); // Paper
+@@ -74,6 +76,9 @@ public class ServerChunkCache extends ChunkSource {
+ 
+     private final LevelChunk[] lastLoadedChunks = new LevelChunk[4 * 4];
+ 
++    public boolean firstRunSpawnCounts = true;
++    public final AtomicBoolean spawnCountsReady = new AtomicBoolean(false);
++
+     private static int getChunkCacheKey(int x, int z) {
+         return x & 3 | ((z & 3) << 2);
+     }
+@@ -992,24 +997,29 @@ public class ServerChunkCache extends ChunkSource {
+             this.level.timings.countNaturalMobs.startTiming(); // Paper - timings
+             int l = this.distanceManager.getNaturalSpawnChunkCount();
+             // Paper start - per player mob spawning
+-            NaturalSpawner.SpawnState spawnercreature_d; // moved down
++            NaturalSpawner.SpawnState spawnercreature_d = null; // moved down
+             if ((this.spawnFriendlies || this.spawnEnemies) && this.chunkMap.playerMobDistanceMap != null) { // don't update when animals and monsters are disabled
+                 // update distance map
+                 this.level.timings.playerMobDistanceMapUpdate.startTiming();
+                 this.chunkMap.playerMobDistanceMap.update(this.level.players, this.chunkMap.viewDistance);
+                 this.level.timings.playerMobDistanceMapUpdate.stopTiming();
+-                // re-set mob counts
+-                for (ServerPlayer player : this.level.players) {
+-                    Arrays.fill(player.mobCounts, 0);
++
++                if (!NFTWorldsConfig.asyncEntities) {
++                    // re-set mob counts
++                    for (ServerPlayer player : this.level.players) {
++                        Arrays.fill(player.mobCounts, 0);
++                    }
++                    lastSpawnState = NaturalSpawner.createState(l, this.level.getAllEntities(), this::getFullChunk, true);
+                 }
+-                spawnercreature_d = NaturalSpawner.createState(l, this.level.getAllEntities(), this::getFullChunk, true);
+             } else {
+-                spawnercreature_d = NaturalSpawner.createState(l, this.level.getAllEntities(), this::getFullChunk, false);
++                lastSpawnState = NaturalSpawner.createState(l, this.level.getAllEntities(), this::getFullChunk, false);
++                spawnCountsReady.set(true);
+             }
+             // Paper end
+             this.level.timings.countNaturalMobs.stopTiming(); // Paper - timings
+ 
+-            this.lastSpawnState = spawnercreature_d;
++            //this.lastSpawnState = spawnercreature_d;
++
+             this.level.getProfiler().pop();
+             // Paper - moved down, enabled if per-player = false
+             // Paper - moved natural spawn event up
+@@ -1042,8 +1052,9 @@ public class ServerChunkCache extends ChunkSource {
+ 
+                     if ((true || this.level.isPositionEntityTicking(chunkcoordintpair)) && !this.chunkMap.isOutsideOfRange(playerchunk, chunkcoordintpair, false)) { // Paper - optimise isOutsideOfRange // Paper - we only iterate entity ticking chunks
+                         chunk.setInhabitedTime(chunk.getInhabitedTime() + j);
+-                        if (flag1 && (this.spawnEnemies || this.spawnFriendlies) && this.level.getWorldBorder().isWithinBounds(chunk.getPos()) && !this.chunkMap.isOutsideOfRange(playerchunk, chunkcoordintpair, true)) { // Spigot // Paper - optimise isOutsideOfRange
+-                            NaturalSpawner.spawnForChunk(this.level, chunk, spawnercreature_d, this.spawnFriendlies, this.spawnEnemies, flag2);
++
++                        if (flag1 && (!NFTWorldsConfig.asyncEntities || spawnCountsReady.get()) && (this.spawnEnemies || this.spawnFriendlies) && this.level.getWorldBorder().isWithinBounds(chunk.getPos()) && !this.chunkMap.isOutsideOfRange(playerchunk, chunkcoordintpair, true)) { // Spigot // Paper - optimise isOutsideOfRange
++                            NaturalSpawner.spawnForChunk(this.level, chunk, lastSpawnState, this.spawnFriendlies, this.spawnEnemies, flag2); // Pufferfish
+                         }
+ 
+                         // this.level.timings.doTickTiles.startTiming(); // Spigot // Paper
+@@ -1089,6 +1100,26 @@ public class ServerChunkCache extends ChunkSource {
+             }
+         }
+         // Paper end - controlled flush for entity tracker packets
++
++        if (NFTWorldsConfig.asyncEntities) {
++            for (ServerPlayer player : this.level.players) {
++                Arrays.fill(player.mobCounts, 0);
++            }
++            if (firstRunSpawnCounts) {
++                firstRunSpawnCounts = false;
++                spawnCountsReady.set(true);
++            }
++            if (chunkMap.playerMobDistanceMap != null && spawnCountsReady.getAndSet(false)) {
++                MinecraftServer.getServer().mobSpawnExecutor.submit(() -> {
++                    int mapped = distanceManager.getNaturalSpawnChunkCount();
++                    IteratorSafeOrderedReferenceSet.Iterator<Entity> objectiterator = level.entityTickList.entities.iterator(IteratorSafeOrderedReferenceSet.ITERATOR_FLAG_SEE_ADDITIONS);
++                    IterableWrapper<Entity> wrappedIterator = new IterableWrapper<>(objectiterator);
++                    lastSpawnState = NaturalSpawner.createState(mapped, wrappedIterator, this::getFullChunk, true);
++                    objectiterator.finishedIterating();
++                    spawnCountsReady.set(true);
++                });
++            }
++        }
+     }
+ 
+     private void getFullChunk(long pos, Consumer<LevelChunk> chunkConsumer) {
+@@ -1254,4 +1285,20 @@ public class ServerChunkCache extends ChunkSource {
+         // CraftBukkit end
+         }
+     }
++
++    public class IterableWrapper<T> implements Iterable<T> {
++
++        private final Iterator<T> iterator;
++
++        public IterableWrapper(Iterator<T> iterator) {
++            this.iterator = iterator;
++        }
++
++        @NotNull
++        @Override
++        public Iterator<T> iterator() {
++            return iterator;
++        }
++
++    }
+ }
+diff --git a/src/main/java/net/minecraft/world/level/NaturalSpawner.java b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
+index a0db30970adebb244ff41913e8ec1df1eb472a4d..30b8fb0e39082a3556f7eaa71051248c9f2912a2 100644
+--- a/src/main/java/net/minecraft/world/level/NaturalSpawner.java
++++ b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.world.level;
+ 
++import com.nftworlds.NFTWorldsConfig;
+ import it.unimi.dsi.fastutil.objects.Object2IntMap;
+ import it.unimi.dsi.fastutil.objects.Object2IntMaps;
+ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+@@ -167,7 +168,8 @@ public final class NaturalSpawner {
+             int difference = k1 - currEntityCount;
+ 
+             if (world.paperConfig.perPlayerMobSpawns) {
+-                int minDiff = Integer.MAX_VALUE;
++                //int minDiff = Integer.MAX_VALUE;
++                int minDiff = NFTWorldsConfig.asyncEntities ? difference : Integer.MAX_VALUE;
+                 for (ServerPlayer entityplayer : world.getChunkSource().chunkMap.playerMobDistanceMap.getPlayersInRange(chunk.getPos())) {
+                     minDiff = Math.min(limit - world.getChunkSource().chunkMap.getMobCountNear(entityplayer, enumcreaturetype), minDiff);
+                 }
+diff --git a/src/main/java/net/minecraft/world/level/entity/EntityTickList.java b/src/main/java/net/minecraft/world/level/entity/EntityTickList.java
+index 4814e719e0b898464692075170889fdb2729a26a..411c841c9b982f0831ccac2238f9c489ad68b728 100644
+--- a/src/main/java/net/minecraft/world/level/entity/EntityTickList.java
++++ b/src/main/java/net/minecraft/world/level/entity/EntityTickList.java
+@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
+ import net.minecraft.world.entity.Entity;
+ 
+ public class EntityTickList {
+-    private final io.papermc.paper.util.maplist.IteratorSafeOrderedReferenceSet<Entity> entities = new io.papermc.paper.util.maplist.IteratorSafeOrderedReferenceSet<>(true); // Paper - rewrite this, always keep this updated - why would we EVER tick an entity that's not ticking?
++    public final io.papermc.paper.util.maplist.IteratorSafeOrderedReferenceSet<Entity> entities = new io.papermc.paper.util.maplist.IteratorSafeOrderedReferenceSet<>(true); // Paper - rewrite this, always keep this updated - why would we EVER tick an entity that's not ticking?
+ 
+     private void ensureActiveIsNotIterated() {
+         // Paper - replace with better logic, do not delay removals

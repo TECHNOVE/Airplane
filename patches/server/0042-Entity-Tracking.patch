@@ -1,0 +1,506 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 16:45:02 -0700
+Subject: [PATCH] Entity Tracking
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index e3a7a87949cc658d300f746c9cd333766b01636a..f95b6e5a45e4ff5d5933324bbd7fde7783ad999d 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -165,5 +165,19 @@ public class NFTWorldsConfig {
+     public static boolean disableMobCollisions = true;
+     private static void disableMobCollisions() { disableMobCollisions = getBoolean("disable-mob-collisions", true); }
+ 
++    public static boolean optimizedEntityTracking = true;
++    private static void optimizedEntityTracking() {
++        optimizedEntityTracking = getBoolean("optimized-entity-tracking.enabled", true);
++    }
++
++    public static boolean optimizedEntityTrackingPartial = true;
++    private static void optimizedEntityTrackingPartial() {
++        optimizedEntityTrackingPartial = getBoolean("optimized-entity-tracking.partial", true);
++    }
++
++    public static int entityTrackingThreads = 5;
++    private static void entityTrackingModifier() {
++        entityTrackingThreads = getInt("optimized-entity-tracking.threads", 5);
++    }
+ 
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index b4515922b3ee62bab72b39b55346cd0b207c8db9..2e177a2c1e2786a3bd424836b9a936281682928d 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -80,6 +80,12 @@ public class RecommendCommand extends Command {
+             if (!NFTWorldsConfig.disableMobCollisions) {
+                 changes.add("disable-mob-collisions §7|§f§o Change to §a§lTRUE");
+             }
++            if (!NFTWorldsConfig.optimizedEntityTracking) {
++                changes.add("optimized-entity-tracking.enabled §7|§f§o Change to §a§lTRUE");
++            }
++            if (NFTWorldsConfig.entityTrackingThreads < 5) {
++                changes.add("optimized-entity-tracking.threads §7|§f§o Change to §a§l5 or more");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/com/destroystokyo/paper/util/PlayerMobDistanceMap.java b/src/main/java/com/destroystokyo/paper/util/PlayerMobDistanceMap.java
+index 72063ba7fb0d04594043cb07034590d597c3d77e..ea6938d7332aa57f8055f7fbb684720cd66cb378 100644
+--- a/src/main/java/com/destroystokyo/paper/util/PlayerMobDistanceMap.java
++++ b/src/main/java/com/destroystokyo/paper/util/PlayerMobDistanceMap.java
+@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.world.level.ChunkPos;
+ import org.spigotmc.AsyncCatcher;
+ import java.util.HashMap;
++import java.util.concurrent.ConcurrentHashMap;
+ 
+ /** @author Spottedleaf */
+ public final class PlayerMobDistanceMap {
+@@ -18,7 +19,7 @@ public final class PlayerMobDistanceMap {
+ 
+     private final Map<ServerPlayer, SectionPos> players = new HashMap<>();
+     // we use linked for better iteration.
+-    private final Long2ObjectOpenHashMap<PooledHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer>> playerMap = new Long2ObjectOpenHashMap<>(32, 0.5f);
++    private final ConcurrentHashMap<Long, PooledHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer>> playerMap = new java.util.concurrent.ConcurrentHashMap<>(32, 0.5f);
+     private int viewDistance;
+ 
+     private final PooledHashSets<ServerPlayer> pooledHashSets = new PooledHashSets<>();
+@@ -75,8 +76,8 @@ public final class PlayerMobDistanceMap {
+         final int centerX = currPosition.getX();
+         final int centerZ = currPosition.getZ();
+ 
+-        for (final Long2ObjectLinkedOpenHashMap.Entry<PooledHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer>> entry : this.playerMap.long2ObjectEntrySet()) {
+-            final long key = entry.getLongKey();
++        for (final Map.Entry<Long, PooledHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer>> entry : this.playerMap.entrySet()) {
++            final long key = entry.getKey();
+             final PooledHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer> map = entry.getValue();
+ 
+             if (map.referenceCount == 0) {
+diff --git a/src/main/java/net/minecraft/network/protocol/PacketUtils.java b/src/main/java/net/minecraft/network/protocol/PacketUtils.java
+index c958a00535c0f7a015a7a566b97e2c80fc9a0efd..5d785c65a881e10efdb6050617835873941fc8c6 100644
+--- a/src/main/java/net/minecraft/network/protocol/PacketUtils.java
++++ b/src/main/java/net/minecraft/network/protocol/PacketUtils.java
+@@ -4,6 +4,7 @@ import net.minecraft.network.Connection;
+ import net.minecraft.network.PacketListener;
+ import net.minecraft.network.chat.TextComponent;
+ import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
++import org.apache.logging.log4j.Level;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+ import co.aikar.timings.MinecraftTimings; // Paper
+@@ -46,13 +47,13 @@ public class PacketUtils {
+ 
+     public static <T extends PacketListener> void ensureRunningOnSameThread(Packet<T> packet, T listener, BlockableEventLoop<?> engine) throws RunningOnDifferentThreadException {
+         if (!engine.isSameThread()) {
+-            Timing timing = MinecraftTimings.getPacketTiming(packet); // Paper - timings
++            //Timing timing = MinecraftTimings.getPacketTiming(packet); // Paper - timings
+             engine.execute(() -> {
+                 packetProcessing.push(listener); // Paper - detailed watchdog information
+                 try { // Paper - detailed watchdog information
+                 if (MinecraftServer.getServer().hasStopped() || (listener instanceof ServerGamePacketListenerImpl && ((ServerGamePacketListenerImpl) listener).processedDisconnect)) return; // CraftBukkit, MC-142590
+                 if (listener.getConnection().isConnected()) {
+-                    try (Timing ignored = timing.startTiming()) { // Paper - timings
++                    try { // Paper - timings
+                     packet.handle(listener);
+                     } // Paper - timings
+                     // Paper start
+@@ -69,6 +70,8 @@ public class PacketUtils {
+                             networkmanager.disconnect(error);
+                         });
+                         networkmanager.setReadOnly();
++                        LogManager.getLogger().log(Level.ERROR, "Please report");
++                        e.printStackTrace();
+                     }
+                     // Paper end
+                 } else {
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 518de03b7f4e4b7c0db48102d6f66376ef6fcd6c..95d1295775bd25517e9f823d7460b58af9f81208 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -48,6 +48,7 @@ import java.util.Random;
+ import java.util.Set;
+ import java.util.UUID;
+ import java.util.concurrent.CompletableFuture;
++import java.util.concurrent.ConcurrentMap;
+ import java.util.concurrent.Executor;
+ import java.util.concurrent.atomic.AtomicReference;
+ import java.util.function.BooleanSupplier;
+@@ -233,7 +234,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     private String localIp;
+     private int port;
+     public final RegistryAccess.RegistryHolder registryHolder;
+-    public final Map<ResourceKey<Level>, ServerLevel> levels;
++    public final ConcurrentMap<ResourceKey<Level>, ServerLevel> levels;
+     private PlayerList playerList;
+     private volatile boolean running;
+     private volatile boolean isRestarting = false; // Paper - flag to signify we're attempting to restart
+@@ -419,7 +420,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         this.status = new ServerStatus();
+         this.random = new Random();
+         this.port = -1;
+-        this.levels = Maps.newLinkedHashMap(); // CraftBukkit - keep order, k+v already use identity methods
++        this.levels = Maps.newConcurrentMap(); // CraftBukkit - keep order, k+v already use identity methods
+         this.running = true;
+         this.tickTimes = new long[100];
+         this.resourcePack = "";
+diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
+index aca05e6cbec746241c5ebe31374c593d75850415..0403f250f6beef4e4a41eeccaa9782039a4aafcf 100644
+--- a/src/main/java/net/minecraft/server/level/ChunkMap.java
++++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
+@@ -10,7 +10,10 @@ import com.google.common.collect.Queues;
+ import com.google.common.collect.Sets;
+ import com.mojang.datafixers.DataFixer;
+ import com.mojang.datafixers.util.Either;
++import com.nftworlds.NFTWorldsConfig;
++import com.nftworlds.objects.ConcurrentPlayerMap;
+ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
++import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+ import it.unimi.dsi.fastutil.longs.Long2ByteMap;
+ import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
+@@ -34,12 +37,8 @@ import java.util.Objects;
+ import java.util.Optional;
+ import java.util.Queue;
+ import java.util.Set;
+-import java.util.concurrent.CancellationException;
++import java.util.concurrent.*;
+ import java.util.UUID; // Paper
+-import java.util.concurrent.CompletableFuture;
+-import java.util.concurrent.CompletionException;
+-import java.util.concurrent.CompletionStage;
+-import java.util.concurrent.Executor;
+ import java.util.concurrent.atomic.AtomicInteger;
+ import java.util.function.BooleanSupplier;
+ import java.util.function.Consumer;
+@@ -146,13 +145,15 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+     private final AtomicInteger tickingGenerated;
+     public final StructureManager structureManager;
+     private final String storageName;
+-    private final PlayerMap playerMap;
+-    public final Int2ObjectMap<ChunkMap.TrackedEntity> entityMap;
++    private final ConcurrentPlayerMap playerMap; //NFTWorlds playerMap - F
++    public Int2ObjectMap<ChunkMap.TrackedEntity> entityMap;
+     private final Long2ByteMap chunkTypeCache;
+     private final Queue<Runnable> unloadQueue;
+     int viewDistance;
+     public final com.destroystokyo.paper.util.PlayerMobDistanceMap playerMobDistanceMap; // Paper
+ 
++    public static ExecutorService entityExecutor = Executors.newFixedThreadPool(NFTWorldsConfig.entityTrackingThreads);
++
+     // CraftBukkit start - recursion-safe executor for Chunk loadCallback() and unloadCallback()
+     public final CallbackExecutor callbackExecutor = new CallbackExecutor();
+     public static final class CallbackExecutor implements java.util.concurrent.Executor, Runnable {
+@@ -399,8 +400,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+         this.entitiesInLevel = new LongOpenHashSet();
+         this.toDrop = new LongOpenHashSet();
+         this.tickingGenerated = new AtomicInteger();
+-        this.playerMap = new PlayerMap();
+-        this.entityMap = new Int2ObjectOpenHashMap();
++        this.playerMap = new ConcurrentPlayerMap();
++        this.entityMap = Int2ObjectMaps.synchronize(new Int2ObjectOpenHashMap());
+         this.chunkTypeCache = new Long2ByteOpenHashMap();
+         this.unloadQueue = new com.destroystokyo.paper.utils.CachedSizeConcurrentLinkedQueue<>(); // Paper - need constant-time size()
+         this.structureManager = structureManager;
+@@ -2012,7 +2013,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+                         ServerPlayer entityplayer = (ServerPlayer) entity;
+ 
+                         this.updatePlayerStatus(entityplayer, true);
+-                        ObjectIterator objectiterator = this.entityMap.values().iterator();
++                        Iterator<ChunkMap.TrackedEntity> objectiterator = this.entityMap.values().iterator();
+ 
+                         while (objectiterator.hasNext()) {
+                             ChunkMap.TrackedEntity playerchunkmap_entitytracker1 = (ChunkMap.TrackedEntity) objectiterator.next();
+@@ -2034,7 +2035,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+             ServerPlayer entityplayer = (ServerPlayer) entity;
+ 
+             this.updatePlayerStatus(entityplayer, false);
+-            ObjectIterator objectiterator = this.entityMap.values().iterator();
++            Iterator<ChunkMap.TrackedEntity> objectiterator = this.entityMap.values().iterator();
+ 
+             while (objectiterator.hasNext()) {
+                 ChunkMap.TrackedEntity playerchunkmap_entitytracker = (ChunkMap.TrackedEntity) objectiterator.next();
+@@ -2053,25 +2054,67 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+ 
+     // Paper start - optimised tracker
+     private final void processTrackQueue() {
+-        this.level.timings.tracker1.startTiming();
+-        try {
+-            for (TrackedEntity tracker : this.entityMap.values()) {
+-                // update tracker entry
+-                tracker.updatePlayers(tracker.entity.getPlayersInTrackRange());
++        if (NFTWorldsConfig.optimizedEntityTracking) {
++            if (NFTWorldsConfig.optimizedEntityTrackingPartial) {
++                track(true);
++            } else {
++                Runnable run = () -> {
++                    track(false);
++                };
++                entityExecutor.execute(run);
+             }
+-        } finally {
+-            this.level.timings.tracker1.stopTiming();
++        } else {
++            track(false);
+         }
++    }
+ 
+-
+-        this.level.timings.tracker2.startTiming();
++    public void track(boolean partial) {
+         try {
+-            for (TrackedEntity tracker : this.entityMap.values()) {
+-                tracker.serverEntity.sendChanges();
++            if (partial) {
++                this.level.timings.tracker1.startTiming();
++                try {
++                    for (TrackedEntity tracker : this.entityMap.values()) {
++                        // update tracker entry
++                        tracker.updatePlayers(tracker.entity.getPlayersInTrackRange());
++                    }
++                } finally {
++                    this.level.timings.tracker1.stopTiming();
++                }
++
++                Runnable run = () -> {
++                    this.level.timings.tracker2.startTiming();
++                    try {
++                        for (TrackedEntity tracker : this.entityMap.values()) {
++                            tracker.serverEntity.sendChanges();
++                        }
++                    } catch (Exception ex) {
++                    } finally {
++                        this.level.timings.tracker2.stopTiming();
++                    }
++                };
++                entityExecutor.execute(run);
++            } else {
++                this.level.timings.tracker1.startTiming();
++                try {
++                    for (TrackedEntity tracker : this.entityMap.values()) {
++                        // update tracker entry
++                        tracker.updatePlayers(tracker.entity.getPlayersInTrackRange());
++                    }
++                } finally {
++                    this.level.timings.tracker1.stopTiming();
++                }
++
++
++                this.level.timings.tracker2.startTiming();
++                try {
++                    for (TrackedEntity tracker : this.entityMap.values()) {
++                        tracker.serverEntity.sendChanges();
++                    }
++                } finally {
++                    this.level.timings.tracker2.stopTiming();
++                }
+             }
+-        } finally {
+-            this.level.timings.tracker2.stopTiming();
+-        }
++        } catch (Exception ex) {}
+     }
+     // Paper end - optimised tracker
+ 
+@@ -2086,7 +2129,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+         List<ServerPlayer> list1 = this.level.players();
+ 
+         ChunkMap.TrackedEntity playerchunkmap_entitytracker;
+-        ObjectIterator objectiterator;
++        Iterator<ChunkMap.TrackedEntity> objectiterator;
+         level.timings.tracker1.startTiming(); // Paper
+ 
+         for (objectiterator = this.entityMap.values().iterator(); objectiterator.hasNext(); playerchunkmap_entitytracker.serverEntity.sendChanges()) {
+@@ -2287,7 +2330,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+         final Entity entity;
+         private final int range;
+         SectionPos lastSectionPos;
+-        public final Set<ServerPlayerConnection> seenBy = new ReferenceOpenHashSet<>(); // Paper - optimise map impl
++        public final Set<ServerPlayerConnection> seenBy = NFTWorldsConfig.optimizedEntityTracking ? new CopyOnWriteArraySet<>() : new ReferenceOpenHashSet<>(); // Paper - optimise map impl
+ 
+         public TrackedEntity(Entity entity, int i, int j, boolean flag) {
+             this.serverEntity = new ServerEntity(ChunkMap.this.level, entity, j, flag, this::broadcast, this.seenBy); // CraftBukkit
+@@ -2379,7 +2422,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+         }
+ 
+         public void updatePlayer(ServerPlayer player) {
+-            org.spigotmc.AsyncCatcher.catchOp("player tracker update"); // Spigot
++            if (!NFTWorldsConfig.optimizedEntityTracking) org.spigotmc.AsyncCatcher.catchOp("player tracker update");
+             if (player != this.entity) {
+                 // Paper start - remove allocation of Vec3D here
+                 //Vec3D vec3d = entityplayer.getPositionVector().d(this.tracker.getPositionVector()); // MC-155077, SPIGOT-5113
+diff --git a/src/main/java/net/minecraft/server/level/ServerEntity.java b/src/main/java/net/minecraft/server/level/ServerEntity.java
+index a453aac607f9b38f0bf90038ff2d8071687c4bae..546cedd234bb6b3e093ef4ea6d06c0c6258708d3 100644
+--- a/src/main/java/net/minecraft/server/level/ServerEntity.java
++++ b/src/main/java/net/minecraft/server/level/ServerEntity.java
+@@ -9,6 +9,8 @@ import java.util.List;
+ import java.util.Objects;
+ import java.util.Set;
+ import java.util.function.Consumer;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.network.protocol.Packet;
+ import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
+ import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
+@@ -239,7 +241,7 @@ public class ServerEntity {
+                 Player player = (Player) this.entity.getBukkitEntity();
+                 org.bukkit.util.Vector velocity = player.getVelocity();
+ 
+-                PlayerVelocityEvent event = new PlayerVelocityEvent(player, velocity.clone());
++                PlayerVelocityEvent event = new PlayerVelocityEvent(player, velocity.clone(), NFTWorldsConfig.optimizedEntityTracking);
+                 this.entity.level.getCraftServer().getPluginManager().callEvent(event);
+ 
+                 if (event.isCancelled()) {
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index 7c8eaf0e23b24a484a21b6c4a732b488b246b5b9..66cb818d745c4a0a84795a06d4635233c4f2cbaf 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -2407,29 +2407,33 @@ public class ServerLevel extends Level implements WorldGenLevel {
+         }
+ 
+         public void onTrackingEnd(Entity entity) {
+-            org.spigotmc.AsyncCatcher.catchOp("entity unregister"); // Spigot
+-            // Spigot start
+-            if ( entity instanceof Player )
+-            {
+-                ServerLevel.this.getServer().levels.values().stream().map( ServerLevel::getDataStorage ).forEach( (worldData) ->
++            try {
++                org.spigotmc.AsyncCatcher.catchOp("entity unregister"); // Spigot
++                // Spigot start
++                if ( entity instanceof Player )
+                 {
+-                    for (Object o : worldData.cache.values() )
++                    ServerLevel.this.getServer().levels.values().stream().map( ServerLevel::getDataStorage ).forEach( (worldData) ->
+                     {
+-                        if ( o instanceof MapItemSavedData )
++                        for (Object o : worldData.cache.values() )
+                         {
+-                            MapItemSavedData map = (MapItemSavedData) o;
+-                            map.carriedByPlayers.remove( (Player) entity );
+-                            for ( Iterator<MapItemSavedData.HoldingPlayer> iter = (Iterator<MapItemSavedData.HoldingPlayer>) map.carriedBy.iterator(); iter.hasNext(); )
++                            if ( o instanceof MapItemSavedData )
+                             {
+-                                if ( iter.next().player == entity )
+-                                {
+-                                    map.decorations.remove(entity.getName().getString()); // Paper
+-                                    iter.remove();
++                                MapItemSavedData map = (MapItemSavedData) o;
++                                map.carriedByPlayers.remove( (Player) entity );
++                                for (Iterator<MapItemSavedData.HoldingPlayer> iter = (Iterator<MapItemSavedData.HoldingPlayer>) map.carriedBy.iterator(); iter.hasNext(); ) {
++                                    MapItemSavedData.HoldingPlayer next = iter.next();
++                                    if (next != null && next.player == entity) {
++                                        map.decorations.remove(entity.getName().getString()); // Paper
++                                        iter.remove();
++                                    }
+                                 }
+                             }
+                         }
+-                    }
+-                } );
++                    } );
++                }
++            } catch (Exception ex) {
++                LogManager.getLogger().log(org.apache.logging.log4j.Level.ERROR, "Possible issue. If you notice side effects with maps, report this.");
++                ex.printStackTrace();
+             }
+             // Spigot end
+             // Spigot Start
+diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+index 060cc83d35fb047a4ce5d2f9554827ea917f313d..13916dc638ce830c8f0573ab8326584b8401cc75 100644
+--- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
++++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+@@ -133,6 +133,7 @@ import java.util.ArrayList;
+ import java.util.HashSet;
+ import java.util.Set;
+ import com.google.common.base.Function;
++import org.bukkit.Bukkit;
+ import org.bukkit.Location;
+ import org.bukkit.craftbukkit.attribute.CraftAttributeMap;
+ import org.bukkit.craftbukkit.event.CraftEventFactory;
+@@ -3035,7 +3036,7 @@ public abstract class LivingEntity extends Entity {
+                 if (this instanceof ServerPlayer && enumitemslot.getType() == EquipmentSlot.Type.ARMOR) {
+                     final org.bukkit.inventory.ItemStack oldItem = CraftItemStack.asBukkitCopy(itemstack);
+                     final org.bukkit.inventory.ItemStack newItem = CraftItemStack.asBukkitCopy(itemstack1);
+-                    new PlayerArmorChangeEvent((Player) this.getBukkitEntity(), PlayerArmorChangeEvent.SlotType.valueOf(enumitemslot.name()), oldItem, newItem).callEvent();
++                    new PlayerArmorChangeEvent((Player) this.getBukkitEntity(), PlayerArmorChangeEvent.SlotType.valueOf(enumitemslot.name()), oldItem, newItem, !Bukkit.isPrimaryThread() && NFTWorldsConfig.optimizedEntityTracking).callEvent();
+                 }
+                 // Paper end
+                 if (map == null) {
+diff --git a/src/main/java/net/minecraft/world/entity/ai/attributes/AttributeMap.java b/src/main/java/net/minecraft/world/entity/ai/attributes/AttributeMap.java
+index d3e97858dacc850012e5585ac44a1aeafc82b8f4..af59c69bab0c778fac47e5ae796784a47ae46bd3 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/attributes/AttributeMap.java
++++ b/src/main/java/net/minecraft/world/entity/ai/attributes/AttributeMap.java
+@@ -20,7 +20,7 @@ import org.apache.logging.log4j.Logger;
+ public class AttributeMap {
+     private static final Logger LOGGER = LogManager.getLogger();
+     private final Map<Attribute, AttributeInstance> attributes = Maps.newHashMap();
+-    private final Set<AttributeInstance> dirtyAttributes = Sets.newHashSet();
++    private final Set<AttributeInstance> dirtyAttributes = Sets.newConcurrentHashSet();
+     private final AttributeSupplier supplier;
+     private final java.util.function.Function<Attribute, AttributeInstance> createInstance; // Airplane
+ 
+diff --git a/src/main/java/net/minecraft/world/entity/player/Player.java b/src/main/java/net/minecraft/world/entity/player/Player.java
+index 94e76e295dbd0f3bac4b30a3e7338cd56a971207..05dcd51c561f9fedf4ee5891a378b0ba7d66d2c4 100644
+--- a/src/main/java/net/minecraft/world/entity/player/Player.java
++++ b/src/main/java/net/minecraft/world/entity/player/Player.java
+@@ -1303,7 +1303,7 @@ public abstract class Player extends LivingEntity {
+                             org.bukkit.entity.Player player = (org.bukkit.entity.Player) target.getBukkitEntity();
+                             org.bukkit.util.Vector velocity = CraftVector.toBukkit(vec3d);
+ 
+-                            PlayerVelocityEvent event = new PlayerVelocityEvent(player, velocity.clone());
++                            PlayerVelocityEvent event = new PlayerVelocityEvent(player, velocity.clone(), false);
+                             level.getCraftServer().getPluginManager().callEvent(event);
+ 
+                             if (event.isCancelled()) {
+diff --git a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
+index 461173191361fdb0c2c950eacf03ba43693e1908..0c47a34a411a74997612ea0ed3a7596388404c09 100644
+--- a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
++++ b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
+@@ -4,10 +4,13 @@ import com.google.common.base.MoreObjects;
+ import java.util.Iterator;
+ import java.util.UUID;
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.network.protocol.Packet;
+ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
++import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.util.Mth;
+ import net.minecraft.world.entity.Entity;
+@@ -23,6 +26,7 @@ import net.minecraft.world.phys.HitResult;
+ import net.minecraft.world.phys.Vec3;
+ // CraftBukkit start
+ import org.bukkit.projectiles.ProjectileSource;
++import org.spigotmc.AsyncCatcher;
+ // CraftBukkit end
+ 
+ public abstract class Projectile extends Entity {
+@@ -86,6 +90,9 @@ public abstract class Projectile extends Entity {
+         if (this.cachedOwner != null && !this.cachedOwner.isRemoved()) {
+             return this.cachedOwner;
+         } else if (this.ownerUUID != null && this.level instanceof ServerLevel) {
++            if (NFTWorldsConfig.optimizedEntityTracking && (AsyncCatcher.enabled || io.papermc.paper.util.TickThread.STRICT_THREAD_CHECKS) && Thread.currentThread() != MinecraftServer.getServer().serverThread) {
++                return null;
++            }
+             this.cachedOwner = ((ServerLevel) this.level).getEntity(this.ownerUUID);
+             // Paper start - check all worlds
+             if (this.cachedOwner == null) {
+diff --git a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
+index 6f64d1ce0f5b20e1579f8af64c08ef8fc4e4444b..f269ed0ce8e4958f6f88658de12c2e7382ca1501 100644
+--- a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
++++ b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
+@@ -448,7 +448,9 @@ public class MapItemSavedData extends SavedData {
+ 
+     public void setDecorationsDirty() {
+         this.setDirty();
+-        this.carriedBy.forEach(MapItemSavedData.HoldingPlayer::markDecorationsDirty);
++        this.carriedBy.forEach(holdingPlayer -> {
++            if (holdingPlayer != null) holdingPlayer.markDecorationsDirty();
++        });
+     }
+ 
+     public MapItemSavedData.HoldingPlayer getHoldingPlayer(Player player) {

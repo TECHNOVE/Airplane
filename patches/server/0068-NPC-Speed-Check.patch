@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Thu, 20 Jan 2022 02:59:11 -0700
+Subject: [PATCH] NPC Speed Check
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index d213492944c13a0f87e63ec873cba040325bf34a..c168914cada948c06a85faad33be7756b653b192 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -376,4 +376,7 @@ public class NFTWorldsConfig {
+     public static boolean accountForAFK = true;
+     private static void accountForAFK() { accountForAFK = getBoolean("optimize-natural.account-for-afk", true); }
+ 
++    public static boolean npcSpeedCheck = false;
++    private static void npcSpeedCheck() { npcSpeedCheck = getBoolean("npc-speed-check", false); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index fb8863f1c52aacfe6cd93aa401c2652ee04fd848..30fb8c2c5a6cccfb93f94af277b5f3aa12841961 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -239,6 +239,9 @@ public class RecommendCommand extends Command {
+             if (NFTWorldsConfig.lavaCatchesBlocksOnFire) {
+                 changes.add("lava-catches-blocks-on-fire §7|§f§o Change to §c§lFALSE");
+             }
++            if (NFTWorldsConfig.npcSpeedCheck) {
++                changes.add("npc-speed-check §7|§f§o Change to §c§lFALSE");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/world/entity/player/Player.java b/src/main/java/net/minecraft/world/entity/player/Player.java
+index 33f69da297a4139ba8fe8e56f22c341a416a1978..a1036d93a52da9c3736c153f25e294f67e65af59 100644
+--- a/src/main/java/net/minecraft/world/entity/player/Player.java
++++ b/src/main/java/net/minecraft/world/entity/player/Player.java
+@@ -15,6 +15,8 @@ import java.util.OptionalInt;
+ import java.util.UUID;
+ import java.util.function.Predicate;
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.SharedConstants;
+ import net.minecraft.Util;
+ import net.minecraft.advancements.CriteriaTriggers;
+@@ -1618,7 +1620,11 @@ public abstract class Player extends LivingEntity {
+ 
+     @Override
+     public float getSpeed() {
+-        return (float) this.getAttributeValue(Attributes.MOVEMENT_SPEED);
++        if (this.isSprinting() || (NFTWorldsConfig.npcSpeedCheck && this.getBukkitEntity().hasMetadata("NPC"))) {
++            return (float) this.getAttributeValue(Attributes.MOVEMENT_SPEED);
++        } else {
++            return (float) ((double) this.abilities.getWalkingSpeed());
++        }
+     }
+ 
+     public void checkMovementStatistics(double dx, double dy, double dz) {

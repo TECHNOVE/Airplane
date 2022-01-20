@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 20:42:27 -0700
+Subject: [PATCH] Random Tick Speed
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index 9d9545aa44ddb2177b7ecf71313bcafe86dbbdd2..daff070cf4eb124e27c81f06a8ac9180a1eaa5f3 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -309,4 +309,14 @@ public class NFTWorldsConfig {
+         optimizeTileEntities = getBoolean("optimize-tile-entities", true);
+     }
+ 
++    public static boolean useSetRandomTickSpeed;
++    private static void useSetRandomTickSpeed() {
++        useSetRandomTickSpeed = getBoolean("tick-speed.use-set-random-tick-speed", true);
++    }
++
++    public static int randomTickSpeed;
++    private static void randomTickSpeed() {
++        randomTickSpeed = getInt("tick-speed.random-tick.speed", 3);
++    }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/RecommendCommand.java b/src/main/java/com.nftworlds/RecommendCommand.java
+index c0262b2a93865ffb09c732fb378ca7ff75bb0ba3..5f243013d215da75c741b1ed1efd144386230650 100644
+--- a/src/main/java/com.nftworlds/RecommendCommand.java
++++ b/src/main/java/com.nftworlds/RecommendCommand.java
+@@ -203,6 +203,12 @@ public class RecommendCommand extends Command {
+             if (!NFTWorldsConfig.optimizeTileEntities) {
+                 changes.add("optimize-tile-entities §7|§f§o Change to §a§lTRUE");
+             }
++            if (!NFTWorldsConfig.useSetRandomTickSpeed) {
++                changes.add("tick-speed.use-set-random-tick-speed §7|§f§o Change to §a§lTRUE");
++            }
++            if (NFTWorldsConfig.randomTickSpeed != 3) {
++                changes.add("tick-speed.random-tick.speed §7|§f§o Change to §c§l3");
++            }
+         } else if (config.equalsIgnoreCase("airplane")) { //Airplane
+             if (!AirplaneConfig.dearEnabled) {
+                 changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
+diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+index 1db2a449bf528be9b39a0d1c4f4056a351085fd9..44c8a39e7726cdf90360a0ac1ee728c7c806d45f 100644
+--- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
++++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+@@ -990,7 +990,7 @@ public class ServerChunkCache extends ChunkSource {
+             // Paper end - optimize isOutisdeRange
+             this.level.getProfiler().push("pollingChunks");
+             this.level.resetIceAndSnowTick(); // Airplane - reset ice & snow tick random
+-            int k = this.level.getGameRules().getInt(GameRules.RULE_RANDOMTICKING);
++            int k = NFTWorldsConfig.useSetRandomTickSpeed ? NFTWorldsConfig.randomTickSpeed : this.level.getGameRules().getInt(GameRules.RULE_RANDOMTICKING);
+             boolean flag2 = level.ticksPerAnimalSpawns != 0L && worlddata.getGameTime() % level.ticksPerAnimalSpawns == 0L; // CraftBukkit
+ 
+             this.level.getProfiler().push("naturalSpawnCount");

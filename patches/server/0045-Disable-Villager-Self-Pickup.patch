@@ -1,0 +1,91 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Wed, 19 Jan 2022 16:58:35 -0700
+Subject: [PATCH] Disable Villager Self Pickup
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index c646d30c20cf75a827b238f08e447f38ca23f83c..cf8ff0f330cec4d9ea9d4b5b475bfeebdbe1868a 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -194,4 +194,7 @@ public class NFTWorldsConfig {
+     public static boolean optimizeSpeed = true;
+     private static void optimizeSpeed() { optimizeSpeed = getBoolean("optimize-speed", true); }
+ 
++    public static boolean villagerNoPickup = false;
++    private static void villagerNoPickup() { villagerNoPickup = getBoolean("improve-villager-farms", false); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 6b1723dbab7d00a3ead5578ae82d40d9b7c55ecc..90ee71d3a05427068f26992814bf8d4dcc51ef8d 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -224,7 +224,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+     public double yo;
+     public double zo;
+     private Vec3 position;
+-    private BlockPos blockPosition;
++    public BlockPos blockPosition;
+     private Vec3 deltaMovement;
+     public float yRot; // Paper - private->public
+     private float xRot;
+diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/BehaviorUtils.java b/src/main/java/net/minecraft/world/entity/ai/behavior/BehaviorUtils.java
+index ef17f21574ce37b9ce6f72b9585034db473502c7..c21bec99f733ef05da3b897a8cabfbd7172e7cf8 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/behavior/BehaviorUtils.java
++++ b/src/main/java/net/minecraft/world/entity/ai/behavior/BehaviorUtils.java
+@@ -8,6 +8,8 @@ import java.util.UUID;
+ import java.util.function.Predicate;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
++
++import com.nftworlds.NFTWorldsConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.SectionPos;
+ import net.minecraft.server.level.ServerLevel;
+@@ -102,6 +104,9 @@ public class BehaviorUtils {
+         if (event.isCancelled()) {
+             return;
+         }
++        if (NFTWorldsConfig.villagerNoPickup && entity instanceof Villager) {
++            entityitem.setThrower(entity.getUUID());
++        }
+         // CraftBukkit end
+         entity.level.addFreshEntity(entityitem);
+     }
+diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
+index 4904971710acbb2855ed9ed96fead4aed189c494..700519d0f326cd4680a985367277ed2ee94be5b7 100644
+--- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
++++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
+@@ -8,6 +8,7 @@ import com.mojang.datafixers.util.Pair;
+ import com.mojang.serialization.DataResult;
+ import com.mojang.serialization.Dynamic;
+ import com.mojang.serialization.DynamicOps;
++import com.nftworlds.NFTWorldsConfig;
+ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+ import java.util.Collection;
+ import java.util.Iterator;
+@@ -95,6 +96,7 @@ import org.apache.logging.log4j.Logger;
+ 
+ // CraftBukkit start
+ import org.bukkit.Bukkit;
++import org.bukkit.Material;
+ import org.bukkit.craftbukkit.event.CraftEventFactory;
+ import org.bukkit.event.entity.EntityTransformEvent;
+ import org.bukkit.event.entity.VillagerReplenishTradeEvent;
+@@ -885,6 +887,15 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+ 
+     @Override
+     protected void pickUpItem(ItemEntity item) {
++        if (NFTWorldsConfig.villagerNoPickup) {
++            if (item.getThrower() == this.uuid && item.tickCount < 120) { //If villager threw the item, don't allow them to pick it back up for 6 seconds
++                return;
++            }
++            if (this.level.getBlockState(this.blockPosition).getBukkitMaterial() == Material.HOPPER || this.level.getBlockState(this.blockPosition.below()).getBukkitMaterial() == Material.HOPPER) { //Don't allow villagers to pick up items on hoppers
++                return;
++            }
++        }
++
+         ItemStack itemstack = item.getItem();
+ 
+         if (this.wantsToPickUp(itemstack)) {
