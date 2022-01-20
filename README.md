@@ -1,7 +1,7 @@
 <!-- Variables -->
 [home]: https://www.nftworlds.com/
 [about]: https://docs.nftworlds.com
-[discord]: https://discord.gg/63dDSReB7j
+[discord]: https://discord.gg/nft-worlds
 
 # NFT Worlds Server
 The open-sourced server for NFT Worlds developed as a fork of Airplane, which is a fork of Paper. 
@@ -23,6 +23,6 @@ Or building a Paperclip JAR for distribution:
 ```
 
 ## License
-NFT Worlds server patches are licensed under an MIT License.
+NFT Worlds server patches are licensed under a GNU GPL License.
 Upstream patches are licensed under GPL-3.0.
-All other files are licensed under an MIT License.
+All other files are licensed under an GNU  License.
