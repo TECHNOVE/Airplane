@@ -19,6 +19,10 @@ Extensive documentation on the NFT Worlds server will be released soon.
 
 As of January 20th, 2021 the NFT Worlds server is a baseline, heavily optimized server implementation that the blockchain APIs and more for NFT Worlds will be built into. We will have a development roadmap released that can be tracked alongside this repository before the end of the month.
 
+## Releases
+
+The first release build will be available within the next 72 hours.
+
 ## Building
 
 ```bash
