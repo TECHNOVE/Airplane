@@ -4,7 +4,7 @@
 [discord]: https://discord.gg/nft-worlds
 
 # NFT Worlds Server
-The open-sourced server for NFT Worlds developed as a fork of Airplane, which is a fork of Paper. 
+The open-sourced server for NFT Worlds developed as a fork of Airplane/Pufferfish, which is a fork of Paper. 
 
 This repo is a work in progress, official release coming soon.
 
