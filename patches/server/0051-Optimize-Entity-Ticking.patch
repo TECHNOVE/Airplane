@@ -158,7 +158,7 @@ index 66cb818d745c4a0a84795a06d4635233c4f2cbaf..f318f961e02d8dfc96be8311a3370799
                          Entity entity1 = entity.getVehicle();
  
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 90ee71d3a05427068f26992814bf8d4dcc51ef8d..8968be2d30fbdbdf27106f70a518b78eaa0588e3 100644
+index 90ee71d3a05427068f26992814bf8d4dcc51ef8d..f090d03bbbc8be50ad16ad798eb416090caad256 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -97,6 +97,7 @@ import net.minecraft.world.level.block.SoundType;
@@ -198,14 +198,14 @@ index 90ee71d3a05427068f26992814bf8d4dcc51ef8d..8968be2d30fbdbdf27106f70a518b78e
      public float getBukkitYaw() {
          return this.yRot;
      }
-@@ -515,6 +531,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
-         this.type = type;
+@@ -516,6 +532,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
          this.level = world;
          this.dimensions = type.getDimensions();
-+        this.previousY = this.previousY2 = position.y;
          this.position = Vec3.ZERO;
++        this.previousY = this.previousY2 = position.y;
          this.blockPosition = BlockPos.ZERO;
          this.packetCoordinates = Vec3.ZERO;
+         // Spigot start
 @@ -757,7 +774,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
  
          this.wasInPowderSnow = this.isInPowderSnow;
