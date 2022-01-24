@@ -5,6 +5,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Airplane"
+rootProject.name = "NFT-Worlds"
 
-include("Airplane-API", "Airplane-Server")
+include("NFT-Worlds-API", "NFT-Worlds-Server")

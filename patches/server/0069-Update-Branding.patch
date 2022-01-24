@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Mon, 24 Jan 2022 00:28:11 -0700
+Subject: [PATCH] Update Branding
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 3823eaa2facbe9cb1dfaa81801e3686228a53909..59e97550e54c2acb9a122903531e027a8701bc3c 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -22,7 +22,7 @@ repositories {
+ }
+ 
+ dependencies {
+-    implementation(project(":Airplane-API")) // Airplane // Paper
++    implementation(project(":NFT-Worlds-API")) // Airplane // Paper
+     implementation("io.papermc.paper:paper-mojangapi:1.17.1-R0.1-SNAPSHOT") // Airplane
+     // Paper start
+     implementation("org.jline:jline-terminal-jansi:3.21.0")

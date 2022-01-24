@@ -1,9 +1,9 @@
-Airplane-API
-Airplane-Server
+NFT-Worlds-API
+NFT-Worlds-Server
 
 last-tuinity
 build/
 .gradle/
 run/
 
-launcher-airplane.jar
+launcher-nft-worlds.jar
