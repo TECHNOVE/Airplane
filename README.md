@@ -2,6 +2,7 @@
 [home]: https://www.nftworlds.com/
 [about]: https://docs.nftworlds.com
 [discord]: https://discord.gg/nft-worlds
+[releases]: https://github.com/NFT-Worlds/Server/releases/
 
 # NFT Worlds Server
 The open-sourced server for NFT Worlds developed as a fork of Airplane/Pufferfish, which is a fork of Paper. 
@@ -21,7 +22,7 @@ As of January 20th, 2021 the NFT Worlds server is a baseline, heavily optimized 
 
 ## Releases
 
-The first release build will be available within the next 72 hours.
+Releases Available [Here][releases]
 
 ## Building
 
