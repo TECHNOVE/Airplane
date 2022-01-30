@@ -15,6 +15,11 @@ dependencies {
     paperclip("io.papermc:paperclip:2.0.1")
 }
 
+tasks.withType<AbstractArchiveTask>().configureEach {
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+}
+
 subprojects {
     apply(plugin = "java")
 
