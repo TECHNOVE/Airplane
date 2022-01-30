@@ -33,6 +33,7 @@ Releases Available [Here][releases]
 Or building a Paperclip JAR for distribution:
 
 ```bash
+./gradlew applyPatches
 ./gradlew paperclip
 ```
 
