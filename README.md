@@ -26,7 +26,7 @@ The NFT Worlds Server welcomes contributions from the community.
 
 We will be releasing a development and bug bounties soon. Developers will be able to earn compensation by resolving known bugs and helping develop core features.
 
-### [Learn How To Contribute Here][contributing]
+### [Get Started Developing & Contributing Here][contributing]
 
 ## Building
 
