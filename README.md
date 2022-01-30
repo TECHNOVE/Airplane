@@ -4,6 +4,7 @@
 [discord]: https://discord.gg/nft-worlds
 [twitter]: https://twitter.com/nftworldsNFT
 [releases]: https://github.com/NFT-Worlds/Server/releases/
+[contributing]: https://github.com/NFT-Worlds/Server/blob/main/CONTRIBUTING.md
 
 # NFT Worlds Server
 The open-sourced server for NFT Worlds developed as a fork of Airplane/Pufferfish, which is a fork of Paper. 
@@ -21,7 +22,11 @@ The NFT Worlds blockchain compatibility layer, $WRLD transaction support and rel
 
 ## Contributing
 
-Coming soon.
+The NFT Worlds Server welcomes contributions from the community. 
+
+We will be releasing a development and bug bounties soon. Developers will be able to earn compensation by resolving known bugs and helping develop core features.
+
+### [Learn How To Contribute Here][contributing]
 
 ## Building
 
