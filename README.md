@@ -2,6 +2,7 @@
 [home]: https://www.nftworlds.com/
 [about]: https://docs.nftworlds.com
 [discord]: https://discord.gg/nft-worlds
+[twitter]: https://twitter.com/nftworldsNFT
 [releases]: https://github.com/NFT-Worlds/Server/releases/
 
 # NFT Worlds Server
@@ -9,22 +10,22 @@ The open-sourced server for NFT Worlds developed as a fork of Airplane/Pufferfis
 
 This repo is a work in progress, official release coming soon.
 
-[Homepage][home] - [Discord][discord] - [About NFT Worlds][about]
+**[Download Latest Release][releases]**
+
+[nftworlds.com][home] - [Discord][discord] - [Twitter][twitter] - [About NFT Worlds][about]
 
 ## Getting Started For Builders
-You can now begin developing experiences on top of the NFT Worlds Server as a world owner or verified builder. To start, fork this repository to develop you world experiences on top of. As more updates and blockchain compatibility are released by the NFT Worlds team to the `main` branch of this repository, you'll be able to easily merge those changes into your forked copy of this repo.
+You can now begin developing experiences on top of the NFT Worlds Server as a world owner or verified builder. To start, fork this repository to develop you world experiences on top of. As more updates are released by the NFT Worlds team to the `main` branch of this repository, you'll be able to easily merge those changes into your forked copy of this repo.
 
-Extensive documentation on the NFT Worlds server will be released soon.
+The NFT Worlds blockchain compatibility layer, $WRLD transaction support and related functionality will release as a server plugin sometime in February 2022.
 
-## Roadmap
+## Contributing
 
-As of January 20th, 2021 the NFT Worlds server is a baseline, heavily optimized server implementation that the blockchain APIs and more for NFT Worlds will be built into. We will have a development roadmap released that can be tracked alongside this repository before the end of the month.
-
-## Releases
-
-Releases Available [Here][releases]
+Coming soon.
 
 ## Building
+
+To get quickstarted with developing & creating server .jar builds to test, use the following commands.
 
 ```bash
 ./gradlew build
