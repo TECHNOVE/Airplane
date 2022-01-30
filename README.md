@@ -43,6 +43,18 @@ Or building a Paperclip JAR for distribution:
 ./gradlew paperclip
 ```
 
+## Running Locally
+
+You can run a release NFT Worlds Server .jar, or compiled .jar with the following.
+
+```bash
+java -Xms2G -Xmx2G -jar NFT-Worlds-1.17.1-R0.1-SNAPSHOT
+```
+
+Upon running the first time, You'll receive a server.properties error. You need to agree to the Minecraft server EULA terms by editing the generated eula.txt file in the server .jar directory and setting `eula=true`. Rerun the command above and the server will successfully launch.
+
+Once running, you can quickly connect to the server running locally by launching Minecraft, going to "Multiplayer", selecting "Direct Connection" and entering `localhost`. If this server is not running on your local machine, you would connect to that machine's IP.
+
 ## License
 NFT Worlds server patches are licensed under a GNU GPL License.
 Upstream patches are licensed under GPL-3.0.
