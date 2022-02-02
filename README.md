@@ -2,29 +2,35 @@
 [home]: https://www.nftworlds.com/
 [about]: https://docs.nftworlds.com
 [discord]: https://discord.gg/nft-worlds
+[twitter]: https://twitter.com/nftworldsNFT
 [releases]: https://github.com/NFT-Worlds/Server/releases/
+[contributing]: https://github.com/NFT-Worlds/Server/blob/main/CONTRIBUTING.md
 
 # NFT Worlds Server
 The open-sourced server for NFT Worlds developed as a fork of Airplane/Pufferfish, which is a fork of Paper. 
 
 This repo is a work in progress, official release coming soon.
 
-[Homepage][home] - [Discord][discord] - [About NFT Worlds][about]
+**[Download Latest Release][releases]**
+
+[nftworlds.com][home] - [Discord][discord] - [Twitter][twitter] - [About NFT Worlds][about]
 
 ## Getting Started For Builders
-You can now begin developing experiences on top of the NFT Worlds Server as a world owner or verified builder. To start, fork this repository to develop you world experiences on top of. As more updates and blockchain compatibility are released by the NFT Worlds team to the `main` branch of this repository, you'll be able to easily merge those changes into your forked copy of this repo.
+You can now begin developing experiences on top of the NFT Worlds Server as a world owner or verified builder. To start, fork this repository to develop you world experiences on top of. As more updates are released by the NFT Worlds team to the `main` branch of this repository, you'll be able to easily merge those changes into your forked copy of this repo.
 
-Extensive documentation on the NFT Worlds server will be released soon.
+The NFT Worlds blockchain compatibility layer, $WRLD transaction support and related functionality will release as a server plugin sometime in February 2022.
 
-## Roadmap
+## Contributing
 
-As of January 20th, 2021 the NFT Worlds server is a baseline, heavily optimized server implementation that the blockchain APIs and more for NFT Worlds will be built into. We will have a development roadmap released that can be tracked alongside this repository before the end of the month.
+The NFT Worlds Server welcomes contributions from the community. 
 
-## Releases
+We will be releasing a development and bug bounties soon. Developers will be able to earn compensation by resolving known bugs and helping develop core features.
 
-Releases Available [Here][releases]
+### [Get Started Developing & Contributing Here][contributing]
 
 ## Building
+
+To get quickstarted with developing & creating server .jar builds to test, use the following commands.
 
 ```bash
 ./gradlew build
@@ -36,6 +42,18 @@ Or building a Paperclip JAR for distribution:
 ./gradlew applyPatches
 ./gradlew paperclip
 ```
+
+## Running Locally
+
+You can run a release NFT Worlds Server .jar, or compiled .jar with the following.
+
+```bash
+java -Xms2G -Xmx2G -jar NFT-Worlds-1.17.1-R0.1-SNAPSHOT
+```
+
+Upon running the first time, You'll receive a server.properties error. You need to agree to the Minecraft server EULA terms by editing the generated eula.txt file in the server .jar directory and setting `eula=true`. Rerun the command above and the server will successfully launch.
+
+Once running, you can quickly connect to the server running locally by launching Minecraft, going to "Multiplayer", selecting "Direct Connection" and entering `localhost`. If this server is not running on your local machine, you would connect to that machine's IP.
 
 ## License
 NFT Worlds server patches are licensed under a GNU GPL License.
