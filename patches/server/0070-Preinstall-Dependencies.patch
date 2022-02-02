@@ -1,0 +1,140 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Tue, 1 Feb 2022 19:00:28 -0700
+Subject: [PATCH] Preinstall Dependencies
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index c168914cada948c06a85faad33be7756b653b192..12cffb1b7aab99606df0b4ed8296588637f93eaf 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -379,4 +379,13 @@ public class NFTWorldsConfig {
+     public static boolean npcSpeedCheck = false;
+     private static void npcSpeedCheck() { npcSpeedCheck = getBoolean("npc-speed-check", false); }
+ 
++    public static boolean prepackageSkript = false;
++    private static void prepackageSkript() { prepackageSkript = getBoolean("prepackage.skript", false); }
++
++    public static boolean prepackageGeyser_Floodgate = false;
++    private static void prepackageGeyser_Floodgate() { prepackageGeyser_Floodgate = getBoolean("prepackage.geyser-and-floodgate", false); }
++
++    public static boolean prepackageViaVersion = false;
++    private static void prepackageViaVersion() { prepackageViaVersion = getBoolean("prepackage.viaversion", false); }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/com.nftworlds/objects/Dependency.java b/src/main/java/com.nftworlds/objects/Dependency.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..ddadfffd4549091cd64bca79e6a5e518bafe8f08
+--- /dev/null
++++ b/src/main/java/com.nftworlds/objects/Dependency.java
+@@ -0,0 +1,19 @@
++package com.nftworlds.objects;
++
++public enum Dependency {
++
++    SKRIPT("https://github.com/SkriptLang/Skript/releases/download/2.6.1/Skript.jar"),
++    GEYSER("https://ci.opencollab.dev//job/GeyserMC/job/Geyser/job/master/lastSuccessfulBuild/artifact/bootstrap/spigot/target/Geyser-Spigot.jar"),
++    FLOODGATE("https://ci.opencollab.dev/job/GeyserMC/job/Floodgate/job/master/lastSuccessfulBuild/artifact/spigot/target/floodgate-spigot.jar"),
++    VIAVERSION("https://ci.viaversion.com/job/ViaVersion/lastSuccessfulBuild/artifact/build/libs/ViaVersion-4.2.0-SNAPSHOT.jar");
++
++    Dependency(String url) {
++        this.url = url;
++    }
++
++    private String url;
++
++    public String getUrl() {
++        return url;
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index b9099f20e3633a7618f1287c328ba6e53fc976ba..f25f291c0e1569fe300bf51b0219e9d2824203c5 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -16,19 +16,20 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
+ import com.mojang.serialization.DynamicOps;
+ import com.mojang.serialization.Lifecycle;
+ import com.nftworlds.NFTWorldsConfig;
++import com.nftworlds.objects.Dependency;
+ import io.netty.buffer.ByteBuf;
+ import io.netty.buffer.ByteBufOutputStream;
+ import io.netty.buffer.Unpooled;
+ import io.papermc.paper.logging.SysoutCatcher;
+ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+ import java.awt.image.BufferedImage;
+-import java.io.File;
+-import java.io.FileInputStream;
+-import java.io.FileNotFoundException;
+-import java.io.IOException;
+-import java.io.InputStreamReader;
++import java.io.*;
++import java.net.URL;
+ import java.nio.ByteBuffer;
+ import java.nio.charset.StandardCharsets;
++import java.nio.file.Files;
++import java.nio.file.Paths;
++import java.nio.file.StandardCopyOption;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.Base64;
+@@ -419,6 +420,58 @@ public final class CraftServer implements Server {
+             }
+             Plugin[] plugins = this.pluginManager.loadPlugins(pluginFolder, this.extraPluginJars());
+             // Paper end
++
++            boolean skriptInstalled = false;
++            boolean geyserInstalled = false;
++            boolean floodgateInstalled = false;
++            boolean viaVersionInstalled = false;
++            boolean reload = false;
++
++            for (Plugin plugin : plugins) {
++                if (plugin.getName().equalsIgnoreCase("Skript")) {
++                    skriptInstalled = true;
++                } else if (plugin.getName().equalsIgnoreCase("Geyser")) {
++                    geyserInstalled = true;
++                } else if (plugin.getName().equalsIgnoreCase("Floodgate")) {
++                    floodgateInstalled = true;
++                } else if (plugin.getName().equalsIgnoreCase("ViaVersion")) {
++                    viaVersionInstalled = true;
++                }
++            }
++            try {
++                if (!skriptInstalled && NFTWorldsConfig.prepackageSkript) {
++                    Files.copy(new URL(Dependency.SKRIPT.getUrl()).openStream(), Paths.get(pluginFolder.getAbsolutePath() + File.separator + "Skript.jar"), StandardCopyOption.REPLACE_EXISTING);
++                    reload = true;
++                    Bukkit.getLogger().info("[NFT Worlds] Prepackaged Skript");
++                }
++                if (!geyserInstalled && NFTWorldsConfig.prepackageGeyser_Floodgate) {
++                    Files.copy(new URL(Dependency.GEYSER.getUrl()).openStream(), Paths.get(pluginFolder.getAbsolutePath() + File.separator + "Geyser.jar"), StandardCopyOption.REPLACE_EXISTING);
++                    reload = true;
++                    Bukkit.getLogger().info("[NFT Worlds] Prepackaged Geyser (Bedrock support)");
++                    if (!viaVersionInstalled && !NFTWorldsConfig.prepackageViaVersion) {
++                        Files.copy(new URL(Dependency.VIAVERSION.getUrl()).openStream(), Paths.get(pluginFolder.getAbsolutePath() + File.separator + "ViaVersion.jar"), StandardCopyOption.REPLACE_EXISTING);
++                        reload = true;
++                        Bukkit.getLogger().info("[NFT Worlds] Prepackaged ViaVersion (Multi-version support)");
++                    }
++                }
++                if (!floodgateInstalled && NFTWorldsConfig.prepackageGeyser_Floodgate) {
++                    Files.copy(new URL(Dependency.FLOODGATE.getUrl()).openStream(), Paths.get(pluginFolder.getAbsolutePath() + File.separator + "Floodgate.jar"), StandardCopyOption.REPLACE_EXISTING);
++                    reload = true;
++                    Bukkit.getLogger().info("[NFT Worlds] Prepackaged Floodgate (Bedrock support)");
++                }
++                if (!viaVersionInstalled && NFTWorldsConfig.prepackageViaVersion) {
++                    Files.copy(new URL(Dependency.VIAVERSION.getUrl()).openStream(), Paths.get(pluginFolder.getAbsolutePath() + File.separator + "ViaVersion.jar"), StandardCopyOption.REPLACE_EXISTING);
++                    reload = true;
++                    Bukkit.getLogger().info("[NFT Worlds] Prepackaged ViaVersion (Multi-version support)");
++                }
++            } catch (Exception ex) {
++                System.out.println("There was an error downloading NFT Worlds dependencies");
++                ex.printStackTrace();
++            }
++            if (reload) {
++                plugins = this.pluginManager.loadPlugins(pluginFolder, this.extraPluginJars());
++            }
++
+             for (Plugin plugin : plugins) {
+                 try {
+                     String message = String.format("Loading %s", plugin.getDescription().getFullName());
