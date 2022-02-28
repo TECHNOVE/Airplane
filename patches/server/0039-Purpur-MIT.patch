@@ -2236,7 +2236,7 @@ index 94f7f8238c01d203d28640c56e35deab2bf17bbc..a2343002ec47df867537d42dcf374df4
      protected ParticleOptions getInkParticle() {
          return ParticleTypes.GLOW_SQUID_INK;
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeecc3ce8434 100644
+index 25ec6788aac96691ab6241a56aadf87b765aa864..b77ba60af8522531d3126033462708711fa3284b 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -45,6 +45,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
@@ -2395,21 +2395,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeec
              EntityResurrectEvent event = new EntityResurrectEvent((org.bukkit.entity.LivingEntity) this.getBukkitEntity());
              event.setCancelled(itemstack == null);
              this.level.getCraftServer().getPluginManager().callEvent(event);
-@@ -1624,10 +1668,13 @@ public abstract class LivingEntity extends Entity {
-                 }
- 
-                 // Paper start
-+                List<List<ItemStack>> equipmentSnapshotBefore = this.cloneEquipment(); // Purpur
-                 org.bukkit.event.entity.EntityDeathEvent deathEvent = this.dropAllDeathLoot(source);
-                 if (deathEvent == null || !deathEvent.isCancelled()) {
-                     if (this.deathScore >= 0 && entityliving != null) {
-+                        this.restoreEquipment(equipmentSnapshotBefore); // Purpur
-                         entityliving.awardKillScore(this, this.deathScore, source);
-+                        this.clearEquipment(); // Purpur
-                     }
- 
-                     if (this.isSleeping()) {
-@@ -1662,7 +1709,7 @@ public abstract class LivingEntity extends Entity {
+@@ -1668,7 +1712,7 @@ public abstract class LivingEntity extends Entity {
              boolean flag = false;
  
              if (this.dead && adversary instanceof WitherBoss) { // Paper
@@ -2418,18 +2404,39 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeec
                      BlockPos blockposition = this.blockPosition();
                      BlockState iblockdata = Blocks.WITHER_ROSE.defaultBlockState();
  
-@@ -1704,8 +1751,10 @@ public abstract class LivingEntity extends Entity {
+@@ -1701,6 +1745,7 @@ public abstract class LivingEntity extends Entity {
+     protected Set<EquipmentSlot> clearedEquipmentSlots = new HashSet<>();
+     protected org.bukkit.event.entity.EntityDeathEvent dropAllDeathLoot(DamageSource source) {
+     // Paper end
++        List<List<ItemStack>> equipmentSnapshotBefore = this.cloneEquipment(); // Purpur
+         Entity entity = source.getEntity();
+         int i;
+ 
+@@ -1714,6 +1759,7 @@ public abstract class LivingEntity extends Entity {
  
          this.dropEquipment(); // CraftBukkit - from below
          if (this.shouldDropLoot() && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
 +            if (!(source == DamageSource.CRAMMING && level.purpurConfig.disableDropsOnCrammingDeath)) { // Purpur
              this.dropFromLootTable(source, flag);
+             // Paper start - collect cleared slots, but don't clear to run advancement triggers
+             final boolean prev = this.clearEquipmentSlots;
+@@ -1722,12 +1768,15 @@ public abstract class LivingEntity extends Entity {
+             // Paper end
              this.dropCustomDeathLoot(source, i, flag);
+             this.clearEquipmentSlots = prev; // Paper
 +            } // Purpur
          }
-         // CraftBukkit start - Call death event
-         org.bukkit.event.entity.EntityDeathEvent deathEvent = CraftEventFactory.callEntityDeathEvent(this, this.drops); // Paper
-@@ -1901,7 +1950,7 @@ public abstract class LivingEntity extends Entity {
+         // CraftBukkit start - Call death event // Paper start - run advancement triggers before destroying drop itemstacks
+         org.bukkit.event.entity.EntityDeathEvent deathEvent = CraftEventFactory.callEntityDeathEvent(this, this.drops, () -> {
+             final LivingEntity entityliving = this.getKillCredit();
+             if (this.deathScore >= 0 && entityliving != null) {
++                this.restoreEquipment(equipmentSnapshotBefore); // Purpur
+                 entityliving.awardKillScore(this, this.deathScore, source);
++                this.clearEquipment(); // Purpur
+             }
+         });
+         // Paper end
+@@ -1923,7 +1972,7 @@ public abstract class LivingEntity extends Entity {
          MobEffectInstance mobeffect = this.getEffect(MobEffects.JUMP);
          float f2 = mobeffect == null ? 0.0F : (float) (mobeffect.getAmplifier() + 1);
  
@@ -2438,7 +2445,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeec
      }
  
      protected void playBlockFallSound() {
-@@ -2116,6 +2165,20 @@ public abstract class LivingEntity extends Entity {
+@@ -2138,6 +2187,20 @@ public abstract class LivingEntity extends Entity {
                  ((ServerPlayer) damagesource.getEntity()).awardStat(Stats.DAMAGE_DEALT_ABSORBED, Math.round(f2 * 10.0F));
              }
  
@@ -2459,7 +2466,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeec
              if (f > 0 || !human) {
                  if (human) {
                      // PAIL: Be sure to drag all this code from the EntityHuman subclass each update.
-@@ -2396,7 +2459,7 @@ public abstract class LivingEntity extends Entity {
+@@ -2418,7 +2481,7 @@ public abstract class LivingEntity extends Entity {
  
      @Override
      protected void outOfWorld() {
@@ -2468,7 +2475,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeec
      }
  
      protected void updateSwingTime() {
-@@ -2495,6 +2558,12 @@ public abstract class LivingEntity extends Entity {
+@@ -2517,6 +2580,12 @@ public abstract class LivingEntity extends Entity {
      @Override
      public abstract void setItemSlot(EquipmentSlot slot, ItemStack stack);
  
@@ -2481,7 +2488,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeec
      protected void verifyEquippedItem(ItemStack stack) {
          CompoundTag nbttagcompound = stack.getTag();
  
-@@ -2585,7 +2654,7 @@ public abstract class LivingEntity extends Entity {
+@@ -2607,7 +2676,7 @@ public abstract class LivingEntity extends Entity {
      }
  
      protected long lastJumpTime = 0L; // Paper - add critical damage API
@@ -2490,7 +2497,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeec
          double d0 = (double) this.getJumpPower() + this.getJumpBoostPower();
          Vec3 vec3d = this.getDeltaMovement();
          // Paper start - add critical damage API
-@@ -2742,7 +2811,11 @@ public abstract class LivingEntity extends Entity {
+@@ -2764,7 +2833,11 @@ public abstract class LivingEntity extends Entity {
  
                      if (f4 > 0.0F) {
                          this.playSound(this.getFallDamageSound((int) f4), 1.0F, 1.0F);
@@ -2503,7 +2510,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeec
                      }
                  }
  
-@@ -2903,7 +2976,7 @@ public abstract class LivingEntity extends Entity {
+@@ -2925,7 +2998,7 @@ public abstract class LivingEntity extends Entity {
              }
          }
  
@@ -2512,7 +2519,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeec
          double d0 = this.getX() - this.xo;
          double d1 = this.getZ() - this.zo;
          float f = (float) (d0 * d0 + d1 * d1);
-@@ -3250,8 +3323,10 @@ public abstract class LivingEntity extends Entity {
+@@ -3272,8 +3345,10 @@ public abstract class LivingEntity extends Entity {
          this.pushEntities();
          this.level.getProfiler().pop();
          // Paper start
@@ -2525,7 +2532,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeec
                  Location from = new Location(this.level.getWorld(), this.xo, this.yo, this.zo, this.yRotO, this.xRotO);
                  Location to = new Location (this.level.getWorld(), this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
                  io.papermc.paper.event.entity.EntityMoveEvent event = new io.papermc.paper.event.entity.EntityMoveEvent(this.getBukkitLivingEntity(), from, to.clone());
-@@ -3261,12 +3336,48 @@ public abstract class LivingEntity extends Entity {
+@@ -3283,12 +3358,48 @@ public abstract class LivingEntity extends Entity {
                      absMoveTo(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ(), event.getTo().getYaw(), event.getTo().getPitch());
                  }
              }
@@ -2574,7 +2581,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeec
      }
  
      public boolean isSensitiveToWater() {
-@@ -3287,7 +3398,16 @@ public abstract class LivingEntity extends Entity {
+@@ -3309,7 +3420,16 @@ public abstract class LivingEntity extends Entity {
                      int j = i / 10;
  
                      if (j % 2 == 0) {
@@ -2593,7 +2600,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..da899130244e5e86292b6e2c4482eeec
                          });
                      }
 diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
-index b247d9dc2b2f5b4a6e87ca35e2a08f9be4e7a7b4..50526fd30e84f8812454c264afd79f11c2190a35 100644
+index d5d9b9dd062d490c6b42dd2e18fe073047710b3a..8019118143dd8e1f16e34552037a1dd1037ed738 100644
 --- a/src/main/java/net/minecraft/world/entity/Mob.java
 +++ b/src/main/java/net/minecraft/world/entity/Mob.java
 @@ -62,6 +62,7 @@ import net.minecraft.world.item.ProjectileWeaponItem;
@@ -2745,7 +2752,7 @@ index b247d9dc2b2f5b4a6e87ca35e2a08f9be4e7a7b4..50526fd30e84f8812454c264afd79f11
      @Override
      protected void dropCustomDeathLoot(DamageSource source, int lootingMultiplier, boolean allowDrops) {
          super.dropCustomDeathLoot(source, lootingMultiplier, allowDrops);
-@@ -1075,6 +1147,12 @@ public abstract class Mob extends LivingEntity {
+@@ -1081,6 +1153,12 @@ public abstract class Mob extends LivingEntity {
  
      }
  
@@ -2758,7 +2765,7 @@ index b247d9dc2b2f5b4a6e87ca35e2a08f9be4e7a7b4..50526fd30e84f8812454c264afd79f11
      @Nullable
      public static Item getEquipmentForSlot(EquipmentSlot equipmentSlot, int equipmentLevel) {
          switch (equipmentSlot) {
-@@ -1167,7 +1245,7 @@ public abstract class Mob extends LivingEntity {
+@@ -1173,7 +1251,7 @@ public abstract class Mob extends LivingEntity {
      @Nullable
      public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType spawnReason, @Nullable SpawnGroupData entityData, @Nullable CompoundTag entityNbt) {
          this.getAttribute(Attributes.FOLLOW_RANGE).addPermanentModifier(new AttributeModifier("Random spawn bonus", this.random.nextGaussian() * 0.05D, AttributeModifier.Operation.MULTIPLY_BASE));
@@ -2767,7 +2774,7 @@ index b247d9dc2b2f5b4a6e87ca35e2a08f9be4e7a7b4..50526fd30e84f8812454c264afd79f11
              this.setLeftHanded(true);
          } else {
              this.setLeftHanded(false);
-@@ -1219,6 +1297,7 @@ public abstract class Mob extends LivingEntity {
+@@ -1225,6 +1303,7 @@ public abstract class Mob extends LivingEntity {
          if (!this.isAlive()) {
              return InteractionResult.PASS;
          } else if (this.getLeashHolder() == player) {
@@ -2775,7 +2782,7 @@ index b247d9dc2b2f5b4a6e87ca35e2a08f9be4e7a7b4..50526fd30e84f8812454c264afd79f11
              // CraftBukkit start - fire PlayerUnleashEntityEvent
              // Paper start - drop leash variable
              org.bukkit.event.player.PlayerUnleashEntityEvent event = CraftEventFactory.callPlayerUnleashEntityEvent(this, player, !player.getAbilities().instabuild);
-@@ -1285,7 +1364,7 @@ public abstract class Mob extends LivingEntity {
+@@ -1291,7 +1370,7 @@ public abstract class Mob extends LivingEntity {
      protected void onOffspringSpawnedFromEgg(Player player, Mob child) {}
  
      protected InteractionResult mobInteract(Player player, InteractionHand hand) {
@@ -2784,7 +2791,7 @@ index b247d9dc2b2f5b4a6e87ca35e2a08f9be4e7a7b4..50526fd30e84f8812454c264afd79f11
      }
  
      public boolean isWithinRestriction() {
-@@ -1582,6 +1661,7 @@ public abstract class Mob extends LivingEntity {
+@@ -1588,6 +1667,7 @@ public abstract class Mob extends LivingEntity {
              this.setLastHurtMob(target);
          }
  
@@ -2792,7 +2799,7 @@ index b247d9dc2b2f5b4a6e87ca35e2a08f9be4e7a7b4..50526fd30e84f8812454c264afd79f11
          return flag;
      }
  
-@@ -1598,17 +1678,7 @@ public abstract class Mob extends LivingEntity {
+@@ -1604,17 +1684,7 @@ public abstract class Mob extends LivingEntity {
      }
  
      public boolean isSunBurnTick() {
@@ -2811,7 +2818,7 @@ index b247d9dc2b2f5b4a6e87ca35e2a08f9be4e7a7b4..50526fd30e84f8812454c264afd79f11
      }
  
      @Override
-@@ -1646,4 +1716,52 @@ public abstract class Mob extends LivingEntity {
+@@ -1652,4 +1722,52 @@ public abstract class Mob extends LivingEntity {
  
          return itemmonsteregg == null ? null : new ItemStack(itemmonsteregg);
      }
@@ -19889,7 +19896,7 @@ index f856b42201c17f8da21251e54fcf052336916e70..ac0803d42be2f36a2f40487ee31413d0
 +    // Purpur end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
-index aaf47d3f58819ead3553973c159c5c6eec4abe43..6d38c0478210bf264afd48be3e7ba7fee296ebc1 100644
+index ea01507f96d81c6fbcfeb65902017bbc332de650..8a13d866dc4740d922ff58679d85942844840280 100644
 --- a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
 +++ b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
 @@ -542,6 +542,15 @@ public class CraftEventFactory {
@@ -19908,7 +19915,7 @@ index aaf47d3f58819ead3553973c159c5c6eec4abe43..6d38c0478210bf264afd48be3e7ba7fe
          return event;
      }
  
-@@ -965,6 +974,7 @@ public class CraftEventFactory {
+@@ -971,6 +980,7 @@ public class CraftEventFactory {
                      damageCause = DamageCause.ENTITY_EXPLOSION;
                  }
                  event = new EntityDamageByEntityEvent(damager.getBukkitEntity(), entity.getBukkitEntity(), damageCause, modifiers, modifierFunctions, source.isCritical()); // Paper - add critical damage API
@@ -19916,7 +19923,7 @@ index aaf47d3f58819ead3553973c159c5c6eec4abe43..6d38c0478210bf264afd48be3e7ba7fe
              }
              event.setCancelled(cancelled);
  
-@@ -1050,6 +1060,7 @@ public class CraftEventFactory {
+@@ -1056,6 +1066,7 @@ public class CraftEventFactory {
              if (!event.isCancelled()) {
                  event.getEntity().setLastDamageCause(event);
              }
@@ -19924,7 +19931,7 @@ index aaf47d3f58819ead3553973c159c5c6eec4abe43..6d38c0478210bf264afd48be3e7ba7fe
              return event;
          }
  
-@@ -1109,6 +1120,7 @@ public class CraftEventFactory {
+@@ -1115,6 +1126,7 @@ public class CraftEventFactory {
          EntityDamageEvent event;
          if (damager != null) {
              event = new EntityDamageByEntityEvent(damager.getBukkitEntity(), damagee.getBukkitEntity(), cause, modifiers, modifierFunctions, critical); // Paper - add critical damage API
