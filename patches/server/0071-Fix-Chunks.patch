@@ -1,0 +1,181 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jacob <jacob@stellardev.org>
+Date: Fri, 18 Feb 2022 21:04:44 -0700
+Subject: [PATCH] Fix Chunks
+
+
+diff --git a/src/main/java/com.nftworlds/NFTWorldsConfig.java b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+index 12cffb1b7aab99606df0b4ed8296588637f93eaf..054608653984024927ae8f01d948da80d3895176 100644
+--- a/src/main/java/com.nftworlds/NFTWorldsConfig.java
++++ b/src/main/java/com.nftworlds/NFTWorldsConfig.java
+@@ -388,4 +388,7 @@ public class NFTWorldsConfig {
+     public static boolean prepackageViaVersion = false;
+     private static void prepackageViaVersion() { prepackageViaVersion = getBoolean("prepackage.viaversion", false); }
+ 
++    public static int ticksBetweenChunkPurging = 1;
++    private static void ticksBetweenChunkPurging() { ticksBetweenChunkPurging = getInt("ticks-between-chunk-purging", 1); };
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/net/minecraft/server/level/DistanceManager.java b/src/main/java/net/minecraft/server/level/DistanceManager.java
+index 24fa3d847f7c0aec52133ffc658cd90a602a44d5..4ad661a65bdf8a7e1c49980ddf6e633a210dc3ca 100644
+--- a/src/main/java/net/minecraft/server/level/DistanceManager.java
++++ b/src/main/java/net/minecraft/server/level/DistanceManager.java
+@@ -3,6 +3,7 @@ package net.minecraft.server.level;
+ import com.google.common.collect.ImmutableList;
+ import com.google.common.collect.Sets;
+ import com.mojang.datafixers.util.Either;
++import com.nftworlds.NFTWorldsConfig;
+ import it.unimi.dsi.fastutil.longs.Long2ByteMap;
+ import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
+ import it.unimi.dsi.fastutil.longs.Long2IntMap;
+@@ -120,22 +121,23 @@ public abstract class DistanceManager {
+ 
+     protected void purgeStaleTickets() {
+         ++this.ticketTickCounter;
+-        ObjectIterator objectiterator = this.tickets.long2ObjectEntrySet().fastIterator();
++        if (ticketTickCounter % NFTWorldsConfig.ticksBetweenChunkPurging == 0) {
++            ObjectIterator objectiterator = this.tickets.long2ObjectEntrySet().fastIterator();
+ 
+-        while (objectiterator.hasNext()) {
+-            Entry<SortedArraySet<Ticket<?>>> entry = (Entry) objectiterator.next();
++            while (objectiterator.hasNext()) {
++                Entry<SortedArraySet<Ticket<?>>> entry = (Entry) objectiterator.next();
+ 
+-            if ((entry.getValue()).removeIf((ticket) -> { // CraftBukkit - decompile error
+-                return ticket.timedOut(this.ticketTickCounter);
+-            })) {
+-                this.updateTicketLevel(entry.getLongKey(), getTicketLevelAt(entry.getValue())); // Paper - replace ticket level propagator
+-            }
++                if ((entry.getValue()).removeIf((ticket) -> { // CraftBukkit - decompile error
++                    return ticket.timedOut(this.ticketTickCounter);
++                })) {
++                    this.updateTicketLevel(entry.getLongKey(), getTicketLevelAt(entry.getValue())); // Paper - replace ticket level propagator
++                }
+ 
+-            if (((SortedArraySet) entry.getValue()).isEmpty()) {
+-                objectiterator.remove();
++                if (((SortedArraySet) entry.getValue()).isEmpty()) {
++                    objectiterator.remove();
++                }
+             }
+         }
+-
+     }
+ 
+     private static int getTicketLevelAt(SortedArraySet<Ticket<?>> arraysetsorted) {
+diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+index d56d808feaef6e9e6904786c438c96d7434b0e52..395031e6a743f75f09884d17fe72e2167f377c25 100644
+--- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
++++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+@@ -116,23 +116,12 @@ public class ServerChunkCache extends ChunkSource {
+         }
+     }
+ 
+-    public LevelChunk cachedChunk = null;
+-
+     public final LevelChunk getChunkAtIfLoadedMainThread(int x, int z) {
+-        if (NFTWorldsConfig.optimizeChunkLookups) {
+-            LevelChunk chunk = cachedChunk;
+-            if (chunk != null && chunk.locX == x && chunk.locZ == z && chunk.loaded) {
+-                this.cachedChunk = chunk;
+-                return chunk;
+-            }
+-        }
+-
+         int cacheKey = getChunkCacheKey(x, z);
+ 
+         LevelChunk cachedChunk = this.lastLoadedChunks[cacheKey];
+         if (cachedChunk != null && cachedChunk.locX == x & cachedChunk.locZ == z) {
+             LevelChunk levelChunk = this.lastLoadedChunks[cacheKey];
+-            this.cachedChunk = levelChunk;
+             return levelChunk;
+         }
+ 
+@@ -141,7 +130,6 @@ public class ServerChunkCache extends ChunkSource {
+         cachedChunk = this.loadedChunkMap.get(chunkKey);
+         // Skipping a null check to avoid extra instructions to improve inline capability
+         this.lastLoadedChunks[cacheKey] = cachedChunk;
+-        this.cachedChunk = cachedChunk;
+         return cachedChunk;
+     }
+ 
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 5c424cf1ddb3cda2f6eb3338163e8d3260ef145b..0160c809429a19277b522cb4cc15b36668ca041c 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -360,10 +360,6 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+ 
+     public long lastMovement;
+ 
+-    public ChunkAccess lastChunkLookup = null;
+-    public int lastI = Integer.MAX_VALUE;
+-    public int lastJ = Integer.MAX_VALUE;
+-
+     public float getBukkitYaw() {
+         return this.yRot;
+     }
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index 2995ea7189c5a8f98474aa5a65cfa48febd9584a..fc906443c9b72f7e99eddb0d082365c9299f6be8 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -654,21 +654,12 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+     }
+ 
+     public final ChunkAccess getChunkEntity(Entity e, int chunkX, int chunkZ, ChunkStatus leastStatus, boolean create) { // Paper - final for inline
+-        if (NFTWorldsConfig.optimizeEntityChunkLookups) {
+-            if (e.lastI == chunkX && e.lastJ == chunkZ) return e.lastChunkLookup;
+-            e.lastI /*= lastI*/ = chunkX;
+-            e.lastJ /*= lastJ*/ = chunkZ;
+-        }
+-
+         ChunkAccess ichunkaccess = this.getChunkSource().getChunk(chunkX, chunkZ, leastStatus, create);
+ 
+         if (ichunkaccess == null && create) {
+-            e.lastChunkLookup = null;
+-            e.lastI = Integer.MAX_VALUE;
+-            e.lastJ = Integer.MAX_VALUE;
+             throw new IllegalStateException("Should always be able to create a chunk!");
+         } else {
+-            return e.lastChunkLookup = ichunkaccess;
++            return ichunkaccess;
+         }
+     }
+ 
+@@ -1008,10 +999,6 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+         }
+     }
+ 
+-    public ChunkAccess lastCollisionChunk = null;
+-    public int lastCollisionChunkX = Integer.MAX_VALUE;
+-    public int lastCollisionChunkZ = Integer.MAX_VALUE;
+-
+     public BlockState getBlockState(Entity e, BlockPos pos) {
+         // CraftBukkit start - tree generation
+         if (this.captureTreeGeneration) {
+@@ -1024,23 +1011,8 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+         if (this.isOutsideBuildHeight(pos)) {
+             return Blocks.VOID_AIR.defaultBlockState();
+         } else {
+-            if (NFTWorldsConfig.optimizeCollisionChunkLookups) {
+-                ChunkAccess chunk;
+-                int x = pos.getX() >> 4;
+-                int z = pos.getZ() >> 4;
+-                if (x == lastCollisionChunkX && z == lastCollisionChunkZ) {
+-                    chunk = lastCollisionChunk;
+-                } else {
+-                    chunk = this.getChunkEntity(e, pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, true); // Paper - manually inline to reduce hops and avoid unnecessary null check to reduce total byte code size, this should never return null and if it does we will see it the next line but the real stack trace will matter in the chunk engine
+-                    lastCollisionChunkX = x;
+-                    lastCollisionChunkZ = z;
+-                    lastCollisionChunk = chunk;
+-                }
+-                return chunk.getBlockState(pos);
+-            } else {
+-                ChunkAccess chunk = this.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, true); // Paper - manually inline to reduce hops and avoid unnecessary null check to reduce total byte code size, this should never return null and if it does we will see it the next line but the real stack trace will matter in the chunk engine
+-                return chunk.getBlockState(pos);
+-            }
++            ChunkAccess chunk = this.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, true); // Paper - manually inline to reduce hops and avoid unnecessary null check to reduce total byte code size, this should never return null and if it does we will see it the next line but the real stack trace will matter in the chunk engine
++            return chunk.getBlockState(pos);
+         }
+     }
+ 
