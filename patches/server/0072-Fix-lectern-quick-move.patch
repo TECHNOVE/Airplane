@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: jacob <jacob@stellardev.org>
+Date: Thu, 28 Apr 2022 15:23:40 -0700
+Subject: [PATCH] Fix lectern quick move
+
+
+diff --git a/src/main/java/net/minecraft/world/inventory/LecternMenu.java b/src/main/java/net/minecraft/world/inventory/LecternMenu.java
+index ff79925bc6437222f9ceb133e21bbc0600cc74ed..40974e034ab70e1d45f57b9e1068ce0f6626d85a 100644
+--- a/src/main/java/net/minecraft/world/inventory/LecternMenu.java
++++ b/src/main/java/net/minecraft/world/inventory/LecternMenu.java
+@@ -140,4 +140,11 @@ public class LecternMenu extends AbstractContainerMenu {
+     public int getPage() {
+         return this.lecternData.get(0);
+     }
++
++    // Paper start
++    @Override
++    public ItemStack quickMoveStack(net.minecraft.world.entity.player.Player player, int index) {
++        return ItemStack.EMPTY;
++    }
++    // Paper end
+ }
