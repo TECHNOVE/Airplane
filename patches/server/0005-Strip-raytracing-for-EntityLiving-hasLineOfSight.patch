@@ -27,10 +27,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 465dab588e770bf4d1e645e1f451a066f388014a..0b787ae1fd72507560589d27ac901111e46814b0 100644
+index 7d2e106931f6d3eef5159eca9621bf158ee726c4..27709b866270374aee26c915d9c07309dbf46b18 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -3444,7 +3444,10 @@ public abstract class LivingEntity extends Entity {
+@@ -3466,7 +3466,10 @@ public abstract class LivingEntity extends Entity {
              Vec3 vec3d1 = new Vec3(entity.getX(), entity.getEyeY(), entity.getZ());
  
              // Paper - diff on change - used in CraftLivingEntity#hasLineOfSight(Location) and CraftWorld#lineOfSightExists
