@@ -168,9 +168,10 @@ index aaf47d3f58819ead3553973c159c5c6eec4abe43..78d4d7108e1ac32a4e0e9420979c6769
  import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
  import net.minecraft.world.entity.item.ItemEntity;
  import net.minecraft.world.entity.monster.Ghast;
-@@ -870,10 +869,15 @@ public class CraftEventFactory {
+@@ -875,10 +874,15 @@ public class CraftEventFactory {
          // Paper end
          victim.expToDrop = event.getDroppedExp();
+         lootCheck.run(); // Paper - run advancement triggers before destroying the equipment stacks below
  
 +        boolean golem = NFTWorldsConfig.betterGolemFarms && victim instanceof IronGolem;
 +
