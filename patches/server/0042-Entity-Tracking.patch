@@ -116,7 +116,7 @@ index c958a00535c0f7a015a7a566b97e2c80fc9a0efd..5d785c65a881e10efdb6050617835873
                      // Paper end
                  } else {
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 518de03b7f4e4b7c0db48102d6f66376ef6fcd6c..95d1295775bd25517e9f823d7460b58af9f81208 100644
+index 2d2c4e2a6666d14c8e9cfaedc5af94f6106a3951..5609e4a8208b157d24bebdbcf5c2b8c1ee3e2a97 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -48,6 +48,7 @@ import java.util.Random;
@@ -353,7 +353,7 @@ index a453aac607f9b38f0bf90038ff2d8071687c4bae..546cedd234bb6b3e093ef4ea6d06c0c6
  
                  if (event.isCancelled()) {
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 7c8eaf0e23b24a484a21b6c4a732b488b246b5b9..66cb818d745c4a0a84795a06d4635233c4f2cbaf 100644
+index f7eb3bf48d4fb5b3bd4308482cedf35cf279e278..807bbde533987b5a4d0b967c26b2cf323a4a90a3 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -2407,29 +2407,33 @@ public class ServerLevel extends Level implements WorldGenLevel {
@@ -407,7 +407,7 @@ index 7c8eaf0e23b24a484a21b6c4a732b488b246b5b9..66cb818d745c4a0a84795a06d4635233
              // Spigot end
              // Spigot Start
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 060cc83d35fb047a4ce5d2f9554827ea917f313d..13916dc638ce830c8f0573ab8326584b8401cc75 100644
+index 85c39890f8851a272bffc01f89bb696e9196ba17..2042ce6a83e0a5d4bf3871f28d05f5e59a831b2d 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -133,6 +133,7 @@ import java.util.ArrayList;
@@ -418,7 +418,7 @@ index 060cc83d35fb047a4ce5d2f9554827ea917f313d..13916dc638ce830c8f0573ab8326584b
  import org.bukkit.Location;
  import org.bukkit.craftbukkit.attribute.CraftAttributeMap;
  import org.bukkit.craftbukkit.event.CraftEventFactory;
-@@ -3035,7 +3036,7 @@ public abstract class LivingEntity extends Entity {
+@@ -3057,7 +3058,7 @@ public abstract class LivingEntity extends Entity {
                  if (this instanceof ServerPlayer && enumitemslot.getType() == EquipmentSlot.Type.ARMOR) {
                      final org.bukkit.inventory.ItemStack oldItem = CraftItemStack.asBukkitCopy(itemstack);
                      final org.bukkit.inventory.ItemStack newItem = CraftItemStack.asBukkitCopy(itemstack1);

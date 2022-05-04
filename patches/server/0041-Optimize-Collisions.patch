@@ -91,7 +91,7 @@ index 2cad495e834300cdd3ee65cdf43d28ae602c9625..db0105566db7ab5f3bd937a334acf224
                          this.push(-d0, 0.0D, -d1);
                      }
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index f2007f21ddae5402ffef59d33cab1bc50c7b300f..060cc83d35fb047a4ce5d2f9554827ea917f313d 100644
+index 635525254e53e2f7e17c33c56f467de8f040f4eb..85c39890f8851a272bffc01f89bb696e9196ba17 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -104,10 +104,7 @@ import net.minecraft.world.item.alchemy.PotionUtils;
@@ -106,7 +106,7 @@ index f2007f21ddae5402ffef59d33cab1bc50c7b300f..060cc83d35fb047a4ce5d2f9554827ea
  import net.minecraft.world.level.block.AbstractSkullBlock;
  import net.minecraft.world.level.block.BedBlock;
  import net.minecraft.world.level.block.Blocks;
-@@ -3284,7 +3281,18 @@ public abstract class LivingEntity extends Entity {
+@@ -3306,7 +3303,18 @@ public abstract class LivingEntity extends Entity {
              this.checkAutoSpinAttack(axisalignedbb, this.getBoundingBox());
          }
  
@@ -127,7 +127,7 @@ index f2007f21ddae5402ffef59d33cab1bc50c7b300f..060cc83d35fb047a4ce5d2f9554827ea
          // Paper start
          if (((ServerLevel) this.level).hasEntityMoveEvent && !(this instanceof net.minecraft.world.entity.player.Player)) {
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index f66894df2902a1f1bba1dd69a3c3ee229fbe13f6..bfb910a511521f5ab16ea4e0000cb054f4bc6b73 100644
+index 7bd53805a6016c2bcf958fdc6a7fd1f5f3e1f6d7..1353a36698b15020f1b1d067d405382ad66368a9 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -219,6 +219,14 @@ public abstract class Level implements LevelAccessor, AutoCloseable {

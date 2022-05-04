@@ -52,7 +52,7 @@ index d697aa2b18e13026a9377e990d966e7dcf924fb9..37d4a01008f58ee8d3df6f38d3d0a7b8
              if (!AirplaneConfig.dearEnabled) {
                  changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index ab42a69bdf3adb1bef9165e2eec0fee6c3ca46d9..518de03b7f4e4b7c0db48102d6f66376ef6fcd6c 100644
+index d1b41bcd4120e39621f67dc7f431d883612d3e50..2d2c4e2a6666d14c8e9cfaedc5af94f6106a3951 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -288,6 +288,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -82,7 +82,7 @@ index ab42a69bdf3adb1bef9165e2eec0fee6c3ca46d9..518de03b7f4e4b7c0db48102d6f66376
  
                      if (i > 5000L && this.nextTickTime - this.lastOverloadWarning >= 30000L) { // CraftBukkit
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index df12ba04df24e1c70c43e00283ea2a78ae2ca422..f2007f21ddae5402ffef59d33cab1bc50c7b300f 100644
+index 0ed010c44d3994d17df57c17e38bd9ac2dfd3442..635525254e53e2f7e17c33c56f467de8f040f4eb 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -20,6 +20,8 @@ import java.util.Random;
@@ -125,7 +125,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..f2007f21ddae5402ffef59d33cab1bc5
  
      @Override
      public float getBukkitYaw() {
-@@ -2863,6 +2873,9 @@ public abstract class LivingEntity extends Entity {
+@@ -2885,6 +2895,9 @@ public abstract class LivingEntity extends Entity {
  
      @Override
      public void tick() {
@@ -135,7 +135,7 @@ index df12ba04df24e1c70c43e00283ea2a78ae2ca422..f2007f21ddae5402ffef59d33cab1bc5
          super.tick();
          this.updatingUsingItem();
          this.updateSwimAmount();
-@@ -3176,9 +3189,33 @@ public abstract class LivingEntity extends Entity {
+@@ -3198,9 +3211,33 @@ public abstract class LivingEntity extends Entity {
              this.xxa = 0.0F;
              this.zza = 0.0F;
          } else if (this.isEffectiveAi()) {

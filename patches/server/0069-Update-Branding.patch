@@ -5,10 +5,10 @@ Subject: [PATCH] Update Branding
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 3823eaa2facbe9cb1dfaa81801e3686228a53909..59e97550e54c2acb9a122903531e027a8701bc3c 100644
+index 408b85c21f8330e3f955237317706a46e0a5a81d..5b5c706ea48901d5545e65b4b3830def9d283a61 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -22,7 +22,7 @@ repositories {
+@@ -13,7 +13,7 @@ plugins {
  }
  
  dependencies {

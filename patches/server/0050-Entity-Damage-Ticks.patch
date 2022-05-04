@@ -55,7 +55,7 @@ index 7d77829b46d4d6c44b2cf980b93b3ae867102615..930291428fcf0d72c6a5371eab031edb
              if (!AirplaneConfig.dearEnabled) {
                  changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 13916dc638ce830c8f0573ab8326584b8401cc75..4a94a02c43fd04cf302bce94a3bf06561cd6457c 100644
+index 2042ce6a83e0a5d4bf3871f28d05f5e59a831b2d..bc53b0623089ecaae53d75e0f19831a4c1c9a5cd 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -92,6 +92,7 @@ import net.minecraft.world.entity.monster.Monster;
@@ -99,7 +99,7 @@ index 13916dc638ce830c8f0573ab8326584b8401cc75..4a94a02c43fd04cf302bce94a3bf0656
                  // this.damageEntity0(damagesource, f);
                  // CraftBukkit end
                  this.hurtDuration = 10;
-@@ -2385,14 +2401,15 @@ public abstract class LivingEntity extends Entity {
+@@ -2407,14 +2423,15 @@ public abstract class LivingEntity extends Entity {
      }
  
      private void makePoofParticles() {

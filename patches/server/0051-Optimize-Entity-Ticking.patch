@@ -124,7 +124,7 @@ index 930291428fcf0d72c6a5371eab031edb34b37c73..3e2cfb2fce5c2bf3eeee275fb6172325
              if (!AirplaneConfig.dearEnabled) {
                  changes.add("dab.enabled §7|§f§o Change to §a§lTRUE");
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 66cb818d745c4a0a84795a06d4635233c4f2cbaf..f318f961e02d8dfc96be8311a33707997dbe58b7 100644
+index 807bbde533987b5a4d0b967c26b2cf323a4a90a3..6a808bfa28faac097dc8e28b41fff6416dc6758a 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
@@ -336,7 +336,7 @@ index 90ee71d3a05427068f26992814bf8d4dcc51ef8d..f090d03bbbc8be50ad16ad798eb41609
              }
  
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 4a94a02c43fd04cf302bce94a3bf06561cd6457c..6cf117086e5b0b04341814b22809a9a7a17f5aaf 100644
+index bc53b0623089ecaae53d75e0f19831a4c1c9a5cd..81f06aae3abb4da750490714b0904c771cedabd2 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -401,17 +401,19 @@ public abstract class LivingEntity extends Entity {
@@ -439,7 +439,7 @@ index 4a94a02c43fd04cf302bce94a3bf06561cd6457c..6cf117086e5b0b04341814b22809a9a7
                  }
              }
          }
-@@ -4292,4 +4296,12 @@ public abstract class LivingEntity extends Entity {
+@@ -4314,4 +4318,12 @@ public abstract class LivingEntity extends Entity {
          this.absMoveTo(d0, d1, d2, f, f1);
          this.setDeltaMovement((double) ((float) packet.getXd() / 8000.0F), (double) ((float) packet.getYd() / 8000.0F), (double) ((float) packet.getZd() / 8000.0F));
      }
@@ -453,7 +453,7 @@ index 4a94a02c43fd04cf302bce94a3bf06561cd6457c..6cf117086e5b0b04341814b22809a9a7
 +
  }
 diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
-index 5bda57e44c0ba27ec1623b593cc80d760cdb1637..340c604a27810e30364275364c5687140ca6a6c9 100644
+index 81838f8f5aa04a8898d9544b8606d10bb49e5481..d90473f763971101881fc4c08d963194bee3e443 100644
 --- a/src/main/java/net/minecraft/world/entity/Mob.java
 +++ b/src/main/java/net/minecraft/world/entity/Mob.java
 @@ -627,6 +627,11 @@ public abstract class Mob extends LivingEntity {
@@ -584,7 +584,7 @@ index 05dcd51c561f9fedf4ee5891a378b0ba7d66d2c4..33f69da297a4139ba8fe8e56f22c341a
  
      public boolean blockActionRestricted(Level world, BlockPos pos, GameType gameMode) {
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index bfb910a511521f5ab16ea4e0000cb054f4bc6b73..f2e6d457bf9d4450dc1e46fa51749ce90f483e57 100644
+index 1353a36698b15020f1b1d067d405382ad66368a9..638f55032cff2c33623a8a21ab1e8f405f5eb961 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -16,6 +16,8 @@ import java.util.function.Consumer;

@@ -144,7 +144,7 @@ index 0bd800e1aeda87689a6c56ee6fadda381c74a4ff..99ce2332f88e08e894018a11e97380d0
      public boolean isInvulnerable() {
          return this.getHandle().isInvulnerableTo(DamageSource.GENERIC);
 diff --git a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
-index aaf47d3f58819ead3553973c159c5c6eec4abe43..78d4d7108e1ac32a4e0e9420979c67699450c411 100644
+index ea01507f96d81c6fbcfeb65902017bbc332de650..34c5637ef486ec91253d71f5d7fb989d3f14e82e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
 +++ b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
 @@ -12,6 +12,8 @@ import java.util.List;
@@ -168,8 +168,7 @@ index aaf47d3f58819ead3553973c159c5c6eec4abe43..78d4d7108e1ac32a4e0e9420979c6769
  import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
  import net.minecraft.world.entity.item.ItemEntity;
  import net.minecraft.world.entity.monster.Ghast;
-@@ -875,10 +874,15 @@ public class CraftEventFactory {
-         // Paper end
+@@ -876,10 +875,15 @@ public class CraftEventFactory {
          victim.expToDrop = event.getDroppedExp();
          lootCheck.run(); // Paper - run advancement triggers before destroying the equipment stacks below
  
